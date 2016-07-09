@@ -20,10 +20,10 @@ software that manages access to the data.
 
 This document will be focusing on some of the concepts
 motivating the rest of the architecture and data formats.
-Please refer to [Lightning Concepts](Lightning-Architecture.md)
+Please refer to [Lightning Architecture](Lightning-Architecture.md)
 for a description on the Lightning architecture.
 and
-[Lightning Data](Lightning-Data.md]) for references to the
+[Lightning Data](Lightning-Data.md) for references to the
 data structures used.
 
 

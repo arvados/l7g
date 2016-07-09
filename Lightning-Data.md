@@ -34,7 +34,7 @@ Data Overview
 Here is a list of the main data components:
 
 * Compact genome format files (CGF), one for each data genomic set
-* Tile libarary, holding the underlying sequence
+* Tile library, holding the underlying sequence
 * Tagset library, holding the tile sequences
 * Assembly data, holding the mapping of reference genomes to tile boundaries
 * Tile span information
@@ -50,7 +50,7 @@ database and the untap database provided:
 
 * ClinVar database, holding ClinVar variants and their tile mappings
 * untap database, holding phenotype information for individuals from
-  the iHarvard Personal Genome Project and their mapping to the CGF datasets
+  the Harvard Personal Genome Project and their mapping to the CGF datasets
   above
 
 Compact Genome Format Files
@@ -116,7 +116,7 @@ ctatatttctctcagtttttggcaaatggattttgacacattgttgttat
 gattgttacaccttcctgatgcattggctttgttgtcattgtaa
 ```
 
-For the 651 samples, 433 thousand genome datasets, 217 Harver Personal Genome Project datasets and
+For the 651 samples, 433 thousand genome datasets, 217 Harvard Personal Genome Project datasets and
 the hg19 reference, the tile library totals 9GiB.
 The latest tile library can be found at:
 
@@ -159,11 +159,11 @@ The mapping between a reference genome and which tile position they map to are k
 in a compressed and indexed text file,
 The text file consists of a header followed by fixed with data.  The header is
 a greater than symbol (`>`) followed by a triple of the reference name, chromosome
-name and 4 digit ascii hex tile path, delimited by a colon (`:`).
+name and 4 digit ASCII hex tile path, delimited by a colon (`:`).
 The subsequent data is a tilestep
 followed by a non-inclusive, 0 index, ending base position of the tile.
 Each tilestep and ending position are on individual lines with a tab (`\t`) immediately
-following the 4 (ascii) hex digit tile step and spaces left padding the (base 10)
+following the 4 (ASCII) hex digit tile step and spaces left padding the (base 10)
 ending tile position, padding to make a total of 10 characters.
 
 For example, here is a portion of the `assembly.00.hg19.fw.gz` file:
@@ -190,7 +190,7 @@ For example, here is a portion of the `assembly.00.hg19.fw.gz` file:
 ```
 In addition to the fixed width file, a fixed width index file, reminiscent of
 a FASTA index file, is used as an index file.  The format is a tab
-delimted sequence name, size (in bytes), start (excluding header, in bytes),
+delimited sequence name, size (in bytes), start (excluding header, in bytes),
 line length (in bytes, excluding ending newline) and total line length (including
 newline, in bytes).
 
@@ -225,7 +225,7 @@ matches an unaltered tile tag.  The information for how many tags these variant 
 the span data file.
 
 The span file consists of ASCII CSV file (`,` delimited), with a `4`, `2`, `4`, `3` hex
-tile ID, follwed by the span number (in decimal).  Only tile span information for tiles
+tile ID, followed by the span number (in decimal).  Only tile span information for tiles
 that are other than span of 1 are held.
 
 For example:
@@ -253,7 +253,7 @@ Simple Genome Library Format
 ---
 
 The simple genome library format (SGLF) is used as a verbose, intermediate format for help
-in coversion to the more size compact cousins.
+in conversion to the more size compact cousins.
 
 The SGLF files are compressed CSV files, one per tile path.  The columns are the `4`, `2`, `4`, `3`
 formatted tile id followed by a `+` and span information (in decimal), followed by the md5sum
@@ -287,7 +287,7 @@ The current size is ~24GiB.  The current SGLF can be found at:
 FastJ
 ---
 
-FastJ is remeniscent of the FASTA file except the header line is replaced by a JSON string.
+FastJ is reminiscent of the FASTA file except the header line is replaced by a JSON string.
 See the [FastJ](FastJ-Schema.md) for details.
 
 Since FastJ is so verbose, it's used as an intermediate format to construct the tile library and

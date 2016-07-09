@@ -27,7 +27,7 @@ software that manages access to the data.
 This document will be focusing on the software that manages
 the data.  Please refer to [Lightning Concepts](Lightning-Concepts.md)
 for the description of the tiling system and
-[Lightning Data](Lightning-Data.md]) for references to the
+[Lightning Data](Lightning-Data.md) for references to the
 data structures used.
 
 Architectural Overview

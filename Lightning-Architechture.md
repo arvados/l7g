@@ -19,7 +19,7 @@ the Harvard Personal Genome Project and variant data from
 the ClinVar database, are added for practical use.
 
 The Lightning system is a combination of a conceptual way
-to think about genomes (genomic tiling, described below),
+to think about genomes (genomic tiling),
 the internal representation of genomes for efficient access
 (the compact genome format and auxiliary data) and the
 software that manages access to the data.

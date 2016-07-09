@@ -81,7 +81,7 @@ PathStruct        []{
   LowQualityInfo {
     Count       8byte    // Number of Low Quality records
     Code        8byte    // Code to future proof other low quality representations.
-                         // Currently only this representation is allowed with the folowing
+                         // Currently only this representation is allowed with the following
                          // structure.
 
     Stride        8byte    // e.g. 256
@@ -107,7 +107,7 @@ PathStruct        []{
                          // have different tile variant IDs).
 
       NTile   dlug       // number of tiles for this record
-      LoqTile[]{         // One elment per tile
+      LoqTile[]{         // One element per tile
         Len     dlug     // Number of LoqEntries (can be 0)
         LoqEntry[]{      // Structure to hold position and length of nocalls
           DelPos  dlug   // 0-index start position of nocall run

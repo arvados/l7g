@@ -25,7 +25,7 @@ This document will be focusing on the data files and formats
 used in the Lightning system.
 Please refer to [Lightning Concepts](Lightning-Concepts.md)
 for the description of the tiling system and
-[Lightning Architecture](Lightning-Architecture.md]) for references to the
+[Lightning Architecture](Lightning-Architecture.md) for references to the
 engineering architecture.
 
 Data Overview

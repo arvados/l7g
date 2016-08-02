@@ -1,0 +1,6 @@
+{
+  "database":"/data/db/l7g-v5t-clinvar.sqlite3",
+  "js-dir":"/home/lightning/l7g-v5t-clinvar/js",
+  "html-dir":"/home/lightning/l7g-v5t-clinvar/html",
+  "port":8084
+}

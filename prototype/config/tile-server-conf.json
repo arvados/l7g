@@ -1,0 +1,12 @@
+{
+  "glf":"/data/glf/glf.2bit.path",
+  "assembly":"/data/assembly/assembly.00.hg19.fw.gz",
+  "tagset":"/data/tagset.2bit/tagset.2bit",
+  "span":"/data/glf/span/span.gz",
+  "glf-cache":"/data/sglf-cache",
+  "hg19.json":"/data/config/hg19.json",
+  "js-dir":"/home/lightning/glfd/js",
+  "html-dir":"/home/lightning/glfd/html",
+  "example-dir":"/home/lightning/glfd/example",
+  "port":8081
+}

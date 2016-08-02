@@ -1,8 +1,8 @@
 {
-  "glf":"/data/glf/glf.2bit.path",
+  "glf":"/data/glf",
   "assembly":"/data/assembly/assembly.00.hg19.fw.gz",
-  "tagset":"/data/tagset.2bit/tagset.2bit",
-  "span":"/data/glf/span/span.gz",
+  "tagset":"/data/tagset/tagset.2bit",
+  "span":"/data/span/span.gz",
   "glf-cache":"/data/sglf-cache",
   "hg19.json":"/data/config/hg19.json",
   "js-dir":"/home/lightning/glfd/js",

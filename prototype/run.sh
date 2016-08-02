@@ -1,6 +1,7 @@
 #!/bin/bash
 
-LOC_DATA_DIR="/scratch/l7g"
+#LOC_DATA_DIR="/scratch/l7g"
+LOC_DATA_DIR="/mnt/ramfs"
 img="$1"
 
 if [[ "$img" == "" ]] ; then

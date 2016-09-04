@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html >
+
+  <head>
+    <meta charset="UTF-8">
+    <title>Login</title>
+    <link rel="stylesheet" href="css/style.css">
+
+<script>
+
+/*
+http://stackoverflow.com/questions/2144386/javascript-delete-cookie
+answer by Oscar
+*/
+function delete_cookie(name) {
+  document.cookie = name + '=; expires=Thu, 01 Jan 1970 00:00:01 GMT;';
+}
+
+function add_cookie(name,val) {
+  document.cookie = name + '=' + val + ';';
+}
+
+function init() {
+
+  delete_cookie("auth_code");
+
+  // show error message if present
+  //
+
+  var cookie_list = document.cookie.split(";");
+  var ckeh = {};
+  for (var i=0; i<cookie_list.length; i++) {
+    var kv = cookie_list[i].trim().split("=");
+    //console.log(kv[0], kv[1]);
+    ckeh[decodeURI(kv[0])] = decodeURI(kv[1]);
+  }
+
+  if ("message" in ckeh) {
+    var ele = document.getElementById("error_message");
+    ele.innerHTML = ckeh["message"] + " &nbsp;";
+  } else {
+    delete_cookie("message");
+  }
+
+}
+
+function add_cookie_credential() {
+  var auth_key = document.getElementById("access_code").value;
+  add_cookie("auth_code", auth_key);
+}
+
+function process_auth() {
+
+  add_cookie_credential();
+
+  window.location.reload();
+  //var ele = document.getElementById('lo');
+  //ele.click();
+}
+
+
+
+</script>
+
+  </head>
+
+  <body>
+    <body class="align">
+      <div class="site__container">
+        <div class="grid__container">
+
+          <h3 id='error_message' style='text-align:center; color:#b31717; '> &nbsp;</h3>
+
+          <!-- <div class='div form--login'> -->
+          <form onsubmit="add_cookie_credential();" action="" method="post" class="form form--login">
+
+
+            <div class="form__field">
+              <input id="access_code" type="text" class="form__input" placeholder="Access Code" required>
+            </div>
+
+            <div class="form__field">
+              <!-- <input type="button" value="Enter" onclick='process_auth();'> -->
+              <input type="submit" value="Enter">
+            </div>
+
+          <!-- </div> -->
+          </form>
+
+          <!-- <a href='#' id='lo'></a> -->
+
+        </div>
+      </div>
+    </body>
+  </body>
+
+  <script>
+  init();
+  </script>
+
+</html>

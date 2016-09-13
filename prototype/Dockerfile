@@ -65,11 +65,11 @@ COPY etc/supervisor/conf.d/supervisord.conf /etc/supervisor/conf.d/supervisord.c
 #COPY etc/supervisor/conf.d/l7g-v5t-clinvar.conf /etc/supervisor/conf.d/l7g-v5t-clinvar.conf
 #COPY etc/supervisor/conf.d/lci.conf /etc/supervisor/conf.d/lci.conf
 
-COPY data/config/lci-config.json /data/config/lci-config.json
-COPY data/config/l7g-p7e-config.json /data/config/l7g-p7e-config.json
-COPY data/config/l7g-v5t-config.json /data/config/lci-config.json
-COPY data/config/tile-server-conf.json /data/config/lci-conf.json
-COPY data/config/muduk.cfg /data/config/muduk.cfg
+COPY config/lci-config.json /data/config/lci-config.json
+COPY config/l7g-p7e-config.json /data/config/l7g-p7e-config.json
+COPY config/l7g-v5t-config.json /data/config/lci-config.json
+COPY config/tile-server-conf.json /data/config/lci-conf.json
+COPY config/muduk.cfg /data/config/muduk.cfg
 
 
 EXPOSE 22 80 8080 8081 8082 8083 8084 8085

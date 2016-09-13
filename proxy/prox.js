@@ -103,7 +103,9 @@ var g_staticFiles = {
   "/" : "./assets/login.html",
   "/index" : "./assets/login.html",
   "/index.html" : "./assets/login.html",
-  "/login" : "./assets/login.html"
+  "/login" : "./assets/login.html",
+  "/stylesheets/minimal-styles.css" : "./assets/stylesheets/minimal-styles.css",
+  "/stylesheets/minimal-pygment_trac.css" : "./assets/stylesheets/minimal-pygment_trac.css"
 };
 
 var g_staticFilesAuth = {

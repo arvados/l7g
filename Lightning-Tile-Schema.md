@@ -5,7 +5,7 @@ Introduction
 ---
 
 In order to facilitate ease of use we've developed a "Lightning Tile Array" format
-to access tile encoded genomes.
+to access tile encoded genomes as `numpy` arrays.
 This document describes the format.
 
 Overview

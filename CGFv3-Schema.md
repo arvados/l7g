@@ -31,7 +31,7 @@ From a high level perspective, CGF consists mainly of:
 Binary CGF Structure
 ---
 
-```
+```go
 Magic             8byte
 CGFVersion        String { int32, []char }
 LibraryVersion    String { int32, []char }

@@ -63,6 +63,18 @@ PathStruct        []{
 
   ExtraData         []byte
 
+  LoqTileStepHomSize      8byte
+  LoqTileVariantHomSize   8byte
+  LoqTileNocSumHomSize    8byte
+  LoqTileNocStartHomSize  8byte
+  LoqTileNocLenHomSize    8byte
+
+  LoqTileStepHetSize      8byte
+  LoqTileVariantHetSize   8byte
+  LoqTileNocSumHetSize    8byte
+  LoqTileNocStartHetSize  8byte
+  LoqTileNocLenHetSize    8byte
+
   LoqTileStepHom      sdsl::enc_vector
   LoqTileVariantHom   sdsl::vlc_vector
   LoqTileNocSumHom    sdsl::enc_vector      // running sum of entry count, inclusive

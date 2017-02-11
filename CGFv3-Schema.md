@@ -16,124 +16,64 @@ format is that it keeps nocall information as separate as possible.
 Overview
 ---
 
+Compact Genome Format (CGF) is a way to represent whole genome information efficiently.
+Each CGF file is stored relative to a tiled genome library, with the tiles stored
+in each CGF file pointing into the tile library.
+
+The CGF is a compromise between compression and acessibility.
+
 From a high level perspective, CGF consists mainly of:
 
   - Vector arrays of tile variant ids for each tile position (the 'pointers' into library).
   - Overflow tile variant pointers that can't fit into the fixed width records above.
   - 'NOCALL' information that explicitly holds information of where the no-calls fall within tiles.
-  - A 'NOCALL' bit vector interleaved with the Vector array above indicating whether a tile has at least one gap on it
-  - The auxiliary structures to index into the overflow table, the gap table and anything else.
 
-A big motivation is to use fixed width records as much as possible for efficient lookup and storage.
-For elements that can't be contained within a fixed width record, overflow structures are provided
-often with indexes into them.  These indexes are at a coarse level and point to the first record
-every 'stride' records (for example, a 1000).
-
-
-Binary CGF structure
+Binary CGF Structure
 ---
 
-We will talk about binary layout later but the basic structure is:
-
-```go
+```
 Magic             8byte
-CGFVersion        String
-LibraryVersion    String
+CGFVersion        String { int32, []char }
+LibraryVersion    String { int32, []char }
 PathCount         8byte
-TileMapLen        8byte
-TileMap           []8byte         // TileMapLen byte size
-StepPerPath       []8byte         // PathCount length
-PathStructOffset  []8byte         // PathCount+1 length (PathStructOffset[PathCount]=total path bytes)
+TileMap           String { int32, []char }
+PathStructOffset  []8byte                 // absolute, from beg. of file
 PathStruct        []{
 
-  Name      string
-  NPosition 8byte
+  Name          String { int32, []char }
+  NTileStep     8byte
+  NOverflow     8byte
+  NOverflow64   8byte
+  ExtraDataSize 8byte
 
-  // See below for details.
-  // Nocall elements are not represented here (will be 0).
-  //
-  Vector    []8byte
+  Loq               []byte
+  Span              []byte
 
-  Overflow {
-    Length        8byte        // number of records in this structure
-    Stride        8byte
-    MapByteCount  8byte
-    Map           []dlug
+  Cache             []8byte
+
+  Overflow          []{
+    TileStep      2byte
+    TileVariant   [][ 2byte, 2byte ]
   }
 
-  FinalOverflowMap {
-    DataRecordN         8byte
-    DataRecordByteLen   8byte
-    DataRecord {
-      Code []byte
-      Data []byte
-    }
+  Overflow64        []{
+    TileStep      []8byte
+    TileVariant   [][ 8byte, 8byte ]
   }
 
-  LowQualityInfo {
-    LoqFlagByteCount  8byte   // size in bytes of LoqFlag array
-    LoqFlag           []byte  // Whole path flag indicator whether it's a low quality tile or not
-                              // spanning tiles are not marked as low quality if the anchor tile
-                              // is low quality (though the anchor tile is still marked as low quality).
+  ExtraData         []byte
 
-    Count       8byte    // Number of Low Quality records
-    Code        8byte    // Code to future proof other low quality representations.
-                         // Currently only this representation is allowed with the following
-                         // structure.
+  LoqTileStepHom      sdsl::enc_vector
+  LoqTileVariantHom   sdsl::vlc_vector
+  LoqTileNocSumHom    sdsl::enc_vector      // running sum of entry count, inclusive
+  LoqTileNocStartHom  sdsl::vlc_vector
+  LoqTileNocLenHom    sdsl::vlc_vector
 
-    HomFlag       []byte   // bit vector holding type of entry in list below, lsb first
-
-    LoqInfoByteCount     //LoqInfo structure size in bytes
-
-    LoqInfo[]{           // currently only 1 or two alleles supported.
-                         // note: "het" and "hom" here only refer to the
-                         // the low quality entry and not whether the tilemap
-                         // entry is het or hom.  If both alleles have the same
-                         // low quality information they're considered hom here,
-                         // even if the actual tile entries aren't (i.e. they
-                         // have different tile variant IDs).
-
-      NTile   dlug       // number of tiles for this record
-      LoqTile[]{         // One element per tile
-        Len     dlug     // Number of LoqEntries (can be 0)
-        LoqEntry[]{      // Structure to hold position and length of nocalls
-          DelPos  dlug   // 0-index start position of nocall run
-          LoqLen  dlug   // length of no call run
-        }
-      }
-
-    |
-
-      NTileAlleleA  dlug  // A allele tile count
-      NTileAlleleB  dlug  // B allele tile count
-
-      LoqTile [2][]{      // Two arrays, one for each allele
-        Len dlug          // Number of LoqEntries for this tile (can be 0)
-        LoqEntry []{      // LoqEntry holding array of positions and nocall run lengths
-          DelPos  dlug    // 0-index start position of nocall run
-          LoqLen  dlug    // length of nocall run
-        }
-      }
-
-    }
-
-    LoqOverflow {
-      Length        8byte        // number of records in this structure
-      Stride        8byte
-      MapByteCount  8byte
-      Map           []dlug
-    }
-
-    LoqFinalOverflowMap {
-      DataRecordN         8byte
-      DataRecordByteLen   8byte
-      DataRecord {
-        Code []byte
-        Data []byte
-      }
-    }
-
-  }
+  LoqTileStepHet      sdsl::enc_vector
+  LoqTileVariantHet   sdsl::vlc_vector
+  LoqTileNocSumHet    sdsl::enc_vector      // running sum of entry count, inclusive
+  LoqTileNocStartHet  sdsl::vlc_vector
+  LoqTileNocLenHet    sdsl::vlc_vector
 
 }
 ```
@@ -143,88 +83,90 @@ Notes
 
 * The first 32 bits of each entry in Vector hold a bit to indicate whether
   it's 'canonical' or whether the overflow table should be consulted.
-* Each hexit has 4 values reserved:
+* Each hexit has 3 values reserved:
   - 0xf - high quality overflow
-  - 0xd - complex
-  - 0x0 - spanning (stepped over)
-  - 0x1-0xc - lookup in the tilemap
-* If there are more than 32/4 = 8 overflow entries, the overflow map should be  consulted.
-* Overflow `Map` entries hold the `TileMap` entry if possible.  If the entry is greater than the length of `TileMap` (1024 say), then two special values are reserved:
-  - Spanning tiles are represented by `|TileMap|` (e.g. 1024)
-  - Final Overflow entries are represented by `|TileMap|+1` (e.g. 1025)
-* FinalOverflowMap holds everything else.  The DataRecord.Code is as follows:
-  - 00 - Explicit Tile information.  This holds an encoded FinalOverflowTileMapEntry entry (see below)
-  - 01 - Encoded FastJ tile.  See below for the structure of FinalOverflowEncodedFastJ
-
-Note that the spanning entry is needed in the `Overflow` structure if the `Vector` cache has overflowed and the entry is a spanning tile.
-
-```go
-  FinalOverflowTileMapEntry {
-    AnchorTileStep dlug
-    NAllele dlug
-    []Allele {
-      Len       dlug
-      VariantId []dlug
-      Span      []dlug
-    }
-  }
-```
-
-```go
-  FinalOverflowEncodedFastJ {
-    AnchorTileStep dlug
-    Len   dlug
-    Data  []byte
-  }
-```
+  - 0x0 - complex
+  - 0x1-0xe - lookup in the tilemap
+* If there are more than 32/4 = 8 overflow entries, the `Overflow` vector should be  consulted.
+* If entries are too big to fit in the `Overflow` vector, `Overflow64` should be consulted.
+* To discover anchor tile, this is indicated with the a `Span` bit set and the `Cache` canonical bit not set.
+* A non-anchor spanning tile is indicated with the `Span` bit set and the canonical bit set in the `Cache`.
+* `Het` low quality fields have the `Variant`, `Sum`, `Start`, `Len` have two entries per 'field'.
+* The low quality `LoqTileStep` and `LoqTileNocSum` benefit from delta encoding as they are strictly increasing
+  numbers.  The other low quality fields benefit from the variable length encoding as they are more evently distributed
+  within a range.  The variable length encoding is better taken advantage of when these vectors are split out instead
+  of interleaved together.
+* A future iteration might want the `Loq` and `Span` vectors to be interleaved in the cache to take advantage of data
+  locality.
+* `ExtraData` is a catch-all to provide a facility to store other data or tiles that aren't in the library, say.
+* To indicate a non-anchor spanning tile, the following reserved values are used:
+  - `Overflow.TileVariant`: `1<<15 - 1` (e.g. `0xffff`)
+  - `Overflow64.TileVariant`: `1<<64 - 1` (e.g. `0xffffffffffffffff`)
+  - `LoqTileVariantHom`: `1<<32 - 1` (e.g. `0xffffffff`)
+  - `LoqTileVariantHet`: `1<<32 - 1` (e.g. `0xffffffff`)
+* Fixed width fields are put at the beginning for ease of parsing
 
 Description
 ---
 
 ### Tile Map
 
-The tile map maps the index to the tile type.  The tile type includes the list of tiles for an allele pair.  In the rest of the CGF, the values used for each tile position refer to the index of the `TileMap`. 
+The tile map is stored as a string with a tile map entry stored per line.
+For each line, each allele is separated by a `:`.
+For each allele, tiles are separated by a `;`.
+If the span of a tile is greater than 1, the lenght of the span is indicated by a `+` followed by
+the number of "base" tiles it spans.
 
-For example, `[[1+1, 0+1], [3+2]]` would represent two tiles on the first allele, both of spanning length 1, with the first tile being variant 1 and the second being a canonical tile (tile variant 0) and having tile variant 3 of spanning length 2 on the second allele.  This representation is separated from any tile position (path and step) and in this sense only represents a kind of "tile class" of common tile types.
-
-The representation in the `TileMap` array in the CGF header is an array of type `dlug`.  Conceptually, the array of `dlug` types is separated out into records, with each record holding information for the pair of tile variant arrays.  In each of the conceptual records, the first two values are the lengths of the two lists.  Each list is comprised of pairs of values.  Each pair consists of the tile variant id followed by the spanning tile length.
-
-For example:
+For example, here is a portion of a tile map:
 
 ```
-[ 1 1 [ 0 1 ] [ 0 1 ]]
-[ 1 1 [ 0 1 ] [ 1 1 ]]
-[ 1 1 [ 1 1 ] [ 0 1 ]]
-...
-[ 2 1 [ 1 1 0 1 ] [ 3 2 ]]
+0:0
+0:1
+1:0
+1:1
+0:2
+2:0
+0;0:1+2
+1+2:0;0
+0+2:0+2
+0:3
+3:0
+1;0:0+2
+0+2:1;0
+0:4
+4:0
+1+2:1+2
 ...
 ```
-
-Where the brackets are only provided for clarity.  The above would represent `[[0+1],[0+1]]`, `[[0+1],[1+1]]`, `[[1+1],[0+1]]` and (after skipping some entries), `[[1+1,0+1],[3+2]]`.
-
-The size of the whole `dlug` `TileMap` array structure is held in `TileMapLen` (in bytes).
-
 
 
 ### Vector Data
 
-The bulk of the information is stored in the PathStruct array.  PathStruct.Vector
-should be around 2.5 MiB (10M tiles, 64 bits per 32 tiles).  OverflowMap is hopefully small.  FinalOverflowMap should be negligible.
-LowQuality(Het|Hom).Offset can be chosen
-to be in the Kb region (assuming a stride of 1000 or so).  LowQuality(Het|Hom).Info,
-assuming 2 bytes for relative pos and length for about 10M gaps, should be
-about 20Mb.  The LowQuality(Het|Hom).Info is the one that is the least understood right
-now.  Hopefully the 20Mb guess is an overestimate but it might be in that range.
+The bulk of the high quality information is stored in the `PathStruct` array.
+`PathStruct.Cache` should be around 2.5 MiB (10M tiles, 64 bits per 32 tiles).
+Assuming around 4% overflow from the `Cache` vector, the `Overflow` should be in the
+range of ~2.5Mb (10M (tile positions) * 0.05 * 3 (entries/position) * 2 (bytes/entry) ~ 2.5Mb).
+`Span` and `Loq` both are bit vectors, with a bit reserved for each tile position,
+taking up around 1.25Mb each for around 2.5Mb together.
+`Overflow64` is there to catch any tiles that can't be represented with the 16 bit `Overflow`
+structure.
+Until the population exceeds 2^16 the `Overflow64` structure should be 0.
+
+The bulk of the size of any whole genome CGF file will probably be the low quality information.
+The low quality information will depend heavily on the technology used to sequence and how
+much loq quality data needs to be saved.
+Initial tests indicate that this is in the 19Mb region for the CGI sequenced Harvard Personal
+Genome whole genome data.
 
 
-Though this might change in the future, a Vector element is chosen to be 64 bits with
-the first 32 bits allocated for 'synopsis' bits and the last 32 bits to allocated
-for the 'cache'.
+Though this might change in the future, a `Cache` element is chosen to be 64 bits with
+the first 32 bits allocated for 'canonical' bits and the last 32 bits to allocated
+for the hexit encodings.
 
 A diagram is illustrative:
 
-    /--------- s ----------\/----------------------------- H ------------------------------\
-    |    synopsis bits     |                       hexit region                            |
+    /--------- c ----------\/----------------------------- H ------------------------------\
+    |    canonical bits    |                       hexit region                            |
     ----------------------------------------------------------------------------------------
     |                      |                                                               |
     |                      | [ hexit_0 ] [ hexit_1 ] ... [ hexit_{k-1} ]  <    unused   >  |
@@ -237,93 +179,43 @@ Here, `b=64`, `s=32`, `h=4` and `H=32`.
 
 ### Low Quality Information
 
-From some preliminary statistics, it looks like 85% of gaps are hom, so
-separating out the different nocall types might prove useful. LowQualityHom.Info
-holds position and length as variable length integers.
-It might be the case that gap lengths are less than 16
-which means there are even more savings to be had by considering paths
-as hexits instead of full bytes.
+The low quality structures hold information on the tile variant and the runs of nocalls within
+the tile sequence.
+Each of the low quality structures is an encoded array, with each of the encodings chosen to
+best fit the type of data (that is, variable lench encoding or delta encoding, depending).
 
-Both of the low quality portions group 'stride' number of tiles (for example, a 256 say) and bin
-them.  The `LowQuality(Hom|Het).Offset` provide indexes into the starts of each bin.  The
-`LowQuality(Hom|Het).NTile` provide the number of low quality tiles in each bin.
+The "het" and "hom" indicates whether the low quality information is the same for both
+alleles and **doesn't** represent whether the tile variants are the same for both alleles.
+In the below, all tile variant arrays have two values per entry to reprent each allele.
 
-The `LowQuality(Hom|Het).Vector` must be used to determine the relative record offset in each
-bin.
+* `LoqTileStepHom` : tile steps
+* `LoqTileVariantHom` : tile variants, two per entry
+* `LoqTileNocSumHom` : position in `StartHom` and `LenHom` arrays for this entry
+* `LoqTileNocStartHom` : the start position in the tile of the nocall run
+* `LoqTileNocLenHom` : the length of the nocall run
 
-The `LowQualityHom.Info` holds records that apply to all alleles of a tile.  Each group of
-nocalls for a tile has a `NRecord` field indicating how many nocalls are in this tile.
-Following the `NRecord` field, an array of variable length sequence position and length elements
-indicates where the nocall region starts relative to the beginning of the tile and how long it is.
+* `LoqTileStepHet` : tile steps
+* `LoqTileVariantHet` : tile variants, two per entry
+* `LoqTileNocSumHet` : position in `StartHom` and `LenHom` arrays for this entry, two per tile position entry
+* `LoqTileNocStartHet` : the start position in the tile of the nocall run
+* `LoqTileNocLenHet` : the length of the nocall run
 
-All sequence positions should be taken from the beginning of the tile group start, tags included.
+Misc
+---
 
-### Het Low Quality
+```
+Read 1 MB sequentially from memory    250,000 ns    250 us    0.25 ms
+```
 
-The het low quality information is similar to the hom low quality information but with an
-allele field added to indicate which allele the nocall region falls on.
-
-`LowQualityHet.Length` holds the number of bytes held in the `LowQualityHet.Info` array.
-The `LowQualityHet.Offset` holds the byte offset position in `LowQualityHet.Info` for the
-first low quality tile at the index position divided by `LowQualityHet.Stride` rounded down.
-
-The `LowQualityHet.Info` holds records that apply to all alleles of a tile.  Each tile record
-has an array of `Allele` records.  Each `Allele` record is identical to the `LowQualityHom.Info`
-record.
-
-All sequence positions should be taken from the beginning of the tile group start.  If there
-is an allele that has multiple tiles because of a spanning tile on another allele, the
-sequence position should be taken from the beginning of the tile group and should be thought
-of as referencing the position in the implied sequence of that allele.
-
-### Overflow Maps
-
-The OverflowMap is only used to point to tiles that are present in the TileMap.
-The first 8byte portion holds the position in the Vector, the second holds the
-position in the TileMap.  Keys in the OverflowMap are sorted in ascending
-order.
-
-FinalOverflowMap can hold arbitrary (string) data to include any information not
-able to be captured by the other portions of the data structure.
-
+If the high quality data is around 7.5Mb, doing a whole genome concordance should
+be in the range of ~4ms (.25ms/Mb * 7.5Mb * 2datasets).
 
 References
 ---
 
 
   - [2bit encoding in closure](http://eigenhombre.com/2013/07/06/a-two-bit-decoder/)
-  - [Dlugosz Variable Length Integer](http://www.dlugosz.com/ZIP2/VLI.html)
+  - [SDSL-lite](https://github.com/simongog/sdsl-lite)
+  - [SDSL cheat sheet](http://simongog.github.io/assets/data/sdsl-cheatsheet.pdf)
+  - [Latency Numbers Every Programmer Should Know](https://gist.github.com/jboner/2841832)
 
-Variable length schemes will be used.  Dlugosz variable length
-integer encoding seems like a fine candidate.  The basic idea
-is to have a linear number of prefix bits encode the number of
-bytes until a cutoff at which time it switches over to the prefix
-bits describing the length of the VLE integer.  The VLE integer encoding
-is slightly modified from the one presented in the Dlugosz VLI post.
-
-The following table gives a sense for how to encode:
-
-| prefix | bytes | header bits | data bits | unsigned range |
-|---|---|---|---|---|
-| 0 | 1 | 1 | 7 | 127 |
-| 10 | 2 | 2 | 14 | 16,383 |
-| 110 | 3 | 3 | 21 | 2,097,151 |
-| 111 00 | 4 | 5 | 27 | 134,217,727 |
-| 111 01 | 5 | 5 | 35 | 34,359,738,367 |
-| 111 10 | 6 | 5 | 43 | 8,796,093,022,207 |
-| 111 11 000 | 8 | 8 | 56 | 72,057,594,037,927,935 |
-| 111 11 001 |  9 | 8 | 64 | A full 64-bit value with one byte overhead |
-| 111 11 010 | 17 | 8 | 128 | A GUID/UUID |
-| 111 11 111 |  n | 8 | any | Any multi-precision integer |
-
-This is a nice compromise between arbitrary length and efficient encoding
-for small numbers.
-
-The document is unclear about what happens in the 0xff case for the prefix byte.
-This will be resolved here by considering the next 8 bytes to encode the length
-of the subsequent bytes.  So
-
-    0xff | 0xgh 0xij 0xkl 0xmn 0xop 0xqr 0xst 0xuv [ ... ]
-
-where [g-v] hold the number of bytes in [...].  The value (2^64)-1 in the length
-field is reserved for future use.

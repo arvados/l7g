@@ -95,6 +95,11 @@ Notes
 
 * The first 32 bits of each entry in Vector hold a bit to indicate whether
   it's 'canonical' or whether the overflow table should be consulted.
+* Barring some complications, a set 'canonical' bit means the tile is canonical (the
+  default tile variant for that tile position) and an unset 'canonical' bit
+  indicates a non-canonical tile.
+* A high quality non-canonical tile can be deduced from consulting the hexit cache
+  or the overflow table if the tile varaint isn't/can't be stored in the hexit cache.
 * Each hexit has 3 values reserved:
   - 0xf - high quality overflow
   - 0x0 - complex

@@ -50,10 +50,11 @@ int cgft_sanity(cgf_t *cgf) {
       if (n != (int)tilepath->LoqTileNocStartHom.size()) {
         return -3;
       }
-    }
 
-    if (n != (int)tilepath->LoqTileNocLenHom.size()) {
-      return -4;
+      if (n != (int)tilepath->LoqTileNocLenHom.size()) {
+        return -4;
+      }
+
     }
 
     if ((2*tilepath->LoqTileStepHet.size()) != (tilepath->LoqTileVariantHet.size())) {

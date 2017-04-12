@@ -6,7 +6,7 @@ Introduction
 
 This document is a work in progress.
 
-CGF is a binary format that encodes a representation of a genome relative to
+Compact Genome Format (CGF) is a binary format that encodes a representation of a genome relative to
 a tile library.
 
 This is version 3 of the CGF format.  The major difference between the previous

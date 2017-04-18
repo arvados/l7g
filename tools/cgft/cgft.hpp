@@ -10,6 +10,8 @@
 #include <errno.h>
 #include <sys/time.h>
 
+#include <getopt.h>
+
 #include <cstdlib>
 #include <map>
 #include <vector>
@@ -22,7 +24,7 @@
 #include <sdsl/bit_vectors.hpp>
 
 #define CGFT_MAGIC "{\"cgf.b\""
-#define CGF_VERSION "0.3.0"
+#define CGF_VERSION "0.3.1"
 #define CGLF_VERSION "0.1.0"
 
 #define OVF16_MAX 0xffff
@@ -172,7 +174,8 @@ int ez_save(const char *base_f, int tilepath, tilepath_ez_t &ez);
 
 const char *read_tilemap_from_file(std::string &, const char *);
 
-void cgft_create_container(FILE *, const char *);
+//void cgft_create_container(FILE *, const char *);
+void cgft_create_container(FILE *, const char *, const char *, const char *);
 void cgft_print_header(cgf_t *);
 void cgft_print_tilepath(cgf_t *, tilepath_t *);
 

@@ -1,12 +1,19 @@
 #include "cgft.hpp"
 
-void cgft_create_container(FILE *fp, const char *tilemap) {
+void cgft_create_container(FILE *fp,
+                           const char *cgf_version,
+                           const char *cglf_version,
+                           const char *tilemap) {
   uint32_t u32;
   uint64_t u64;
   int i, n;
 
+  cgf_version = (cgf_version ? cgf_version : CGF_VERSION);
+  cglf_version = (cglf_version ? cglf_version : CGLF_VERSION);
+
   fwrite(CGFT_MAGIC, sizeof(char), 8, fp);
 
+  /*
   u32 = (uint32_t)strlen(CGF_VERSION);
   fwrite(&u32, sizeof(uint32_t), 1, fp);
   fwrite(CGF_VERSION, sizeof(char), u32, fp);
@@ -14,6 +21,15 @@ void cgft_create_container(FILE *fp, const char *tilemap) {
   u32 = (uint32_t)strlen(CGLF_VERSION);
   fwrite(&u32, sizeof(uint32_t), 1, fp);
   fwrite(CGLF_VERSION, sizeof(char), u32, fp);
+  */
+
+  u32 = (uint32_t)strlen(cgf_version);
+  fwrite(&u32, sizeof(uint32_t), 1, fp);
+  fwrite(cgf_version, sizeof(char), u32, fp);
+
+  u32 = (uint32_t)strlen(cglf_version);
+  fwrite(&u32, sizeof(uint32_t), 1, fp);
+  fwrite(cglf_version, sizeof(char), u32, fp);
 
   u64 = 0;
   fwrite(&u64, sizeof(uint64_t), 1, fp);

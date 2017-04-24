@@ -276,4 +276,35 @@ The library version is done on the 2bit or 2bit tar sequence described above and
 appear in the SGLF.
 
 
+### Tile Library Difference
+
+To help keep track of what tiles have been added and to try and keep some provenance of tile versioning,
+the tile updates to the tile library, it's new hash and other information is provided in a JSON file.
+
+The structure should be something like:
+
+```javascript
+{
+  "TileLibrary": {
+    "<tile library version hash>": {
+      "from": {
+        "<previous tile library version hash>": {
+          "tiles": [
+            { "tileId" : "<extended tile id>", "operation":"<add|delete|change:tileId>", "md5sum":"<sequence hash>" },
+            { "tileId" : "<extended tile id>", "operation":"<add|delete|change:tileId>", "md5sum":"<sequence hash>" },
+            ...
+          ]
+        }
+      }
+    }
+  }
+}
+```
+
+Note that creating the current tile library version can be done by going further back in time and adding the
+appropriate tiles.
+The previous tile library in the above is only a record of the method the current version
+of the tile library was created.
+
+A tile library version hash object can have multiple `from` library versions.
 

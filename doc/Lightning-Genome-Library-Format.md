@@ -1,7 +1,7 @@
 Lightning Genome Tile Library Format
 ===
 
-The Lightning Genome Tile Library Format, Genome Library Format (GLF) for shore,
+The Lightning Genome Tile Library Format, Genome Library Format (GLF) for short,
 is a suite of formats to store and represent the the genome library for Lightning.
 
 To exploit the redundancy in the genome, the genome is 'tiled', breaking the genome
@@ -111,7 +111,7 @@ The fill in process will be discussed later.
 2bit, tar format
 ---
 
-Whereas SGLF was concerned with ease of computation process at the cost of space and the 2bit format was concerned with
+Whereas SGLF was concerned with ease of processing at the cost of space and the 2bit format was concerned with
 compatibility and space, the 2bit, tar format is concerned with space and access.
 The SGLF files are too big to access quickly and the 2bit files need to load information in on a tile path basis to extract
 sequence for a single tile step.
@@ -121,7 +121,7 @@ Further, index files are produced to indicate where in the archive each 2bit til
 
 As an example, here is a small set of steps to extract the sequence for the extended tile path `035e.00.0018.01c`:
 
-```
+```bash
 $ ls 035e*
 035e.tar.gz  035e.tar.gz.gzi  035e.tar.tai
 $ grep '035e.00.0018' 035e.tar.tai
@@ -145,7 +145,7 @@ with two fields, the first being the tile ID and the second being the span infor
 
 For example:
 
-```
+```bash
 $ zgrep '^035e.00.0018.01c' span.gz
 035e.00.0018.01c,1
 ```
@@ -157,14 +157,14 @@ Assembly Information
 ---
 
 The associated assembly information files hold how to map tiles back to a reference build.
-Currently only hg19 is supported.
+Currently only `hg19` is supported.
 
 
 The main file holds the inclusive end locations in base 0 reference position
 of each tile position in the tile library to the reference in question.
 The format is two fixed width fields separated by a tab, each
 field padded with spaces (to the left).  Each block contains a line starting with a
-`>` that holds the name of the assembly (e.g.  hg19), the chromosome name (`chr`
+`>` that holds the name of the assembly (e.g.  `hg19`), the chromosome name (`chr`
 prefix, e.g. `chr13`) and the path in hex (e.g. `2c5`) all separated by a colon (`:`) delimiter.
 
 For example:

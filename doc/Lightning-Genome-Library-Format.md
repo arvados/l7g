@@ -12,10 +12,11 @@ tile position.
 
 The compact representation of genomes only stores the variant for each tiled position.
 In order to recreate the sequence, a lookup of the underlying sequence needs to occur.
-The Lightning genome tile library format is used to do this conversion back to sequence.
+The Lightning genome tile library format is used to do the conversion from a tiled
+representation back to sequence.
 
 There are some auxiliary files with the genome library format to make sure lookups against
-a reference genome can be done as well as data to determine the tagset.
+a reference genome can be done as well as tagset data.
 
 Overview
 ---

@@ -275,6 +275,22 @@ The hash is `MD5` but this might change in the future.
 The library version is done on the 2bit or 2bit tar sequence described above and not on the sequences as they
 appear in the SGLF.
 
+### Tiled Genome Version Comparison
+
+Given a tiled genome, one would like to know if the tile library can support conversion.
+That is, it would be desirable to know whether the tile library can support conversion to
+raw sequence of the tiled genome.
+
+To support this function, a hash of the genome can be done by creating a path manifest of the
+interleaved tile IDs and their sequence hashes, then taking the hash of the path manifest.
+
+When querying whether a tile library server supports conversion, the tile genome hash can be sent along
+with a list of the tile IDs so that the tile library server can compare it's computed
+genome hash with the one received.
+
+For convenience, a small database of known genomes along with their hashes can be loaded on the
+tile library server for quick lookup.
+
 
 ### Tile Library Difference
 

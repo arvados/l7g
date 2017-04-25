@@ -245,7 +245,9 @@ $ bgzip -c -b $begin -s $bsize assembly.00.hg19.fw.gz | head
 Tile Library Versioning
 ---
 
-The library version scheme uses a content addressed mechanism to associate a hash to the tile set used.
+The library version scheme uses a content versioning mechanism to associate a hash to the tile set used.
+Since there are different ways to encode a tile library, a versioning scheme that is encoding agnostic
+is desirable.
 
 First, a tile path text manifest is created by making an extended tile ID and sequence hash pair, using a
 colon as delimiter (`:`) with each pair being separated by a space.
@@ -275,6 +277,9 @@ The hash is `MD5` but this might change in the future.
 
 The library version is done on the 2bit or 2bit tar sequence described above and not on the sequences as they
 appear in the SGLF.
+No newlines should appear in the manifests.
+No spaces should appear in the prefix or trail at the end of the manifest.
+Only one space should be in between hash- key pair entries.
 
 ### Tiled Genome Version Comparison
 

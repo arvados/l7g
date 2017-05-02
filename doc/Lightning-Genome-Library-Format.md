@@ -51,10 +51,10 @@ Simple Genome Library Format
 ---
 
 The Simple Genome Library Format (SGLF) is used as an auxiliary data structure to store
-the PASTA sequence along with tile path, it's hash and the Tile ID.
+the sequence along with tile path, it's hash and the Tile ID.
 Each tile path is split into it's own file and ordered by Tile ID.
 Each field is separated by a comma (`,`), with the first field being the extended Tile ID,
-the second being the hash of the text PASTA sequence and the third being the PASTA sequence itself.
+the second being the hash of the text sequence and the third being the sequence itself.
 
 Here is a truncated example:
 
@@ -103,7 +103,6 @@ cattattttcccctcccactc
 
 ```
 
-Note that the PASTA information is lost.
 The process to choose how to fill in this data is done when assembling the 2bit library representation from the SGLF files.
 The process for filling in sequence was chosen with a focus on space and access rather than any biological motivation.
 

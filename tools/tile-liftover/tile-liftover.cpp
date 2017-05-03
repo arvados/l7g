@@ -87,6 +87,8 @@ int main(int argc, char **argv) {
 
   char fmt_str[] = "%04x\t%10i\n";
 
+  int show_help_flag = 1;
+
   ref_fp = stdin;
   ofp = stdout;
 
@@ -100,24 +102,36 @@ int main(int argc, char **argv) {
       exit(-1);
       break;
     case 'T':
+      show_help_flag=0;
       tagset_fn = optarg; break;
     case 'p':
+      show_help_flag=0;
       tilepath = atoi(optarg); break;
     case 'c':
+      show_help_flag=0;
       chrom_str = optarg; break;
     case 'N':
+      show_help_flag=0;
       ref_name = optarg; break;
     case 'v':
+      show_help_flag=0;
       verbose_flag = 1; break;
     case 'V':
+      show_help_flag=0;
       show_version(); exit(0); break;
     case 's':
+      show_help_flag=0;
       start_pos = atoi(optarg); break;
     case 'h':
     default:
       show_help();
       exit(0);
       break;
+  }
+
+  if (show_help_flag) {
+    show_help();
+    exit(0);
   }
 
   if (tagset_fn.size()==0) {

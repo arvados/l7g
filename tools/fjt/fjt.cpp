@@ -26,6 +26,8 @@
 #include <stdint.h>
 #include <getopt.h>
 
+#include <openssl/md5.h>
+
 #include <vector>
 #include <string>
 #include <map>
@@ -48,8 +50,6 @@ enum FJT_ACTION {
  FJT_FILTER
 };
 
-
-
 int verbose_flag = 0;
 
 static struct option long_options[] = {
@@ -68,11 +68,11 @@ void show_version() {
 void show_help() {
   show_version();
   printf("usage:\n");
-  printf("  [-c variant]    concatenate\n");
-  printf("  [-C]            csv output\n");
-  printf("  [-v]            verbose\n");
-  printf("  [-V]            version\n");
-  printf("  [-h]            help\n");
+  printf("  [-c variant]    Concatenate FastJ tiles into sequence.  `variant` is the variant ID to concatenate on.\n");
+  printf("  [-C]            Output comma separated `tileID`, `hash` and `sequence` (CSV output).\n");
+  printf("  [-v]            Verbose\n");
+  printf("  [-V]            Version\n");
+  printf("  [-h]            Help\n");
   printf("\n");
 }
 
@@ -261,6 +261,22 @@ int read_tiles(FILE *ifp, std::vector< fj_tile_t > &fj_tile) {
 
 }
 
+void md5str(std::string &s, std::string &seq) {
+  int i;
+  unsigned char m[MD5_DIGEST_LENGTH];
+  char buf[32];
+
+  s.clear();
+
+  MD5((unsigned char *)(seq.c_str()), seq.size(), m);
+
+  for (i=0; i<MD5_DIGEST_LENGTH; i++) {
+    sprintf(buf, "%02x", (unsigned char)m[i]);
+    s += buf;
+  }
+
+}
+
 void concatenate_tiles(std::vector< fj_tile_t > &fj_tile, uint16_t variantid, std::string &seq) {
   uint16_t vid;
   int i, j, k;
@@ -344,9 +360,13 @@ int main(int argc, char **argv) {
   read_tiles(ifp, fj_tile);
 
   if (action ==  FJT_CSV) {
+    std::string m5;
 
     for (i=0; i<fj_tile.size(); i++) {
       print_tileid(fj_tile[i].tileid);
+
+      md5str(m5, fj_tile[i].seq);
+      printf(",%s", m5.c_str());
       printf(",%s\n", fj_tile[i].seq.c_str());
     }
 

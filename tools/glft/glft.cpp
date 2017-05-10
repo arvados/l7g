@@ -45,7 +45,9 @@ void show_help() {
 }
 
 
-
+typedef struct glft_opt_type {
+  int use_reported_hash;
+} glft_opt_t;
 
 
 #define SGLF_RS_TILEID 0
@@ -71,7 +73,7 @@ void md5str(std::string &s, std::string &seq) {
 }
 
 
-int create_tile_path_manifest(std::string &manifest, FILE *fp) {
+int create_tile_path_manifest(std::string &manifest, FILE *fp, glft_opt_t &glft_opt) {
   int ch;
   int read_state=0, line_no=0;
   std::string tileid_s, hash_s, seq_s, ts;
@@ -95,7 +97,12 @@ int create_tile_path_manifest(std::string &manifest, FILE *fp) {
           seq_s.c_str());
           */
 
-      md5str(ts, seq_s);
+      if (glft_opt.use_reported_hash) {
+        ts = hash_s;
+      } else {
+        md5str(ts, seq_s);
+      }
+
       if (manifest.size()>0) { manifest += ' '; }
       manifest += tileid_s;
       manifest += ':';
@@ -128,7 +135,13 @@ int create_tile_path_manifest(std::string &manifest, FILE *fp) {
   }
 
   if ((tileid_s.size()>0) || (seq_s.size()>0)) {
-    md5str(ts, seq_s);
+
+    if (glft_opt.use_reported_hash) {
+      ts = hash_s;
+    } else {
+      md5str(ts, seq_s);
+    }
+
     if (manifest.size()>0) { manifest += ' '; }
     manifest += tileid_s;
     manifest += ':';
@@ -138,11 +151,11 @@ int create_tile_path_manifest(std::string &manifest, FILE *fp) {
   return 0;
 }
 
-int calc_path_lib_version(std::string &libver, FILE *ifp) {
+int calc_path_lib_version(std::string &libver, FILE *ifp, glft_opt_t &glft_opt) {
   int r;
   std::string manifest;
 
-  r = create_tile_path_manifest(manifest, ifp);
+  r = create_tile_path_manifest(manifest, ifp, glft_opt);
   if (r!=0) { return r; }
 
 
@@ -151,13 +164,18 @@ int calc_path_lib_version(std::string &libver, FILE *ifp) {
   return 0;
 }
 
-
 int main(int argc, char **argv) {
   FILE *ifp=stdin, *ofp=stdout;
   int ch, opt, option_index;
+
   int show_help_flag=1;
+  glft_opt_t glft_opt;
+
   int action=GLFT_NOOP;
+
   std::string s;
+
+  glft_opt.use_reported_hash=0;
 
   while ((opt=getopt_long(argc, argv, "vVhHLPmM", long_options, &option_index))!=-1) switch(opt) {
     case 0:
@@ -181,6 +199,12 @@ int main(int argc, char **argv) {
     case 'M':
       show_help_flag=0;
       action = GLFT_PATH_LIB_MANIFEST;
+      break;
+
+    case 'H':
+      show_help_flag=0;
+      glft_opt.use_reported_hash = 1;
+      break;
 
     case 'v':
       show_help_flag=0;
@@ -191,6 +215,7 @@ int main(int argc, char **argv) {
       show_version();
       exit(0);
       break;
+
     case 'h':
     default:
       show_help();
@@ -208,12 +233,12 @@ int main(int argc, char **argv) {
 
   else if (action==GLFT_PATH_LIB_VER) {
 
-    calc_path_lib_version(s, ifp);
+    calc_path_lib_version(s, ifp, glft_opt);
     printf("%s\n", s.c_str());
   }
 
   else if (action == GLFT_PATH_LIB_MANIFEST) {
-    create_tile_path_manifest(s, ifp);
+    create_tile_path_manifest(s, ifp, glft_opt);
     printf("%s\n", s.c_str());
   }
 

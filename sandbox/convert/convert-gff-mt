@@ -1,0 +1,48 @@
+#!/bin/bash
+
+set -e
+
+function _q {
+  echo $1
+  exit 1
+}
+
+ref="hg19"
+reffa="/data-sde/data/ref/$ref.fa.gz"
+
+okg_ref="human_g1k_v37"
+okg_reffa="/data-sde/data/ref/$okg_ref.fasta.gz"
+tagdir="/data-sde/data/l7g/tagset.fa/tagset.fa.gz"
+
+gff="$1"
+if [ "$gff" == "" ] ; then
+  echo "provide gff file"
+  exit 1
+fi
+
+path="035e"
+
+trap "ERROR: $gff $path ; exit" ERR
+
+ifn=`basename $gff`
+stripped_name=`basename $ifn .gff.gz`
+huid=`echo "$stripped_name" | cut -f1 -d'-'`
+dnaid=`echo "$stripped_name" | cut -f2- -d'-'`
+
+
+chrom="MT"
+echo $huid $dnaid processing $chrom
+
+odir="stage/$huid-$dnaid"
+mkdir -p $odir
+
+a2fj -i <( pasta -r <( samtools faidx $okg_reffa MT | egrep -v '^>' | tr '[:upper:]' '[:lower:]' ) \
+                 -i <( tabix $gff chrM ) \
+                 -a gff-pasta | egrep -v '^>' ) \
+     -r <( refstream $reffa chrM | tr -d '\n' ) \
+     -T <( samtools faidx $tagdir $path.00 | egrep -v '^>' | tr -d '\n' ) \
+     --build $okg_ref --chrom $chrom | \
+  pbgzip -c > $odir/$path.fj.gz
+
+bgzip -r $odir/$path.fj.gz
+

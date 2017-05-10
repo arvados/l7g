@@ -1,0 +1,85 @@
+These scripts are meant to convert from the various
+input formats to FastJ (verbose).
+
+The output should be compressed FastJ.  Each huid
+should have it's own directory.  It's probably overkill
+to have each FastJ file to have an index.
+
+2016-05-03
+---
+
+There are problems with 20 of the conversions.  It looks
+like the GFF on chromosome M did not convert properly and
+there are some mismatches between what the GFF thinks is
+ref vs. reality (at least as far as I can tell).
+
+For example, here is a line that mismatches:
+
+```
+ERROR: ref stream to gff ref mismatch (ref stream g != gff ref a @ 261, line 'chrM      CGI     SNP     263     263     .       +       .       alleles G;ref_allele A;db_xref dbsnp.100:rs2853515') at line 8
+```
+
+All 20 have mismatches on chromosome M.
+
+Chromosome M is at the end and there is only one FastJ file for it so it has no adverse
+effects on the FastJ before it.
+
+I think the way to proceed is to convert the CGI-Var files directrly for chrM.
+
+Here are the 20 error lines:
+
+```
+ERROR: ref stream to gff ref mismatch (ref stream c != gff ref t @ 308, line 'chrM	CGI	INDEL	310	310	.	+	.	alleles CTC;ref_allele T') at line 8
+ERROR: ref stream to gff ref mismatch (ref stream g != gff ref a @ 72, line 'chrM	CGI	SNP	73	73	.	+	.	alleles G;ref_allele A;db_xref dbsnp.102:rs3087742') at line 6
+ERROR: ref stream to gff ref mismatch (ref stream g != gff ref a @ 261, line 'chrM	CGI	SNP	263	263	.	+	.	alleles G;ref_allele A;db_xref dbsnp.100:rs2853515') at line 8
+ERROR: ref stream to gff ref mismatch (ref stream g != gff ref a @ 72, line 'chrM	CGI	SNP	73	73	.	+	.	alleles G;ref_allele A;db_xref dbsnp.102:rs3087742') at line 6
+ERROR: ref stream to gff ref mismatch (ref stream g != gff ref a @ 72, line 'chrM	CGI	SNP	73	73	.	+	.	alleles G;ref_allele A;db_xref dbsnp.102:rs3087742') at line 6
+ERROR: ref stream to gff ref mismatch (ref stream g != gff ref a @ 72, line 'chrM	CGI	SNP	73	73	.	+	.	alleles G;ref_allele A;db_xref dbsnp.102:rs3087742') at line 6
+ERROR: ref stream to gff ref mismatch (ref stream g != gff ref a @ 261, line 'chrM	CGI	SNP	263	263	.	+	.	alleles G;ref_allele A;db_xref dbsnp.100:rs2853515') at line 8
+ERROR: ref stream to gff ref mismatch (ref stream g != gff ref a @ 72, line 'chrM	CGI	SNP	73	73	.	+	.	alleles G;ref_allele A;db_xref dbsnp.102:rs3087742') at line 6
+ERROR: ref stream to gff ref mismatch (ref stream g != gff ref a @ 72, line 'chrM	CGI	SNP	73	73	.	+	.	alleles G;ref_allele A;db_xref dbsnp.102:rs3087742') at line 6
+ERROR: ref stream to gff ref mismatch (ref stream g != gff ref a @ 71, line 'chrM	CGI	SNP	73	73	.	+	.	alleles G;ref_allele A;db_xref dbsnp.102:rs3087742') at line 8
+ERROR: ref stream to gff ref mismatch (ref stream g != gff ref a @ 72, line 'chrM	CGI	SNP	73	73	.	+	.	alleles G;ref_allele A;db_xref dbsnp.102:rs3087742') at line 6
+ERROR: ref stream to gff ref mismatch (ref stream g != gff ref a @ 72, line 'chrM	CGI	SNP	73	73	.	+	.	alleles G;ref_allele A;db_xref dbsnp.102:rs3087742') at line 6
+ERROR: ref stream to gff ref mismatch (ref stream g != gff ref a @ 72, line 'chrM	CGI	SNP	73	73	.	+	.	alleles G;ref_allele A;db_xref dbsnp.102:rs3087742') at line 6
+ERROR: ref stream to gff ref mismatch (ref stream g != gff ref a @ 72, line 'chrM	CGI	SNP	73	73	.	+	.	alleles G;ref_allele A;db_xref dbsnp.102:rs3087742') at line 6
+ERROR: ref stream to gff ref mismatch (ref stream c != gff ref t @ 194, line 'chrM	CGI	SNP	195	195	.	+	.	alleles C;ref_allele T;db_xref dbsnp.100:rs2857291,dbsnp.132:rs111782227') at line 6
+ERROR: ref stream to gff ref mismatch (ref stream g != gff ref a @ 262, line 'chrM	CGI	SNP	263	263	.	+	.	alleles G;ref_allele A;db_xref dbsnp.100:rs2853515') at line 6
+ERROR: ref stream to gff ref mismatch (ref stream g != gff ref a @ 72, line 'chrM	CGI	SNP	73	73	.	+	.	alleles G;ref_allele A;db_xref dbsnp.102:rs3087742') at line 6
+ERROR: ref stream to gff ref mismatch (ref stream g != gff ref a @ 72, line 'chrM	CGI	SNP	73	73	.	+	.	alleles G;ref_allele A;db_xref dbsnp.102:rs3087742') at line 6
+ERROR: ref stream to gff ref mismatch (ref stream g != gff ref a @ 261, line 'chrM	CGI	SNP	263	263	.	+	.	alleles G;ref_allele A;db_xref dbsnp.100:rs2853515') at line 8
+ERROR: ref stream to gff ref mismatch (ref stream g != gff ref a @ 261, line 'chrM	CGI	SNP	263	263	.	+	.	alleles G;ref_allele A;db_xref dbsnp.100:rs2853515') at line 8
+```
+
+Here are some:
+
+```
+abram@lightning-dev1:/data-sde/data/pgp-gff$ zgrep '^chrM.*alleles G;ref_allele A;db_xref dbsnp.102:rs3087742' *.gz
+hu089792-GS02269-DNA_B02.gff.gz:chrM    CGI     SNP     73      73      .       +       .       alleles G;ref_allele A;db_xref dbsnp.102:rs3087742
+hu3A1B15-GS02269-DNA_C01.gff.gz:chrM    CGI     SNP     73      73      .       +       .       alleles G;ref_allele A;db_xref dbsnp.102:rs3087742
+hu474789-GS02269-DNA_G04.gff.gz:chrM    CGI     SNP     73      73      .       +       .       alleles G;ref_allele A;db_xref dbsnp.102:rs3087742
+hu49F623-GS02269-DNA_F01.gff.gz:chrM    CGI     SNP     73      73      .       +       .       alleles G;ref_allele A;db_xref dbsnp.102:rs3087742
+hu5B8771-GS02269-DNA_B01.gff.gz:chrM    CGI     SNP     73      73      .       +       .       alleles G;ref_allele A;db_xref dbsnp.102:rs3087742
+hu5E55F5-GS02269-DNA_B03.gff.gz:chrM    CGI     SNP     73      73      .       +       .       alleles G;ref_allele A;db_xref dbsnp.102:rs3087742
+hu5FCE15-GS01195-DNA_B01.gff.gz:chrM    CGI     SNP     73      73      .       +       .       alleles G;ref_allele A;db_xref dbsnp.102:rs3087742
+hu620F18-GS02269-DNA_E02.gff.gz:chrM    CGI     SNP     73      73      .       +       .       alleles G;ref_allele A;db_xref dbsnp.102:rs3087742
+hu76CAA5-GS02269-DNA_G03.gff.gz:chrM    CGI     SNP     73      73      .       +       .       alleles G;ref_allele A;db_xref dbsnp.102:rs3087742
+hu868880-GS02269-DNA_E01.gff.gz:chrM    CGI     SNP     73      73      .       +       .       alleles G;ref_allele A;db_xref dbsnp.102:rs3087742
+huA02824-GS02269-DNA_G01.gff.gz:chrM    CGI     SNP     73      73      .       +       .       alleles G;ref_allele A;db_xref dbsnp.102:rs3087742
+huB4F9B2-GS02269-DNA_A05.gff.gz:chrM    CGI     SNP     73      73      .       +       .       alleles G;ref_allele A;db_xref dbsnp.102:rs3087742
+huE2E371-GS02269-DNA_H03.gff.gz:chrM    CGI     SNP     73      73      .       +       .       alleles G;ref_allele A;db_xref dbsnp.102:rs3087742
+```
+
+For comparison:
+
+```
+$ refstream ./hg19.fa.gz chrM:70+8
+ggtgtgca
+$ refstream ./human_g1k_v37.fasta.gz MT:70+8
+ggtatgca
+```
+
+So the suspicion is that for these 20, the okg are using the MT sequence from the `human_g1k_v37.fasta` file.
+
+
+

@@ -19,6 +19,11 @@ make
 ./cgft -H test.cgf3
 ```
 
+Note that `cgft` requires the Succinct Data Structure Library, [sdsl-lite](https://github.com/simongog/sdsl-lite).
+See their installation instructions on how to [compile and install sdsl-lite](https://github.com/simongog/sdsl-lite#installation).
+The `Makefile` assumes `sdsl-lite` is installed in your home directory under `include` and `lib` (the default installation location).
+
+
 Usage
 ---
 

@@ -67,7 +67,8 @@ void show_version() {
 
 void show_help() {
   show_version();
-  printf("usage:\n");
+  printf("usage:\n  fjt [-c variant] [-C] [-v] [-V] [-h]\n");
+  printf("\n");
   printf("  [-c variant]    Concatenate FastJ tiles into sequence.  `variant` is the variant ID to concatenate on.\n");
   printf("  [-C]            Output comma separated `tileID`, `hash` and `sequence` (CSV output).\n");
   printf("  [-v]            Verbose\n");

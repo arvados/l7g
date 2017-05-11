@@ -323,7 +323,7 @@ void show_help() {
   printf("\n");
   //printf("usage:\n");
   //printf("\n");
-  printf("usage: cgft [-H] [-b tilepath] [-e tilepath] [-i ifn] [-o ofn] [-h] [-v] [-V] [ifn]\n");
+  printf("usage:\n  cgft [-H] [-b tilepath] [-e tilepath] [-i ifn] [-o ofn] [-h] [-v] [-V] [ifn]\n");
   printf("\n");
   printf("  [-H|--header]               show header\n");
   printf("  [-C|--create-container]     create empty container\n");

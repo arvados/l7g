@@ -35,12 +35,13 @@
 
 #include "cJSON.h"
 
-#define FASTJ_TOOL_VERSION "0.1.0"
+#define FASTJ_TOOL_VERSION "0.1.1"
 
 typedef struct fj_tile_type {
   cJSON *hdr;
   std::string seq;
   uint64_t tileid;
+  int span;
 } fj_tile_t;
 
 enum FJT_ACTION {
@@ -58,6 +59,9 @@ static struct option long_options[] = {
   {"version", no_argument, NULL, 'V'},
   {"csv", no_argument, NULL, 'C'},
   {"concatenate", required_argument, NULL, 'c'},
+  {"tile-path", required_argument, NULL, 'p'},
+  {"tile-library", required_argument, NULL, 'L'},
+  {"input", required_argument, NULL, 'i'},
   {0,0,0,0}
 };
 
@@ -67,10 +71,13 @@ void show_version() {
 
 void show_help() {
   show_version();
-  printf("usage:\n  fjt [-c variant] [-C] [-v] [-V] [-h]\n");
+  printf("usage:\n  fjt [-c variant] [-C] [-v] [-V] [-h] [input]\n");
   printf("\n");
   printf("  [-c variant]    Concatenate FastJ tiles into sequence.  `variant` is the variant ID to concatenate on.\n");
-  printf("  [-C]            Output comma separated `tileID`, `hash` and `sequence` (CSV output).\n");
+  printf("  [-L sglf]       Simple genome library format tile path file\n");
+  printf("  [-i ifn]        input file\n");
+  printf("  [-p tilepath]   Tile path (in decimal)\n");
+  printf("  [-C]            Output comma separated `extended tileID`, `hash` and `sequence` (CSV output).\n");
   printf("  [-v]            Verbose\n");
   printf("  [-V]            Version\n");
   printf("  [-h]            Help\n");
@@ -87,16 +94,21 @@ void print_tileid(uint64_t tileid) {
   uint64_t u64;
   int curpos=0;
   unsigned int byte_offset[] = { 6, 4, 2, 0 };
+  std::string ofmt[] = { "%04x", "%02x", "%04x", "%03x" };
 
   for (curpos=0; curpos<4; curpos++) {
     u64 = tileid>>(8*byte_offset[curpos]);
     u64 &= 0xffff;
     if (curpos>0) { printf("."); }
+    printf( ofmt[curpos].c_str(), (unsigned int)u64 );
+
+    /*
     if (curpos!=1) {
       printf("%04x", (unsigned int)u64);
     } else {
       printf("%02x", (unsigned int)u64);
     }
+    */
   }
 
 }
@@ -233,6 +245,13 @@ int read_tiles(FILE *ifp, std::vector< fj_tile_t > &fj_tile) {
     cJSON *tid = cjson_obj(fj_tile[i].hdr, "tileID");
     if (cJSON_IsString(tid)) {
       fj_tile[i].tileid = parse_tileid(tid->valuestring);
+
+      cJSON *span = cjson_obj(fj_tile[i].hdr, "seedTileLength");
+      if (cJSON_IsNumber(span)) {
+        fj_tile[i].span = (int)(span->valuedouble);
+      } else {
+        return -1;
+      }
     } else {
       //printf("ERROR, element %i does not have tileID\n", i);
       return -4;
@@ -303,11 +322,13 @@ void cleanup_tiles(std::vector< fj_tile_t > &fj_tile) {
 int main(int argc, char **argv) {
   int i;
   int ch, opt, option_index;
-  std::string ifn;
+  std::string ifn = "-", sglf_fn;
   std::vector< fj_tile_t > fj_tile;
   int show_help_flag = 1;
+  int band_output_flag = 0;
 
   int fold_width = 50;
+  int tilepath=-1;
 
   std::string seq;
 
@@ -318,20 +339,12 @@ int main(int argc, char **argv) {
 
   FJT_ACTION action = FJT_NOOP;
 
-  while ((opt=getopt_long(argc, argv, "vVhc:C", long_options, &option_index))!=-1) switch(opt) {
+  while ((opt=getopt_long(argc, argv, "vVhc:CL:i:p:B", long_options, &option_index))!=-1) switch(opt) {
     case 0:
       fprintf(stderr, "invalid option, exiting\n");
       exit(-1);
       break;
-    case 'v':
-      show_help_flag=0;
-      verbose_flag = 1;
-      break;
-    case 'V':
-      show_help_flag=0;
-      show_version();
-      exit(0);
-      break;
+
     case 'C':
       show_help_flag=0;
       action = FJT_CSV;
@@ -341,6 +354,37 @@ int main(int argc, char **argv) {
       action = FJT_CONCAT;
       variant_id = (uint16_t)atoi(optarg);
       break;
+
+    case 'L':
+      sglf_fn = optarg;
+      show_help_flag=0;
+      break;
+
+    case 'i':
+      show_help_flag=0;
+      ifn = optarg;
+      break;
+
+    case 'p':
+      show_help_flag=0;
+      tilepath = atoi(optarg);
+      break;
+
+    case 'B':
+      show_help_flag=0;
+      band_output_flag = 1;
+      break;
+
+    case 'v':
+      show_help_flag=0;
+      verbose_flag = 1;
+      break;
+    case 'V':
+      show_help_flag=0;
+      show_version();
+      exit(0);
+      break;
+
     case 'h':
     default:
       show_help();
@@ -367,6 +411,7 @@ int main(int argc, char **argv) {
       print_tileid(fj_tile[i].tileid);
 
       md5str(m5, fj_tile[i].seq);
+      printf("+%x", fj_tile[i].span);
       printf(",%s", m5.c_str());
       printf(",%s\n", fj_tile[i].seq.c_str());
     }

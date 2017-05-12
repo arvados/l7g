@@ -34,6 +34,7 @@
 #include <algorithm>
 
 #include "cJSON.h"
+#include "sglf.hpp"
 
 #define FASTJ_TOOL_VERSION "0.1.1"
 
@@ -48,7 +49,8 @@ enum FJT_ACTION {
  FJT_NOOP = 0,
  FJT_CSV,
  FJT_CONCAT,
- FJT_FILTER
+ FJT_FILTER,
+ FJT_BAND
 };
 
 int verbose_flag = 0;
@@ -58,6 +60,7 @@ static struct option long_options[] = {
   {"verbose", no_argument, NULL, 'v'},
   {"version", no_argument, NULL, 'V'},
   {"csv", no_argument, NULL, 'C'},
+  {"band", no_argument, NULL, 'B'},
   {"concatenate", required_argument, NULL, 'c'},
   {"tile-path", required_argument, NULL, 'p'},
   {"tile-library", required_argument, NULL, 'L'},
@@ -73,11 +76,12 @@ void show_help() {
   show_version();
   printf("usage:\n  fjt [-c variant] [-C] [-v] [-V] [-h] [input]\n");
   printf("\n");
-  printf("  [-c variant]    Concatenate FastJ tiles into sequence.  `variant` is the variant ID to concatenate on.\n");
+  printf("  [-C]            Output comma separated `extended tileID`, `hash` and `sequence` (CSV output)\n");
+  printf("  [-B]            Output band format\n");
+  printf("  [-c variant]    Concatenate FastJ tiles into sequence.  `variant` is the variant ID to concatenate on\n");
   printf("  [-L sglf]       Simple genome library format tile path file\n");
   printf("  [-i ifn]        input file\n");
   printf("  [-p tilepath]   Tile path (in decimal)\n");
-  printf("  [-C]            Output comma separated `extended tileID`, `hash` and `sequence` (CSV output).\n");
   printf("  [-v]            Verbose\n");
   printf("  [-V]            Version\n");
   printf("  [-h]            Help\n");
@@ -131,7 +135,8 @@ uint64_t parse_tileid(const char *tileid) {
   unsigned int byte_offset[] = { 6, 4, 2, 0 };
 
   for (chp=tileid; *chp; chp++) {
-    if (*chp == '.') {
+    //if (*chp == '.') {
+    if ((*chp == '.') || (*chp=='+')) {
       ull = strtoull(s.c_str(), NULL, 16);
       u64 = (uint64_t)ull;
       v |= (u64 << (8*byte_offset[curpos]));
@@ -151,6 +156,78 @@ uint64_t parse_tileid(const char *tileid) {
   }
 
   return v;
+}
+
+int read_sglf_path(FILE *ifp, sglf_path_t &sp) {
+  int i;
+  int ch;
+  std::string line;
+  std::string tid_str, hash_str, seq;
+  int cur_tilestep=0, cur_tilevar_idx=0;
+  int prev_tilestep=-1, prev_tilevar_idx=-1;
+  uint64_t tileid;
+  std::pair< int, int > ipair;
+
+  int read_state = 0;
+
+  std::vector< std::string > svec;
+
+  sp.ext_tileid.clear();
+  sp.hash.clear();
+  sp.seq.clear();
+
+  while (!feof(ifp)) {
+    ch = fgetc(ifp);
+    if (ch==EOF) { continue; }
+    if (ch=='\n') {
+
+      tileid = parse_tileid(tid_str.c_str());
+      cur_tilestep = (int)tileid_part(tileid, 1);
+      cur_tilevar_idx = (int)tileid_part(tileid, 0);
+
+      if ( cur_tilestep >= (int)(sp.ext_tileid.size()) ) {
+        int del = cur_tilestep - (int)(sp.ext_tileid.size()) + 1;
+        for (i=0; i<del; i++) {
+
+          svec.clear();
+          sp.ext_tileid.push_back(svec);
+          sp.hash.push_back(svec);
+          sp.seq.push_back(svec);
+        }
+      }
+
+      sp.ext_tileid[cur_tilestep].push_back(tid_str);
+      sp.hash[cur_tilestep].push_back(hash_str);
+      sp.seq[cur_tilestep].push_back(seq);
+
+      ipair.first = cur_tilestep;
+      ipair.second = cur_tilevar_idx;
+      sp.hash_pos[hash_str] = ipair;
+
+      read_state=0;
+      tid_str.clear();
+      hash_str.clear();
+      seq.clear();
+
+      continue;
+      
+    }
+
+    if (ch==',') {
+      read_state++;
+      continue;
+    }
+
+    if (read_state==0)      { tid_str += ch; }
+    else if (read_state==1) { hash_str += ch; }
+    else if (read_state==2) { seq += ch; }
+
+  }
+
+  //TODO reorder based on pos_map
+
+
+  return 0;
 }
 
 int read_tiles(FILE *ifp, std::vector< fj_tile_t > &fj_tile) {
@@ -319,13 +396,162 @@ void cleanup_tiles(std::vector< fj_tile_t > &fj_tile) {
   for (i=0; i<fj_tile.size(); i++) { cJSON_Delete(fj_tile[i].hdr); }
 }
 
+int do_band(std::vector< fj_tile_t > &fj_tile, sglf_path_t &sglf_path) {
+  int i, j, fj_idx, n, m;
+  int tilestep=0, tilevar=0;
+  int prev_tilestep=-1, prev_tilevar=-1;
+  int sglf_tilevar=-1;
+  std::vector< int > band[2];
+  std::vector< std::vector< int > > noc_band[2];
+  std::vector< int > noc_v;
+
+  int noc_start, noc_len;
+
+  n = (int)fj_tile.size();
+
+  for (fj_idx=0; fj_idx<n; fj_idx++) {
+
+    noc_v.clear();
+
+    tilestep = (int)tileid_part(fj_tile[fj_idx].tileid, 1);
+    tilevar = (int)tileid_part(fj_tile[fj_idx].tileid, 0);
+
+    if (tilevar>=2) { return -1; }
+    if (tilevar<0) { return -2; }
+    if (tilestep<0) { return -3; }
+
+    // fill in the non-spanning tile vector positions
+    //
+    for (i=band[tilevar].size(); i<tilestep; i++) {
+      band[tilevar].push_back( -1 );
+      noc_band[tilevar].push_back(noc_v);
+    }
+
+
+
+    // Add the tile variant to the appropriate band allele
+    //
+    sglf_tilevar = sglf_path_step_lookup_seq_variant_id(&sglf_path, tilestep, fj_tile[fj_idx].seq);
+    if (sglf_tilevar<0) { return -4; }
+
+    band[tilevar].push_back(sglf_tilevar);
+
+    // add to nocall band vector
+    //
+    noc_v.clear();
+
+    m = fj_tile[fj_idx].seq.size();
+    noc_start = -1;
+    noc_len = 0;
+    for (i=0; i<m; i++) {
+      if ((fj_tile[fj_idx].seq[i]=='n') ||
+          (fj_tile[fj_idx].seq[i]=='N')) {
+        if (noc_start>=0) { noc_len++; }
+        else { noc_start = i; noc_len=1; }
+      }
+
+      else {
+        if (noc_start>=0) {
+          noc_v.push_back(noc_start);
+          noc_v.push_back(noc_len);
+        }
+        noc_start=-1;
+        noc_len=0;
+      }
+    }
+
+    if (noc_start>=0) {
+      noc_v.push_back(noc_start);
+      noc_v.push_back(noc_len);
+    }
+
+    noc_band[tilevar].push_back(noc_v);
+    int zz = (int)noc_band[tilevar].size();
+
+  }
+
+  //printf("# %i %i (%i %i)\n",
+  //    (int)band[0].size(),
+  //    (int)band[1].size(),
+  //
+  //    (int)noc_band[0].size(),
+  //    (int)noc_band[1].size() );
+
+  printf("[");
+  for (i=0; i<band[0].size(); i++) { printf(" %i", band[0][i]); }
+  printf("]\n");
+
+  printf("[");
+  for (i=0; i<band[1].size(); i++) { printf(" %i", band[1][i]); }
+  printf("]\n");
+
+  printf("[");
+  for (i=0; i<noc_band[0].size(); i++) {
+    printf("[");
+    for (j=0; j<noc_band[0][i].size(); j++) {
+      printf(" %i", noc_band[0][i][j]);
+    }
+    printf(" ]");
+  }
+  printf("]\n");
+
+  printf("[");
+  for (i=0; i<noc_band[1].size(); i++) {
+    printf("[");
+    for (j=0; j<noc_band[1][i].size(); j++) {
+      printf(" %i", noc_band[1][i][j]);
+    }
+    printf(" ]");
+  }
+  printf("]\n");
+
+
+
+
+  return 0;
+
+  // DEBUG
+  // SPOT CHECK
+  //
+  /*
+  int tilepath = 0x2fa;
+  int tilestep = 0x2;
+  int tilevar = 1;
+
+  int x = sglf_path_step_lookup_seq_variant_id(&sglf_path, tilestep, fj_tile[5].seq);
+  int idx=0;
+  int n = (int)fj_tile.size();
+
+
+
+  for (idx=0; idx<n; idx++) {
+    tilestep = (int)tileid_part(fj_tile[idx].tileid, 1);
+    tilevar = (int)tileid_part(fj_tile[idx].tileid, 0);
+
+    x = sglf_path_step_lookup_seq_variant_id(&sglf_path, tilestep, fj_tile[idx].seq);
+
+    print_tileid(fj_tile[idx].tileid);
+
+    printf(",(%x.%x),%x\n", tilestep, tilevar, x);
+
+  }
+
+  printf(">>>> %i (%x)\n", x, x);
+
+
+  return 0;
+  */
+
+}
+
+
 int main(int argc, char **argv) {
-  int i;
+  int i, ret;
   int ch, opt, option_index;
   std::string ifn = "-", sglf_fn;
   std::vector< fj_tile_t > fj_tile;
+  sglf_path_t sglf_path;
   int show_help_flag = 1;
-  int band_output_flag = 0;
 
   int fold_width = 50;
   int tilepath=-1;
@@ -335,7 +561,7 @@ int main(int argc, char **argv) {
   uint64_t u64;
   uint16_t variant_id;
 
-  FILE *ifp=stdin;
+  FILE *ifp=stdin, *sglf_fp=NULL;
 
   FJT_ACTION action = FJT_NOOP;
 
@@ -372,7 +598,7 @@ int main(int argc, char **argv) {
 
     case 'B':
       show_help_flag=0;
-      band_output_flag = 1;
+      action = FJT_BAND;
       break;
 
     case 'v':
@@ -408,16 +634,17 @@ int main(int argc, char **argv) {
     std::string m5;
 
     for (i=0; i<fj_tile.size(); i++) {
+
       print_tileid(fj_tile[i].tileid);
+      printf("+%x", fj_tile[i].span);
 
       md5str(m5, fj_tile[i].seq);
-      printf("+%x", fj_tile[i].span);
       printf(",%s", m5.c_str());
       printf(",%s\n", fj_tile[i].seq.c_str());
+
     }
 
   }
-
 
   else if (action == FJT_CONCAT) {
     concatenate_tiles(fj_tile, variant_id, seq);
@@ -427,6 +654,39 @@ int main(int argc, char **argv) {
       printf("%c", seq[i]);
     }
     printf("\n");
+  }
+
+  else if (action == FJT_BAND) {
+
+    if (sglf_fn.size()==0) {
+      fprintf(stderr, "must provide SGLF file, exiting\n");
+      exit(-1);
+    }
+
+    if ((sglf_fn == "-") && (ifp == stdin)) {
+      fprintf(stderr, "SGLF stream must be different from FastJ input stream, exiting\n");
+      exit(-2);
+    }
+
+    if (sglf_fn=="-") { sglf_fp = stdin; }
+    else { sglf_fp = fopen(sglf_fn.c_str(), "r"); }
+    if (!sglf_fp) {
+      perror(sglf_fn.c_str());
+      exit(-3);
+    }
+
+    read_sglf_path(sglf_fp, sglf_path);
+
+    //sglf_path_print(&sglf_path);
+
+    ret = do_band(fj_tile, sglf_path);
+    if (ret<0) {
+      fprintf(stderr, "Error, invalid return code when covnerting to band format: %i\n", ret);
+      exit(-3);
+    }
+
+    if (sglf_fp!=stdin) { fclose(sglf_fp); }
+
   }
 
   else if (action == FJT_FILTER) {

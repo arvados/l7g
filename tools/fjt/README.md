@@ -10,10 +10,16 @@ Quick Start
 ```
 $ make
 $ ./fjt -h
-fjt version: 0.1.0
+fjt version: 0.1.1
 usage:
-  [-c variant]    Concatenate FastJ tiles into sequence.  `variant` is the variant ID to concatenate on.
-  [-C]            Output comma separated `tileID`, `hash` and `sequence` (CSV output).
+  fjt [-c variant] [-C] [-v] [-V] [-h] [input]
+
+  [-C]            Output comma separated `extended tileID`, `hash` and `sequence` (CSV output)
+  [-B]            Output band format
+  [-c variant]    Concatenate FastJ tiles into sequence.  `variant` is the variant ID to concatenate on
+  [-L sglf]       Simple genome library format tile path file
+  [-i ifn]        input file
+  [-p tilepath]   Tile path (in decimal)
   [-v]            Verbose
   [-V]            Version
   [-h]            Help
@@ -80,7 +86,7 @@ gtcaagatagattaga
 The following command would produce the concatenated sequence for variant `001`:
 
 ```
-$ fjt -c example-tile.fj
+$ fjt -c 1 testdata/example-tile.fj
 agaaaatgccaacatagccagagtgataaattaattctatagaccaacaa
 gtcaaacataagaaaaagttggaaaaatttaccataccaattacatttta
 attgtagtagtatatctccgtcatctcagcccaaaaactccttaagctga
@@ -101,19 +107,35 @@ aactggctagccatatgcagaaaactgaaactggaccccttccttacacc
 ttatacaaatattgagtcaagatagattaga
 ```
 
+### Band Format `fjt -B`
+
+Produce the tile information in 'band format'.
+To produce the 'band format', an `SGLF` file needs to be specified.
+
+For example, on the `testdata` provided, here is the result:
+
+```bash
+$ ./fjt -B testdata/035e.fj -L testdata/035e.sglf 
+[ 79 8 0 0 0 0 0 -1 0 0 0 389 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 1 0 0 -1 34 -1 185 1]
+[ 79 2 0 0 0 0 0 -1 0 0 0 390 0 0 0 0 0 1 0 0 0 0 0 0 26 0 0 1 0 0 -1 34 -1 185 1]
+[[ ][ ][ ][ ][ ][ ][ 903 1 ][ ][ 16 1 ][ ][ ][ ][ ][ ][ ][ ][ ][ ][ ][ ][ ][ 96 1 ][ ][ ][ ][ ][ ][ ][ ][ ][ ][ ][ ][ ][ 291 2 ]]
+[[ ][ ][ ][ ][ ][ ][ 903 1 ][ ][ 16 1 ][ ][ ][ ][ ][ ][ ][ ][ ][ ][ ][ ][ ][ 96 1 ][ ][ ][ ][ ][ ][ ][ ][ ][ ][ ][ ][ ][ 291 2 ]]
+```
+
+
 ### CSV output `fjt -C`
 
 To produce the tiles in `sglf` format (simple genome library format), outputing the tiles in CSV can be done.
-The output CSV is `tileID`, `hash` and `sequence`.
+The output CSV is `extended tileID`, `hash` and `sequence`.
 
-For example, using the `example-tile.fj` file above would produce:
+For example, using the `035e.fj` file included in `testdata` would produce:
 
 ```
-$ fjt -C example-tile.fj
-0157.00.0000.0000,d7c151e05a4be1a735af3d1346c90714,agaaaatgccaacatagccagagtgataaattaattctatagaccaacaagtcaaacataagaaaaagttggaaaaatttaccataccaattacattttaattgtagtagtatatctccgtcatctcagcccaaaaactccttaagctgataagcaacttcagcaaggtctcagcatacaaaatcaatgtgcaaaaatcacaagcattccttcacaccaacaatagacaagcagagagccaaatcatgaatgaactcccatttacaatagctacaaagagaataaaatacctaagaatacagttaacaagggatgtgaaggacctcttcaaggagaactacaaaccactgctcaaggaaataatagaggacacaaacaaatggaaaaacgttccatcctcatggataggaagaacaaatatcgtgaaaatggccatactgcccaaagtaattaatagattcattgctattcccatcaaactaccattgacattcttcacagaatcagaaaaaactactttaaatttcatgtagaatcaaagaagaccctgtatagccaagacaatcctaagcataaaaaacaaatggag
-0157.00.0000.0001,d7c151e05a4be1a735af3d1346c90714,agaaaatgccaacatagccagagtgataaattaattctatagaccaacaagtcaaacataagaaaaagttggaaaaatttaccataccaattacattttaattgtagtagtatatctccgtcatctcagcccaaaaactccttaagctgataagcaacttcagcaaggtctcagcatacaaaatcaatgtgcaaaaatcacaagcattccttcacaccaacaatagacaagcagagagccaaatcatgaatgaactcccatttacaatagctacaaagagaataaaatacctaagaatacagttaacaagggatgtgaaggacctcttcaaggagaactacaaaccactgctcaaggaaataatagaggacacaaacaaatggaaaaacgttccatcctcatggataggaagaacaaatatcgtgaaaatggccatactgcccaaagtaattaatagattcattgctattcccatcaaactaccattgacattcttcacagaatcagaaaaaactactttaaatttcatgtagaatcaaagaagaccctgtatagccaagacaatcctaagcataaaaaacaaatggag
-0157.00.0001.0000,0dad59737cc1b788ca7f5d8e33b6cf90,cctaagcataaaaaacaaatggagacatcatgctacctgacttcaaactatactacagtgctacagtaaccaaaacagcatggtactggtaccaaaacagacatatagaccaaaaaggaacagaacagagacctcagaaataataccacgcatctacaaccatctgatcttcgacaaacctgacaataacaagcagtggggaaaggatctcctatttaataagtggtgctgggaaaactggctagccatatgcagaaaactgaaactggaccccttccttacaccttatacaaatattgagtcaagatagattaga
-0157.00.0001.0001,0dad59737cc1b788ca7f5d8e33b6cf90,cctaagcataaaaaacaaatggagacatcatgctacctgacttcaaactatactacagtgctacagtaaccaaaacagcatggtactggtaccaaaacagacatatagaccaaaaaggaacagaacagagacctcagaaataataccacgcatctacaaccatctgatcttcgacaaacctgacaataacaagcagtggggaaaggatctcctatttaataagtggtgctgggaaaactggctagccatatgcagaaaactgaaactggaccccttccttacaccttatacaaatattgagtcaagatagattaga
+$ ./fjt -C testdata/035e.fj  | head -n4
+035e.00.0000.000+1,7346f663d221ed28c112df86eb5986ef,gatcacaggtctatcaccctattaaccactcacgggagctctccatgcatttggtattttcgtctggggggcgtgcacgcgatagcattgcgggacgctggagccggagcaccctatgtcgcagtatctgtctttgattcctgcctcattctattatttatcgcacctacgttcaatattacaggcgaacatacctactaaagtgtgttaattaattaatgcttgtaggacataataataacaa
+035e.00.0000.001+1,7346f663d221ed28c112df86eb5986ef,gatcacaggtctatcaccctattaaccactcacgggagctctccatgcatttggtattttcgtctggggggcgtgcacgcgatagcattgcgggacgctggagccggagcaccctatgtcgcagtatctgtctttgattcctgcctcattctattatttatcgcacctacgttcaatattacaggcgaacatacctactaaagtgtgttaattaattaatgcttgtaggacataataataacaa
+035e.00.0001.000+1,1cadbbf41d5898b9e37ecdfd1d751f4e,gcttgtaggacataataataacaattgaatgtctgcacagccgctttccacacagacatcataacaaaaaatttccaccaaacccccccccctctccccccgcttctggccacagcacttaaacacatctctgccaaaccccaaaaacaaagaaccctaacaccagcctaaccagatttcaaattttatctttaggcggtatgcacttttaacagtcaccccccaactaacacattattttcccctcccactc
+035e.00.0001.001+1,d69eb38a5317a1f387c49c84a003df36,gcttgtaggacataataataacaattgaatgtctgcacagccgctttccacacagacatcataacaaaaaatttccaccaaaccccccccctctccccccgcttctggccacagcacttaaacacatctctgccaaaccccaaaaacaaagaaccctaacaccagcctaaccagatttcaaattttatctttaggcggtatgcacttttaacagtcaccccccaactaacacattattttcccctcccactc
 ```
 
 

@@ -20,13 +20,13 @@ agaaccctaacaccagcctaaccagatttcaaattttatctttaggcggt
 atgcacttttaacagtcaccccccaactaacacattattttcccctccca
 ctc
 
->{"tileID":"035e.00.0001.001","md5sum":"d69eb38a5317a1f387c49c84a003df36","tagmask_md5sum":"d69eb38a5317a1f387c49c84a003df36","locus":[{"build":"hg19 chrM 220 469"}],"n":252,"seedTileLength":1,"startTile":false,"endTile":false,"startSeq":"gcttgtaggacataataataacaa","endSeq":"acacattattttcccctcccactc","startTag":"gcttgtaggacataataataacaa","endTag":"acacattattttcccctcccactc","nocallCount":0,"notes":[ ]}
+>{"tileID":"035e.00.0001.001","md5sum":"1cadbbf41d5898b9e37ecdfd1d751f4e","tagmask_md5sum":"1cadbbf41d5898b9e37ecdfd1d751f4e","locus":[{"build":"hg19 chrM 220 469"}],"n":253,"seedTileLength":1,"startTile":false,"endTile":false,"startSeq":"gcttgtaggacataataataacaa","endSeq":"acacattattttcccctcccactc","startTag":"gcttgtaggacataataataacaa","endTag":"acacattattttcccctcccactc","nocallCount":0,"notes":[]}
 gcttgtaggacataataataacaattgaatgtctgcacagccgctttcca
-cacagacatcataacaaaaaatttccaccaaaccccccccctctcccccc
-gcttctggccacagcacttaaacacatctctgccaaaccccaaaaacaaa
-gaaccctaacaccagcctaaccagatttcaaattttatctttaggcggta
-tgcacttttaacagtcaccccccaactaacacattattttcccctcccac
-tc
+cacagacatcataacaaaaaatttccaccaaacccccccccctctccccc
+cgcttctggccacagcacttaaacacatctctgccaaaccccaaaaacaa
+agaaccctaacaccagcctaaccagatttcaaattttatctttaggcggt
+atgcacttttaacagtcaccccccaactaacacattattttcccctccca
+ctc
 
 >{"tileID":"035e.00.0002.000","md5sum":"1d46f1fff282a060f2e3b28592daa12e","tagmask_md5sum":"1d46f1fff282a060f2e3b28592daa12e","locus":[{"build":"hg19 chrM 445 961"}],"n":516,"seedTileLength":1,"startTile":false,"endTile":false,"startSeq":"acacattattttcccctcccactc","endSeq":"gtaaagagtgttttagatcacccc","startTag":"acacattattttcccctcccactc","endTag":"gtaaagagtgttttagatcacccc","nocallCount":0,"notes":[]}
 acacattattttcccctcccactcccatactactaatctcatcaatacaa
@@ -199,7 +199,7 @@ gccgtttactcaatcctctgatcagggtgagcatcaaactcaaactacgc
 cctgatcggcgcactgcgagcagtagcccaaacaatctcatatgaagtca
 ccctagccatcattctactatcaacattactaataagtggctcctttaa
 
->{"tileID":"035e.00.000a.001","md5sum":"847960e948a9bdab81903613d6390907","tagmask_md5sum":"847960e948a9bdab81903613d6390907","locus":[{"build":"hg19 chrM 3540 3789"}],"n":249,"seedTileLength":1,"startTile":false,"endTile":false,"startSeq":"tctcaccatcgctcttctactatg","endSeq":"attactaataagtggctcctttaa","startTag":"tctcaccatcgctcttctactatg","endTag":"attactaataagtggctcctttaa","nocallCount":0,"notes":[ ]}
+>{"tileID":"035e.00.000a.001","md5sum":"847960e948a9bdab81903613d6390907","tagmask_md5sum":"847960e948a9bdab81903613d6390907","locus":[{"build":"hg19 chrM 3540 3789"}],"n":249,"seedTileLength":1,"startTile":false,"endTile":false,"startSeq":"tctcaccatcgctcttctactatg","endSeq":"attactaataagtggctcctttaa","startTag":"tctcaccatcgctcttctactatg","endTag":"attactaataagtggctcctttaa","nocallCount":0,"notes":[]}
 tctcaccatcgctcttctactatgaacccccctccccatacccaaccccc
 tggtcaacctcaacctaggcctcctatttattctagccacctctagccta
 gccgtttactcaatcctctgatcagggtgagcatcaaactcaaactacgc
@@ -685,12 +685,12 @@ cctaaaactcacagccctcgctgtcactttcctaggacttctaacagccc
 tagacctcaactacctaaccaacaaacttaaaataaaatccccactatgc
 acattttatttctccaacatactcggattctaccctagcatcacacacc
 
->{"tileID":"035e.00.0018.001","md5sum":"49d105018b721f9a48f3bd238526c335","tagmask_md5sum":"49d105018b721f9a48f3bd238526c335","locus":[{"build":"hg19 chrM 13691 13940"}],"n":249,"seedTileLength":1,"startTile":false,"endTile":false,"startSeq":"accccattaaacgcctggcagccg","endSeq":"gattctaccctagcatcacacacc","startTag":"accccattaaacgcctggcagccg","endTag":"gattctaccctagcatcacacacc","nocallCount":0,"notes":[ ]}
+>{"tileID":"035e.00.0018.001","md5sum":"037337bfa23b91ac0ceeb3bbc64365e6","tagmask_md5sum":"037337bfa23b91ac0ceeb3bbc64365e6","locus":[{"build":"hg19 chrM 13691 13940"}],"n":249,"seedTileLength":1,"startTile":false,"endTile":false,"startSeq":"accccattaaacgcctggcagccg","endSeq":"gattctaccctagcatcacacacc","startTag":"accccattaaacgcctggcagccg","endTag":"gattctaccctagcatcacacacc","nocallCount":0,"notes":[]}
 accccattaaacgcctggcagccggaagcctattcgcaggatttctcatt
 actaacaacatttcccccgcatcccccttccaaacaacaatccccctcta
 cctaaaactcacagccctcgctgtcactttcctaggacttctaacagccc
 tagacctcaactacctaaccaacaaacttaaaataaaatccccactatgc
-acattttatttctccgacatactcggattctaccctagcatcacacacc
+acattttatttctccaacatactcggattctaccctagcatcacacacc
 
 >{"tileID":"035e.00.0019.000","md5sum":"6e8562df4c4b29fca56843573fbf23b3","tagmask_md5sum":"6e8562df4c4b29fca56843573fbf23b3","locus":[{"build":"hg19 chrM 13916 14328"}],"n":412,"seedTileLength":1,"startTile":false,"endTile":false,"startSeq":"gattctaccctagcatcacacacc","endSeq":"agcttcctacactattaaagttta","startTag":"gattctaccctagcatcacacacc","endTag":"agcttcctacactattaaagttta","nocallCount":0,"notes":[]}
 gattctaccctagcatcacacaccgcacaatcccctatctaggccttctt

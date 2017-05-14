@@ -117,7 +117,7 @@ For example, on the `testdata` provided, here is the result:
 ```bash
 $ ./fjt -B testdata/035e.fj -L testdata/035e.sglf 
 [ 79 8 0 0 0 0 0 -1 0 0 0 389 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 1 0 0 -1 34 -1 185 1]
-[ 79 2 0 0 0 0 0 -1 0 0 0 390 0 0 0 0 0 1 0 0 0 0 0 0 26 0 0 1 0 0 -1 34 -1 185 1]
+[ 79 8 0 0 0 0 0 -1 0 0 0 389 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 1 0 0 -1 34 -1 185 1]
 [[ ][ ][ ][ ][ ][ ][ 903 1 ][ ][ 16 1 ][ ][ ][ ][ ][ ][ ][ ][ ][ ][ ][ ][ ][ 96 1 ][ ][ ][ ][ ][ ][ ][ ][ ][ ][ ][ ][ ][ 291 2 ]]
 [[ ][ ][ ][ ][ ][ ][ 903 1 ][ ][ 16 1 ][ ][ ][ ][ ][ ][ ][ ][ ][ ][ ][ ][ ][ 96 1 ][ ][ ][ ][ ][ ][ ][ ][ ][ ][ ][ ][ ][ 291 2 ]]
 ```
@@ -135,7 +135,7 @@ $ ./fjt -C testdata/035e.fj  | head -n4
 035e.00.0000.000+1,7346f663d221ed28c112df86eb5986ef,gatcacaggtctatcaccctattaaccactcacgggagctctccatgcatttggtattttcgtctggggggcgtgcacgcgatagcattgcgggacgctggagccggagcaccctatgtcgcagtatctgtctttgattcctgcctcattctattatttatcgcacctacgttcaatattacaggcgaacatacctactaaagtgtgttaattaattaatgcttgtaggacataataataacaa
 035e.00.0000.001+1,7346f663d221ed28c112df86eb5986ef,gatcacaggtctatcaccctattaaccactcacgggagctctccatgcatttggtattttcgtctggggggcgtgcacgcgatagcattgcgggacgctggagccggagcaccctatgtcgcagtatctgtctttgattcctgcctcattctattatttatcgcacctacgttcaatattacaggcgaacatacctactaaagtgtgttaattaattaatgcttgtaggacataataataacaa
 035e.00.0001.000+1,1cadbbf41d5898b9e37ecdfd1d751f4e,gcttgtaggacataataataacaattgaatgtctgcacagccgctttccacacagacatcataacaaaaaatttccaccaaacccccccccctctccccccgcttctggccacagcacttaaacacatctctgccaaaccccaaaaacaaagaaccctaacaccagcctaaccagatttcaaattttatctttaggcggtatgcacttttaacagtcaccccccaactaacacattattttcccctcccactc
-035e.00.0001.001+1,d69eb38a5317a1f387c49c84a003df36,gcttgtaggacataataataacaattgaatgtctgcacagccgctttccacacagacatcataacaaaaaatttccaccaaaccccccccctctccccccgcttctggccacagcacttaaacacatctctgccaaaccccaaaaacaaagaaccctaacaccagcctaaccagatttcaaattttatctttaggcggtatgcacttttaacagtcaccccccaactaacacattattttcccctcccactc
+035e.00.0001.000+1,1cadbbf41d5898b9e37ecdfd1d751f4e,gcttgtaggacataataataacaattgaatgtctgcacagccgctttccacacagacatcataacaaaaaatttccaccaaacccccccccctctccccccgcttctggccacagcacttaaacacatctctgccaaaccccaaaaacaaagaaccctaacaccagcctaaccagatttcaaattttatctttaggcggtatgcacttttaacagtcaccccccaactaacacattattttcccctcccactc
 ```
 
 

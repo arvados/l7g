@@ -522,9 +522,6 @@ void ez_create(tilepath_ez_t &ez, tilepath_vec_t &tilepath, std::map< std::strin
 
       } else {
 
-        //DEBUG
-        printf(">>>>>>>\n");
-
         // loq het info
         //
         ez.loq_info_pos_het.push_back(tilestep);

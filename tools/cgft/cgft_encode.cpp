@@ -79,9 +79,6 @@ void ez_to_tilepath(tilepath_t *tilepath, tilepath_ez_t *ez) {
   }
   tilepath->NOverflow = (uint64_t)ez->ovf_vec.size();
 
-  //DEBUG
-  fprintf(stderr, "tilepath Overflow %i\n", (int)ez->ovf_vec.size());
-
   if (tilepath->Overflow64) { delete tilepath->Overflow64; }
   tilepath->Overflow64 = NULL;
   if (ez->ovf64_vec.size()>0) {

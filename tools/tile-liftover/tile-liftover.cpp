@@ -75,6 +75,7 @@ int main(int argc, char **argv) {
   FILE *ref_fp, *ofp;
   FILE *tagset_fp=NULL;
 
+  std::string ref_fn = "-";
   std::string tagset_fn;
   std::string tagset;
   std::map< std::string, int > tag_pos_map;
@@ -113,6 +114,8 @@ int main(int argc, char **argv) {
       show_version(); exit(0); break;
     case 's':
       start_pos = atoi(optarg); break;
+    case 'R':
+      ref_fn = optarg; break;
     case 'h':
     default:
       show_help();
@@ -131,6 +134,21 @@ int main(int argc, char **argv) {
     tagset_fp = fopen(tagset_fn.c_str(), "r");
     if (tagset_fp==NULL) {
       perror(tagset_fn.c_str());
+      exit(-1);
+    }
+  }
+
+  if (ref_fn.size()==0) {
+    fprintf(stderr, "invalid reference stream\n");
+    show_help();
+    exit(-1);
+  }
+
+  if (ref_fn=="-") { ref_fp = stdin; }
+  else {
+    ref_fp = fopen(ref_fn.c_str(), "r");
+    if (ref_fp==NULL) {
+      perror(ref_fn.c_str());
       exit(-1);
     }
   }

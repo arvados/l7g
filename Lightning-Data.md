@@ -188,6 +188,52 @@ For example, here is a portion of the `assembly.00.hg19.fw.gz` file:
 0004      40101132
 ...
 ```
+
+To calculate the beginning of a tile path, the chromosome and reference
+position needs to be stored from the previous tile path.
+If there is no previous tile path or the tile path has a different chromosome,
+the beginning reference position is 0.
+If the previous tile path has the same chromosome, then one past the reported value
+of the last tile step is the beginning of the current tile path.
+
+In the above example, tile path `0x31f` starts at `chr22`, reference position `14700001`.
+
+Tile steps can be skipped, in which case the tile that the end tag falls in
+is reported.
+Tile step 0 is always the first tile step in a tile path.
+To calculate the span of a tile, the previous tile step needs to be stored.
+If the tile step increment is greater than one, the tile step one past the previous
+tile step is the anchor tile and the difference between the reported tile step and previously
+reported tile step is the span.
+
+For example:
+
+```
+...
+00b3      59032812
+00b4      59373566
+>human_g1k_v37:MT:035e
+0000           244
+0001           467
+0002           959
+0003          1394
+0004          1767
+0005          2225
+0008          3338
+0009          3563
+000a          3788
+000b          9760
+000c          9985
+...
+```
+
+For tile path `0x35e`, tile step `0x0008` is reported with end reference position `3338` with the previously
+reported tile step of `0x0005` and reference position `2225`.
+The next tile after tile step `0x0005` is `0x0006` and has span of `3` (`8-5=3`).
+In this case, the anchor tile is tile step `0x0006` with span of `3` with the next tile after '0x0006` is `0x0009`.
+The tile `0x0006` starts at reference position `201` (`225-24`) and ends (inclusively, 0 reference) on `3338`.
+
+
 In addition to the fixed width file, a fixed width index file, reminiscent of
 a FASTA index file, is used as an index file.  The format is a tab
 delimited sequence name, size (in bytes), start (excluding header, in bytes),
@@ -210,12 +256,17 @@ hg19:chr1:0008  237408  1330672 15      16
 hg19:chr1:0009  117776  1568096 15      16
 ```
 
-The fixed width file is compressed with `bgzip` and indexed, for a total of 3 files.
+The fixed width file is compressed with `bgzip` and indexed, for a total of 3 files per reference tile assembly build.
+In theory multiple tile reference assemblies could be provided in the same file but the current version has
+each reference tile assembly in distinct files, with three files for `hg19` and three files for `human_g1k_v37`.
+
+Note that the chromosome naming convention is used from the source reference sequence.
+For example, `chrM` for `hg19` and `MT` for the `human_g1k_v37` reference.
 
 The current fixed width files total ~56MiB.  The most current assembly files can
 be found at:
 
-* [Lightning hg19 Tile Assembly](https://workbench.su92l.arvadosapi.com/collections/su92l-4zz18-h3wh1rjk236eyig)
+* [Lightning hg19 Tile Assembly](https://workbench.su92l.arvadosapi.com/collections/su92l-4zz18-rg323w0m5a5ci7n)
 
 Span
 ---

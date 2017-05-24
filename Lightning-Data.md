@@ -196,7 +196,7 @@ the beginning reference position is 0.
 If the previous tile path has the same chromosome, then one past the reported value
 of the last tile step is the beginning of the current tile path.
 
-In the above example, tile path `0x31f` starts at `chr22`, reference position `14700001`.
+In the above example, tile path `0x000d` starts at `chr1`, reference position `40100001`.
 
 Tile steps can be skipped, in which case the tile that the end tag falls in
 is reported.
@@ -230,7 +230,7 @@ For example:
 For tile path `0x35e`, tile step `0x0008` is reported with end reference position `3338` with the previously
 reported tile step of `0x0005` and reference position `2225`.
 The next tile after tile step `0x0005` is `0x0006` and has span of `3` (`8-5=3`).
-In this case, the anchor tile is tile step `0x0006` with span of `3` with the next tile after '0x0006` is `0x0009`.
+In this case, the anchor tile is tile step `0x0006` with span of `3` with the next tile after `0x0006` is `0x0009`.
 The tile `0x0006` starts at reference position `201` (`225-24`) and ends (inclusively, 0 reference) on `3338`.
 
 

@@ -25,7 +25,7 @@ func init() {
   REF_NAME = "hg19"
 }
 
-var BGZIP string = "/home/abram/bin/bgzip"
+var BGZIP string = "/usr/bin/bgzip"
 
 func process_assembly(ifn, path string) error {
 
@@ -35,8 +35,8 @@ func process_assembly(ifn, path string) error {
     idx_ifn = ifn[:li] + ".fwi"
   }
 
+  cmd := exec.Command("grep", "-P", "^" + "[^:]*:[^:]*:" + path + "\t", idx_ifn)
 
-  cmd := exec.Command("grep", "-P", "^" + REF_NAME + ":.*:" + path + "\t", idx_ifn)
   var out bytes.Buffer
   cmd.Stdout = &out
   err := cmd.Run()
@@ -49,8 +49,6 @@ func process_assembly(ifn, path string) error {
   args := []string{"-c", "-b", beg_str, "-s", sz_str, ifn}
   env := os.Environ()
 
-  //return syscall.Exec("/usr/local/bin/bgzip", args, env)
-  //return syscall.Exec("bgzip", args, env)
   return syscall.Exec(BGZIP, args, env)
 }
 
@@ -62,7 +60,8 @@ func assembly_end(ifn, path string) (int, int, error) {
     idx_ifn = ifn[:li] + ".fwi"
   }
 
-  cmd := exec.Command("grep", "-P", "^" + REF_NAME + ":.*:" + path + "\t", idx_ifn)
+  cmd := exec.Command("grep", "-P", "^" + "[^:]*:[^:]*:" + path + "\t", idx_ifn)
+
   var out bytes.Buffer
   cmd.Stdout = &out
   err := cmd.Run()
@@ -72,8 +71,8 @@ func assembly_end(ifn, path string) (int, int, error) {
   sz_str := v[1]
   beg_str := v[2]
 
-  //cmd = exec.Command("/usr/local/bin/bgzip", "-c", "-b", beg_str, "-s", sz_str, ifn)
-  cmd = exec.Command("bgzip", "-c", "-b", beg_str, "-s", sz_str, ifn)
+  cmd = exec.Command(BGZIP, "-c", "-b", beg_str, "-s", sz_str, ifn)
+
   cmd_out,e := cmd.Output()
   if e!=nil { return 0,0,fmt.Errorf(fmt.Sprintf("assembly_end bgzip error: %v", e)) }
   a := strings.Split(strings.Trim(string(cmd_out), "\n"), "\n")
@@ -89,8 +88,6 @@ func assembly_end(ifn, path string) (int, int, error) {
 }
 
 func assembly_range(ifn, path string) error {
-  //bgzip := "/usr/local/bin/bgzip" ; _ = bgzip
-  bgzip := "bgzip" ; _ = bgzip
   env := os.Environ() ; _ = env
 
   i_path,e := strconv.ParseInt(path, 16, 64)

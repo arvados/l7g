@@ -602,7 +602,7 @@ void mk_vec_tilemap(std::vector< std::vector< std::vector<int> > > &vtm, const c
   int entry_count=0;
   int tval;
 
-  int enc_val=0, allele;
+  int enc_val=0;
 
   std::string s_tm = tm;
 
@@ -648,9 +648,6 @@ void mk_vec_tilemap(std::vector< std::vector< std::vector<int> > > &vtm, const c
         }
       }
       tm_entry.push_back(y);
-
-      allele = 1-allele;
-
     }
     vtm.push_back(tm_entry);
 
@@ -752,7 +749,7 @@ int cgft_output_band_format(cgf_t *cgf, tilepath_t *tilepath, FILE *fp) {
 
 
             if (loc_verbose) {
-              printf("  cur_tilestep %i : hexit_val %i -> %i %i\n",
+              fprintf(fp, "  cur_tilestep %i : hexit_val %i -> %i %i\n",
                   cur_tilestep,
                   hexit_val,
                   tilemap_vec[hexit_val][0][j],
@@ -778,20 +775,20 @@ int cgft_output_band_format(cgf_t *cgf, tilepath_t *tilepath, FILE *fp) {
         variant_v[0][tilestep] = 0;
         variant_v[1][tilestep] = 0;
 
-        if (loc_verbose) { printf("  tilestep %i -> 0 0\n", tilestep); }
+        if (loc_verbose) { fprintf(fp, "  tilestep %i -> 0 0\n", tilestep); }
 
       }
       else if (cache_ovf_mask & (1<<i)) {
         if (cur_hexit<n_hexit) {
 
           if (loc_verbose) {
-            printf(">>> tilestep %i hexit %i\n", tilestep, hexit[cur_hexit]);
+            fprintf(fp, ">>> tilestep %i hexit %i\n", tilestep, hexit[cur_hexit]);
           }
 
         }
         cur_hexit++;
       }
-      //else if (loq_mask & (1<<i)) { if (loc_verbose) { printf("  loq %i\n", tilestep); } }
+      //else if (loq_mask & (1<<i)) { if (loc_verbose) { fprintf(fp, "  loq %i\n", tilestep); } }
 
       tilestep++;
     }
@@ -862,7 +859,7 @@ int cgft_output_band_format(cgf_t *cgf, tilepath_t *tilepath, FILE *fp) {
             int cur_tilestep = 32*n_32_q + i + j;
 
             if (loc_verbose) {
-              printf("  cur_tilestep (r) %i : hexit_val %i -> %i %i\n",
+              fprintf(fp, "  cur_tilestep (r) %i : hexit_val %i -> %i %i\n",
                   cur_tilestep,
                   hexit_val,
                   tilemap_vec[hexit_val][0][j],
@@ -888,13 +885,13 @@ int cgft_output_band_format(cgf_t *cgf, tilepath_t *tilepath, FILE *fp) {
         variant_v[0][tilestep] = 0;
         variant_v[1][tilestep] = 0;
 
-        if (loc_verbose) { printf("  tiletsep (r) %i -> 0 0\n", tilestep); }
+        if (loc_verbose) { fprintf(fp, "  tiletsep (r) %i -> 0 0\n", tilestep); }
       }
       else if (cache_ovf_mask & (1<<i)) {
         if (cur_hexit<n_hexit) {
 
           if (loc_verbose) {
-            printf("  tilestep (r) %i hexit %i\n", tilestep, hexit[cur_hexit]);
+            fprintf(fp, "  tilestep (r) %i hexit %i\n", tilestep, hexit[cur_hexit]);
           }
         }
         cur_hexit++;
@@ -906,7 +903,7 @@ int cgft_output_band_format(cgf_t *cgf, tilepath_t *tilepath, FILE *fp) {
   }
 
   if (loc_verbose) {
-    printf("...\n");
+    fprintf(fp, "...\n");
   }
 
   // cache processed, now fill in with overflow
@@ -939,7 +936,7 @@ int cgft_output_band_format(cgf_t *cgf, tilepath_t *tilepath, FILE *fp) {
     variant_v[1][tilestep] = varb;
 
     if (loc_verbose) {
-      printf("  loq hom %i -> %i %i\n", tilestep, vara, varb);
+      fprintf(fp, "  loq hom %i -> %i %i\n", tilestep, vara, varb);
     }
 
     for (j=prev_noc_start; j<tilepath->LoqTileNocSumHom[i]; j++) {
@@ -965,7 +962,7 @@ int cgft_output_band_format(cgf_t *cgf, tilepath_t *tilepath, FILE *fp) {
     variant_v[1][tilestep] = varb;
 
     if (loc_verbose) {
-      printf("  loq het %i -> %i %i\n", tilestep, vara, varb);
+      fprintf(fp, "  loq het %i -> %i %i\n", tilestep, vara, varb);
     }
 
     for (j=prev_noc_start; j<tilepath->LoqTileNocSumHet[2*i]; j++) {
@@ -988,7 +985,7 @@ int cgft_output_band_format(cgf_t *cgf, tilepath_t *tilepath, FILE *fp) {
   for (i=0; i<2; i++) {
     fprintf(fp, "[");
     for (j=0; j<variant_v[i].size(); j++) {
-      printf(" %i", variant_v[i][j]);
+      fprintf(fp, " %i", variant_v[i][j]);
     }
     fprintf(fp, "]\n");
   }
@@ -998,7 +995,7 @@ int cgft_output_band_format(cgf_t *cgf, tilepath_t *tilepath, FILE *fp) {
     for (j=0; j<noc_v[i].size(); j++) {
       fprintf(fp, "[");
       for (k=0; k<noc_v[i][j].size(); k++) {
-        printf(" %i", noc_v[i][j][k]);
+        fprintf(fp, " %i", noc_v[i][j][k]);
       }
       fprintf(fp, " ]");
     }

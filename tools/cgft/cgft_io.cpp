@@ -656,7 +656,7 @@ void mk_vec_tilemap(std::vector< std::vector< std::vector<int> > > &vtm, const c
 
 }
 
-int cgft_output_band_format(cgf_t *cgf, tilepath_t *tilepath, FILE *fp) {
+int cgft_output_band_format(cgf_t *cgf, tilepath_t *tilepath, FILE *fp, int output_noc) {
   int i, j, k, ii, jj;
   uint64_t u64;
   uint32_t u32;
@@ -923,63 +923,67 @@ int cgft_output_band_format(cgf_t *cgf, tilepath_t *tilepath, FILE *fp) {
 
   // finally, fill in with nocall
 
-  int prev_noc_start = 0;
-  for (i=0; i<tilepath->LoqTileStepHom.size(); i++) {
-    tilestep = tilepath->LoqTileStepHom[i];
-    int vara = tilepath->LoqTileVariantHom[2*i];
-    int varb = tilepath->LoqTileVariantHom[2*i+1];
+  if (output_noc) {
 
-    if (vara==SPAN_SDSL_ENC_VAL) { vara = -1; }
-    if (varb==SPAN_SDSL_ENC_VAL) { varb = -1; }
+    int prev_noc_start = 0;
+    for (i=0; i<tilepath->LoqTileStepHom.size(); i++) {
+      tilestep = tilepath->LoqTileStepHom[i];
+      int vara = tilepath->LoqTileVariantHom[2*i];
+      int varb = tilepath->LoqTileVariantHom[2*i+1];
 
-    variant_v[0][tilestep] = vara;
-    variant_v[1][tilestep] = varb;
+      if (vara==SPAN_SDSL_ENC_VAL) { vara = -1; }
+      if (varb==SPAN_SDSL_ENC_VAL) { varb = -1; }
 
-    if (loc_verbose) {
-      fprintf(fp, "  loq hom %i -> %i %i\n", tilestep, vara, varb);
+      variant_v[0][tilestep] = vara;
+      variant_v[1][tilestep] = varb;
+
+      if (loc_verbose) {
+        fprintf(fp, "  loq hom %i -> %i %i\n", tilestep, vara, varb);
+      }
+
+      for (j=prev_noc_start; j<tilepath->LoqTileNocSumHom[i]; j++) {
+        noc_v[0][tilestep].push_back( (int)tilepath->LoqTileNocStartHom[j] );
+        noc_v[0][tilestep].push_back( (int)tilepath->LoqTileNocLenHom[j] );
+
+        noc_v[1][tilestep].push_back( (int)tilepath->LoqTileNocStartHom[j] );
+        noc_v[1][tilestep].push_back( (int)tilepath->LoqTileNocLenHom[j] );
+      }
+      prev_noc_start = (int)tilepath->LoqTileNocSumHom[i];
     }
 
-    for (j=prev_noc_start; j<tilepath->LoqTileNocSumHom[i]; j++) {
-      noc_v[0][tilestep].push_back( (int)tilepath->LoqTileNocStartHom[j] );
-      noc_v[0][tilestep].push_back( (int)tilepath->LoqTileNocLenHom[j] );
+    prev_noc_start=0;
+    for (i=0; i<tilepath->LoqTileStepHet.size(); i++) {
+      tilestep = tilepath->LoqTileStepHet[i];
+      int vara = tilepath->LoqTileVariantHet[2*i];
+      int varb = tilepath->LoqTileVariantHet[2*i+1];
 
-      noc_v[1][tilestep].push_back( (int)tilepath->LoqTileNocStartHom[j] );
-      noc_v[1][tilestep].push_back( (int)tilepath->LoqTileNocLenHom[j] );
+      if (vara==SPAN_SDSL_ENC_VAL) { vara = -1; }
+      if (varb==SPAN_SDSL_ENC_VAL) { varb = -1; }
+
+      variant_v[0][tilestep] = vara;
+      variant_v[1][tilestep] = varb;
+
+      if (loc_verbose) {
+        fprintf(fp, "  loq het %i -> %i %i\n", tilestep, vara, varb);
+      }
+
+      for (j=prev_noc_start; j<tilepath->LoqTileNocSumHet[2*i]; j++) {
+        noc_v[0][tilestep].push_back( (int)tilepath->LoqTileNocStartHet[j] );
+        noc_v[0][tilestep].push_back( (int)tilepath->LoqTileNocLenHet[j] );
+      }
+      prev_noc_start = (int)tilepath->LoqTileNocSumHet[2*i];
+
+      for (j=prev_noc_start; j<tilepath->LoqTileNocSumHet[2*i+1]; j++) {
+        noc_v[1][tilestep].push_back( (int)tilepath->LoqTileNocStartHet[j] );
+        noc_v[1][tilestep].push_back( (int)tilepath->LoqTileNocLenHet[j] );
+      }
+      prev_noc_start = (int)tilepath->LoqTileNocSumHet[2*i+1];
+
     }
-    prev_noc_start = (int)tilepath->LoqTileNocSumHom[i];
+
   }
 
-  prev_noc_start=0;
-  for (i=0; i<tilepath->LoqTileStepHet.size(); i++) {
-    tilestep = tilepath->LoqTileStepHet[i];
-    int vara = tilepath->LoqTileVariantHet[2*i];
-    int varb = tilepath->LoqTileVariantHet[2*i+1];
-
-    if (vara==SPAN_SDSL_ENC_VAL) { vara = -1; }
-    if (varb==SPAN_SDSL_ENC_VAL) { varb = -1; }
-
-    variant_v[0][tilestep] = vara;
-    variant_v[1][tilestep] = varb;
-
-    if (loc_verbose) {
-      fprintf(fp, "  loq het %i -> %i %i\n", tilestep, vara, varb);
-    }
-
-    for (j=prev_noc_start; j<tilepath->LoqTileNocSumHet[2*i]; j++) {
-      noc_v[0][tilestep].push_back( (int)tilepath->LoqTileNocStartHet[j] );
-      noc_v[0][tilestep].push_back( (int)tilepath->LoqTileNocLenHet[j] );
-    }
-    prev_noc_start = (int)tilepath->LoqTileNocSumHet[2*i];
-
-    for (j=prev_noc_start; j<tilepath->LoqTileNocSumHet[2*i+1]; j++) {
-      noc_v[1][tilestep].push_back( (int)tilepath->LoqTileNocStartHet[j] );
-      noc_v[1][tilestep].push_back( (int)tilepath->LoqTileNocLenHet[j] );
-    }
-    prev_noc_start = (int)tilepath->LoqTileNocSumHet[2*i+1];
-
-  }
-
-  // create out nocall vectors
+  // output all vectors
   //
 
   for (i=0; i<2; i++) {
@@ -990,16 +994,18 @@ int cgft_output_band_format(cgf_t *cgf, tilepath_t *tilepath, FILE *fp) {
     fprintf(fp, "]\n");
   }
 
-  for (i=0; i<2; i++) {
-    fprintf(fp, "[");
-    for (j=0; j<noc_v[i].size(); j++) {
+  if (output_noc) {
+    for (i=0; i<2; i++) {
       fprintf(fp, "[");
-      for (k=0; k<noc_v[i][j].size(); k++) {
-        fprintf(fp, " %i", noc_v[i][j][k]);
+      for (j=0; j<noc_v[i].size(); j++) {
+        fprintf(fp, "[");
+        for (k=0; k<noc_v[i][j].size(); k++) {
+          fprintf(fp, " %i", noc_v[i][j][k]);
+        }
+        fprintf(fp, " ]");
       }
-      fprintf(fp, " ]");
+      fprintf(fp, "]\n");
     }
-    fprintf(fp, "]\n");
   }
 
 }

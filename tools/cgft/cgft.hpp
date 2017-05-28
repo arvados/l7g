@@ -188,7 +188,7 @@ int cgft_sanity(cgf_t *);
 
 int cgft_write_to_file(cgf_t *, const char *);
 
-int cgft_output_band_format(cgf_t *, tilepath_t *, FILE *);
+int cgft_output_band_format(cgf_t *, tilepath_t *, FILE *, int);
 
 // ez functions
 

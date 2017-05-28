@@ -258,6 +258,7 @@ typedef struct cgft_opt_type {
   int update_cglf_version;
 
   int update_header;
+  int hiq_only;
 
 } cgft_t;
 
@@ -296,6 +297,7 @@ void init_cgft_opt(cgft_t *opt) {
   opt->update_cglf_version = 0;
 
   opt->update_header = 0;
+  opt->hiq_only = 0;
 }
 
 static struct option long_options[] = {
@@ -307,6 +309,7 @@ static struct option long_options[] = {
   {"version",             no_argument,        NULL, 'v'},
   {"verbose",             no_argument,        NULL, 'V'},
   {"ez-print",            no_argument,        NULL, 'Z'},
+  {"hiq",                 no_argument,        NULL, 'q'},
   {"band",                required_argument,  NULL, 'b'},
   {"encode",              required_argument,  NULL, 'e'},
   {"input",               required_argument,  NULL, 'i'},
@@ -341,6 +344,7 @@ void show_help() {
   printf("  [-T|--version-opt vopt]     CGF version option.  Must be one of \"default\" or \"noc-inv\"\n");
   printf("  [-L|--library-version lopt] CGF library version option.  Overwrites default value if specified\n");
   printf("  [-U|--update-header]        Update header only\n");
+  printf("  [-q|--hiq]                  Only output high quality information (band output)\n");
   printf("\n");
 }
 
@@ -359,7 +363,7 @@ int main(int argc, char **argv) {
 
   init_cgft_opt(&cgft_opt);
 
-  while ((opt = getopt_long(argc, argv, "Hb:e:i:o:Ct:T:L:U:hvVAZRI", long_options, &option_index))!=-1) switch (opt) {
+  while ((opt = getopt_long(argc, argv, "Hb:e:i:o:Ct:T:L:U:hvVAZRIq", long_options, &option_index))!=-1) switch (opt) {
     case 0:
       fprintf(stderr, "sanity error, invalid option to parse, exiting\n");
       exit(-1);
@@ -376,6 +380,7 @@ int main(int argc, char **argv) {
     case 'h': cgft_opt.show_help=1; break;
     case 'A': cgft_opt.show_all=1; break;
     case 'v': cgft_opt.show_version=1; break;
+    case 'q': cgft_opt.hiq_only=1; break;
     case 'V': cgft_opt.verbose=1; break;
     case 'Z': cgft_opt.ez_print=1; break;
     case 'R': cgft_opt.run_test=1; break;
@@ -538,7 +543,11 @@ int main(int argc, char **argv) {
       cleanup_ok();
     }
 
-    cgft_output_band_format(cgf, &(cgf->Path[idx]), stdout);
+    if (cgft_opt.hiq_only) {
+      cgft_output_band_format(cgf, &(cgf->Path[idx]), stdout, 0);
+    } else {
+      cgft_output_band_format(cgf, &(cgf->Path[idx]), stdout, 1);
+    }
 
   }
 

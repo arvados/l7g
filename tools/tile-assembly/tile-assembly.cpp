@@ -33,11 +33,24 @@ void show_version() {
 }
 
 void show_help() {
+  printf("\n");
   printf("Tile Assembly Tool\n");
   printf("\n");
   printf("usage:\n");
-  printf("  tile-assembly <action> ...\n");
   printf("\n");
+  //printf("  tile-assembly <action> ...\n");
+  //printf("\n");
+  printf("  tile-assembly tilepath [tile-assembly-file] <hex-tilepath>\n");
+  printf("\n");
+  printf("    show tile assembly information for tile path\n");
+  printf("\n");
+  printf("\n");
+  printf("  tile-assembly range [tile-assembly-file] <hex-tilepath>\n");
+  printf("\n");
+  printf("    show tile assembly range for tile path\n");
+  printf("\n");
+  printf("\n");
+  return;
   printf("  [-v]        version\n");
   printf("  [-V]        verbose\n");
   printf("  [-i ifn]    input\n");

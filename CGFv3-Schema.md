@@ -37,7 +37,7 @@ CGFVersion        String { int32, []char }
 LibraryVersion    String { int32, []char }
 PathCount         8byte
 TileMap           String { int32, []char }
-PathStructOffset  []8byte                 // absolute, from beg. of file
+PathStructOffset  []8byte                   // absolute, from beg. of file
 PathStruct        []{
 
   Name          String { int32, []char }

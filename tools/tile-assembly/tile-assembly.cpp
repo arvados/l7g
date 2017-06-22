@@ -235,7 +235,7 @@ int tileassembly_end_pos(const char *afn, int tilepath, int *tilestep, int *ref_
     line += (char)ch;
   }
 
-  *tilestep = cur_tilestep;
+  *tilestep = cur_tilestep+1;
   *ref_pos = cur_ref_pos;
 
 cleanup_print_bgzf:

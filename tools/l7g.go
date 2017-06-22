@@ -52,7 +52,7 @@ func process_assembly(ifn, path string) error {
   return syscall.Exec(BGZIP, args, env)
 }
 
-func assembly_end(ifn, path string) (int, int, error) {
+func assembly_end(ifn, path string) (int, int, string, string, error) {
 
   idx_ifn := ifn + ".fwi"
   if strings.HasSuffix(ifn, ".gz") {
@@ -65,26 +65,31 @@ func assembly_end(ifn, path string) (int, int, error) {
   var out bytes.Buffer
   cmd.Stdout = &out
   err := cmd.Run()
-  if err!=nil { return 0,0,err }
+  if err!=nil { return 0,0,"","",err }
 
   v := strings.Split( strings.Trim( out.String(), "\t\n " ), "\t" )
   sz_str := v[1]
   beg_str := v[2]
 
+  info_fields := strings.Split( v[0], ":" )
+  ref_name := info_fields[0]
+  chrom_name := info_fields[1]
+
+
   cmd = exec.Command(BGZIP, "-c", "-b", beg_str, "-s", sz_str, ifn)
 
   cmd_out,e := cmd.Output()
-  if e!=nil { return 0,0,fmt.Errorf(fmt.Sprintf("assembly_end bgzip error: %v", e)) }
+  if e!=nil { return 0,0,"","",fmt.Errorf(fmt.Sprintf("assembly_end bgzip error: %v", e)) }
   a := strings.Split(strings.Trim(string(cmd_out), "\n"), "\n")
-  if len(a)==0 { return 0, 0, fmt.Errorf("no output") }
+  if len(a)==0 { return 0, 0, "","", fmt.Errorf("no output") }
   n := len(a)
 
   step_pos := strings.Split( strings.Replace(a[n-1], " ", "", -1), "\t" )
   step,e := strconv.ParseInt(step_pos[0], 16, 64)
-  if e!=nil { return 0,0,e}
+  if e!=nil { return 0,0,"","",e}
   pos,e := strconv.ParseInt(step_pos[1], 10, 64)
-  if e!=nil { return 0,0,e}
-  return int(step),int(pos),nil
+  if e!=nil { return 0,0,"","",e}
+  return int(step),int(pos),ref_name,chrom_name,nil
 }
 
 func assembly_range(ifn, path string) error {
@@ -95,16 +100,16 @@ func assembly_range(ifn, path string) error {
 
   bfr_path := fmt.Sprintf("%04x", i_path-1)
 
-  _,pos_bfr,e := assembly_end(ifn, bfr_path)
+  _,pos_bfr,_,_,e := assembly_end(ifn, bfr_path)
   if e!=nil { pos_bfr = 0 }
 
-  step_aft,pos_aft,e := assembly_end(ifn, path)
+  step_aft,pos_aft,ref_name,chrom_name,e := assembly_end(ifn, path)
   if e!=nil { return fmt.Errorf(fmt.Sprintf("assembly_end error: %v", e))  }
 
   if pos_bfr > pos_aft { pos_bfr = 0 }
 
-  fmt.Printf("nstep\tbeg\tend\n")
-  fmt.Printf("%d\t%d\t%d\n", step_aft, pos_bfr, pos_aft)
+  fmt.Printf("nstep\tbeg\tend\tchrom_name\tref_name\n")
+  fmt.Printf("%d\t%d\t%d\t%s\t%s\n", step_aft, pos_bfr, pos_aft, chrom_name, ref_name)
   return nil
 }
 

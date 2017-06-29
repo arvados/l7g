@@ -170,7 +170,7 @@ void show_help() {
   printf("Version: %s\n", TF_VERSION);
   printf("usage:\n  tagsetFa [-h] [-v] [-V] [-i input_start_fn] [-o output_fa] [-R ref_fa]\n");
   printf("\n");
-  printf("  [-i ifn]    input file of start positions (default stdin)\n");
+  printf("  [-i ifn]    input file of 0 reference start positions (default stdin)\n");
   printf("  [-o ofn]    output file of tag sequences (default stdout)\n");
   printf("  [-R ref_fa] reference FASTA file\n");
   printf("  [-c chrom]  chromosome name in FASTA file\n");

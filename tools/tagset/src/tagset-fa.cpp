@@ -70,7 +70,7 @@ int print_tags(FILE *ofp, std::string &fa_fn, std::string &chrom, std::vector< l
   std::vector< std::string > tok_v;
   fai_t fai;
   long long int idx_offset, idx_size, idx_width, idx_width_r;
-  long long int seq_q, seq_r, byte_offset, end_offset;
+  long long int seq_q, seq_r, byte_offset;
 
   idx_fn =  fa_fn;
   idx_fn += ".fai";
@@ -98,7 +98,6 @@ int print_tags(FILE *ofp, std::string &fa_fn, std::string &chrom, std::vector< l
         idx_size = fai.size[chrom_idx];
         idx_width = fai.width[chrom_idx];
         idx_width_r = fai.width_r[chrom_idx];
-        end_offset = idx_offset + idx_size;
       }
 
       continue;
@@ -106,17 +105,6 @@ int print_tags(FILE *ofp, std::string &fa_fn, std::string &chrom, std::vector< l
     line += (char)ch;
   }
   fclose(fp);
-
-  /*
-  for (i=0; i<fai.name.size(); i++) {
-    printf("%s\t%lli\t%lli\t%lli\t%lli\n",
-        fai.name[i].c_str(),
-        fai.beg[i],
-        fai.size[i],
-        fai.width[i],
-        fai.width_r[i]);
-  }
-  */
 
   if (chrom_idx<0) { return -1; }
 
@@ -134,10 +122,12 @@ int print_tags(FILE *ofp, std::string &fa_fn, std::string &chrom, std::vector< l
     if (r<0) { return r; }
 
     buf.clear();
-    while ((byte_offset < end_offset) && (buf.size()<tag_len)) {
+    //while ((byte_offset < end_offset) && (buf.size()<tag_len)) {
+    while (buf.size()<tag_len) {
       byte_offset++;
       ch = bgzf_getc(bgzfp);
       if ((ch=='\n') || (ch=='\r')) { continue; }
+      if (ch==EOF) { return -1; }
       buf += _lc(ch);
     }
     fprintf(ofp, "%s\n", buf.c_str());
@@ -225,6 +215,15 @@ int main(int argc, char **argv) {
 
   read_start_pos(ifp, start_pos);
   if (ifp!=stdin) { fclose(ifp); }
+
+  /*
+  //DEBUG
+  for (int ii=0; ii<start_pos.size(); ii++) {
+    printf("[%i] %lli\n", ii, start_pos[ii]);
+  }
+  exit(1);
+  //DEBUG
+  */
 
   if (ofn=="-") { ofp = stdout; }
   else {

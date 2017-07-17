@@ -332,7 +332,7 @@ if the entire population was no-call.
 
 The current size is ~24GiB.  The current SGLF can be found at:
 
-* [Simple Genome Library Format)(https://workbench.su92l.arvadosapi.com/collections/su92l-4zz18-zh3mc5wv4478yhm)
+* [Simple Genome Library Format](https://workbench.su92l.arvadosapi.com/collections/su92l-4zz18-zh3mc5wv4478yhm)
 
 
 FastJ

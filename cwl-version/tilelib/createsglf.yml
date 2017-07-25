@@ -1,0 +1,25 @@
+bashscriptmain:
+   class: File
+   path: /data-sdd/cwl_tiling/tilelib/run_tilelib_allCWL.sh 
+
+bashscript:
+   class: File
+   path: /data-sdd/cwl_tiling/tilelib/tilelibCWL.sh
+
+fastj2cgflib:
+   class: File
+   path: /data-sdd/cwl_tiling/tilelib/fastj2cgflib
+
+datadir:
+   class: Directory
+   path: keep:42e0fda6c36f625e76edf3290ae4bf9d+3671088
+
+verbose_tagset:
+   class: File
+   path: /data-sdd/cwl_tiling/tilelib/verbose_tagset
+
+tagset:
+   class: File
+   path: keep:6f0b48919ea97da91e3749f65969f03f+627/tagset.fa.gz
+
+numthreads: "16"

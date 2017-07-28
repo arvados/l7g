@@ -4,12 +4,11 @@ bashscript:
 
 fjdir:
    class: Directory 
-   path: keep:b2a8d9363b1b6f292edebd065269abcc+53246/cleanedhu704A85-GS01239-DNA_E01 
-
+   path: keep:42e0fda6c36f625e76edf3290ae4bf9d+3671088/cleanedvar-GS12880-1100-37-ASM
 cgf:
    class: File 
    path: /data-sdd/cwl_tiling/cgf/cgf
 
 cglf:
    class: Directory
-   path: keep:17225e505cfe3222db581cd3e7e295f4+63430
+   path: keep:7d49b4982fa3d00191c7f777ea6dbfa4+43927/lib-merge

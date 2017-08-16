@@ -11,7 +11,7 @@ import "runtime/pprof"
 
 import "bufio"
 
-import "github.com/curoverse/l7g/simplestream"
+import "github.com/curoverse/l7g/go/simplestream"
 
 import "github.com/codegangsta/cli"
 

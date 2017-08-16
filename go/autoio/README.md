@@ -7,7 +7,7 @@ like you use normal files.
 Installation
 ------------
 
-    $ go get github.com/abeconnelly/autoio
+    $ go get github.com/curoverse/l7g/go/autoio
 
 Example
 -------
@@ -16,7 +16,7 @@ Example
 package main
 
 import "fmt"
-import "github.com/abeconnelly/autoio"
+import "github.com/curoverse/l7g/go/autoio"
 
 func parrot_file( fn string ) {
   aio,err := autoio.OpenScanner( fn )

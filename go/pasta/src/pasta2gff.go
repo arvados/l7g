@@ -12,7 +12,7 @@ import "runtime/pprof"
 import "bufio"
 import "bytes"
 
-import "github.com/curoverse/l7g/simplestream"
+import "github.com/curoverse/l7g/go/simplestream"
 
 import "github.com/codegangsta/cli"
 

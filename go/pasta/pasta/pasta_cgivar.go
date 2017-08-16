@@ -4,12 +4,10 @@ import "fmt"
 import "strconv"
 import "strings"
 import "bufio"
-//import "io"
-//import "bytes"
 
 import "time"
 
-import "github.com/abeconnelly/pasta"
+import "github.com/curoverse/l7g/go/pasta"
 
 const PASTA_CGIVAR_SOFT_VER = "0.1.0"
 const PASTA_CGIVAR_FMT_VER_STR = "2.5"

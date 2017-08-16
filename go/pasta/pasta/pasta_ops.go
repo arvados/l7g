@@ -3,7 +3,7 @@ package main
 import "fmt"
 import "bufio"
 
-import "github.com/abeconnelly/pasta"
+import "github.com/curoverse/l7g/go/pasta"
 
 type PastaInfo struct {
   Stream *bufio.Reader

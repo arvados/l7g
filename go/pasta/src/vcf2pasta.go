@@ -9,8 +9,8 @@ import "bufio"
 import "strings"
 import "strconv"
 
-import "github.com/curoverse/l7g/autoio"
-import "github.com/curoverse/l7g/simplestream"
+import "github.com/curoverse/l7g/go/autoio"
+import "github.com/curoverse/l7g/go/simplestream"
 
 import "github.com/codegangsta/cli"
 

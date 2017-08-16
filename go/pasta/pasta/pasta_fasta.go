@@ -5,7 +5,7 @@ import "bufio"
 import "fmt"
 import "strings"
 
-import "github.com/abeconnelly/pasta"
+import "github.com/curoverse/l7g/go/pasta"
 
 type FASTAInfo struct {
 

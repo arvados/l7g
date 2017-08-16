@@ -5,7 +5,7 @@ import "os"
 import "io"
 import "bufio"
 
-import "github.com/abeconnelly/pasta"
+import "github.com/curoverse/l7g/go/pasta"
 
 
 // Read from an interleaved stream and print out a simplified variant difference format

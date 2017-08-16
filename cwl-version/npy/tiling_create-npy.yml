@@ -1,0 +1,17 @@
+bashscriptmain:
+   class: File
+   path:  "/data-sdd/cwl_tiling/tilelib/merge-tilelibCWL.sh"
+
+srcdir:
+   class: Directory 
+   path: keep:cf503ce74715c987aa24502628a427fb+82575
+
+nppdir:
+   class: Directory
+   path: keep:30b4b338dfc3b2661b981dbf53b4edc7+30065/lib
+
+nthreads: "2"
+
+mergetilelib:
+   class: File
+   path: "/data-sdd/cwl_tiling/tilelib/merge-tilelib" 

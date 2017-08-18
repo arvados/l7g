@@ -1,1 +1,1 @@
-cat compilescript.sh | docker run -v /data-sdd/cwl_tiling/npy/buildArvados/scripts:/scripts -v /data-sdd/cwl_tiling/npy/buildArvados/dest:/dest -v /data-sdd/cwl_tiling/npy/buildArvados/src:/src --rm -i pythontools sh -s ./lib/cnpy 
+cat compilescript.sh | docker run -v /data-sdd/cwl_tiling/npy/buildArvados/scripts:/scripts -v /data-sdd/cwl_tiling/npy/buildArvados/dest:/dest -v /data-sdd/cwl_tiling/npy/buildArvados/src:/src --rm -i pythontoolsbuild sh -s ./lib/cnpy 

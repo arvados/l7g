@@ -1,1 +1,0 @@
-LD_LIBRARY_PATH=/data-sdd/cwl_tiling/npy/lib/cnpy ./npy-vec-to-hiq-1hot data-vec-pgp/names data-vec-pgp test-outdir/

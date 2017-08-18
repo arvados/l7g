@@ -8,7 +8,7 @@ cgb:
 
 cgfdirectory:
    class: Directory
-   path: keep:8b5e8ba151461bab446e51e1734a7f94+6669 
+   path: keep:de76794ec53bb1885cf64946ec49990e+43221
 
 band2matrix:
    class: File

@@ -2,5 +2,5 @@ CC=g++
 OPT=-static -O3
 LIBS=-I../../lib/cnpy -L../../lib/cnpy -lcnpy
 
-npy-consolodate: npy-consolodate.cpp
-	$(CC) $(OPT) npy-consolodate.cpp -o npy-consolodate $(LIBS)
+npy-consolidate: npy-consolidate.cpp
+	$(CC) $(OPT) npy-consolidate.cpp -o npy-consolidate $(LIBS)

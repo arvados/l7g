@@ -106,8 +106,8 @@ namespace cnpy {
             fwrite(&header[0],sizeof(char),header.size(),fp);
         }
 
-        unsigned int nels = 1;
-        for(int i = 0;i < ndims;i++) nels *= shape[i];
+        size_t nels = 1;
+        for(int i = 0;i < ndims;i++) nels *= (size_t)shape[i];
 
         fwrite(data,sizeof(T),nels,fp);
         fclose(fp);

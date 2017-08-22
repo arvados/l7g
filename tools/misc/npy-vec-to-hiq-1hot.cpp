@@ -21,7 +21,7 @@
 
 // to compile:
 //
-//    g++  -g npy-vec-to-hiq-1hot.cpp  -o npy-vec-to-hiq-1hot -L./lib/cnpy -lcnpy -I./lib/cnpy
+//    g++  -O3 -static npy-vec-to-hiq-1hot.cpp  -o npy-vec-to-hiq-1hot -L../../lib/cnpy -lcnpy -I../../lib/cnpy
 //
 // to run:
 //
@@ -197,6 +197,7 @@ int write_1hot(std::vector< std::vector<int> > &hiq_ilv, std::vector<int> &hiq_p
   std::vector<int> oh_hiq_info;
   int oh_max;
   int shape[2];
+  size_t oh_width, idx;
 
   std::string ofn, ofn_info;
 
@@ -267,10 +268,16 @@ int write_1hot(std::vector< std::vector<int> > &hiq_ilv, std::vector<int> &hiq_p
       (int)(oh_hiq_info.size()));
   fflush(stdout);
 
+  oh_width = (size_t)oh_hiq[0].size();
+
   double *dvec = (double *)malloc(sizeof(double)*(oh_hiq.size()*oh_hiq[0].size()));
   for (ds=0; ds<n_dataset; ds++)  {
     for (vpos=0; vpos<oh_hiq[0].size(); vpos++) {
-      dvec[n_vec*ds + vpos] = (double)(oh_hiq[ds][vpos]);
+      idx = oh_width;
+      idx *= (size_t)ds;
+      idx += vpos;
+      //dvec[n_vec*ds + vpos] = (double)(oh_hiq[ds][vpos]);
+      dvec[idx] = (double)(oh_hiq[ds][vpos]);
     }
   }
 

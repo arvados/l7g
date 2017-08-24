@@ -55,7 +55,6 @@ int align_W3(char **X, char **Y, char *a, char *b, int *W, int m_r, int n_c, int
     dr = 0;
     dc = 0;
 
-
     w = c - (r-w_offset);
     pos11 = r*w_len + w;
 
@@ -68,9 +67,7 @@ int align_W3(char **X, char **Y, char *a, char *b, int *W, int m_r, int n_c, int
       w = c - ((r-1)-w_offset);
       if ((w>=0) && (w<w_len)) {
         pos01 = (r-1)*w_len + w;
-        //if ((W[pos01]+gap) == W[pos11]) { dr=-1; dc=0; }
         if ((W[pos01]+score_func(0,b[r-1])) == W[pos11]) { dr=-1; dc=0; }
-        //if ((W[pos01]+score_func(a[c-1],0)) == W[pos11]) { dr=-1; dc=0; }
       }
     }
 
@@ -78,9 +75,7 @@ int align_W3(char **X, char **Y, char *a, char *b, int *W, int m_r, int n_c, int
       w = (c-1) - (r-w_offset);
       if ((w>=0) && (w<w_len)) {
         pos10 = r*w_len + w;
-        //if ((W[pos10]+gap) == W[pos11]) { dr=0; dc=-1; }
         if ((W[pos10]+score_func(a[c-1],0)) == W[pos11]) { dr=0; dc=-1; }
-        //if ((W[pos10]+score_func(0,b[r-1])) == W[pos11]) { dr=0; dc=-1; }
       }
     }
 
@@ -88,7 +83,6 @@ int align_W3(char **X, char **Y, char *a, char *b, int *W, int m_r, int n_c, int
       w = (c-1) - ((r-1)-w_offset);
       if ((w>=0) && (w<w_len)) {
         pos00 = (r-1)*w_len + w;
-        //mm = ((a[c-1]==b[r-1])?0:mismatch);
         mm = score_func(a[c-1], b[r-1]);
         if ((W[pos00]+mm) == W[pos11]) { dr=-1; dc=-1; }
       }
@@ -106,11 +100,6 @@ int align_W3(char **X, char **Y, char *a, char *b, int *W, int m_r, int n_c, int
     } else {
       free(tx);
       free(ty);
-
-      //DEBUG
-      //printf("BANG!\n");
-      //fflush(stdout);
-
       return -1;
     }
 
@@ -146,6 +135,12 @@ int asm_ukk_score3(char *a, char *b, int (*score_func)(char, char)) {
   return sc;
 }
 
+// Run Ukkonnen's approximate string alignment on `a` and `b`
+//   storing result in `X` and `Y` using
+// `score_func` as the scoring function and `gap_char` as the gap character.
+// sa_align_ukk3 is called with a threshold that is doubled after every failed
+//   alignment.
+//
 int asm_ukk_align3(char **X, char **Y, char *a, char *b, int (*score_func)(char, char), char gap_char) {
   int threshold = (1<<2);
   int it, max_it=(1<<(32-2-1));
@@ -176,6 +171,11 @@ int asm_ukk_align3(char **X, char **Y, char *a, char *b, int (*score_func)(char,
   return sc;
 }
 
+// Run Ukkonnen's approximate string alignment on `a` and `b` up until
+//   threshold T has been reached, storing result in `X` and `Y` using
+// ` score_func` as the scoring function and `gap_char` as the gap character.
+// -1 is returned if theshold `T` was reached.
+//
 int sa_align_ukk3(char **X, char **Y, char *a, char *b, int T, int (*score_func)(char, char), char gap_char) {
   int ret;
   int r,c, n_c, m_r, len_ovf;
@@ -227,11 +227,6 @@ int sa_align_ukk3(char **X, char **Y, char *a, char *b, int T, int (*score_func)
     return -1;
   }
 
-  //DEBUG
-  //int i;
-  //printf("!!!!! m_r %d, w_len %d\n", m_r, w_len);
-  //fflush(stdout);
-
 
   W = (int *)malloc(sizeof(int)*m_r*w_len);
 
@@ -241,28 +236,7 @@ int sa_align_ukk3(char **X, char **Y, char *a, char *b, int T, int (*score_func)
     if (w<w_offset) { W[w] = -1; }
     else { W[w] = 2*(w-w_offset); }
 
-    /*
-    else if (w==w_offset) { W[w] = 0; }
-    else if (c<n_c) { W[w] = W[w-1] + score_func(a[c],0); }
-    else { W[w] = W[w-1] + score_func(0,0); }
-    */
-
   }
-
-  /*
-  for (c=1; c<n_c; c++) {
-    w = c - (1-w_offset);
-    if (c==1) { W[w]=0; }
-    else if (c<n_c) { W[w] = W[w-1] + score_func(a[c-1],0); }
-    else { W[w] = W[w-1] + score_func(0,0); }
-  }
-  */
-
-  //DEBUG
-  //printf(">>>INIT\n");
-  //for (i=0; i<w_len; i++) { printf("%d ", W[i]); }
-  //printf("\n");
-  //fflush(stdout);
 
   for (r=1; r<m_r; r++) {
 
@@ -278,32 +252,24 @@ int sa_align_ukk3(char **X, char **Y, char *a, char *b, int T, int (*score_func)
 
       if (c<0) { W[r*w_len + w] = -1; }
 
-      //else if (c==0) { W[r*w_len + w] = r*2; }
-      //else if (c==0) { W[r*w_len + w] = W[(r-1)*w_len + w_rmm] + 2; }
       else if (c==0) { W[r*w_len + w] = W[(r-1)*w_len + w_rmm] + score_func(0,b[r-1]); }
-      //else if (c==0) { W[r*w_len + w] = W[(r-1)*w_len + w] + score_func(0, b[r-1]); }
 
       else if (c>=n_c) { W[r*w_len + w] = -1; }
       else {
 
         // diagonal value
         //
-        //m = W[(r-1)*w_len + w] + ((a[c-1]==b[r-1]) ? 0 : mismatch);
         m = W[(r-1)*w_len + w] + score_func(a[c-1],b[r-1]) ;
 
 
         // left to right transition
         //
-        //if ((w>0) && ((W[r*w_len+w-1] + gap) < m)) { m = W[r*w_len+w-1] + gap; }
-        //if ((w>0) && ((W[r*w_len+w-1] + score_func(a[c-1], 0)) < m)) { m = W[r*w_len+w-1] + score_func(a[c-1], 0); }
         if ((w>0) && ((W[r*w_len+w-1] + score_func(0,b[r-1])) < m)) { m = W[r*w_len+w-1] + score_func(0,b[r-1]); }
 
 
         // top to bottom transition
         //
         if ((w+1)!=w_len) {
-          //if ((W[(r-1)*w_len+w+1] + gap) < m) { m = W[(r-1)*w_len+w+1] + gap; }
-          //if ((W[(r-1)*w_len+w+1] + score_func(0,b[r-1])) < m) { m = W[(r-1)*w_len+w+1] + score_func(0,b[r-1]); }
           if ((W[(r-1)*w_len+w+1] + score_func(a[c-1],0)) < m) { m = W[(r-1)*w_len+w+1] + score_func(a[c-1],0); }
         }
 
@@ -317,7 +283,6 @@ int sa_align_ukk3(char **X, char **Y, char *a, char *b, int T, int (*score_func)
   m = W[(m_r-1)*w_len + w];
 
   if (create_align_seq) {
-    //ret = align_W2(X, Y, a, b, W, m_r, n_c, w_len, mismatch, gap, gap_char);
     ret = align_W3(X, Y, a, b, W, m_r, n_c, w_len, score_func, gap_char);
     if (ret<0) { return ret; }
   }

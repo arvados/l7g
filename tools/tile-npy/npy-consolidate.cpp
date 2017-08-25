@@ -1,3 +1,13 @@
+/* Consolidate individual Lightning numpy arrays broken out by tilepath
+ * into a single Lightning tile numpy matrix.
+ *
+ * to run:
+ *
+ *   ./npy-consolidate inp-data-vec/[0123]* out.npy
+ *
+  *
+ */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
@@ -6,6 +16,8 @@
 
 #include <vector>
 #include <string>
+
+
 
 int main(int argc, char **argv) {
   int i, j, k;
@@ -18,7 +30,7 @@ int main(int argc, char **argv) {
   std::vector< int > npy_info;
   std::string ofn, ofn_info;
 
-  int loc_debug=1;
+  int loc_debug=0;
 
   int *pvec;
   uint32_t u32;
@@ -34,20 +46,28 @@ int main(int argc, char **argv) {
 
   ofn = "out-consolidated";
 
-  if (argc<=1) {
+  if (argc<=2) {
     printf("provide input npy list\n");
+    printf("\n");
+    printf("example:\n\n  ./npy-consolidate inp-data-vec/[0123]* out.npy\n\n");
     exit(-1);
   }
 
   ifns.clear();
 
-  for (i=1; i<argc; i++) { ifns.push_back(argv[i]); }
+
+  for (i=1; i<(argc-1); i++) { ifns.push_back(argv[i]); }
+  ofn = argv[argc-1];
+
 
   shape[0] = 0;
   shape[1] = 0;
 
   if (loc_debug) {
-    printf("...\n"); fflush(stdout);
+    for (i=0; i<ifns.size(); i++) {
+      printf(" ifn[%i] %s\n", i, ifns[i].c_str());
+    }
+    printf("ofn: %s\n", ofn.c_str());
   }
 
 

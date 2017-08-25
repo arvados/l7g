@@ -1,3 +1,12 @@
+/* A program to convert band information into a Lightning tile numpy array.
+ * This includes low quality positions and high quality positions.
+ *
+ * to run:
+ *
+ *     cat dataset0-003.band dataset1-003.band dataset2-003.band | ./band-to-matrix-npy 003 003.npy
+ *
+ */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
@@ -163,17 +172,6 @@ void print_tilepath_vecs(std::vector<tilepath_vec_t> &tv) {
   n = tv.size();
   tilepath_n = tv[0].allele[0].size();
 
-  /*
-  if (print_header) {
-    printf(" pos \\ name  |");
-    for (i=0; i<n; i++) {
-      printf(" %s", tv[i].name.c_str());
-    }
-    printf("\n");
-    printf("-------------|--\n");
-  }
-  */
-
   for (pos=0; pos<tilepath_n; pos++) {
 
     max_val = 0;
@@ -224,7 +222,6 @@ void print_tilepath_vecs(std::vector<tilepath_vec_t> &tv) {
 
         if (i>0) { printf(" "); }
         else if (print_header) {
-          //printf("pos%03x.%03x.v | ", pos, hotpos);
           if (TILEPATH>=0) {
             printf("%04x.%03x(%03x)v ", TILEPATH, pos, hotpos);
           } else {
@@ -243,7 +240,6 @@ void print_tilepath_vecs(std::vector<tilepath_vec_t> &tv) {
       printf("\n");
     }
 
-    //printf("\n");
   }
 
 }
@@ -297,8 +293,6 @@ void spot_test() {
   cur_ds.name = "ds1";
 
   ds.push_back(cur_ds);
-
-  //print_tilepath_vec(cur_ds);
 
   print_tilepath_vecs(ds);
   exit(0);
@@ -405,51 +399,6 @@ int main(int argc, char **argv) {
 
   }
 
-  //for (i=0; i<ds.size(); i++) { print_tilepath_vec(ds[i]); }
-
   save_npy_int(ofn, ds, 'I');
   free(ofn);
-  //save_npy_double("test0.npy", ds, 'i');
-
-  //print_tilepath_vecs(ds);
-
-
-  /*
-  for (i=0; i<N_ALLELE; i++) {
-
-    for (ch=fgetc(stdin); (ch==' ') || (ch=='\n'); ch=fgetc(stdin)) ;
-
-    if (ch!='[') { fprintf(stderr, "bad input"); fflush(stderr); exit(1); }
-    pcount = 1;
-
-    step=0;
-
-    while (pcount>0) {
-      ch = fgetc(stdin);
-
-      if (ch==']') {
-        pcount--;
-        step++;
-        continue;
-      }
-
-      if (ch=='[') { pcount++; continue; }
-      if (ch==' ') { continue; }
-
-      allele[i][step] = -16;
-
-    }
-  }
-
-  for (i=0; i<N_ALLELE; i++) {
-    for (j=0; j<allele[i].size(); j++) {
-      if (allele[i][j]==-1) { printf(" -1"); }  // spanning
-      else if (allele[i][j] == -16) { printf(" -2"); } // loq
-      else printf(" %i", allele[i][j]);
-    }
-    printf("\n");
-  }
-
-  */
-
 }

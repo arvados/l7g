@@ -3,11 +3,11 @@
  *
  * output:
  *
-    [out_dir]/hiq-pgp
-    [out_dir]/hiq-pgp-info
+    [out_dir]/hiq
+    [out_dir]/hiq-info
 
-    [out_dir]/hiq-pgp-1hot
-    [out_dir]/hiq-pgp-1hot-info
+    [out_dir]/hiq-1hot
+    [out_dir]/hiq-1hot-info
  *
  *
  * format of 'info' is:
@@ -201,8 +201,6 @@ int write_1hot(std::vector< std::vector<int> > &hiq_ilv, std::vector<int> &hiq_p
 
   std::string ofn, ofn_info;
 
-  //ofn = "data-vec-pgp/hiq-pgp-1hot";
-  //ofn_info = "data-vec-pgp/hiq-pgp-1hot-info";
   ofn = odir;
   ofn += "/hiq-1hot";
   ofn_info = odir;
@@ -361,7 +359,6 @@ int load_all(std::string &npy_name_list, std::string &npy_vec_idir, std::string 
   ofn_info = odir;
   ofn_info += "/hiq-info";
 
-  //names = cnpy::npy_load("data-vec-pgp/names");
   names = cnpy::npy_load(npy_name_list.c_str());
 
   for (i=0; i<names.shape[0]; i++) {

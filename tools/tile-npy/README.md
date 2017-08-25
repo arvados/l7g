@@ -62,3 +62,19 @@ $ ./npy-consolidate inp_vec_npy_dir/000 inp_vec_npy_dir/001 ... inp_vec_npy_dir/
 
 This will create an `all` numpy matrix as well as an `all-info` numpy matrix that encodes the
 Lightning tile path and Lightning tile step of each column in the `all` numpy matrix.
+
+
+create-list
+---
+
+Save a numpy array.  Used for saving the names of the datasets as a numpy array.
+
+### Quick start
+
+```
+./create-list <( echo -e 'dataset0\ndataset1\ndataset2' ) name-list.npy
+```
+
+This will create a numpy string array with the entries in the carriage return
+separated input file and save them in the `name-list.npy` numpy array.
+

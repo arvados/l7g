@@ -24,14 +24,58 @@
 static int g_verbose=0;
 static int g_debug=0;
 
-int align_W3(char **X, char **Y, char *a, char *b, int *W, int m_r, int n_c, int w_len, int (*score_func)(char, char), char gap_char) {
+// void data compare
+//
+// -1 a  < b (lex ordering)
+// +1 a  > b (lex ordering)
+//  0 a == b
+//
+static int vd_cmp(void *a, void *b, size_t n) {
+  size_t i;
+  char *c_a, *c_b;
+  c_a = (char *)a;
+  c_b = (char *)b;
+  for (i=0; i<n; i++) {
+    if (c_a[i]!=c_b[i]) {
+      if (c_a[i]<c_b[i]) { return -1; }
+      return 1;
+    }
+  }
+  return 0;
+}
+
+static int default_vd_score_func(void *a, void *b, size_t n) {
+  if ((!a) || (!b)) { return 2; }
+  if (vd_cmp(a,b,n)==0) { return 0; }
+  return 3;
+}
+
+static void byte_swap(void *a, void *b, size_t sz) {
+  size_t i;
+  unsigned char ch, *c_a, *c_b;
+  c_a = a;
+  c_b = b;
+  for (i=0; i<sz; i++) {
+    ch = c_a[i]; c_a[i] = c_b[i]; c_b[i] = ch;
+  }
+}
+
+int align_v_W3(void **X, size_t *X_len,
+               void **Y, size_t *Y_len,
+               void *a, size_t a_len,
+               void *b, size_t b_len,
+               int *W, int m_r, int n_c,
+               int w_len,
+               int (*score_func)(void *, void *, size_t),
+               void *gap_ele,
+               size_t sz) {
   int i;
   int dr, dc;
   int r, c, w;
   int pos00, pos01, pos10, pos11;
   int w_offset;
   int mm;
-  int xy_pos=0;
+  size_t xy_pos=0;
   char ch;
 
   char *tx, *ty;
@@ -41,11 +85,8 @@ int align_W3(char **X, char **Y, char *a, char *b, int *W, int m_r, int n_c, int
   *X = NULL;
   *Y = NULL;
 
-  tx = (char *)malloc(sizeof(char)*2*i);
-  ty = (char *)malloc(sizeof(char)*2*i);
-
-  tx[2*i-1] = '\0';
-  ty[2*i-1] = '\0';
+  tx = (void *)malloc(sz*2*i);
+  ty = (void *)malloc(sz*2*i);
 
   w_offset = w_len/2;
 
@@ -67,7 +108,7 @@ int align_W3(char **X, char **Y, char *a, char *b, int *W, int m_r, int n_c, int
       w = c - ((r-1)-w_offset);
       if ((w>=0) && (w<w_len)) {
         pos01 = (r-1)*w_len + w;
-        if ((W[pos01]+score_func(0,b[r-1])) == W[pos11]) { dr=-1; dc=0; }
+        if ((W[pos01]+score_func(NULL, b + sz*(r-1), sz)) == W[pos11]) { dr=-1; dc=0; }
       }
     }
 
@@ -75,7 +116,7 @@ int align_W3(char **X, char **Y, char *a, char *b, int *W, int m_r, int n_c, int
       w = (c-1) - (r-w_offset);
       if ((w>=0) && (w<w_len)) {
         pos10 = r*w_len + w;
-        if ((W[pos10]+score_func(a[c-1],0)) == W[pos11]) { dr=0; dc=-1; }
+        if ((W[pos10]+score_func(a + sz*(c-1), NULL, sz)) == W[pos11]) { dr=0; dc=-1; }
       }
     }
 
@@ -83,23 +124,31 @@ int align_W3(char **X, char **Y, char *a, char *b, int *W, int m_r, int n_c, int
       w = (c-1) - ((r-1)-w_offset);
       if ((w>=0) && (w<w_len)) {
         pos00 = (r-1)*w_len + w;
-        mm = score_func(a[c-1], b[r-1]);
+        mm = score_func(a + sz*(c-1), b + sz*(r-1), sz);
         if ((W[pos00]+mm) == W[pos11]) { dr=-1; dc=-1; }
       }
     }
 
     if ((dr==-1) && (dc==-1)) {
-      tx[xy_pos] = a[c-1];
-      ty[xy_pos] = b[r-1];
+
+      memcpy(tx + sz*xy_pos, a + sz*(c-1), sz);
+      memcpy(ty + sz*xy_pos, b + sz*(r-1), sz);
+
     } else if ((dr==-1) && (dc==0)) {
-      tx[xy_pos] = gap_char;
-      ty[xy_pos] = b[r-1];
+
+      memcpy(tx + sz*xy_pos, gap_ele, sz);
+      memcpy(ty + sz*xy_pos, b + sz*(r-1), sz);
+
     } else if ((dr==0) && (dc==-1)) {
-      tx[xy_pos] = a[c-1];
-      ty[xy_pos] = gap_char;
+
+      memcpy(tx + sz*xy_pos, a + sz*(c-1), sz);
+      memcpy(ty + sz*xy_pos, gap_ele, sz);
+
     } else {
+
       free(tx);
       free(ty);
+
       return -1;
     }
 
@@ -108,12 +157,12 @@ int align_W3(char **X, char **Y, char *a, char *b, int *W, int m_r, int n_c, int
     c+=dc;
   }
 
-  tx[xy_pos]='\0';
-  ty[xy_pos]='\0';
+  *X_len = xy_pos;
+  *Y_len = xy_pos;
 
   for (i=0; i<(xy_pos/2); i++) {
-    ch = tx[i]; tx[i] = tx[xy_pos-i-1]; tx[xy_pos-i-1] = ch;
-    ch = ty[i]; ty[i] = ty[xy_pos-i-1]; ty[xy_pos-i-1] = ch;
+    byte_swap(tx + sz*i, tx + sz*(xy_pos-i-1), sz);
+    byte_swap(ty + sz*i, ty + sz*(xy_pos-i-1), sz);
   }
 
   *X = tx;
@@ -122,20 +171,16 @@ int align_W3(char **X, char **Y, char *a, char *b, int *W, int m_r, int n_c, int
   return 0;
 }
 
-int asm_ukk_score3(char *a, char *b, int (*score_func)(char, char)) {
+int avm_ukk_score3(void *a, int a_len,
+                   void *b, int b_len,
+                   int (*score_func)(void *, void *, size_t),
+                   size_t sz) {
   int threshold = (1<<2);
   int it, max_it=((32-2-1));
   int sc = -2;
-  int n_a, n_b, del;
-
-  n_a = strlen(a);
-  n_b = strlen(b);
-  del = score_func(-1,-1);
-
-  threshold = ( (n_a>n_b) ? ((n_a-n_b+1)*del) : ((n_b-n_a+1)*del) );
 
   for (it=0; (it<max_it) && (sc<0); it++) {
-    sc = sa_align_ukk3(NULL, NULL, a, b, threshold, score_func, '-');
+    sc = vd_align_ukk3(NULL, NULL, NULL, NULL, a, a_len, b, b_len, threshold, score_func, NULL, sz);
     threshold*=2;
   }
 
@@ -144,34 +189,32 @@ int asm_ukk_score3(char *a, char *b, int (*score_func)(char, char)) {
 
 // Run Ukkonnen's approximate string alignment on `a` and `b`
 //   storing result in `X` and `Y` using
-// `score_func` as the scoring function and `gap_char` as the gap character.
-// sa_align_ukk3 is called with a threshold that is doubled after every failed
+// `score_func` as the scoring function and `gap_ele` as the gap data.
+// vd_align_ukk3 is called with a threshold that is doubled after every failed
 //   alignment.
+// `X` and `Y` are arrays of size `sz`
 //
-int asm_ukk_align3(char **X, char **Y, char *a, char *b, int (*score_func)(char, char), char gap_char) {
+int avm_ukk_align3(void **X, size_t *X_len,
+                   void **Y, size_t *Y_len,
+                   void *a, size_t a_len,
+                   void *b, size_t b_len,
+                   int (*score_func)(void *, void *, size_t),
+                   void *gap_ele,
+                   size_t sz) {
   int threshold = (1<<2);
-  //int threshold = 128;
   int it, max_it=((32-2-1));
   int sc = -2;
-
-  int n_a, n_b, del;
 
   if ((X!=NULL) && (Y!=NULL)) {
     *X = NULL;
     *Y = NULL;
   }
 
-  n_a = strlen(a);
-  n_b = strlen(b);
-  del = score_func(-1,-1);
-
-  threshold = ( (n_a>n_b) ? ((n_a-n_b+1)*del) : ((n_b-n_a+1)*del) );
-
   for (it=0; (it<max_it) && (sc<0); it++) {
 
     if (g_verbose) { printf("# threshold %d\n", threshold); }
 
-    sc = sa_align_ukk3(X, Y, a, b, threshold, score_func, gap_char);
+    sc = vd_align_ukk3(X, X_len, Y, Y_len, a, a_len, b, b_len, threshold, score_func, gap_ele, sz);
     threshold*=2;
 
     if (sc<0) {
@@ -192,22 +235,26 @@ int asm_ukk_align3(char **X, char **Y, char *a, char *b, int (*score_func)(char,
 // ` score_func` as the scoring function and `gap_char` as the gap character.
 // -1 is returned if theshold `T` was reached.
 //
-int sa_align_ukk3(char **X, char **Y, char *a, char *b, int T, int (*score_func)(char, char), char gap_char) {
+int vd_align_ukk3(void **X, size_t *X_len,
+                  void **Y, size_t *Y_len,
+                  void *a, size_t a_len,
+                  void *b, size_t b_len,
+                  int32_t T,
+                  int (*score_func)(void *, void *, size_t),
+                  void *gap_ele, size_t sz) {
   int ret;
   int r,c, n_c, m_r, len_ovf;
   int *W, w, w_offset, w_len;
   int p, del, m;
   int create_align_seq = 0;
 
-  int i, j;
-
-  n_c = strlen(a)+1;
-  m_r = strlen(b)+1;
+  n_c = (int)a_len+1;
+  m_r = (int)b_len+1;
 
   // Find minimum non-zero score for
   // window band space allocation.
   //
-  del = score_func(-1,-1);
+  del = score_func(NULL, NULL, sz);
   if (del<=0) { return -1; }
 
   if (X && Y) { create_align_seq = 1; }
@@ -220,12 +267,6 @@ int sa_align_ukk3(char **X, char **Y, char *a, char *b, int T, int (*score_func)
   // t/del < |n-m| -> reject
   //
   len_ovf = ((n_c>m_r) ? (n_c-m_r) : (m_r-n_c));
-
-
-  //DEBUG
-  //printf("T %i, del %i, T/del %i, len_ovf %i (n_c %i, m_r %i)\n",
-  //    T, del, T/del, len_ovf, n_c, m_r);
-
   if ((T/del) < len_ovf) {
     if (create_align_seq) {
       if (!(*X)) free(*X);
@@ -243,10 +284,6 @@ int sa_align_ukk3(char **X, char **Y, char *a, char *b, int T, int (*score_func)
   // our window isn't big enough to hold calculated values
   //
   w = (n_c-1) - ((m_r-1)-w_offset);
-
-  //DEBUG
-  //printf("w %i, w_len %i\n", w, w_len);
-
   if ((w<0) || (w>=w_len)) {
     if (create_align_seq) {
       if (!(*X)) free(*X);
@@ -280,25 +317,25 @@ int sa_align_ukk3(char **X, char **Y, char *a, char *b, int T, int (*score_func)
 
       if (c<0) { W[r*w_len + w] = -1; }
 
-      else if (c==0) { W[r*w_len + w] = W[(r-1)*w_len + w_rmm] + score_func(0,b[r-1]); }
+      else if (c==0) { W[r*w_len + w] = W[(r-1)*w_len + w_rmm] + score_func(NULL, b + sz*(r-1), sz); }
 
       else if (c>=n_c) { W[r*w_len + w] = -1; }
       else {
 
         // diagonal value
         //
-        m = W[(r-1)*w_len + w] + score_func(a[c-1],b[r-1]) ;
+        m = W[(r-1)*w_len + w] + score_func(a + sz*(c-1),b + sz*(r-1), sz) ;
 
 
         // left to right transition
         //
-        if ((w>0) && ((W[r*w_len+w-1] + score_func(0,b[r-1])) < m)) { m = W[r*w_len+w-1] + score_func(0,b[r-1]); }
+        if ((w>0) && ((W[r*w_len+w-1] + score_func(NULL, b + sz*(r-1), sz)) < m)) { m = W[r*w_len+w-1] + score_func(NULL, b + sz*(r-1), sz); }
 
 
         // top to bottom transition
         //
         if ((w+1)!=w_len) {
-          if ((W[(r-1)*w_len+w+1] + score_func(a[c-1],0)) < m) { m = W[(r-1)*w_len+w+1] + score_func(a[c-1],0); }
+          if ((W[(r-1)*w_len+w+1] + score_func(a + sz*(c-1), NULL, sz)) < m) { m = W[(r-1)*w_len+w+1] + score_func(a + sz*(c-1), NULL, sz); }
         }
 
         W[r*w_len+w] = m;
@@ -310,27 +347,12 @@ int sa_align_ukk3(char **X, char **Y, char *a, char *b, int T, int (*score_func)
   w = (n_c-1) - ((m_r-1)-w_offset);
   m = W[(m_r-1)*w_len + w];
 
-  //DEBUG
-//  for (i=0; i<m_r; i++) {
-//    for (j=0; j<i; j++) {
-//      printf("   ");
-//    }
-//    for (j=0; j<w_len; j++) {
-//      printf(" %2i", W[i*w_len + j]);
-//    }
-//    printf("\n");
-//  }
-//  printf("\n");
-
   if (create_align_seq) {
-    ret = align_W3(X, Y, a, b, W, m_r, n_c, w_len, score_func, gap_char);
+    ret = align_v_W3(X, X_len, Y, Y_len, a, a_len, b, b_len, W, m_r, n_c, w_len, score_func, gap_ele, sz);
     if (ret<0) { return ret; }
   }
 
   free(W);
-
-  //DEBUG
-  //printf("m %i, T %i\n", m, T);
 
   if (m>T) {
     if (create_align_seq) {

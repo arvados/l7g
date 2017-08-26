@@ -81,6 +81,7 @@ int main(int argc, char **argv) {
       break;
     case 'N':
       noc_prob = atof(optarg);
+      break;
     case 's':
       seed = atol(optarg);
       break;

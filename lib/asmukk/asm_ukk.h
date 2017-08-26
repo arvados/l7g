@@ -21,4 +21,34 @@ int sa_align_ukk(char **, char **, char *, char *, int);
 int sa_align_ukk2(char **, char **, char *, char *, int, int, int, char);
 int sa_align_ukk3(char **X, char **Y, char *a, char *b, int threshold, int (*score_func)(char, char), char gap_char);
 
+
+// arbitrary data aligment
+
+int avm_ukk_align3(void **X, size_t *X_len,
+                   void **Y, size_t *Y_len,
+                   void *a, size_t a_len,
+                   void *b, size_t b_len,
+                   int (*score_func)(void *, void *, size_t),
+                   void *gap_ele,
+                   size_t sz);
+
+int vd_align_ukk3(void **X, size_t *X_len,
+                  void **Y, size_t *Y_len,
+                  void *a, size_t a_len,
+                  void *b, size_t b_len,
+                  int32_t T,
+                  int (*score_func)(void *, void *, size_t),
+                  void *gap_ele, size_t sz);
+
+int align_v_W3(void **X, size_t *X_len,
+               void **Y, size_t *Y_len,
+               void *a, size_t a_len,
+               void *b, size_t b_len,
+               int *W, int m_r, int n_c,
+               int w_len,
+               int (*score_func)(void *, void *, size_t),
+               void *gap_ele,
+               size_t sz);
+
+
 #endif

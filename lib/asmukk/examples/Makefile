@@ -1,4 +1,5 @@
 CC=gcc
+GPP=g++
 
 all: dp mktest dp_dna mkseq
 
@@ -7,6 +8,9 @@ dp: dp.c
 
 dp_dna: dp_dna.c
 	$(CC) $< -o $@
+
+dpi: dpi.c
+	$(GPP) $< -o $@
 
 mktest: mktest.c
 	$(CC) $< -o $@

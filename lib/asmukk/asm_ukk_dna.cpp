@@ -9,23 +9,45 @@ extern "C" {
 #include "asm_ukk.h"
 }
 
+int g_mismatch_cost=ASM_UKK_MISMATCH;
+int g_gap_cost=ASM_UKK_GAP;
+
 extern "C" {
   int score_func(char x, char y) {
+
+    //printf("score %i (%c) %i (%c)\n", (int)x, x, (int)y, y);
+
     // minimum non-zero entity (gap cost)
     //
-    if ((x<0) || (y<0)) { return 2; }
+    if ((x<0) || (y<0)) {
+      //printf("  gap %i\n", g_gap_cost);
+      return g_gap_cost;
+    }
 
     // gap
     //
-    if ((x==0) || (y==0)) { return 2; }
+    if ((x==0) || (y==0)) {
+      //printf("  gap_b %i\n", g_gap_cost);
+      return g_gap_cost;
+    }
 
     // 'nocall' incurs no cost to align
     //
-    if ((x=='n') || (x=='N') || (y=='n') || (y=='N')) { return 0; }
+    if ((x=='n') || (x=='N') || (y=='n') || (y=='N')) {
+
+      //printf("  noc 0\n");
+
+      return 0;
+    }
 
     // generic mismatch
     //
-    if (x!=y) { return 3; }
+    if (x!=y) {
+      //printf("  mismatch %i\n", g_mismatch_cost);
+      return g_mismatch_cost;
+    }
+
+    //printf("  match 0\n");
 
     // otherwise they match, no cost
     //
@@ -66,20 +88,23 @@ int main(int argc, char **argv) {
   char gap_char = '-';
 
   int print_align_sequence=1;
-  int mismatch_cost=ASM_UKK_MISMATCH, gap_cost=ASM_UKK_GAP;
+  //int mismatch_cost=ASM_UKK_MISMATCH, gap_cost=ASM_UKK_GAP;
   int score=-1;
 
   FILE *ifp = stdin;
 
+  g_mismatch_cost = ASM_UKK_MISMATCH;
+  g_gap_cost = ASM_UKK_GAP;
+
   while ((ch=getopt(argc, argv, "m:g:hSi:"))!=-1) switch(ch) {
     case 'm':
-      mismatch_cost = atoi(optarg);
+      g_mismatch_cost = atoi(optarg);
       break;
     case 'i':
       input_fn = strdup(optarg);
       break;
     case 'g':
-      gap_cost = atoi(optarg);
+      g_gap_cost = atoi(optarg);
       break;
     case 'c':
       gap_char = optarg[0];
@@ -106,7 +131,7 @@ int main(int argc, char **argv) {
     }
   }
 
-  if ((mismatch_cost<0) || (gap_cost<0)) {
+  if ((g_mismatch_cost<0) || (g_gap_cost<0)) {
     fprintf(stderr, "Mismatch cost (-m) and gap cost (-g) must both be non-zero\n");
     show_help();
     exit(1);
@@ -131,7 +156,6 @@ int main(int argc, char **argv) {
     if (X) { free(X); }
     if (Y) { free(Y); }
   } else {
-    //score = asm_ukk_align2(NULL, NULL, a_s, b_s, mismatch_cost, gap_cost, gap_char);
     score = asm_ukk_align3(NULL, NULL, a_s, b_s, score_func, gap_char);
     printf("%d\n", score);
   }

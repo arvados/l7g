@@ -312,7 +312,7 @@ int align_W2(char **X, char **Y, char *a, char *b, int *W, int m_r, int n_c, int
 
 int asm_ukk_score(char *a, char *b) {
   int threshold = (1<<2);
-  int it, max_it=(1<<(32-2-1));
+  int it, max_it=((32-2-1));
   int sc = -2;
 
   for (it=0; (it<max_it) && (sc<0); it++) {
@@ -325,7 +325,7 @@ int asm_ukk_score(char *a, char *b) {
 
 int asm_ukk_score2(char *a, char *b, int mismatch, int gap) {
   int threshold = (1<<2);
-  int it, max_it=(1<<(32-2-1));
+  int it, max_it=((32-2-1));
   int sc = -2;
 
   for (it=0; (it<max_it) && (sc<0); it++) {
@@ -338,7 +338,7 @@ int asm_ukk_score2(char *a, char *b, int mismatch, int gap) {
 
 int asm_ukk_align(char **X, char **Y, char *a, char *b) {
   int threshold = (1<<2);
-  int it, max_it=(1<<(32-2-1));
+  int it, max_it=((32-2-1));
   int sc = -2;
 
   if ((X!=NULL) && (Y!=NULL)) {
@@ -365,7 +365,7 @@ int asm_ukk_align(char **X, char **Y, char *a, char *b) {
 
 int asm_ukk_align2(char **X, char **Y, char *a, char *b, int mismatch, int gap, char gap_char) {
   int threshold = (1<<2);
-  int it, max_it=(1<<(32-2-1));
+  int it, max_it=((32-2-1));
   int sc = -2;
 
   if ((X!=NULL) && (Y!=NULL)) {

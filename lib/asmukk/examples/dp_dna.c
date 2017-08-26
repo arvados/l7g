@@ -20,6 +20,9 @@
 #include <string.h>
 #include <stdarg.h>
 
+#include <vector>
+#include <string>
+
 int g_debug=0;
 
 int default_score(char x, char y) {
@@ -33,7 +36,7 @@ int default_gap(char x) {
   return 2;
 }
 
-void dp_D_print(int *D, char *a, char *b, int n_c, int m_r) {
+void dp_D_print(int *D, const char *a, const char *b, int n_c, int m_r) {
   int i, j, k;
 
   printf("   ");
@@ -54,6 +57,27 @@ void dp_D_print(int *D, char *a, char *b, int n_c, int m_r) {
   printf("\n");
 }
 
+void dp_D_print3(int *D, const char *a, const char *b, int n_c, int m_r) {
+  int i, j, k;
+
+  printf("    ");
+  for (i=0; i<n_c; i++) {
+    if (i==0) { printf("   -"); }
+    else { printf("  %2c", a[i-1]); }
+  }
+  printf("\n");
+
+  for (j=0; j<m_r; j++) {
+    if (j==0) { printf("   -"); }
+    else { printf("  %2c", b[j-1]); }
+    for (i=0; i<n_c; i++) {
+      printf(" %3i", D[j*n_c + i]);
+    }
+    printf("\n");
+  }
+  printf("\n");
+}
+
 int min3(int x, int y, int z) {
   int m;
   m = x;
@@ -65,7 +89,7 @@ int min3(int x, int y, int z) {
 // a on columns
 // b on rows
 //
-int dp_score(char *a, char *b, int (*score)(char,char), int (*gap_a)(char), int (*gap_b)(char)) {
+int dp_score(const char *a, const char *b, int (*score)(char,char), int (*gap_a)(char), int (*gap_b)(char)) {
   int i, j, k;
   int n_c, m_r;
   int *D, d;
@@ -93,7 +117,7 @@ int dp_score(char *a, char *b, int (*score)(char,char), int (*gap_a)(char), int 
   }
 
   //DEBUG
-  //dp_D_print(D, a, b, n_c, m_r);
+  //dp_D_print3(D, a, b, n_c, m_r);
 
 
   d = D[ (m_r-1)*n_c + n_c-1 ];
@@ -101,11 +125,11 @@ int dp_score(char *a, char *b, int (*score)(char,char), int (*gap_a)(char), int 
   return d;
 }
 
-int dp_simp(char *a, char *b) {
+int dp_simp(const char *a, const char *b) {
   return dp_score(a, b, default_score, default_gap, default_gap);
 }
 
-int dp_align(char **X, char **Y, char *a, char *b, int (*score)(char,char), int (*gap_a)(char), int (*gap_b)(char)) {
+int dp_align(char **X, char **Y, const char *a, const char *b, int (*score)(char,char), int (*gap_a)(char), int (*gap_b)(char)) {
   int i, j, k;
   int n_c, m_r;
   int *D, d;
@@ -210,58 +234,16 @@ int dp_align(char **X, char **Y, char *a, char *b, int (*score)(char,char), int 
   return d;
 }
 
-int dp_align_simple(char **X, char **Y, char *a, char *b) {
+int dp_align_simple(char **X, char **Y, const char *a, const char *b) {
   dp_align(X,Y,a,b,default_score,default_gap, default_gap);
-}
-
-typedef struct chbuf_type {
-  int n, sz;
-  char *s;
-} chbuf_t;
-
-void chbuf_resize(chbuf_t *chb, int sz) {
-  int i, n;
-  char *new_s;
-  new_s = (char *)malloc(sizeof(char)*sz);
-  n = chb->n;
-  for (i=0; i<=n; i++) { new_s[i] = chb->s[i]; }
-  free(chb->s);
-  chb->s = new_s;
-  chb->sz = sz;
-}
-
-void chbuf_addch(chbuf_t *chb, char ch) {
-
-  if (chb->n>=(chb->sz-1)) {
-    chbuf_resize(chb, chb->sz*2);
-  }
-
-  chb->s[chb->n++] = ch;
-}
-
-chbuf_t *chbuf_alloc(int sz) {
-  chbuf_t *chb;
-  chb = (chbuf_t *)malloc(sizeof(chbuf_t));
-  chb->n=0;
-  chb->sz = sz;
-  chb->s = (char *)malloc(sizeof(char)*sz);
-  chb->s[0] = '\0';
-  return chb;
 }
 
 int main(int argc, char **argv) {
   char ch;
   int sc, sc_align;
-
-  char *a = "gcatss";
-  char *b = "zcat";
   char *X, *Y;
-
   int line_counter=0;
-  chbuf_t *u, *v;
-
-  u = chbuf_alloc(128);
-  v = chbuf_alloc(128);
+  std::string a, b;
 
   while ((ch=fgetc(stdin))!=EOF) {
     if (ch=='\n') {
@@ -269,15 +251,17 @@ int main(int argc, char **argv) {
       if (line_counter==2) { break; }
       continue;
     }
-    if (line_counter==0) { chbuf_addch(u, ch); }
-    else { chbuf_addch(v, ch); }
+
+    if (line_counter==0) {
+      a += (char)ch;
+    } else {
+      b += (char)ch;
+    }
   }
 
-  a = u->s;
-  b = v->s;
 
-  sc       = dp_simp(a, b);
-  sc_align = dp_align_simple(&X, &Y, a, b);
+  sc       = dp_simp(a.c_str(), b.c_str());
+  sc_align = dp_align_simple(&X, &Y, a.c_str(), b.c_str());
 
   //printf("%d (%d)\n", sc, sc_align);
   printf("%d\n", sc);

@@ -7,7 +7,7 @@ dp: dp.c
 	$(CC) $< -o $@
 
 dp_dna: dp_dna.c
-	$(CC) $< -o $@
+	$(GPP) $< -o $@
 
 dpi: dpi.c
 	$(GPP) $< -o $@

@@ -24,17 +24,16 @@
 static int g_verbose=0;
 static int g_debug=0;
 
-int align_W3(char **X, char **Y, char *a, char *b, int *W, int m_r, int n_c, int w_len, int (*score_func)(char, char), char gap_char) {
-  int i;
-  int dr, dc;
-  int r, c, w;
+int align_W3(char **X, char **Y,
+             char *a, char *b,
+             int *W, int m_r, int n_c, int w_len,
+             int (*score_func)(char, char),
+             char gap_char,
+             int row_pref) {
+  int i, dr, dc, r, c, w;
   int pos00, pos01, pos10, pos11;
-  int w_offset;
-  int mm;
-  int xy_pos=0;
-  char ch;
-
-  char *tx, *ty;
+  int w_offset, mm, xy_pos=0;
+  char ch, *tx, *ty;
 
   i = ((n_c>m_r)?n_c:m_r);
 
@@ -58,25 +57,61 @@ int align_W3(char **X, char **Y, char *a, char *b, int *W, int m_r, int n_c, int
     w = c - (r-w_offset);
     pos11 = r*w_len + w;
 
-    // The preference is for straight alignment, followed by column
-    // alignment followed by row alignment.
-    // The precedence is last to first
+    // if `row_pref` is set the preference is:
+    //   * straight alignment
+    //   * row
+    //   * col
+    //
+    // otherwise if `row_pref` is not set, the
+    // preference is:
+    //   * straight alignment
+    //   * col
+    //   * row
+    //
+    // Conditionals lower down overwrite decisions above, so the
+    // lower the conditional, the higher the precedence.
     //
 
-    if (r>0) {
-      w = c - ((r-1)-w_offset);
-      if ((w>=0) && (w<w_len)) {
-        pos01 = (r-1)*w_len + w;
-        if ((W[pos01]+score_func(0,b[r-1])) == W[pos11]) { dr=-1; dc=0; }
-      }
-    }
+    if (row_pref) {
 
-    if (c>0) {
-      w = (c-1) - (r-w_offset);
-      if ((w>=0) && (w<w_len)) {
-        pos10 = r*w_len + w;
-        if ((W[pos10]+score_func(a[c-1],0)) == W[pos11]) { dr=0; dc=-1; }
+      if (c>0) {
+        w = (c-1) - (r-w_offset);
+        if ((w>=0) && (w<w_len)) {
+          pos10 = r*w_len + w;
+          if ((W[pos10]+score_func(a[c-1],0)) == W[pos11]) { dr=0; dc=-1; }
+        }
+
       }
+
+      if (r>0) {
+        w = c - ((r-1)-w_offset);
+        if ((w>=0) && (w<w_len)) {
+          pos01 = (r-1)*w_len + w;
+          if ((W[pos01]+score_func(0,b[r-1])) == W[pos11]) { dr=-1; dc=0; }
+        }
+
+      }
+
+    } else {
+
+      if (r>0) {
+        w = c - ((r-1)-w_offset);
+        if ((w>=0) && (w<w_len)) {
+          pos01 = (r-1)*w_len + w;
+          if ((W[pos01]+score_func(0,b[r-1])) == W[pos11]) { dr=-1; dc=0; }
+        }
+
+      }
+
+      if (c>0) {
+        w = (c-1) - (r-w_offset);
+        if ((w>=0) && (w<w_len)) {
+          pos10 = r*w_len + w;
+          if ((W[pos10]+score_func(a[c-1],0)) == W[pos11]) { dr=0; dc=-1; }
+        }
+
+      }
+
     }
 
     if ((r>0) && (c>0)) {
@@ -192,17 +227,32 @@ int asm_ukk_align3(char **X, char **Y, char *a, char *b, int (*score_func)(char,
 // ` score_func` as the scoring function and `gap_char` as the gap character.
 // -1 is returned if theshold `T` was reached.
 //
-int sa_align_ukk3(char **X, char **Y, char *a, char *b, int T, int (*score_func)(char, char), char gap_char) {
+int sa_align_ukk3(char **X, char **Y, char *a_orig, char *b_orig, int T, int (*score_func)(char, char), char gap_char) {
   int ret;
   int r,c, n_c, m_r, len_ovf;
   int *W, w, w_offset, w_len;
   int p, del, m;
   int create_align_seq = 0;
+  char *a, *b, **TXY;
 
   int i, j;
+  int seq_swap = 0;
+
+  a = a_orig;
+  b = b_orig;
 
   n_c = strlen(a)+1;
   m_r = strlen(b)+1;
+
+  if (m_r > n_c) {
+    a = b_orig;
+    b = a_orig;
+    i = n_c; n_c=m_r; m_r=i;
+    seq_swap = 1;
+  }
+
+  //printf("n_c %2i: %s\n", n_c, a);
+  //printf("m_r %2i: %s\n", m_r, b);
 
   // Find minimum non-zero score for
   // window band space allocation.
@@ -236,6 +286,11 @@ int sa_align_ukk3(char **X, char **Y, char *a, char *b, int T, int (*score_func)
 
   p = (T/del) - len_ovf;
   p /= 2;
+
+  //DEBUG
+  //
+  //printf("  p %i, (1/2) T %i / del %i - len_ovf %i (%i %i)\n",
+  //    p, T, del, len_ovf, n_c, m_r);
 
   w_offset = ((n_c>m_r) ? (n_c-m_r+p) : p);
   w_len = 2*w_offset+1;
@@ -311,26 +366,28 @@ int sa_align_ukk3(char **X, char **Y, char *a, char *b, int T, int (*score_func)
   m = W[(m_r-1)*w_len + w];
 
   //DEBUG
-//  for (i=0; i<m_r; i++) {
-//    for (j=0; j<i; j++) {
-//      printf("   ");
-//    }
-//    for (j=0; j<w_len; j++) {
-//      printf(" %2i", W[i*w_len + j]);
-//    }
-//    printf("\n");
-//  }
-//  printf("\n");
+  //for (i=0; i<m_r; i++) {
+  //  for (j=0; j<i; j++) {
+  //    printf("    ");
+  //  }
+  //  for (j=0; j<w_len; j++) {
+  //    printf(" %3i", W[i*w_len + j]);
+  //  }
+  //  printf("\n");
+  //}
+  //printf("\n");
 
   if (create_align_seq) {
-    ret = align_W3(X, Y, a, b, W, m_r, n_c, w_len, score_func, gap_char);
+    //ret = align_W3(X, Y, a, b, W, m_r, n_c, w_len, score_func, gap_char);
+    ret = align_W3(X, Y, a, b, W, m_r, n_c, w_len, score_func, gap_char, seq_swap);
     if (ret<0) { return ret; }
   }
 
   free(W);
 
-  //DEBUG
-  //printf("m %i, T %i\n", m, T);
+  // DEBUG
+  //
+  //printf("m %i, T %i (swap %i)\n", m, T, seq_swap);
 
   if (m>T) {
     if (create_align_seq) {
@@ -338,6 +395,12 @@ int sa_align_ukk3(char **X, char **Y, char *a, char *b, int T, int (*score_func)
       if (!(*Y)) free(*Y);
     }
     return -1;
+  }
+
+  if (create_align_seq && seq_swap) {
+    *TXY = *X;
+    *X   = *Y;
+    *Y   = *TXY;
   }
 
   return m;

@@ -185,7 +185,6 @@ int asm_ukk_score3(char *a, char *b, int (*score_func)(char, char)) {
 //
 int asm_ukk_align3(char **X, char **Y, char *a, char *b, int (*score_func)(char, char), char gap_char) {
   int threshold = (1<<2);
-  //int threshold = 128;
   int it, max_it=((32-2-1));
   int sc = -2;
 
@@ -272,10 +271,6 @@ int sa_align_ukk3(char **X, char **Y, char *a_orig, char *b_orig, int T, int (*s
   len_ovf = ((n_c>m_r) ? (n_c-m_r) : (m_r-n_c));
 
 
-  //DEBUG
-  //printf("T %i, del %i, T/del %i, len_ovf %i (n_c %i, m_r %i)\n",
-  //    T, del, T/del, len_ovf, n_c, m_r);
-
   if ((T/del) < len_ovf) {
     if (create_align_seq) {
       if (!(*X)) free(*X);
@@ -287,20 +282,12 @@ int sa_align_ukk3(char **X, char **Y, char *a_orig, char *b_orig, int T, int (*s
   p = (T/del) - len_ovf;
   p /= 2;
 
-  //DEBUG
-  //
-  //printf("  p %i, (1/2) T %i / del %i - len_ovf %i (%i %i)\n",
-  //    p, T, del, len_ovf, n_c, m_r);
-
   w_offset = ((n_c>m_r) ? (n_c-m_r+p) : p);
   w_len = 2*w_offset+1;
 
   // our window isn't big enough to hold calculated values
   //
   w = (n_c-1) - ((m_r-1)-w_offset);
-
-  //DEBUG
-  //printf("w %i, w_len %i\n", w, w_len);
 
   if ((w<0) || (w>=w_len)) {
     if (create_align_seq) {
@@ -365,29 +352,12 @@ int sa_align_ukk3(char **X, char **Y, char *a_orig, char *b_orig, int T, int (*s
   w = (n_c-1) - ((m_r-1)-w_offset);
   m = W[(m_r-1)*w_len + w];
 
-  //DEBUG
-  //for (i=0; i<m_r; i++) {
-  //  for (j=0; j<i; j++) {
-  //    printf("    ");
-  //  }
-  //  for (j=0; j<w_len; j++) {
-  //    printf(" %3i", W[i*w_len + j]);
-  //  }
-  //  printf("\n");
-  //}
-  //printf("\n");
-
   if (create_align_seq) {
-    //ret = align_W3(X, Y, a, b, W, m_r, n_c, w_len, score_func, gap_char);
     ret = align_W3(X, Y, a, b, W, m_r, n_c, w_len, score_func, gap_char, seq_swap);
     if (ret<0) { return ret; }
   }
 
   free(W);
-
-  // DEBUG
-  //
-  //printf("m %i, T %i (swap %i)\n", m, T, seq_swap);
 
   if (m>T) {
     if (create_align_seq) {

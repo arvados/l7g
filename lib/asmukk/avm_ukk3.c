@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2015 Curoverse, Inc.
+    Copyright (C) 2017 Curoverse, Inc.
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU Affero General Public License as published by
@@ -68,7 +68,8 @@ int align_v_W3(void **X, size_t *X_len,
                int w_len,
                int (*score_func)(void *, void *, size_t),
                void *gap_ele,
-               size_t sz) {
+               size_t sz,
+               int row_pref) {
   int i;
   int dr, dc;
   int r, c, w;
@@ -99,25 +100,57 @@ int align_v_W3(void **X, size_t *X_len,
     w = c - (r-w_offset);
     pos11 = r*w_len + w;
 
-    // The preference is for straight alignment, followed by column
-    // alignment followed by row alignment.
-    // The precedence is last to first
+    // if `row_pref` is set the preference is:
+    //   * straight alignment
+    //   * row
+    //   * col
+    //
+    // otherwise if `row_pref` is not set, the
+    // preference is:
+    //   * straight alignment
+    //   * col
+    //   * row
+    //
+    // Conditionals lower down overwrite decisions above, so the
+    // lower the conditional, the higher the precedence.
     //
 
-    if (r>0) {
-      w = c - ((r-1)-w_offset);
-      if ((w>=0) && (w<w_len)) {
-        pos01 = (r-1)*w_len + w;
-        if ((W[pos01]+score_func(NULL, b + sz*(r-1), sz)) == W[pos11]) { dr=-1; dc=0; }
-      }
-    }
+    if (row_pref) {
 
-    if (c>0) {
-      w = (c-1) - (r-w_offset);
-      if ((w>=0) && (w<w_len)) {
-        pos10 = r*w_len + w;
-        if ((W[pos10]+score_func(a + sz*(c-1), NULL, sz)) == W[pos11]) { dr=0; dc=-1; }
+      if (c>0) {
+        w = (c-1) - (r-w_offset);
+        if ((w>=0) && (w<w_len)) {
+          pos10 = r*w_len + w;
+          if ((W[pos10]+score_func(a + sz*(c-1), NULL, sz)) == W[pos11]) { dr=0; dc=-1; }
+        }
       }
+
+      if (r>0) {
+        w = c - ((r-1)-w_offset);
+        if ((w>=0) && (w<w_len)) {
+          pos01 = (r-1)*w_len + w;
+          if ((W[pos01]+score_func(NULL, b + sz*(r-1), sz)) == W[pos11]) { dr=-1; dc=0; }
+        }
+      }
+
+    } else {
+
+      if (r>0) {
+        w = c - ((r-1)-w_offset);
+        if ((w>=0) && (w<w_len)) {
+          pos01 = (r-1)*w_len + w;
+          if ((W[pos01]+score_func(NULL, b + sz*(r-1), sz)) == W[pos11]) { dr=-1; dc=0; }
+        }
+      }
+
+      if (c>0) {
+        w = (c-1) - (r-w_offset);
+        if ((w>=0) && (w<w_len)) {
+          pos10 = r*w_len + w;
+          if ((W[pos10]+score_func(a + sz*(c-1), NULL, sz)) == W[pos11]) { dr=0; dc=-1; }
+        }
+      }
+
     }
 
     if ((r>0) && (c>0)) {
@@ -237,8 +270,8 @@ int avm_ukk_align3(void **X, size_t *X_len,
 //
 int vd_align_ukk3(void **X, size_t *X_len,
                   void **Y, size_t *Y_len,
-                  void *a, size_t a_len,
-                  void *b, size_t b_len,
+                  void *a_orig, size_t a_len,
+                  void *b_orig, size_t b_len,
                   int32_t T,
                   int (*score_func)(void *, void *, size_t),
                   void *gap_ele, size_t sz) {
@@ -248,8 +281,22 @@ int vd_align_ukk3(void **X, size_t *X_len,
   int p, del, m;
   int create_align_seq = 0;
 
+  int i, j;
+  void *a, *b, **TXY;
+  int seq_swap=0;
+
   n_c = (int)a_len+1;
   m_r = (int)b_len+1;
+
+  a = a_orig;
+  b = b_orig;
+
+  if (m_r > n_c) {
+    a = b_orig;
+    b = a_orig;
+    i = n_c; n_c=m_r; m_r=i;
+    seq_swap=1;
+  }
 
   // Find minimum non-zero score for
   // window band space allocation.
@@ -348,7 +395,7 @@ int vd_align_ukk3(void **X, size_t *X_len,
   m = W[(m_r-1)*w_len + w];
 
   if (create_align_seq) {
-    ret = align_v_W3(X, X_len, Y, Y_len, a, a_len, b, b_len, W, m_r, n_c, w_len, score_func, gap_ele, sz);
+    ret = align_v_W3(X, X_len, Y, Y_len, a, a_len, b, b_len, W, m_r, n_c, w_len, score_func, gap_ele, sz, seq_swap);
     if (ret<0) { return ret; }
   }
 
@@ -360,6 +407,12 @@ int vd_align_ukk3(void **X, size_t *X_len,
       if (!(*Y)) free(*Y);
     }
     return -1;
+  }
+
+  if (create_align_seq && seq_swap) {
+    *TXY = *X;
+    *X   = *Y;
+    *Y   = *TXY;
   }
 
   return m;

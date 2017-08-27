@@ -40,15 +40,5 @@ int vd_align_ukk3(void **X, size_t *X_len,
                   int (*score_func)(void *, void *, size_t),
                   void *gap_ele, size_t sz);
 
-int align_v_W3(void **X, size_t *X_len,
-               void **Y, size_t *Y_len,
-               void *a, size_t a_len,
-               void *b, size_t b_len,
-               int *W, int m_r, int n_c,
-               int w_len,
-               int (*score_func)(void *, void *, size_t),
-               void *gap_ele,
-               size_t sz);
-
 
 #endif

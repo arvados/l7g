@@ -106,5 +106,47 @@ echo -n "testing n=400, ins=$ins, del=$del, sub=$sub, range=$range (400 iteratio
 run_test 400 100
 echo "ok"
 
+ins="0.5"
+del="0.5"
+sub="0.5"
+range="10"
+
+echo -n "testing n=100, ins=$ins, del=$del, sub=$sub, range=$range (100 iterations)...."
+run_test 100 100
+echo "ok"
+
+echo -n "testing n=200, ins=$ins, del=$del, sub=$sub, range=$range (200 iterations)...."
+run_test 200 100
+echo "ok"
+
+echo -n "testing n=300, ins=$ins, del=$del, sub=$sub, range=$range (300 iterations)...."
+run_test 300 100
+echo "ok"
+
+echo -n "testing n=400, ins=$ins, del=$del, sub=$sub, range=$range (400 iterations)...."
+run_test 400 100
+echo "ok"
+
+ins="0.05"
+del="0.05"
+sub="0.05"
+range="10"
+
+echo -n "testing n=100, ins=$ins, del=$del, sub=$sub, range=$range (100 iterations)...."
+run_test 100 100
+echo "ok"
+
+echo -n "testing n=200, ins=$ins, del=$del, sub=$sub, range=$range (200 iterations)...."
+run_test 200 100
+echo "ok"
+
+echo -n "testing n=300, ins=$ins, del=$del, sub=$sub, range=$range (300 iterations)...."
+run_test 300 100
+echo "ok"
+
+echo -n "testing n=400, ins=$ins, del=$del, sub=$sub, range=$range (400 iterations)...."
+run_test 400 100
+echo "ok"
+
 
 echo "ok, tests passed"

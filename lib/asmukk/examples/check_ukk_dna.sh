@@ -98,10 +98,6 @@ function run_custom_test {
 
   while IFS='' read -r line || [[ -n "$line" ]] ; do
 
-    score_dp=`$DP < <( ./mkseq -n $n -s $seed -I $ins -D $del -U $sub -N $noc | tac ) | head -n1 | cut -f1 -d ' '`
-    score_ukk=`$ASMUKK < <( ./mkseq -n $n -s $seed -I $ins -D $del -U $sub -N $noc | tac ) | head -n1 | cut -f1 -d' '`
-
-
     score_dp=`echo "$line" | tr '\t' '\n' | $DP | head -n1 | cut -f1 -d' '`
     score_ukk=`echo "$line" | tr '\t' '\n' | $ASMUKK | head -n1 | cut -f1 -d' '`
 
@@ -126,7 +122,6 @@ function run_custom_test {
         echo "===="
         exit 1
       fi
-
 
     fi
 

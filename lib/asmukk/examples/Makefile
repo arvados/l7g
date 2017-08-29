@@ -1,7 +1,7 @@
 CC=gcc
 GPP=g++
 
-all: dp mktest dp_dna mkseq mkiarray
+all: dp mktest dp_dna mkseq mkiarray dpi
 
 dp: dp.c
 	$(CC) $< -o $@

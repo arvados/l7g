@@ -20,18 +20,23 @@
 #include <string.h>
 #include <stdarg.h>
 
+#include <getopt.h>
+
 #include <vector>
 #include <string>
 
 int g_debug=0;
 
+int g_mismatch_cost = 3;
+int g_gap_cost = 2;
+
 int default_score(int x, int y) {
   if (x==y) { return 0; }
-  return 3;
+  return g_mismatch_cost;
 }
 
 int default_gap(int x) {
-  return 2;
+  return g_gap_cost;
 }
 
 void dp_D_print(int *D, int *a, size_t a_len, int *b, size_t b_len, int n_c, int m_r) {
@@ -233,6 +238,17 @@ int dp_align_simple(int **X, size_t *X_len, int **Y, size_t *Y_len, int *a, size
            default_gap);
 }
 
+void show_help(void) {
+  printf("usage:\n");
+  printf("\n");
+  printf("    dpi [-m mismatch] [-g gap] [-h] < seqfn\n");
+  printf("\n");
+  printf("  [-h]            show help (this scree)\n");
+  printf("  [-m mismatch]   mismatch cost (default 3)\n");
+  printf("  [-g gap]        gap cost (default 2)\n");
+  printf("\n");
+}
+
 int main(int argc, char **argv) {
   char ch;
   int sc, sc_align;
@@ -246,6 +262,15 @@ int main(int argc, char **argv) {
   std::vector< int > u, v;
   std::string buf;
 
+  while ((ch=getopt(argc, argv, "hm:g:"))!=-1) switch (ch) {
+    case 'm':
+      g_mismatch_cost = atoi(optarg); break;
+    case 'g':
+      g_gap_cost = atoi(optarg); break;
+    default:
+    case 'h':
+      show_help(); exit(0); break;
+  }
 
   while ((ch=fgetc(stdin))!=EOF) {
     if (ch=='\n') {

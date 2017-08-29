@@ -285,6 +285,8 @@ int vd_align_ukk3(void **X, size_t *X_len,
   void *a, *b, **TXY;
   int seq_swap=0;
 
+  int gap_cost;
+
   n_c = (int)a_len+1;
   m_r = (int)b_len+1;
 
@@ -303,6 +305,8 @@ int vd_align_ukk3(void **X, size_t *X_len,
   //
   del = score_func(NULL, NULL, sz);
   if (del<=0) { return -1; }
+
+  gap_cost = score_func(NULL, NULL, sz);
 
   if (X && Y) { create_align_seq = 1; }
 
@@ -339,14 +343,13 @@ int vd_align_ukk3(void **X, size_t *X_len,
     return -1;
   }
 
-
   W = (int *)malloc(sizeof(int)*m_r*w_len);
 
   for (w=0; w<w_len; w++) {
     c = w-w_offset;
 
     if (w<w_offset) { W[w] = -1; }
-    else { W[w] = 2*(w-w_offset); }
+    else { W[w] = gap_cost*(w-w_offset); }
 
   }
 
@@ -394,13 +397,6 @@ int vd_align_ukk3(void **X, size_t *X_len,
   w = (n_c-1) - ((m_r-1)-w_offset);
   m = W[(m_r-1)*w_len + w];
 
-  if (create_align_seq) {
-    ret = align_v_W3(X, X_len, Y, Y_len, a, a_len, b, b_len, W, m_r, n_c, w_len, score_func, gap_ele, sz, seq_swap);
-    if (ret<0) { return ret; }
-  }
-
-  free(W);
-
   if (m>T) {
     if (create_align_seq) {
       if (!(*X)) free(*X);
@@ -408,6 +404,14 @@ int vd_align_ukk3(void **X, size_t *X_len,
     }
     return -1;
   }
+
+
+  if (create_align_seq) {
+    ret = align_v_W3(X, X_len, Y, Y_len, a, a_len, b, b_len, W, m_r, n_c, w_len, score_func, gap_ele, sz, seq_swap);
+    if (ret<0) { return ret; }
+  }
+
+  free(W);
 
   if (create_align_seq && seq_swap) {
     *TXY = *X;

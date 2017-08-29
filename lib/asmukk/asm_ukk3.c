@@ -236,6 +236,7 @@ int sa_align_ukk3(char **X, char **Y, char *a_orig, char *b_orig, int T, int (*s
 
   int i, j;
   int seq_swap = 0;
+  int gap_cost;
 
   a = a_orig;
   b = b_orig;
@@ -258,6 +259,8 @@ int sa_align_ukk3(char **X, char **Y, char *a_orig, char *b_orig, int T, int (*s
   //
   del = score_func(-1,-1);
   if (del<=0) { return -1; }
+
+  gap_cost = score_func(-1, -1);
 
   if (X && Y) { create_align_seq = 1; }
 
@@ -304,7 +307,7 @@ int sa_align_ukk3(char **X, char **Y, char *a_orig, char *b_orig, int T, int (*s
     c = w-w_offset;
 
     if (w<w_offset) { W[w] = -1; }
-    else { W[w] = 2*(w-w_offset); }
+    else { W[w] = gap_cost*(w-w_offset); }
 
   }
 

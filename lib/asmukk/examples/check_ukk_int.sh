@@ -70,6 +70,44 @@ function run_test {
 }
 
 
+function run_custom_test {
+  fn=$1
+  count=0
+
+  while IFS='' read -r line || [[ -n "$line" ]] ; do
+
+    score_dp=`echo "$line" | tr '\t' '\n' | $DP -m 10000 -g 1 | head -n1 | cut -f1 -d' '`
+    score_ukk=`echo "$line" | tr '\t' '\n' | $AIMUKK -m 10000 -g 1 | head -n1 | cut -f1 -d' '`
+
+    if [[ $CHECK_SEQ ]] ; then
+      ma=`echo "$line" | tr '\t' '\n' | $DP -m 10000 -g 1 | md5sum | cut -f1 -d' '`
+      mb=`echo "$line" | tr '\t' '\n' | $AIMUKK -m 10000 -g 1| md5sum | cut -f1 -d' '`
+
+      if [ "$ma" != "$mb" ] ; then
+        echo -e ERROR "scores or sequences do not match for sequence pair $count in $fn"
+        echo "===="
+        echo "$line" | tr '\t' '\n'
+        echo "===="
+        exit 1
+      fi
+
+    else
+
+      if [ "$score_dp" != "$score_ukk" ] ; then
+        echo -e ERROR "scores do not match for sequence pair $count in $fn"
+        echo "===="
+        echo "$line" | tr '\t' '\n'
+        echo "===="
+        exit 1
+      fi
+
+    fi
+
+    count=`expr $count + 1`
+
+  done < <( cat "$fn" | paste - - )
+}
+
 echo -n "testing n=100, ins=$ins, del=$del, sub=$sub, range=$range (100 iterations)...."
 run_test 100 100
 echo "ok"
@@ -148,5 +186,8 @@ echo -n "testing n=400, ins=$ins, del=$del, sub=$sub, range=$range (400 iteratio
 run_test 400 100
 echo "ok"
 
+echo -n "running custom tests from file 'custom-int.seq'..."
+run_custom_test custom-int.seq
+echo "ok"
 
 echo "ok, tests passed"

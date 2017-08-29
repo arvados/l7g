@@ -1,0 +1,38 @@
+bashscript:
+   class: File
+   path: /data-sdd/cwl_tiling/convert/convert2fastjCWL
+
+gffInitial:
+   class: File
+   path: /data-sdd/cwl_tiling/testdir/hu704A85-GS01239-DNA_E01.gff.gz
+
+ref: "hg19"
+
+reffa:
+   class: File
+   path: keep:ef70506d71ee761b1ec28d67290216a0+1252/hg19.fa.gz 
+
+afn:
+   class: File
+   path: keep:a2198905927b8d24e162abe42e541f37+173/assembly.00.hg19.fw.gz 
+
+aidx:
+   class: File
+   path: keep:a2198905927b8d24e162abe42e541f37+173/assembly.00.hg19.fw.fwi 
+
+tagdir:
+   class: File
+   path: keep:6f0b48919ea97da91e3749f65969f03f+627/tagset.fa.gz
+
+l7g:
+   class: File
+   path: /data-sdd/cwl_tiling/l7g/l7g-master/tools/l7g
+
+pasta:
+   class: File
+   path: /data-sdd/tiling/pasta/pasta
+
+refstream:
+   class: File
+   path: /home/sarah/imputation/fileconversionGFF/refstream
+

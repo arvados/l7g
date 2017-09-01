@@ -138,7 +138,10 @@ int main(int argc, char **argv) {
   out_vec = (int *)malloc(sizeof(int)*sz);
 
   if (loc_debug) {
-    printf("%p\n", out_vec);
+    printf("%p (sz %lli)\n", out_vec, (long long int)sz);
+    printf("size:");
+    for (i=0; i<2; i++) { printf(" %i", shape[i]); }
+    printf("\n");
     printf("%llu\n", (unsigned long long int)sz);
     for (idx_sz=0; idx_sz<sz; idx_sz++) {
       out_vec[idx_sz] = 0;
@@ -157,11 +160,11 @@ int main(int argc, char **argv) {
     }
   }
 
-  if (loc_debug) {
-    printf("cp\n"); fflush(stdout);
-  }
+  if (loc_debug) { printf("cp\n"); fflush(stdout); }
 
   cnpy::npy_save(ofn, out_vec, (const unsigned int *)shape, 2, "w");
+
+  if (loc_debug) { printf("cp2\n"); fflush(stdout); }
 
   shape[0] = (int)npy_info.size();
   ofn_info = ofn + "-info";

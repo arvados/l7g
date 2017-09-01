@@ -276,13 +276,14 @@ int vd_align_ukk3(void **X, size_t *X_len,
                   int (*score_func)(void *, void *, size_t),
                   void *gap_ele, size_t sz) {
   int ret;
-  int r,c, n_c, m_r, len_ovf;
-  int *W, w, w_offset, w_len;
-  int p, del, m;
+  ssize_t r,c, n_c, m_r, len_ovf;
+  int *W;
+  ssize_t w, w_offset, w_len;
+  ssize_t p, del, m;
   int create_align_seq = 0;
 
   int i, j;
-  void *a, *b, **TXY;
+  void *a, *b, *TXY=NULL;
   int seq_swap=0;
 
   int gap_cost;
@@ -344,6 +345,11 @@ int vd_align_ukk3(void **X, size_t *X_len,
   }
 
   W = (int *)malloc(sizeof(int)*m_r*w_len);
+  if (!W) {
+    fprintf(stderr, "could not allocate matrix\n");
+    fflush(stderr);
+    return -1;
+  }
 
   for (w=0; w<w_len; w++) {
     c = w-w_offset;
@@ -414,9 +420,9 @@ int vd_align_ukk3(void **X, size_t *X_len,
   free(W);
 
   if (create_align_seq && seq_swap) {
-    *TXY = *X;
+    TXY = *X;
     *X   = *Y;
-    *Y   = *TXY;
+    *Y   = TXY;
   }
 
   return m;

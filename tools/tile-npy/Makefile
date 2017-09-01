@@ -1,5 +1,6 @@
 CC=g++
 OPT=-static -O3
+#OPT=-static -g
 LIBS=-I../../lib/cnpy -L../../lib/cnpy -lcnpy
 
 all: npy-consolidate band-to-matrix-npy npy-vec-to-hiq-1hot

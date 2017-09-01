@@ -1,6 +1,7 @@
 CC=gcc
 CPP=g++
 CFLAGS=-I. -L. -O3
+#CFLAGS=-I. -L. -g
 
 all: asm_ukk.o asm_ukk asm_ukk.a asm_ukk_dna avm_ukk3.o aim_ukk
 

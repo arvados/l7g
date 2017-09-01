@@ -140,7 +140,10 @@ int match_tag(FILE *ref_fp,
     return -1;
   }
   orig_n_tag = tagset.size()/24;
-  if (orig_n_tag==0) { return -1; }
+  if (orig_n_tag==0) {
+    printf(fmt_str, 0, (int)(start_pos + end_tile_length));
+    return -1;
+  }
 
   while (!feof(ref_fp)) {
     ch = fgetc(ref_fp);
@@ -166,13 +169,29 @@ int match_tag(FILE *ref_fp,
     tag.clear();
     for (k=0; k<24; k++) { tag += ref[i-23+k]; }
     if ( tag_pos_map.find(tag) != tag_pos_map.end() ) {
+
+      //DEBUG
+      //printf("match! %i %s\n", count, tag.c_str());
+
       match_tile_step.push_back( tag_pos_map[tag] );
       count++;
 
+
       if (end_tile_length>0) {
+
+        /*
+        // Check against last tag
+        //
         if (strncmp(tag.c_str(), tagset.c_str() + tagset.size() - 24, 24)==0) {
           end_pos_non_inc = (int64_t)(i - 23 + end_tile_length);
         }
+
+        // Force the end position to be end_tile_length past
+        // the last observed tile (rather than the last tile in
+        // the tilepath)
+        //
+        end_pos_non_inc = (int64_t)(i-23+end_tile_length);
+        */
       }
 
     }
@@ -204,6 +223,7 @@ int match_tag(FILE *ref_fp,
   }
   printf("\n");
   fflush(stdout);
+  //DEBUG
 
   sc =
     avm_ukk_align3((void **)(&X), &X_len,
@@ -224,6 +244,12 @@ int match_tag(FILE *ref_fp,
     final_tag.push_back(X[i]);
   }
 
+  //DEBUG
+  //printf("X:"); for (i=0; i<X_len; i++) { printf(" %4i", X[i]); } printf("\n");
+  //printf("Y:"); for (i=0; i<Y_len; i++) { printf(" %4i", Y[i]); } printf("\n");
+  //printf("fin:"); for (i=0; i<final_tag.size(); i++) { printf(" %i", final_tag[i]); } printf("\n");
+  //DEBUG
+
   if (X) { free(X); }
   if (Y) { free(Y); }
 
@@ -236,20 +262,29 @@ int match_tag(FILE *ref_fp,
   printf(">%s:%s:%04x\n", ref_name.c_str(), chrom_str.c_str(), tilepath);
 
   if (end_pos_non_inc<0) { end_pos_non_inc = (int)ref.size(); }
-  for (i=23; i<ref.size(); i++) {
+  //for (i=23; i<ref.size(); i++) {
+  for (i=0; i<(ref.size()-24); i++) {
 
     if (strncmp(tag.c_str(), ref.c_str() + i, 24)==0) {
       printf(fmt_str, final_tag[tag_idx], i+24 + start_pos);
       tag_idx++;
       tag.clear();
 
+      if (end_tile_length > 0) {
+        end_pos_non_inc = (int64_t)(i+end_tile_length);
+      }
+
       if (tag_idx >= final_tag.size()) { break; }
       for (j=0; j<24; j++) { tag += tagset[ final_tag[tag_idx]*24 + j ]; }
+
     }
 
   }
 
-  if (tag_idx==0) { return -1; }
+  if (tag_idx==0) {
+    printf(fmt_str, 1, (int)(end_pos_non_inc + start_pos));
+    return -1;
+  }
 
   printf(fmt_str, final_tag[tag_idx-1]+1, (int)(end_pos_non_inc + start_pos));
 }

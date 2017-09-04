@@ -213,17 +213,17 @@ int match_tag(FILE *ref_fp,
   g_mismatch = 10*n_tag;
 
   //DEBUG
-  printf("ALIGNING:\n");
-  for (i=0; i<orig_tile_step.size(); i++) {
-    printf(" %i", orig_tile_step[i]);
-  }
-  printf("\n");
-  for (i=0; i<match_tile_step.size(); i++) {
-    printf(" %i", match_tile_step[i]);
-  }
-  printf("\n");
-  fflush(stdout);
-  //DEBUG
+  //printf("ALIGNING:\n");
+  //for (i=0; i<orig_tile_step.size(); i++) {
+  //  printf(" %i", orig_tile_step[i]);
+  //}
+  //printf("\n");
+  //for (i=0; i<match_tile_step.size(); i++) {
+  //  printf(" %i", match_tile_step[i]);
+  //}
+  //printf("\n");
+  //fflush(stdout);
+  ////DEBUG
 
   sc =
     avm_ukk_align3((void **)(&X), &X_len,

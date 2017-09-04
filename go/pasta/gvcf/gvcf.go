@@ -39,6 +39,9 @@ type GVCFRefVar struct {
   Allele int
 
   ChromStr string
+
+  // 0 reference
+  //
   RefPos int
 
   OCounter int
@@ -67,11 +70,16 @@ type GVCFRefVar struct {
   PrevRefLen int
   PrevVarType int
 
+  FirstFlag bool
+
   State int
 
   StateHistory []GVCFRefVarInfo
 
   StreamRefPos int
+
+  IgnoreBacktrackingStart bool
+  ShowWarning bool
 }
 
 func (g *GVCFRefVar) Init() {
@@ -96,6 +104,9 @@ func (g *GVCFRefVar) Init() {
   g.Format = "GT"
 
   g.StreamRefPos = 0
+
+  g.IgnoreBacktrackingStart = true
+  g.ShowWarning = true
 
   g.State = pasta.BEG
 }
@@ -1043,6 +1054,7 @@ func (g *GVCFRefVar) PrintEnd(out *bufio.Writer) error {
 //---
 
 func (g *GVCFRefVar) PastaBegin(out *bufio.Writer) error {
+  g.FirstFlag = true
   return nil
 }
 
@@ -1054,9 +1066,13 @@ func (g *GVCFRefVar) PastaEnd(out *bufio.Writer) error {
 
 func (g *GVCFRefVar) _parse_info_field_value(info_line string, field string, sep string) (string, error) {
   sa := strings.Split(info_line, sep)
+
+  //DEBUG
+  //fmt.Printf("_pifv: %v\n", sa);
+
   for ii:=0; ii<len(sa); ii++ {
     fv := strings.Split(sa[ii], "=")
-    if len(fv)!=2 { return "", fmt.Errorf("invalud field") }
+    if len(fv)!=2 { return "", fmt.Errorf("invalid field") }
 
     if fv[0] == field { return fv[1], nil }
   }
@@ -1065,6 +1081,10 @@ func (g *GVCFRefVar) _parse_info_field_value(info_line string, field string, sep
 
 func (g *GVCFRefVar) _parameter_index(line string, field string, sep string) (int, error) {
   sa := strings.Split(line, sep)
+
+  //DEBUG
+  //fmt.Printf("_pi: %v\n", sa);
+
   for ii:=0; ii<len(sa); ii++ {
     if sa[ii] == field { return ii, nil }
   }
@@ -1100,6 +1120,30 @@ func (g *GVCFRefVar) _get_gt_array(gt_str string, ploidy int) ([]int, error) {
   return gt_array, nil
 }
 
+func _lb(b byte) byte {
+  if (b>='A') && (b<='Z') {
+    return b-'A'+'a'
+  }
+  return b
+}
+
+// to lower [a-z]
+//
+func _tol(A string) string {
+  z := make([]byte, len(A))
+  for i:=0; i<len(A); i++ {
+    if A[i] >= 'A' && A[i] <= 'Z' {
+      z[i] = A[i] - 'A' + 'a'
+    } else {
+      z[i] = A[i]
+    }
+  }
+  return string(z)
+}
+
+
+// Read in gVCF, one line at a time,  and create a PASTA stream from it.
+//
 func (g *GVCFRefVar) Pasta(gvcf_line string, ref_stream *bufio.Reader, out *bufio.Writer) error {
   var err error
   CHROM_FIELD_POS := 0 ; _ = CHROM_FIELD_POS
@@ -1113,23 +1157,36 @@ func (g *GVCFRefVar) Pasta(gvcf_line string, ref_stream *bufio.Reader, out *bufi
   FORMAT_FIELD_POS := 8 ; _ = FORMAT_FIELD_POS
   SAMPLE0_FIELD_POS := 9 ; _ = SAMPLE0_FIELD_POS
 
+  //loc_debug := true
+  loc_debug := false
+
+  if loc_debug {
+    fmt.Printf("\n")
+    fmt.Printf("## g{ ChromStr %s, RefPos %d, OCount %d}\n",
+      g.ChromStr, g.RefPos, g.OCounter)
+    fmt.Printf("## RefPos %d\n", g.RefPos)
+    fmt.Printf("## %s\n", gvcf_line)
+
+  }
+
   // empty line or comment
   //
   if (len(gvcf_line)==0) || (gvcf_line[0]=='#') { return nil }
 
-
   line_part := strings.Split(gvcf_line, "\t")
 
-  _start,e := strconv.Atoi(line_part[START_FIELD_POS])
+  _chrom_str := line_part[CHROM_FIELD_POS]
+
+  _start1ref,e := strconv.Atoi(line_part[START_FIELD_POS])
   if e!=nil { return e }
 
   _end_str,e := g._parse_info_field_value(line_part[INFO_FIELD_POS], "END", ":")
-  _end := -1
+  _end1ref := -1
   if e==nil {
-    _end,err = strconv.Atoi(_end_str)
+    _end1ref,err = strconv.Atoi(_end_str)
     if err!=nil { return err }
   }
-  if _end==-1 { _end = _start+1 }
+  if _end1ref==-1 { _end1ref = _start1ref }
 
   ref_anchor_on_left := true
   _,er := g._parse_info_field_value(line_part[INFO_FIELD_POS], "REF_ANCHOR_AT_END", ":")
@@ -1137,9 +1194,10 @@ func (g *GVCFRefVar) Pasta(gvcf_line string, ref_stream *bufio.Reader, out *bufi
     ref_anchor_on_left = false
   }
 
+
   alt_seq := []string{}
   if line_part[ALT_FIELD_POS]!="." {
-    alt_seq = strings.Split(line_part[ALT_FIELD_POS], ",")
+    alt_seq = strings.Split(_tol(line_part[ALT_FIELD_POS]), ",")
   }
 
   gt_samp_idx,e := g._parameter_index(line_part[FORMAT_FIELD_POS], "GT", ":")
@@ -1153,14 +1211,68 @@ func (g *GVCFRefVar) Pasta(gvcf_line string, ref_stream *bufio.Reader, out *bufi
   samp_seq_idx,e := g._get_gt_array(samp_str, n_allele)
   if e!=nil { return e }
 
-  ref_anchor_base := line_part[REF_FIELD_POS]
-  //refn := _end - _start
-  refn := (_end + 1) - _start
+  ref_anchor_base := _tol(line_part[REF_FIELD_POS])
 
+  // END field is inclusive
+  //
+  refn := (_end1ref + 1) - _start1ref
+
+  // Special case of when no gVCFlines have been processed.  This means the
+  // headers for the pasta stream haven't been written, so write them here.
+  if g.FirstFlag {
+
+    out.WriteString( fmt.Sprintf(">C{%s}", g.ChromStr) )
+    out.WriteString( fmt.Sprintf(">P{%d}", g.RefPos) )
+    out.WriteString("\n")
+
+  } else if (_start1ref-1) <= g.RefPos {
+
+    if g.IgnoreBacktrackingStart {
+      if g.ShowWarning {
+        out.WriteString(
+          fmt.Sprintf("\n>#{WARNING:start reference %s:%d (1ref %d) is before current refpos %d}\n",
+            _chrom_str, _start1ref-1, _start1ref, g.RefPos) )
+      }
+      return nil
+    }
+
+    return fmt.Errorf("start reference %s:%d (1ref %d) is before current refpos %d}\n",
+            _chrom_str, _start1ref-1, _start1ref, g.RefPos)
+
+
+
+  }
+  g.FirstFlag = false
+
+  if loc_debug {
+    fmt.Printf("## alt_seq %v\n", alt_seq)
+    fmt.Printf("## ref_anchor %s\n", ref_anchor_base)
+    fmt.Printf("## gt_samp_idx %v\n", gt_samp_idx)
+    fmt.Printf("## samp_part %v\n", samp_part)
+    fmt.Printf("## samp_seq_idx %v\n", samp_seq_idx)
+    fmt.Printf("## refn %d (_start1ref %d, _end1ref %d)\n", refn, _start1ref, _end1ref)
+  }
+
+
+  // The simple case when the gVCF line is just the reference with no
+  // alternates called
+  //
+  // If the reference sequence seen in the gVCF file is onger than a base
+  // long without any END info field and both of the alleles are reference,
+  // only advance by 1 bp in the reference input stream.
+  // In the case where END Is indicated, continue on as normal.
+  //
   if (samp_seq_idx[0] == samp_seq_idx[1]) && (samp_seq_idx[0] == 0) {
 
+    // Print out (interleaved) PASTA stream of reference
+    // if they're both 0/0 or 0|0
+    //
     for ii:=0; ii<refn; ii++ {
       stream_ref_bp,e := ref_stream.ReadByte()
+
+      //DEBUG
+      if loc_debug { fmt.Printf("stream_ref_bp %c\n", stream_ref_bp); }
+
       if e!=nil { return e }
       for stream_ref_bp == '\n' || stream_ref_bp == ' ' || stream_ref_bp == '\t' || stream_ref_bp == '\r' {
         stream_ref_bp,e = ref_stream.ReadByte()
@@ -1180,8 +1292,30 @@ func (g *GVCFRefVar) Pasta(gvcf_line string, ref_stream *bufio.Reader, out *bufi
 
     }
 
+    g.RefPos = _end1ref-1
+
     return nil
   }
+
+  // If the reference sequence seen in the gVCF file is
+  // longer than a base without any END field, and we
+  // have alternate variants, we assume that the corresponding
+  // reference sequence is well called and use the length
+  // of the reference seqeunec as seen in the gVCF file
+  // is the length of the called region.
+  // For example, if an indel occurs and there is no END
+  // field but the REF sequence is larger than 1 bp long.
+  //
+  if (refn!=1) && (len(ref_anchor_base)!=1) {
+    return fmt.Errorf("END INFO field supplied but reference sequence is greater than 1")
+  }
+
+  if (refn==1) && (len(ref_anchor_base)!=1) {
+    refn=len(ref_anchor_base)
+  }
+
+  g.RefPos += refn
+
 
   mM := refn
   for ii:=0; ii<n_allele; ii++ {
@@ -1216,9 +1350,11 @@ func (g *GVCFRefVar) Pasta(gvcf_line string, ref_stream *bufio.Reader, out *bufi
 
       stream_ref_bp,e = ref_stream.ReadByte()
       if e!=nil { return e }
+      stream_ref_bp = _lb(stream_ref_bp)
       for stream_ref_bp == '\n' || stream_ref_bp == ' ' || stream_ref_bp == '\t' || stream_ref_bp == '\r' {
         stream_ref_bp,e = ref_stream.ReadByte()
         if e!=nil { return e }
+        stream_ref_bp = _lb(stream_ref_bp)
       }
 
     }
@@ -1226,7 +1362,7 @@ func (g *GVCFRefVar) Pasta(gvcf_line string, ref_stream *bufio.Reader, out *bufi
 
     if ref_anchor_on_left {
       if (refn>0) && (i==0) && (stream_ref_bp!=ref_anchor_base[0]) {
-        return fmt.Errorf(fmt.Sprintf("stream reference (%c) does not match VCF ref base (%c) at position %d\n", stream_ref_bp, ref_anchor_base[0], _start))
+        return fmt.Errorf(fmt.Sprintf("stream reference (%c) does not match VCF ref base (%c) at position %d\n", stream_ref_bp, ref_anchor_base[0], _start1ref))
       }
     }
     _ = stream_ref_bp
@@ -1256,7 +1392,7 @@ func (g *GVCFRefVar) Pasta(gvcf_line string, ref_stream *bufio.Reader, out *bufi
       }
 
       pasta_ch := pasta.SubMap[bp_ref][bp_alt]
-      if pasta_ch == 0 { return fmt.Errorf("invalid character") }
+      if pasta_ch == 0 { return fmt.Errorf("invalid character (ref %c, alt %c)", bp_ref, bp_alt) }
 
       if (g.LFMod>0) && (g.OCounter > 0) && ((g.OCounter%g.LFMod)==0) {
         out.WriteByte('\n')

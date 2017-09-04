@@ -1441,6 +1441,13 @@ func _main_gvcf_to_rotini(c *cli.Context) {
   g := gvcf.GVCFRefVar{}
   g.Init()
 
+  if c.Int("start") > 0 {
+    g.RefPos = c.Int("start")
+    //g.PrevRefPos = g.RefPos
+  }
+
+
+
   line_no:=0
   g.PastaBegin(out)
   for ain.ReadScan() {

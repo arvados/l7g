@@ -17,6 +17,8 @@ typedef struct opt_type {
 } opt_t;
 
 static struct option long_options[] = {
+  {"print-index",         no_argument,        NULL, 'N'},
+  {"print-file",          no_argument,        NULL, 'S'},
   {"help",                no_argument,        NULL, 'h'},
   {"version",             no_argument,        NULL, 'v'},
   {"verbose",             no_argument,        NULL, 'V'},
@@ -30,6 +32,8 @@ void print_usage() {
   printf("\n");
   printf("    which-ref [-h] [-v] [-V] [query-seq0] [query-seq1] [query-seq2] ... [query-seqN] [ref-seq]\n");
   printf("\n");
+  printf("  [-N]        print index (0 reference) of found query seq only\n");
+  printf("  [-S]        print provided filename of found sequence only (overrides index print)\n");
   printf("  [-h]        Print help (this screen)\n");
   printf("  [-v]        Print version\n");
   printf("  [-V]        Verbose flag\n");
@@ -54,15 +58,24 @@ int main(int argc, char **argv) {
   int min_score, min_idx;
   int loc_debug = 0;
 
+  int print_filename_flag = 0,
+      print_index_flag = 0;
+
   int ch, option_index;
   opt_t opt;
 
   std::vector< int > score;
 
-  while ((ch = getopt_long(argc, argv, "hvVA", long_options, &option_index))!=-1) switch(ch) {
+  while ((ch = getopt_long(argc, argv, "hvVASN", long_options, &option_index))!=-1) switch(ch) {
     case 0:
       fprintf(stderr, "sanity error, invalid optino to parse, exiting\n");
       exit(-1);
+      break;
+    case 'S':
+      print_filename_flag = 1;
+      break;
+    case 'N':
+      print_index_flag = 1;
       break;
     case 'v':
       print_version();
@@ -93,18 +106,6 @@ int main(int argc, char **argv) {
     print_usage();
     exit(0);
   }
-
-  /*
-  if (argc<3) {
-    print_usage();
-    exit(-1);
-  }
-
-  for (i=1; i<(argc-1); i++) {
-  }
-
-  ifn = argv[argc-1];
-  */
 
   //DEBUG
   //
@@ -168,9 +169,17 @@ int main(int argc, char **argv) {
     }
   }
 
-  printf("min_score: %i\nmin_idx:%i\nname:%s\n",
-      min_score,
-      min_idx,
-      ref_fns[min_idx].c_str());
+  if (print_filename_flag) {
+    printf("%s\n", ref_fns[min_idx].c_str());
+  }
+  else if (print_index_flag) {
+    printf("%i\n", min_idx);
+  }
+  else {
+    printf("min_score: %i\nmin_idx:%i\nname:%s\n",
+        min_score,
+        min_idx,
+        ref_fns[min_idx].c_str());
+  }
 
 }

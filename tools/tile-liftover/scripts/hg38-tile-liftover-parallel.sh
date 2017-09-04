@@ -30,7 +30,7 @@ fi
 ## go past the end to try and pick up tags that might not have fallen
 # before the cytoband cutoff in a previous reference build
 #
-export BUFFER_DEFAULT="10000000"
+export BUFFER_DEFAULT="40000000"
 export buffer_bp="$BUFFER_DEFAULT"
 
 if [[ "$2" != "" ]] ; then

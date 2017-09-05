@@ -138,6 +138,9 @@ chrom="unk"
 dst_tafn="$odir/assembly.00.$build.fw"
 dst_ta_idx_fn="$dst_tafn.fwi"
 
+dst_ta_gz_fn="$dst_tafn.gz"
+dst_ta_gz_idx_fn="$dst_tafn.gz.fwi"
+
 mkdir -p $odir
 rm -f "$dst_tafn"
 
@@ -163,3 +166,8 @@ done
 
 ../tile-assembly-index "$dst_tafn" > "$dst_ta_idx_fn"
 bgzip -f "$dst_tafn"
+
+pushd $odir
+rm -f `basename "$dst_ta_gz_idx_fn"`
+ln -s `basename "$dst_ta_idx_fn"` `basename "$dst_ta_gz_idx_fn"`
+popd

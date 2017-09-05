@@ -9,6 +9,7 @@ export taidx="$L7G_TILEASSEMBLY_INDEX"
 export tagset="$L7G_TAGSET"
 
 export dest_ref="hg38"
+export build="hg38"
 
 if [[ "$hg38" == "" ]] || [[ "$tadb" == "" ]] || [[ "$taidx" == "" ]] || [[ "$tagset" == "" ]] ; then
 
@@ -89,6 +90,7 @@ function process_chrom {
       -T <( refstream $tagset $hxp.00 | tr -d '\n' | fold -w 24 ) \
       -R <( refstream $hg38 $chrom:$refrange ) \
       -s $prev_end_0ref \
+			-N $build \
       -c $chrom \
       -M $last_tile_len > stage/$hxp.assembly"
 
@@ -96,6 +98,7 @@ function process_chrom {
       -T <( refstream $tagset $hxp.00 | tr -d '\n' | fold -w 24 ) \
       -R <( refstream $hg38 $chrom:$refrange ) \
       -s $prev_end_0ref \
+			-N $build \
       -c $chrom \
       -M $last_tile_len > stage/$hxp.assembly
 
@@ -121,3 +124,38 @@ export -f echo_test
 
 echo "$chroms" "($BUFFER_DEFAULT)"
 echo "$chroms" | tr ' ' '\n' | parallel --no-notice --max-procs 10 process_chrom {}
+
+## fill in unprocessed tilpaths and collect them into final lifted over tile assembly
+## file.
+##
+
+idir="stage"
+odir="out-data"
+
+prev_chrom="unk"
+chrom="unk"
+
+dst_tafn="$odir/assembly.00.$build.fw"
+
+mkdir -p $odir
+rm -f "$dst_tafn"
+
+# fill in missing assembly files
+#
+for p in {0..862} ; do
+  hxp=`printf "%04x" $p`
+
+  if [[ ! -e "$idir/$hxp.assembly" ]] || [[ ! -s "$idir/$hxp.assembly" ]] ; then
+    prev_addr=`tail -n1 "$dst_tafn" | cut -f2 | tr -d ' '`
+    echo ">$build:$chrom:$hxp" >> "$dst_tafn"
+    printf "%04x\t%10i\n" 0 $prev_addr >> "$dst_tafn"
+		continue
+  fi
+
+  cat $idir/$hxp.assembly >> "$dst_tafn"
+
+  prev_chrom="$chrom"
+  chrom=`head -n1 $idir/$hxp.assembly | cut -f2 -d':' `
+
+done
+

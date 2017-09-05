@@ -136,6 +136,7 @@ prev_chrom="unk"
 chrom="unk"
 
 dst_tafn="$odir/assembly.00.$build.fw"
+dst_ta_idx_fn="$dst_tafn.fwi"
 
 mkdir -p $odir
 rm -f "$dst_tafn"
@@ -159,3 +160,6 @@ for p in {0..862} ; do
 
 done
 
+
+../tile-assembly-index "$dst_tafn" > "$dst_ta_idx_fn"
+bgzip -f "$dst_tafn"

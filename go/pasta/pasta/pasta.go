@@ -18,7 +18,7 @@ import "github.com/curoverse/l7g/go/pasta"
 
 import "github.com/curoverse/l7g/go/pasta/gvcf"
 
-var VERSION_STR string = "0.2.3"
+var VERSION_STR string = "0.2.4"
 var gVerboseFlag bool
 
 var gProfileFlag bool
@@ -2000,6 +2000,7 @@ func _main( c *cli.Context ) {
     out := bufio.NewWriter(os.Stdout)
 
     fji := FastJInfo{}
+    fji.Init()
     fji.RefPos = c.Int("start")
     fji.Chrom = c.String("chrom")
 
@@ -2036,6 +2037,7 @@ func _main( c *cli.Context ) {
     assembly_reader := bufio.NewReader(assembly_fp)
 
     fji := FastJInfo{}
+    fji.Init()
     fji.RefPos = c.Int("start")
     fji.RefBuild = c.String("build")
     fji.Chrom = c.String("chrom")

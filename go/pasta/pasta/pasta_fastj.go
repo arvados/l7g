@@ -40,6 +40,10 @@ type FastJHeader struct {
 type FastJInfo struct {
   TagPath int
   TagStep int
+
+  StepStartTag int
+  StepEndTag int
+
   EndTagBuffer []string
   TagStream *bufio.Reader
   TagFinished bool
@@ -52,6 +56,9 @@ type FastJInfo struct {
   AssemblyEndPos int
   AssemblyPrevEndPos int
   AssemblyStream *bufio.Reader
+
+  AssemblySpan int
+  AssemblyStart bool
 
   RefTile []byte
   AltTile [][]byte
@@ -82,6 +89,14 @@ func (g *FastJInfo) Init() {
 
   g.LFMod = 50
   g.OCounter = 0
+
+  g.StepStartTag = -1
+  g.StepEndTag = -1
+
+  g.AssemblySpan=0
+
+  g.AssemblyStart = true
+
 }
 
 //--
@@ -119,11 +134,27 @@ func (g *FastJInfo) ReadTag(tag_stream *bufio.Reader) error {
       g.TagPath = int(_path)
       g.TagStep = 0
 
+      g.StepStartTag = -1
+      g.StepEndTag = -1
+
       if is_eof { return io.EOF }
       continue
     }
 
     g.EndTagBuffer = append(g.EndTagBuffer, strings.Trim(l, " \t\n"))
+
+    if (g.StepStartTag < 0) && (g.StepEndTag >= 0) {
+      g.StepStartTag = g.StepEndTag
+    }
+
+    if g.StepEndTag < 0 {
+      g.StepEndTag = 0
+    } else {
+      g.StepEndTag ++
+    }
+
+    //fmt.Printf(">>>>>>>>>>>>>>>>> %s\n", l)
+
     return nil
   }
 
@@ -133,11 +164,16 @@ func (g *FastJInfo) ReadTag(tag_stream *bufio.Reader) error {
 //--
 
 func (g *FastJInfo) ReadAssembly(assembly_stream *bufio.Reader) error {
+  loc_debug := false
 
   for {
     l,e := assembly_stream.ReadString('\n')
     if e!=nil { return e }
     if len(l)==0 { continue }
+
+    if loc_debug {
+      fmt.Printf("\n## assembly got: %s\n", l)
+    }
 
     if l[0]=='>' {
 
@@ -156,6 +192,9 @@ func (g *FastJInfo) ReadAssembly(assembly_stream *bufio.Reader) error {
       g.AssemblyPath = int(_path)
       g.AssemblyStep = 0
       g.AssemblyPrevStep = 0
+      g.AssemblySpan=1
+
+      g.AssemblyStart = true
       continue
     }
 
@@ -174,11 +213,52 @@ func (g *FastJInfo) ReadAssembly(assembly_stream *bufio.Reader) error {
       return fmt.Errorf(fmt.Sprintf("ERROR: ReadAssembly: line '%s' part '%s': %v", l, parts[1], e))
     }
 
+    if loc_debug {
+      fmt.Printf("## assembly got step %d, endpos %d\n",
+        int(_step), int(_pos))
+    }
+
     g.AssemblyPrevEndPos = g.AssemblyEndPos
     g.AssemblyEndPos = int(_pos)
-    g.AssemblyPrevStep = g.AssemblyStep
-    g.AssemblyStep = int(_step)
 
+    if g.AssemblyStart {
+
+      g.AssemblyPrevStep = -1
+      g.AssemblyStep = 0
+
+      g.AssemblySpan = int(_step) + 1
+
+    } else {
+
+      //The currently read in step is not actually the current step,
+      // it's used to determine the step and allow us to calcualte
+      // the span.
+      //
+      _cur_step := g.AssemblyStep + g.AssemblySpan
+      _cur_span := int(_step) - _cur_step + 1
+
+      g.AssemblyPrevStep = g.AssemblyStep
+      g.AssemblyStep = _cur_step
+      g.AssemblySpan = _cur_span
+
+      if loc_debug {
+        fmt.Printf("\n## assembly _cur_span %d, _cur_step %d\n",
+          _cur_span, _cur_step)
+        fmt.Printf("\n## assembly AssemblyPrevStep %d, AssemblyStep %d, AssemblySpan %d\n",
+          g.AssemblyPrevStep,
+          g.AssemblyStep,
+          g.AssemblySpan)
+      }
+
+    }
+
+    if loc_debug {
+      fmt.Printf("\n## assembly: %x+%d (prev %x), endpos %d, prevendpos %d\n\n\n",
+        g.AssemblyStep, g.AssemblySpan, g.AssemblyPrevStep,
+        g.AssemblyEndPos, g.AssemblyPrevEndPos)
+    }
+
+    g.AssemblyStart = false
     return nil
   }
 
@@ -352,14 +432,19 @@ func (g *FastJInfo) Convert(pasta_stream *bufio.Reader, tag_stream *bufio.Reader
   var dbp0,dbp1 int ; _,_ = dbp0,dbp1
   var curStreamState int ; _ = curStreamState
 
+  loc_debug := false
+
   ref_seq := make([]byte, 0, 1024)
   alt_seq := make([][]byte, 2)
   alt_seq[0] = make([]byte, 0, 1024)
   alt_seq[1] = make([]byte, 0, 1024)
 
   seed_tile_length := make([]int, 2)
-  seed_tile_length[0] = 1
-  seed_tile_length[1] = 1
+  //seed_tile_length[0] = 1
+  //seed_tile_length[1] = 1
+
+  seed_tile_length[0] = 0
+  seed_tile_length[1] = 0
 
   step_pos := make([]int, 2)
   step_pos[0] = 0
@@ -371,6 +456,11 @@ func (g *FastJInfo) Convert(pasta_stream *bufio.Reader, tag_stream *bufio.Reader
   e = g.ReadAssembly(assembly_stream)
   if e!=nil { return e }
 
+  if loc_debug {
+    out.WriteString( fmt.Sprintf("## (1) assembly step: %x+%d (e:%d) prev %x (e:%d)\n",
+      g.AssemblyStep, g.AssemblySpan, g.AssemblyEndPos,
+      g.AssemblyPrevStep, g.AssemblyPrevEndPos) )
+  }
 
   message_processed_flag := false ; _ = message_processed_flag
   for {
@@ -384,6 +474,8 @@ func (g *FastJInfo) Convert(pasta_stream *bufio.Reader, tag_stream *bufio.Reader
     }
     if e0!=nil { break }
 
+    // Process PASTA control message if we see one
+    //
     if ch0=='>' {
       msg,e = pasta.ControlMessageProcess(pasta_stream)
       if e!=nil { return fmt.Errorf("invalid control message") }
@@ -401,24 +493,54 @@ func (g *FastJInfo) Convert(pasta_stream *bufio.Reader, tag_stream *bufio.Reader
       continue
     }
 
+    // If we've gone past the current assembly tile indicator,
+    // updated our assembly tile information
+    //
     for ref_pos > g.AssemblyEndPos {
       e = g.ReadAssembly(assembly_stream)
       if e!=nil { return e }
+
+      if loc_debug {
+        out.WriteString( fmt.Sprintf("## (2) assembly step: %x+%d (e:%d) prev %x (e:%d)\n",
+          g.AssemblyStep, g.AssemblySpan, g.AssemblyEndPos,
+          g.AssemblyPrevStep, g.AssemblyPrevEndPos) )
+      }
+
+
     }
 
 
-    // emit tiles
+    // If we've hit the end of the tile assebly, we can
+    // emit a FastJ tile
     //
     if ref_pos == g.AssemblyEndPos {
       end_tile_flag := false
 
-      if !g.TagFinished {
+
+      for (!g.TagFinished) && (g.StepEndTag < (g.AssemblyStep+g.AssemblySpan-1)) {
+      //if !g.TagFinished {
+
+
         e = g.ReadTag(tag_stream)
         if e!=nil {
           return fmt.Errorf(fmt.Sprintf("ERROR reading tag: %v", e))
         }
-      } else {
+
+        seed_tile_length[0]++
+        seed_tile_length[1]++
+
+      //} else {
+      }
+      if g.TagFinished {
+
         end_tile_flag = true
+      }
+
+      if loc_debug {
+        out.WriteString( fmt.Sprintf("## tag %s, stependtag %x, assemblystep %x\n",
+          g.EndTagBuffer[len(g.EndTagBuffer)-1],
+          g.StepEndTag,
+          g.AssemblyStep) )
       }
 
       s_epos := 24
@@ -433,7 +555,8 @@ func (g *FastJInfo) Convert(pasta_stream *bufio.Reader, tag_stream *bufio.Reader
         beg_tag := ""
         idx_end := len(g.EndTagBuffer)-1
         if end_tile_flag {
-          idx := idx_end - seed_tile_length[0] + 1
+          //idx := idx_end - seed_tile_length[0] + 1
+          idx := idx_end - seed_tile_length[0]
           //if idx_end>=0 {
           if idx>=0 {
             //beg_tag = g.EndTagBuffer[idx_end]
@@ -485,10 +608,11 @@ func (g *FastJInfo) Convert(pasta_stream *bufio.Reader, tag_stream *bufio.Reader
         }
         step_pos[0]+=seed_tile_length[0]
 
-        seed_tile_length[0]=1
+        //seed_tile_length[0]=1
+        seed_tile_length[0]=0
 
       } else {
-        seed_tile_length[0]++
+        //seed_tile_length[0]++
       }
 
       //----
@@ -506,7 +630,8 @@ func (g *FastJInfo) Convert(pasta_stream *bufio.Reader, tag_stream *bufio.Reader
         idx_end := len(g.EndTagBuffer)-1
 
         if end_tile_flag {
-          idx := idx_end - seed_tile_length[1] + 1
+          //idx := idx_end - seed_tile_length[1] + 1
+          idx := idx_end - seed_tile_length[1]
           //if idx_end>=0 {
           if idx>=0 {
             //beg_tag = g.EndTagBuffer[idx_end]
@@ -559,10 +684,11 @@ func (g *FastJInfo) Convert(pasta_stream *bufio.Reader, tag_stream *bufio.Reader
         }
         step_pos[1]+=seed_tile_length[1]
 
-        seed_tile_length[1]=1
+        //seed_tile_length[1]=1
+        seed_tile_length[1]=0
 
       } else {
-        seed_tile_length[1]++
+        //seed_tile_length[1]++
       }
 
       if len(ref_seq) >= 24 {
@@ -572,6 +698,14 @@ func (g *FastJInfo) Convert(pasta_stream *bufio.Reader, tag_stream *bufio.Reader
 
       e = g.ReadAssembly(assembly_stream)
       if e!=nil { return fmt.Errorf(fmt.Sprintf("ERROR reading assembly: %v", e)) }
+
+      if loc_debug {
+        out.WriteString( fmt.Sprintf("## (3) assembly step: %x+%d (e:%d) prev %x (e:%d)\n",
+          g.AssemblyStep, g.AssemblySpan, g.AssemblyEndPos,
+          g.AssemblyPrevStep, g.AssemblyPrevEndPos) )
+      }
+
+
 
     }
 
@@ -673,6 +807,13 @@ func (g *FastJInfo) Convert(pasta_stream *bufio.Reader, tag_stream *bufio.Reader
     ref_pos++
   }
 
+  // Final tile so take special consideration
+  //
+  seed_tile_length[0]++
+  seed_tile_length[1]++
+
+
+
   // emit tiles
   //
   if ref_pos == g.AssemblyEndPos {
@@ -687,7 +828,8 @@ func (g *FastJInfo) Convert(pasta_stream *bufio.Reader, tag_stream *bufio.Reader
 
       if idx_end >= 0 {
         //beg_tag = g.EndTagBuffer[idx_end]
-        idx := idx_end - seed_tile_length[aa] + 1
+        //idx := idx_end - seed_tile_length[aa] + 1
+        idx := idx_end - seed_tile_length[aa]
         if idx >= 0 {
           beg_tag = g.EndTagBuffer[idx]
         }
@@ -863,6 +1005,7 @@ func (g *FastJInfo) EmitAlignedInterleave(ref, alt0, alt1 []byte, out *bufio.Wri
 //
 func (g *FastJInfo) Pasta(fastj_stream *bufio.Reader, ref_stream *bufio.Reader, assembly_stream *bufio.Reader, out *bufio.Writer) error {
   var err error
+  loc_debug := false
 
   g.LFMod = 50
 
@@ -985,6 +1128,14 @@ func (g *FastJInfo) Pasta(fastj_stream *bufio.Reader, ref_stream *bufio.Reader, 
           //
           e = g.ReadAssembly(assembly_stream)
           if e!=nil { return fmt.Errorf(fmt.Sprintf("ERROR reading assembly at ref_pos %d: %v", ref_pos, e)) }
+
+          if loc_debug {
+            fmt.Printf("## (4) assembly step: %x (e:%d) prev %x (e:%d)\n",
+              g.AssemblyStep, g.AssemblyEndPos,
+              g.AssemblyPrevStep, g.AssemblyPrevEndPos)
+          }
+
+
 
           for {
 

@@ -1,0 +1,22 @@
+
+
+```
+./convert-gff-pgp-all
+```
+
+This misses a few chrM because it's either not in the GFF (because
+it wasn't converted from the CGI-Var correctly) or an alternate
+chrM was used (from okg).  To handle these (about 40 in total),
+the lists of each are in:
+
+```
+alt_chrM.list
+empty-chrm-pgp.list
+```
+
+and the scripts that use them:
+
+```
+convert-cgivar-pgp-chrm
+convert-gff-mt
+```

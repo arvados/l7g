@@ -1,0 +1,26 @@
+bashscriptmain:
+   class: File
+   path: /data-sdd/cwl_tiling/npy/create-npyCWL.sh
+
+cgb:
+   class: File
+   path: /data-sdd/cwl_tiling/npy/cgb
+
+cgfdirectory:
+   class: Directory
+   path: keep:de76794ec53bb1885cf64946ec49990e+43221
+
+band2matrix:
+   class: File
+   path: /data-sdd/cwl_tiling/npy/buildArvados/dest/band-to-matrix-npy
+
+cnvrt2hiq:
+   class: File
+   path: /data-sdd/cwl_tiling/npy/buildArvados/dest/npy-vec-to-hiq-1hot
+
+makelist:
+   class: File
+   path: /data-sdd/cwl_tiling/npy/create-list
+
+nthreads: "16"
+

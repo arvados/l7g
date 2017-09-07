@@ -1,0 +1,46 @@
+>{"tileID":"0157.00.0000.000","md5sum":"d7c151e05a4be1a735af3d1346c90714","tagmask_md5sum":"d7c151e05a4be1a735af3d1346c90714","locus":[{"build":"hg19 chr7 0 54000589"}],"n":589,"seedTileLength":1,"startTile":true,"endTile":false,"startSeq":"agaaaatgccaacatagccagagt","endSeq":"cctaagcataaaaaacaaatggag","startTag":"","endTag":"cctaagcataaaaaacaaatggag","nocallCount":0,"notes":[]}
+agaaaatgccaacatagccagagtgataaattaattctatagaccaacaa
+gtcaaacataagaaaaagttggaaaaatttaccataccaattacatttta
+attgtagtagtatatctccgtcatctcagcccaaaaactccttaagctga
+taagcaacttcagcaaggtctcagcatacaaaatcaatgtgcaaaaatca
+caagcattccttcacaccaacaatagacaagcagagagccaaatcatgaa
+tgaactcccatttacaatagctacaaagagaataaaatacctaagaatac
+agttaacaagggatgtgaaggacctcttcaaggagaactacaaaccactg
+ctcaaggaaataatagaggacacaaacaaatggaaaaacgttccatcctc
+atggataggaagaacaaatatcgtgaaaatggccatactgcccaaagtaa
+ttaatagattcattgctattcccatcaaactaccattgacattcttcaca
+gaatcagaaaaaactactttaaatttcatgtagaatcaaagaagaccctg
+tatagccaagacaatcctaagcataaaaaacaaatggag
+
+>{"tileID":"0157.00.0000.001","md5sum":"d7c151e05a4be1a735af3d1346c90714","tagmask_md5sum":"d7c151e05a4be1a735af3d1346c90714","locus":[{"build":"hg19 chr7 0 54000589"}],"n":589,"seedTileLength":1,"startTile":true,"endTile":false,"startSeq":"agaaaatgccaacatagccagagt","endSeq":"cctaagcataaaaaacaaatggag","startTag":"","endTag":"cctaagcataaaaaacaaatggag","nocallCount":0,"notes":[ ]}
+agaaaatgccaacatagccagagtgataaattaattctatagaccaacaa
+gtcaaacataagaaaaagttggaaaaatttaccataccaattacatttta
+attgtagtagtatatctccgtcatctcagcccaaaaactccttaagctga
+taagcaacttcagcaaggtctcagcatacaaaatcaatgtgcaaaaatca
+caagcattccttcacaccaacaatagacaagcagagagccaaatcatgaa
+tgaactcccatttacaatagctacaaagagaataaaatacctaagaatac
+agttaacaagggatgtgaaggacctcttcaaggagaactacaaaccactg
+ctcaaggaaataatagaggacacaaacaaatggaaaaacgttccatcctc
+atggataggaagaacaaatatcgtgaaaatggccatactgcccaaagtaa
+ttaatagattcattgctattcccatcaaactaccattgacattcttcaca
+gaatcagaaaaaactactttaaatttcatgtagaatcaaagaagaccctg
+tatagccaagacaatcctaagcataaaaaacaaatggag
+
+>{"tileID":"0157.00.0001.000","md5sum":"0dad59737cc1b788ca7f5d8e33b6cf90","tagmask_md5sum":"0dad59737cc1b788ca7f5d8e33b6cf90","locus":[{"build":"hg19 chr7 54000565 54000881"}],"n":316,"seedTileLength":1,"startTile":false,"endTile":false,"startSeq":"cctaagcataaaaaacaaatggag","endSeq":"aatattgagtcaagatagattaga","startTag":"cctaagcataaaaaacaaatggag","endTag":"aatattgagtcaagatagattaga","nocallCount":0,"notes":[]}
+cctaagcataaaaaacaaatggagacatcatgctacctgacttcaaacta
+tactacagtgctacagtaaccaaaacagcatggtactggtaccaaaacag
+acatatagaccaaaaaggaacagaacagagacctcagaaataataccacg
+catctacaaccatctgatcttcgacaaacctgacaataacaagcagtggg
+gaaaggatctcctatttaataagtggtgctgggaaaactggctagccata
+tgcagaaaactgaaactggaccccttccttacaccttatacaaatattga
+gtcaagatagattaga
+
+>{"tileID":"0157.00.0001.001","md5sum":"0dad59737cc1b788ca7f5d8e33b6cf90","tagmask_md5sum":"0dad59737cc1b788ca7f5d8e33b6cf90","locus":[{"build":"hg19 chr7 54000565 54000881"}],"n":316,"seedTileLength":1,"startTile":false,"endTile":false,"startSeq":"cctaagcataaaaaacaaatggag","endSeq":"aatattgagtcaagatagattaga","startTag":"cctaagcataaaaaacaaatggag","endTag":"aatattgagtcaagatagattaga","nocallCount":0,"notes":[ ]}
+cctaagcataaaaaacaaatggagacatcatgctacctgacttcaaacta
+tactacagtgctacagtaaccaaaacagcatggtactggtaccaaaacag
+acatatagaccaaaaaggaacagaacagagacctcagaaataataccacg
+catctacaaccatctgatcttcgacaaacctgacaataacaagcagtggg
+gaaaggatctcctatttaataagtggtgctgggaaaactggctagccata
+tgcagaaaactgaaactggaccccttccttacaccttatacaaatattga
+gtcaagatagattaga
+

@@ -1,0 +1,19 @@
+#!/bin/bash
+
+su92l
+pushd stage.okg
+projuuid="su92l-j7d0g-fmbjujfq6wy7j1i"
+
+touch .processed-NA.list
+for x in `ls | egrep '^NA.*-ASM$' ` ; do
+  if [ `grep $x .processed-NA.list` ] ; then
+    echo "skipping" $x
+    continue
+  fi
+  echo $x
+  arv-put --project-uuid $projuuid --name $x $x
+
+  echo $x >> .processed-NA.list
+done
+
+popd

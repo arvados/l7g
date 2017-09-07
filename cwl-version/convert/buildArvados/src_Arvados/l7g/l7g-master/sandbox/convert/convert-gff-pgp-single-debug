@@ -1,0 +1,146 @@
+#!/bin/bash
+
+#set -e
+
+DEBUG=0
+
+function _q {
+  echo $1
+  exit 1
+}
+
+
+
+ref="hg19"
+reffa="/data-sde/data/ref/$ref.fa.gz"
+afn="/data-sde/data/l7g/assembly/assembly.00.$ref.fw.gz"
+aidx="/data-sde/data/l7g/assembly/assembly.00.$ref.fw.fwi"
+tagdir="/data-sde/data/l7g/tagset.fa/tagset.fa.gz"
+#tagdir="/data-sde/data/l7g/tagset.fa/tagset.x.fa.gz"
+
+gff="$1"
+if [ "$gff" == "" ] ; then
+  echo "provide gff file"
+  exit 1
+fi
+
+trap "ERROR: $gff $path ; exit" ERR
+
+ifn=`basename $gff`
+stripped_name=`basename $ifn .gff.gz`
+huid=`echo "$stripped_name" | cut -f1 -d'-'`
+dnaid=`echo "$stripped_name" | cut -f2- -d'-'`
+
+for chrom in chr1 ; do
+
+  echo $huid $dnaid processing $chrom
+
+  odir="stage/$huid-$dnaid"
+  mkdir -p $odir
+
+  ### DEBUG
+  #if [ "$chrom" != "chr9" ] ; then
+  #  echo "DEBUG: skipping $chrom"
+  #  continue
+  #fi
+
+  while read line
+  do
+
+    path=`echo "$line" | cut -f1 | cut -f3 -d':'`
+
+    byte_start=`echo "$line" | cut -f3`
+    byte_len=`echo "$line" | cut -f2`
+
+    ref_start0=`l7g assembly-range $afn $path | tail -n1 | cut -f2`
+    ref_end0=`l7g assembly-range $afn $path | tail -n1 | cut -f3`
+
+    ref_start1=`expr "$ref_start0" + 1`
+    ref_end1=`expr "$ref_end0" + 1`
+
+    ### VERBOSE
+    #if [ "$DEBUG" == 1 ] ; then
+    #  echo "$ifn >>>>>> $odir/$path.fj ($chrom:$ref_start0-$ref_end0)"
+    #  if [ "$ref_start0" != 121500000 ] ; then
+    #    continue
+    #  fi
+    #fi
+
+    realstart1=`tabix $gff $chrom:$ref_start1-$ref_end0 | head -n1 | cut -f4`
+    realend1=`tabix $gff $chrom:$ref_start1-$ref_end0 | tail -n1 | cut -f5`
+
+    if [ "$realstart1" == "" ] ; then
+      realstart1=$ref_start1
+    fi
+
+    if [ "$realend1" == "" ] ; then
+      realend1=$ref_end0
+    fi
+
+    if [ "$DEBUG" == 1 ] ; then
+      echo "cp0 ($realend1 $realstart1)"
+      echo "tabix $gff $chrom:$ref_start1-$ref_end0 | tail -n1 | cut -f5"
+    fi
+
+    realdn=`expr "$realend1" - "$realstart1"`
+    dn=`expr "$ref_end0" - "$ref_start0"`
+
+    window_start1="$realstart1"
+    if [ "$realstart1" -ge "$ref_start1" ]
+    then
+      realstart1="$ref_start1"
+      window_start1="$ref_start1"
+    fi
+
+    window_start0=`expr "$window_start1" - 1` || true
+
+    window_end1="$realend1"
+    if [ "$ref_end1" -ge "$realend1" ]
+    then
+      realend1=$ref_end1
+      window_end1="$ref_end1"
+    fi
+
+    window_end0=`expr "$window_end1" - 1` || true
+
+      #-i <( tabix $gff $chrom:$window_start1-$window_end1 ) | \
+
+    if [ "$DEBUG" == "1" ] ; then
+      echo "pasta -action gff-rotini -start $window_start0 \
+        -refstream <( refstream $reffa $chrom:$window_start1-$window_end1 ) \
+        -i <( cat <( echo -e '\n\n\n' ) <( tabix $gff $chrom:$window_start1-$window_end1 ) ) | \
+        pasta -action filter-rotini -start $ref_start0 -n $dn > $odir/$path.pa"
+      echo -e "\n\n\n\n"
+    fi
+
+    pasta -action gff-rotini -start $window_start0 -chrom $chrom \
+      -refstream <( refstream $reffa $chrom:$window_start1-$window_end1 ) \
+      -i <( cat <( echo -e '\n\n\n' ) <( tabix $gff $chrom:$window_start1-$window_end1 ) ) | \
+      pasta -action filter-rotini -start $ref_start0 -n $dn > $odir/$path.pa
+
+    if [ "$DEBUG" == "1" ] ; then
+      echo "refstream $reffa $chrom:$window_start1-$window_end1"
+      echo "pasta -action rotini-fastj -start $ref_start0 -tilepath $path -chrom $chrom -build $ref \
+        -i $odir/$path.pa \
+        -assembly <( l7g assembly $afn $path ) \
+        -tag <( samtools faidx $tagdir $path.00 | egrep -v '^>' | tr -d '\n' | fold -w 24 ) > $odir/$path.fj "
+      echo -e "\n\n\n"
+    fi
+
+    pasta -action rotini-fastj -start $ref_start0 -tilepath $path -chrom $chrom -build $ref \
+      -i $odir/$path.pa \
+      -assembly <( l7g assembly $afn $path ) \
+      -tag <( samtools faidx $tagdir $path.00 | egrep -v '^>' | tr -d '\n' | fold -w 24 ) > $odir/$path.fj
+
+    ## DEBUG
+    #if [ "$DEBUG" == 1 ] ; then exit ; fi
+
+    rm $odir/$path.pa
+    pbgzip -f $odir/$path.fj
+    bgzip -r $odir/$path.fj.gz
+
+  done < <( egrep '^'$ref':'$chrom':' $aidx | grep ':0012' )
+
+  if [ "$DEBUG" == 1 ] ; then exit ; fi
+
+done # chrom

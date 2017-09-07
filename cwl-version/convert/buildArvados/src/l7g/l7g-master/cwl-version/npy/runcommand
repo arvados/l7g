@@ -1,0 +1,1 @@
+./create-npyCWL.sh /data-sdd/cwl_tiling/npy/cgb /data-sdd/data/cgf-test /data-sdd/cwl_tiling/npy/band-to-matrix-npy /data-sdd/cwl_tiling/npy/npy-vec-to-hiq-1hot /data-sdd/cwl_tiling/npy/create-list 16 

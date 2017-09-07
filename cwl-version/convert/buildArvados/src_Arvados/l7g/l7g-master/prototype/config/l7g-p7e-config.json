@@ -1,0 +1,6 @@
+{
+  "database":"/data/db/untap.sqlite3",
+  "html-dir":"/home/lightning/l7g-p7e-untap/html",
+  "js-dir":"/home/lightning/l7g-p7e-untap/js",
+  "port":8083
+}

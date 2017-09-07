@@ -1,0 +1,3 @@
+./convert-gff-pgpCWL /data-sdd/cwl_tiling/testdir/hu704A85-GS01239-DNA_E01.gff.gz hg19 /data-sdd/cwl_tiling/convert/keep/by_id/su92l-4zz18-66df83inof4c4oi/hg19.fa.gz /data-sdd/cwl_tiling/convert/keep/by_id/su92l-4zz18-h3wh1rjk236eyig/assembly.00.hg19.fw.gz /data-sdd/cwl_tiling/convert/keep/by_id/su92l-4zz18-h3wh1rjk236eyig/assembly.00.hg19.fw.fwi /data-sdd/cwl_tiling/convert/keep/by_id/su92l-4zz18-uavy5pt6bklcre9/tagset.fa.gz /data-sdd/cwl_tiling/l7g/l7g-master/tools/l7g /data-sdd/tiling/pasta/pasta /home/sarah/imputation/fileconversionGFF/refstream
+
+

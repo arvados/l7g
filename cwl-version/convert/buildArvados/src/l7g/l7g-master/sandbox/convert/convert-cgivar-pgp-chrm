@@ -1,0 +1,41 @@
+#!/bin/bash
+
+
+
+ref="hg19"
+reffa="/data-sde/data/ref/$ref.fa.gz"
+afn="/data-sde/data/l7g/assembly/assembly.00.$ref.fw.gz"
+aidx="/data-sde/data/l7g/assembly/assembly.00.$ref.fw.fwi"
+tagset="/data-sde/data/l7g/tagset.fa/tagset.fa.gz"
+
+idir="/data-sde/data/pgp-cgivar"
+odir="stage"
+path="035e"
+chrom="chrM"
+
+for name in `cat empty-chrm-pgp.list` ; do
+
+  cgivar="$idir/$name.tsv.bz2"
+  ofn="$odir/$name/$path.fj.gz"
+
+  mkdir -p "$odir/$name"
+  mkdir -p tmp
+
+  echo $name "-->" $ifn $ofn
+
+  tmpfile="tmp/$name-$path.pa"
+  pasta -a cgivar-pasta -i <( bzgrep -P '\tchrM\t' $cgivar ) -r <( refstream $reffa chrM ) > $tmpfile
+  pasta -a interleave -i $tmpfile -i $tmpfile | \
+    pasta -action rotini-fastj -tilepath $path -chrom $chrom -build $ref -i - \
+    -assembly <( l7g assembly $afn $path ) \
+    -tag <( samtools faidx $tagset $path.00 | egrep -v '^>' | tr -d '\n' | fold -w 24 ) | pbgzip -c > $ofn
+
+  bgzip -r $ofn
+
+#  pasta -a cgivar-rotini -i <( bzgrep -P '\tchrM\t' $cgivar ) -r <( refstream $reffa chrM )  | \
+#    pasta -action rotini-fastj -tilepath $path -chrom $chrom -build $ref -i - \
+#    -assembly <( l7g assembly $afn $path ) \
+#    -tag <( samtools faidx $tagset $path.00 | egrep -v '^>' | tr -d '\n' | fold -w 24 ) | pbgzip -c > $ofn
+
+
+done

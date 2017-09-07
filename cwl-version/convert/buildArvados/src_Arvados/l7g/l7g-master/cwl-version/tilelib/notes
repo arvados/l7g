@@ -1,0 +1,30 @@
+Start to create some tile library scripts.
+
+The keep mount is slow and failing so I'm using
+`arv-get` to collect the relevant FastJ files for
+library creation.  The mapping of id to portable
+data hash is `id_pdh.tsv` (tab delimited).
+
+The `./run_cglf_single.sh` collects the FastJ
+files into the data directory, runs fastj2cgflib
+then deletes the corresponding files.
+
+Download through this method takes about ~2mins.
+fastj2cgflib looks to be pretty variable but it's
+probably in the range of 5-15mins.
+
+The `./run_cglf_all.sh` uses `xargs` to parallelize
+the operation (15 at a time).
+
+The final sglf files are in the `lib` subdirectory.
+
+
+Quick Start
+---
+
+```
+time ./run_cglf_all.sh 2> all.err | tee all.log
+```
+
+This will put data in `lib` and use `data`.
+

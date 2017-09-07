@@ -1,0 +1,7 @@
+#!/bin/bash
+
+export GOMAXPROCS=1
+
+set -eo pipefail
+
+ls /data-sde/data/okg-gff/*.gff.gz | xargs -n1 -P 15 -I{} time ./convert-gff-okg-single {}

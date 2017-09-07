@@ -7,19 +7,46 @@ function _q {
 }
 
 odir="assay/fastj"
+fjfilter="../../fjtools/fjfilter"
+
+if [[ ! -e "$fjfilter" ]] ; then
+  echo ""
+  echo "please compile 'fjfilter' in ../../fjtools:"
+  echo ""
+  echo "  pushd ../../fjtools ; go build fjfilter.go ; popd"
+  echo ""
+  exit 1
+fi
 
 mkdir -p $odir
 
-afn="/scratch/l7g/assembly/assembly.00.hg19.fw.gz"
-aidx="/scratch/l7g/assembly/assembly.00.hg19.fw.fwi"
-tagdir="/scratch/l7g/tagset.fa/tagset.fa.gz"
+if [[ "$L7G_TILEASSEMBLY" == "" ]] || [[ "$L7G_TAGSET" == "" ]] ; then
+  echo ""
+  echo "The following global variables must be defined:"
+  echo "  L7G_TILEASSEMBLY  - path to the Lightning tile assembly"
+  echo "  L7G_TAGSET        - path to the Lightning tagset (FASTA file)"
+  exit 1
+fi
+
+if [[ "$hg19" == "" ]] ; then
+  echo ""
+  echo "Please provide global variable 'hg19' that points to the hg19 reference (FASTA)"
+  echo ""
+  exit 1
+fi
+
+afn="$L7G_TILEASSEMBLY"
+aidx="$L7G_TILEASSEMBLY.fwi"
+tagdir="$L7G_TAGSET"
 
 ref="hg19"
 chrom="chr5"
 path="00fa"
 
-inpgff="/scratch/pgp/hu826751/hu826751.gff.gz"
-reffa="/scratch/ref/hg19.fa/hg19.fa"
+
+inpgff="assay-data/hu826751-chr5-62900001-63200001.gff.gz"
+
+reffa="$hg19"
 
 ucpath=`echo $path | tr '[:lower:]' '[:upper:]'`
 prevpath=`echo -e "ibase=16\n$ucpath - 1" | bc -q  | tr '[:upper:]' '[:lower:]'`
@@ -31,7 +58,6 @@ dn=`expr $en0 - $st0`
 
 st1=`expr $st0 + 1`
 en1=`expr $en0 + 1`
-
 
 realstart1=`tabix $inpgff $chrom:$st1-$en1 | head -n1 | cut -f4`
 realend1=`tabix $inpgff $chrom:$st1-$en1 | tail -n1 | cut -f5`
@@ -70,21 +96,21 @@ step_b="00e5"
 
 
 ./pasta -action fastj-rotini -start $x0 \
-  -i <( fjfilter -i $inpfj -s $path.$step_b -e $path.$step_b ) \
+  -i <( $fjfilter -i $inpfj -s $path.$step_b -e $path.$step_b ) \
   -assembly <( l7g assembly $afn $path | egrep -A2 '^'$step_a ) \
-  -refstream <( samtools faidx $reffa $chrom:$x1-$y1 | egrep -v '^>' | tol | cat <( echo ">P{$x0}" ) - ) > $odir/out_$path.$step_a.pa
+  -refstream <( samtools faidx $reffa $chrom:$x1-$y1 | egrep -v '^>' | tr '[:upper:]' '[:lower:]' | cat <( echo ">P{$x0}" ) - ) > $odir/out_$path.$step_a.pa
 
-cat <( fjfilter -i $inpfj -s $path.0.e5.0 -e $path.0.e4.0 | egrep -v '^>' ) \
-  <( fjfilter -i $inpfj -s $path.0.e6.0 -e $path.0.e5.0 | egrep -v '^>' | tr -d '\n' | fold -w 24 | tail -n +2 ) | \
+cat <( $fjfilter -i $inpfj -s $path.0.e5.0 -e $path.0.e4.0 | egrep -v '^>' ) \
+  <( $fjfilter -i $inpfj -s $path.0.e6.0 -e $path.0.e5.0 | egrep -v '^>' | tr -d '\n' | fold -w 24 | tail -n +2 ) | \
   tr -d '\n' | fold -w 50 > $odir/$path.00e4.seq
 
-diff <( refstream $chrom:$x1-$y0 | egrep -v '^>' | tr -d '\n' | tol | fold -w 50 ) \
+diff <( refstream $chrom:$x1-$y0 | egrep -v '^>' | tr -d '\n' | tr '[:upper:]' '[:lower:]' | fold -w 50 ) \
   <( ./pasta -action rotini-ref -i $odir/out_$path.$step_a.pa | tr -d '\n' | fold -w 50 ) || _q "error: ref path $path step $step_a difference"
 
 diff $odir/$path.00e4.seq \
   <( ./pasta -action rotini-alt0 -i $odir/out_$path.$step_a.pa | tr -d '\n' | fold -w 50 ) || _q "error: path $path step $step_a alt0 difference"
 
-diff <( fjfilter -i $odir/inp_$path.fj -s $path.0.$step_b.1 -e $path.0.$step_b.1 | egrep -v '^>' | tr -d '\n' | fold -w 50 ) \
+diff <( $fjfilter -i $odir/inp_$path.fj -s $path.0.$step_b.1 -e $path.0.$step_b.1 | egrep -v '^>' | tr -d '\n' | fold -w 50 ) \
   <( ./pasta -action rotini-alt1 -i $odir/out_$path.$step_a.pa | tr -d '\n' | fold -w 50 ) || _q "error: path $path step $step_a atl1 difference"
 
 
@@ -126,23 +152,18 @@ do
   ref_st1=`expr $ref_st0 + 1`
   ref_en1=`expr $ref_en0 + 1`
 
-#  echo ./pasta -action fastj-rotini -start $ref_st0 \
-#    -i "<( fjfilter -i $inpfj -s $path.$step_p1 -e $path.$step )" \
-#    -assembly "<( l7g assembly $afn $path | egrep -A1 '^'$step )" \
-#    -refstream "<( samtools faidx $reffa $chrom:$ref_st1-$ref_en0 | egrep -v '^>' | tol | cat <( echo "\>"P{$ref_st0}"" ) - )"
-
   ./pasta -action fastj-rotini -start $ref_st0 \
-    -i <( fjfilter -i $inpfj -s $path.$step_p1 -e $path.$step ) \
+    -i <( $fjfilter -i $inpfj -s $path.$step_p1 -e $path.$step ) \
     -assembly <( l7g assembly $afn $path | egrep -A1 '^'$step ) \
-    -refstream <( samtools faidx $reffa $chrom:$ref_st1-$ref_en0 | egrep -v '^>' | tol | cat <( echo ">P{$ref_st0}" ) - ) > $odir/out_$path.$step.pa
+    -refstream <( samtools faidx $reffa $chrom:$ref_st1-$ref_en0 | egrep -v '^>' | tr '[:upper:]' '[:lower:]' | cat <( echo ">P{$ref_st0}" ) - ) > $odir/out_$path.$step.pa
 
-  diff <( refstream $chrom:$ref_st1-$ref_en0 | egrep -v '^>' | tr -d '\n' | tol | fold -w 50 ) \
+  diff <( refstream $chrom:$ref_st1-$ref_en0 | egrep -v '^>' | tr -d '\n' | tr '[:upper:]' '[:lower:]' | fold -w 50 ) \
     <( ./pasta -action rotini-ref -i $odir/out_$path.$step.pa | tr -d '\n' | fold -w 50 ) || _q "error: ref path $path step $step difference"
 
-  diff <( fjfilter -i $odir/inp_$path.fj -s $path.0.$step_p1.0 -e $path.0.$step.0 | egrep -v '^>' | tr -d '\n' | fold -w 50 ) \
+  diff <( $fjfilter -i $odir/inp_$path.fj -s $path.0.$step_p1.0 -e $path.0.$step.0 | egrep -v '^>' | tr -d '\n' | fold -w 50 ) \
     <( ./pasta -action rotini-alt0 -i $odir/out_$path.$step.pa | tr -d '\n' | fold -w 50 ) || _q "error: path $path step $step alt0 difference"
 
-  diff <( fjfilter -i $odir/inp_$path.fj -s $path.0.$step_p1.1 -e $path.0.$step.1 | egrep -v '^>' | tr -d '\n' | fold -w 50 ) \
+  diff <( $fjfilter -i $odir/inp_$path.fj -s $path.0.$step_p1.1 -e $path.0.$step.1 | egrep -v '^>' | tr -d '\n' | fold -w 50 ) \
     <( ./pasta -action rotini-alt1 -i $odir/out_$path.$step.pa | tr -d '\n' | fold -w 50 ) || _q "error: path $path step $step atl1 difference"
 
 done

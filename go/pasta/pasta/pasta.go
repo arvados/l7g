@@ -1446,6 +1446,15 @@ func _main_gvcf_to_rotini(c *cli.Context) {
     //g.PrevRefPos = g.RefPos
   }
 
+  if len(c.String("chrom"))>0 {
+    g.Chrom(c.String("chrom"))
+  }
+
+  if c.Int("start") > 0 {
+    g.RefPos = c.Int("start")
+    //g.PrevRefPos = g.RefPos
+  }
+
 
 
   line_no:=0

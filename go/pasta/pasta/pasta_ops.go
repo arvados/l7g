@@ -124,6 +124,8 @@ func interleave_filter(pasta_stream *bufio.Reader, out *bufio.Writer, start, n i
 
   var pasta_ref_pos int ; _ = pasta_ref_pos
 
+  loc_debug := true
+
 
   bp_count:=0
   lfmod := 50 ; _ = lfmod
@@ -131,6 +133,10 @@ func interleave_filter(pasta_stream *bufio.Reader, out *bufio.Writer, start, n i
 
   ch := [2]byte{}
 
+  if loc_debug {
+    out.WriteString( fmt.Sprintf("\n>#{start %d, n %d, ref_pos %d}\n",
+      start, n, ref_pos) )
+  }
 
   message_processed_flag := false
 
@@ -157,12 +163,18 @@ func interleave_filter(pasta_stream *bufio.Reader, out *bufio.Writer, start, n i
 
       pasta.ControlMessagePrint(&msg, out)
       message_processed_flag = true
+
+
+      if loc_debug {
+        out.WriteString( fmt.Sprintf("\n>#{ got message... start %d, n %d, ref_pos %d}\n",
+          start, n, ref_pos) )
+      }
+
+
       continue
     }
 
-    if message_processed_flag {
-      out.WriteByte('\n')
-    }
+    if message_processed_flag { out.WriteByte('\n') }
     message_processed_flag = false
 
     ch[1],e1 = pasta_stream.ReadByte()
@@ -222,6 +234,10 @@ func interleave_filter(pasta_stream *bufio.Reader, out *bufio.Writer, start, n i
       if is_ins[0] || is_ins[1] { break }
       ref_pos++
       break
+    }
+
+    if loc_debug {
+      out.WriteString( fmt.Sprintf("\n>#{ref_pos %d}\n", ref_pos) )
     }
 
   }

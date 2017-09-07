@@ -51,15 +51,15 @@ diff <( ./pasta -action rotini-alt1 -i $odir/gff-indel-nocall.inp ) <( ./pasta -
 ## test with a snippet of real data
 ##
 ./pasta -action gff-rotini \
-  -i assay/data/hu826751.chr5.55091499-55111602.gff \
-  -refstream assay/data/hu826751.chr5.55091499-55111602.refstream \
+  -i assay-data/hu826751.chr5.55091499-55111602.gff \
+  -refstream assay-data/hu826751.chr5.55091499-55111602.refstream \
   -start 55091498 > $odir/"hu826751.chr5.55091498-55111601".inp.pa
 
 cat $odir/"hu826751.chr5.55091498-55111601".inp.pa | \
   ./pasta -action rotini-gff | \
   ./pasta -action gff-rotini \
-    -i assay/data/hu826751.chr5.55091499-55111602.gff \
-    -refstream assay/data/hu826751.chr5.55091499-55111602.refstream \
+    -i assay-data/hu826751.chr5.55091499-55111602.gff \
+    -refstream assay-data/hu826751.chr5.55091499-55111602.refstream \
     -start 55091498 > $odir/"hu826751.chr5.55091498-55111601".out.pa
 
 diff <( ./pasta -action rotini-ref -i $odir/"hu826751.chr5.55091498-55111601".inp.pa ) \

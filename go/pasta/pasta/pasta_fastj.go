@@ -813,8 +813,7 @@ func (g *FastJInfo) Convert(pasta_stream *bufio.Reader, tag_stream *bufio.Reader
   seed_tile_length[1]++
 
 
-
-  // emit tiles
+  // emit end tiles
   //
   if ref_pos == g.AssemblyEndPos {
 
@@ -828,11 +827,13 @@ func (g *FastJInfo) Convert(pasta_stream *bufio.Reader, tag_stream *bufio.Reader
 
       if idx_end >= 0 {
         //beg_tag = g.EndTagBuffer[idx_end]
-        //idx := idx_end - seed_tile_length[aa] + 1
-        idx := idx_end - seed_tile_length[aa]
+        idx := idx_end - seed_tile_length[aa] + 1
+        //idx := idx_end - seed_tile_length[aa]
+
         if idx >= 0 {
           beg_tag = g.EndTagBuffer[idx]
         }
+
       } else {
         start_tile_flag = true
       }

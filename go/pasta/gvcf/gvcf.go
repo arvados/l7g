@@ -1183,6 +1183,8 @@ func (g *GVCFRefVar) Pasta(gvcf_line string, ref_stream *bufio.Reader, out *bufi
   _start1ref,e := strconv.Atoi(line_part[START_FIELD_POS])
   if e!=nil { return e }
 
+  // Check to see if our read depth is 0, if so, skip this line
+  //
   _dp_str,e := g._parse_info_field_value(line_part[INFO_FIELD_POS], "DP", ":")
   if e==nil {
     if loc_debug {
@@ -1226,11 +1228,17 @@ func (g *GVCFRefVar) Pasta(gvcf_line string, ref_stream *bufio.Reader, out *bufi
   gt_samp_idx,e := g._parameter_index(line_part[FORMAT_FIELD_POS], "GT", ":")
   if e!=nil { return e }
 
+
   samp_part := strings.Split(line_part[SAMPLE0_FIELD_POS], ":")
   if gt_samp_idx >= len(samp_part) { return fmt.Errorf("GT index overflow") }
 
   n_allele := 2
   samp_str := samp_part[gt_samp_idx]
+
+  // ignore nocall
+  //
+  if (samp_str == "./.") || (samp_str == ".|.") { return nil }
+
   samp_seq_idx,e := g._get_gt_array(samp_str, n_allele)
   if e!=nil { return e }
 

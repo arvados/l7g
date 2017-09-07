@@ -124,7 +124,7 @@ func interleave_filter(pasta_stream *bufio.Reader, out *bufio.Writer, start, n i
 
   var pasta_ref_pos int ; _ = pasta_ref_pos
 
-  loc_debug := true
+  loc_debug := false
 
 
   bp_count:=0

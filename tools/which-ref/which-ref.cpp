@@ -258,6 +258,7 @@ int do_base_concordance(std::string &ifn, std::vector< std::string > &ref_ifns,
       processed_first_min_score = 1;
     }
   }
+  *max_score = d_max_score;
 
   if (loc_debug) {
     for (i=0; i<scores.size(); i++) {

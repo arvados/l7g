@@ -1286,15 +1286,18 @@ func (g *GVCFRefVar) Pasta(gvcf_line string, ref_stream *bufio.Reader, out *bufi
     }
     stream_ref_bp = _lb(stream_ref_bp)
 
-    pasta_ch := pasta.SubMap[stream_ref_bp]['n']
+    for a:=0; a<n_allele; a++ {
 
-    if pasta_ch == 0 { return fmt.Errorf("invalid character (ref %c, alt %c)", stream_ref_bp, 'n') }
-    if (g.LFMod>0) && (g.OCounter > 0) && ((g.OCounter%g.LFMod)==0) {
-      out.WriteByte('\n')
+      pasta_ch := pasta.SubMap[stream_ref_bp]['n']
+      if pasta_ch == 0 { return fmt.Errorf("invalid character (ref %c, alt %c)", stream_ref_bp, 'n') }
+
+      if (g.LFMod>0) && (g.OCounter > 0) && ((g.OCounter%g.LFMod)==0) {
+        out.WriteByte('\n')
+      }
+      g.OCounter++
+
+      out.WriteByte(pasta_ch)
     }
-    g.OCounter++
-
-    out.WriteByte(pasta_ch)
 
     g.RefPos++
   }

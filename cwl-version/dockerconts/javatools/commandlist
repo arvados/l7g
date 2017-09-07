@@ -1,0 +1,10 @@
+bzip2 -d samtools-1.5.tar.bz2
+tar xf samtools-1.5.tar
+cd samtools-1.5
+apt-get install libncurses5-dev
+apt-get install libbz2-dev
+apt-get install liblzma-dev
+./configure
+make
+make install
+

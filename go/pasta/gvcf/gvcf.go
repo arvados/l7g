@@ -1162,19 +1162,25 @@ func (g *GVCFRefVar) Pasta(gvcf_line string, ref_stream *bufio.Reader, out *bufi
   loc_debug := false
 
   if loc_debug {
-    fmt.Printf("\n")
-    fmt.Printf("## g{ ChromStr %s, RefPos %d, OCount %d}\n",
-      g.ChromStr, g.RefPos, g.OCounter)
-    fmt.Printf("## RefPos %d\n", g.RefPos)
-    fmt.Printf("## %s\n", gvcf_line)
-
+    out.WriteString( fmt.Sprintf("\n\n") )
+    out.WriteString( fmt.Sprintf("## g{ ChromStr %s, RefPos %d, OCount %d}\n",
+      g.ChromStr, g.RefPos, g.OCounter) )
+    out.WriteString( fmt.Sprintf("## RefPos %d\n", g.RefPos) )
+    out.WriteString( fmt.Sprintf("## %s\n\n", gvcf_line) )
   }
 
 
 
   // empty line or comment
   //
-  if (len(gvcf_line)==0) || (gvcf_line[0]=='#') { return nil }
+  if (len(gvcf_line)==0) || (gvcf_line[0]=='#') {
+
+    if loc_debug {
+      out.WriteString( fmt.Sprintf("## len(gcf_line)==0 or gvcf_line[0]=='#', skipping\n") )
+    }
+
+    return nil
+  }
 
   line_part := strings.Split(gvcf_line, "\t")
 
@@ -1187,11 +1193,20 @@ func (g *GVCFRefVar) Pasta(gvcf_line string, ref_stream *bufio.Reader, out *bufi
   //
   _dp_str,e := g._parse_info_field_value(line_part[INFO_FIELD_POS], "DP", ":")
   if e==nil {
+
     if loc_debug {
       out.WriteString( fmt.Sprintf("## DP=%s\n", _dp_str) )
       out.Flush()
     }
-    if _dp_str == "0" { return nil }
+
+    if _dp_str == "0" {
+
+      if loc_debug {
+        out.WriteString( fmt.Sprintf("## DP==0, skipping gvcf line\n") )
+      }
+
+      return nil
+    }
   }
 
   _dp_str,e = g._parse_info_field_value(line_part[INFO_FIELD_POS], "DP", ";")
@@ -1200,7 +1215,15 @@ func (g *GVCFRefVar) Pasta(gvcf_line string, ref_stream *bufio.Reader, out *bufi
       out.WriteString( fmt.Sprintf("## DP=%s\n", _dp_str) )
       out.Flush()
     }
-    if _dp_str == "0" { return nil }
+    if _dp_str == "0" {
+
+      if loc_debug {
+        out.WriteString( fmt.Sprintf("## DP==0, skipping gvcf line (?)\n") )
+      }
+
+
+      return nil
+    }
   }
 
 
@@ -1219,6 +1242,9 @@ func (g *GVCFRefVar) Pasta(gvcf_line string, ref_stream *bufio.Reader, out *bufi
     ref_anchor_on_left = false
   }
 
+  if loc_debug {
+    out.WriteString( fmt.Sprintf("## ALT_FIELD_POS %v\n", line_part[ALT_FIELD_POS]))
+  }
 
   alt_seq := []string{}
   if line_part[ALT_FIELD_POS]!="." {
@@ -1237,7 +1263,14 @@ func (g *GVCFRefVar) Pasta(gvcf_line string, ref_stream *bufio.Reader, out *bufi
 
   // ignore nocall
   //
-  if (samp_str == "./.") || (samp_str == ".|.") { return nil }
+  if (samp_str == "./.") || (samp_str == ".|.") {
+
+    if loc_debug {
+      out.WriteString( fmt.Sprintf("GT == './.' or '.|.', assuming nocall, skipping\n"))
+    }
+
+    return nil
+  }
 
   samp_seq_idx,e := g._get_gt_array(samp_str, n_allele)
   if e!=nil { return e }
@@ -1248,6 +1281,8 @@ func (g *GVCFRefVar) Pasta(gvcf_line string, ref_stream *bufio.Reader, out *bufi
   //
   refn := (_end1ref + 1) - _start1ref
 
+  _start0ref := _start1ref - 1
+
   // Special case of when no gVCFlines have been processed.  This means the
   // headers for the pasta stream haven't been written, so write them here.
   if g.FirstFlag {
@@ -1256,7 +1291,7 @@ func (g *GVCFRefVar) Pasta(gvcf_line string, ref_stream *bufio.Reader, out *bufi
     out.WriteString( fmt.Sprintf(">P{%d}", g.RefPos) )
     out.WriteString("\n")
 
-  } else if (_start1ref-1) <= g.RefPos {
+  } else if g.RefPos > _start0ref {
 
     if g.IgnoreBacktrackingStart {
       if g.ShowWarning {
@@ -1275,12 +1310,13 @@ func (g *GVCFRefVar) Pasta(gvcf_line string, ref_stream *bufio.Reader, out *bufi
   }
   g.FirstFlag = false
 
-  _start0ref := _start1ref-1
+  //_start0ref := _start1ref-1
 
   // We have nocalls, advance the reference stream, emitting
   // appropriate PASTA characters.
 
-  for g.RefPos < (_start0ref-1) {
+  //for g.RefPos < (_start0ref-1) {
+  for g.RefPos < _start0ref {
 
     if loc_debug {
       out.WriteString( fmt.Sprintf("### NOCALL g.RefPos %d, _start0ref %d\n",
@@ -1311,12 +1347,14 @@ func (g *GVCFRefVar) Pasta(gvcf_line string, ref_stream *bufio.Reader, out *bufi
   }
 
   if loc_debug {
-    fmt.Printf("## alt_seq %v\n", alt_seq)
-    fmt.Printf("## ref_anchor %s\n", ref_anchor_base)
-    fmt.Printf("## gt_samp_idx %v\n", gt_samp_idx)
-    fmt.Printf("## samp_part %v\n", samp_part)
-    fmt.Printf("## samp_seq_idx %v\n", samp_seq_idx)
-    fmt.Printf("## refn %d (_start1ref %d, _end1ref %d)\n", refn, _start1ref, _end1ref)
+    out.WriteString( fmt.Sprintf("## alt_seq %v\n", alt_seq) )
+    out.WriteString( fmt.Sprintf("## ref_anchor %s\n", ref_anchor_base) )
+    out.WriteString( fmt.Sprintf("## gt_samp_idx %v\n", gt_samp_idx) )
+    out.WriteString( fmt.Sprintf("## samp_part %v\n", samp_part) )
+    out.WriteString( fmt.Sprintf("## samp_seq_idx %v\n", samp_seq_idx) )
+    out.WriteString( fmt.Sprintf("## refn %d (_start1ref %d, _end1ref %d)\n", refn, _start1ref, _end1ref) )
+
+    out.WriteString( fmt.Sprintf("## CP0\n") )
   }
 
 
@@ -1379,9 +1417,10 @@ func (g *GVCFRefVar) Pasta(gvcf_line string, ref_stream *bufio.Reader, out *bufi
         out.WriteByte(stream_ref_bp)
       }
 
+      g.RefPos++
     }
 
-    g.RefPos = _end1ref-1
+    //g.RefPos = _end1ref-1
 
     return nil
   }
@@ -1404,6 +1443,10 @@ func (g *GVCFRefVar) Pasta(gvcf_line string, ref_stream *bufio.Reader, out *bufi
   }
 
   g.RefPos += refn
+
+  if loc_debug {
+    out.WriteString( fmt.Sprintf("## refn now %d (g.RefPos %d)\n", refn, g.RefPos))
+  }
 
 
   mM := refn

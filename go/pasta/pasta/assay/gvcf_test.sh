@@ -155,6 +155,23 @@ diff <( ./pasta -action rotini-gvcf -i $odir/snippet5.pa | ./pasta -action gvcf-
 
 echo 'ok-snippet5'
 
+## custom small gvcf snippet
+##
+
+export inpgvcf="assay-data/gvcf-snippet.gvcf"
+export inpref="assay-data/gvcf-snippet-ref.seq"
+
+diff <( ./pasta -action gvcf-rotini -i $inpgvcf -r $inpref | ./pasta -action rotini-ref | tr -d '\n' | md5sum  ) \
+  <( cat $inpref | tr -d '\n' | md5sum ) || echo "gvcf-snippet failed"
+
+diff <( ./pasta -action gvcf-rotini -i $inpgvcf -r $inpref | ./pasta -action rotini-alt0 | tr -d '\n' | md5sum ) \
+  <( ./pasta -a gvcf-rotini -i $inpgvcf -r $inpref | ./pasta -a rotini-gvcf | ./pasta -a gvcf-rotini -r $inpref | ./pasta -a rotini-alt0 | tr -d '\n' | md5sum )
+
+diff <( ./pasta -action gvcf-rotini -i $inpgvcf -r $inpref | ./pasta -action rotini-alt1 | tr -d '\n' | md5sum ) \
+  <( ./pasta -a gvcf-rotini -i $inpgvcf -r $inpref | ./pasta -a rotini-gvcf | ./pasta -a gvcf-rotini -r $inpref | ./pasta -a rotini-alt1 | tr -d '\n' | md5sum )
+
+echo "ok-custom-gvcf"
+
 exit 0
 
 #diff $odir/gvcf-nocall.inp $odir/gvcf-nocall.out

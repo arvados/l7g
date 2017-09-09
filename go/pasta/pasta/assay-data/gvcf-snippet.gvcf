@@ -1,0 +1,4 @@
+Unk	1	.	g	<NON_REF>	.	.	END=2	GT	0/0
+Unk	3	.	tc	a,<NON_REF>	.	.	.	GT	0/1
+Unk	4	.	cgggtcc	c,ccggtcgcggtcc,<NON_REF>	.	.	.	GT	0/1
+Unk	11	.	c	<NON_REF>	.	.	END=17	GT	0/0

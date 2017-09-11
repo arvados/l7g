@@ -118,7 +118,7 @@ extern "C" {
 int match_tag(FILE *ref_fp,
               std::string &ref_name, std::string &chrom_str, int start_pos, int tilepath,
               std::string &tagset, std::map< std::string, int > &tag_pos_map, std::string &end_seq, int end_tile_length) {
-  int n_tag=0, count, i, j, k, tag_idx;
+  int n_tilestep=0, count, i, j, k, tag_idx;
   int ch;
   std::string ref, tag;
   std::map< std::string, int >::iterator tpm_it;
@@ -128,7 +128,8 @@ int match_tag(FILE *ref_fp,
   size_t X_len, Y_len;
   int sc, gap_int = -1;
 
-  int orig_n_tag=-1;
+  int orig_n_tilestep=-1;
+  int fin_tilestep = 0;
   const char *chp;
 
   int64_t end_pos_non_inc=-1;
@@ -139,8 +140,8 @@ int match_tag(FILE *ref_fp,
   if ((tagset.size()%24)!=0) {
     return -1;
   }
-  orig_n_tag = tagset.size()/24;
-  if (orig_n_tag==0) {
+  orig_n_tilestep = tagset.size()/24;
+  if (orig_n_tilestep==0) {
     printf(fmt_str, 0, (int)(start_pos + end_tile_length));
     return -1;
   }
@@ -152,16 +153,27 @@ int match_tag(FILE *ref_fp,
     ref += (char)ch;
   }
 
+  if (ref.size()<24) { return -1; }
+
   for (tpm_it = tag_pos_map.begin(); tpm_it != tag_pos_map.end(); ++tpm_it) {
-    if (n_tag < tpm_it->second) {
-      n_tag = tpm_it->second;
+    if (n_tilestep < tpm_it->second) {
+      n_tilestep = tpm_it->second;
     }
   }
 
-  n_tag++;
-  for (i=0; i<n_tag; i++) {
+  n_tilestep++;
+
+  // one more tilestep than the number of tags
+  //
+  fin_tilestep = n_tilestep;
+
+  for (i=0; i<n_tilestep; i++) {
     orig_tile_step.push_back(i);
   }
+  //orig_tile_step.push_back(fin_tilestep);
+
+  //DEBUG
+  //printf("## fin_tilestep %i\n", fin_tilestep);
 
   end_pos_non_inc = -1;
   count=0;
@@ -197,6 +209,16 @@ int match_tag(FILE *ref_fp,
     }
   }
 
+  // pathological case where no tags have matched.
+  // print out an empty tile path.
+  //
+  if (match_tile_step.size()==0) {
+    printf(fmt_str, fin_tilestep, start_pos);
+    return 0;
+  }
+
+  match_tile_step.push_back(fin_tilestep);
+
   if (end_seq.size()>0) {
     chp = strstr(ref.c_str(), end_seq.c_str());
     if (chp) {
@@ -210,20 +232,22 @@ int match_tag(FILE *ref_fp,
 
   // don't allow any mismatches
   //
-  g_mismatch = 10*n_tag;
+  g_mismatch = 10*n_tilestep;
 
   //DEBUG
-  //printf("ALIGNING:\n");
-  //for (i=0; i<orig_tile_step.size(); i++) {
-  //  printf(" %i", orig_tile_step[i]);
-  //}
-  //printf("\n");
-  //for (i=0; i<match_tile_step.size(); i++) {
-  //  printf(" %i", match_tile_step[i]);
-  //}
-  //printf("\n");
-  //fflush(stdout);
-  ////DEBUG
+  /*
+  printf("ALIGNING:\n");
+  for (i=0; i<orig_tile_step.size(); i++) {
+    printf(" %i", orig_tile_step[i]);
+  }
+  printf("\n");
+  for (i=0; i<match_tile_step.size(); i++) {
+    printf(" %i", match_tile_step[i]);
+  }
+  printf("\n");
+  fflush(stdout);
+  */
+  //DEBUG
 
   sc =
     avm_ukk_align3((void **)(&X), &X_len,
@@ -259,11 +283,30 @@ int match_tag(FILE *ref_fp,
   tag.clear();
   for (j=0; j<24; j++) { tag += tagset[ final_tag[tag_idx]*24 + j ]; }
 
+  //DEBUG
+  /*
+  for (i=0; i<tagset.size(); i+=24) {
+    for (j=0; j<24; j++) { printf("%c", tagset[i + j]); }
+    printf("\n");
+  }
+  printf("\n\n");
+
+  for (i=0; i<final_tag.size(); i++) {
+    printf("[%i] %i\n", i, final_tag[i]);
+  }
+  printf("## ref: %i\n", (int)ref.size());
+  */
+  //DEBUG
+
   printf(">%s:%s:%04x\n", ref_name.c_str(), chrom_str.c_str(), tilepath);
 
   if (end_pos_non_inc<0) { end_pos_non_inc = (int)ref.size(); }
   //for (i=23; i<ref.size(); i++) {
   for (i=0; i<(ref.size()-24); i++) {
+
+    //DEBUG
+    //printf("## i %i, tag_idx %i, tag (%i) %s\n", i, tag_idx, (int)tag.size(), tag.c_str());
+    //DEBUG
 
     if (strncmp(tag.c_str(), ref.c_str() + i, 24)==0) {
       printf(fmt_str, final_tag[tag_idx], i+24 + start_pos);
@@ -277,16 +320,35 @@ int match_tag(FILE *ref_fp,
       if (tag_idx >= final_tag.size()) { break; }
       for (j=0; j<24; j++) { tag += tagset[ final_tag[tag_idx]*24 + j ]; }
 
+      //DEBUG
+      //printf("## final_tag[%i] %i, tag now %s\n", tag_idx, final_tag[tag_idx], tag.c_str());
+      //DEBUG
+
     }
 
   }
 
   if (tag_idx==0) {
-    printf(fmt_str, 1, (int)(end_pos_non_inc + start_pos));
+    if (final_tag.size()>0) {
+      printf(fmt_str, (int)final_tag.size()-1, (int)(end_pos_non_inc + start_pos));
+    } else {
+      printf(fmt_str, 0, (int)(end_pos_non_inc + start_pos));
+    }
     return -1;
   }
 
-  printf(fmt_str, final_tag[tag_idx-1]+1, (int)(end_pos_non_inc + start_pos));
+
+  else if (final_tag.size()>0) {
+
+    //DEBUG
+    //printf("####???? tag_idx %i final_tag.size() %i, final_tag[%i] %i\n",
+    //    tag_idx, (int)final_tag.size(), (int)(final_tag.size()-1), final_tag[final_tag.size()-1] );
+
+    //printf(fmt_str, final_tag[tag_idx-1]+1, (int)(end_pos_non_inc + start_pos));
+    //printf(fmt_str, final_tag[final_tag.size()-1], (int)(end_pos_non_inc + start_pos));
+    printf(fmt_str, n_tilestep, (int)(end_pos_non_inc + start_pos));
+  }
+
 }
 
 //

@@ -809,13 +809,26 @@ func (g *FastJInfo) Convert(pasta_stream *bufio.Reader, tag_stream *bufio.Reader
 
   // Final tile so take special consideration
   //
-  seed_tile_length[0]++
-  seed_tile_length[1]++
+  //seed_tile_length[0]++
+  //seed_tile_length[1]++
+
+  seed_tile_length[0]+=g.AssemblySpan
+  seed_tile_length[1]+=g.AssemblySpan
 
 
   // emit end tiles
   //
   if ref_pos == g.AssemblyEndPos {
+
+    //DEBUG
+    /*
+    out.WriteString( fmt.Sprintf("### ref_pos %d, assemblyendpos %d\n", ref_pos, g.AssemblyEndPos) )
+    out.WriteString( fmt.Sprintf("###   seed_tile_length %v\n", seed_tile_length))
+    out.WriteString( fmt.Sprintf("###   AssemblySpan %d\n", g.AssemblySpan) )
+    out.WriteString( fmt.Sprintf("###   AssemblyStep %d\n", g.AssemblyStep) )
+    out.WriteString( fmt.Sprintf("###   AssemblyPrevStep %d\n", g.AssemblyPrevStep) )
+    out.WriteString( fmt.Sprintf("###\n") )
+    */
 
     // Emit final FastJ sequences
     //

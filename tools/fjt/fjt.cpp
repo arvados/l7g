@@ -210,7 +210,6 @@ int read_sglf_path(FILE *ifp, sglf_path_t &sp) {
       seq.clear();
 
       continue;
-      
     }
 
     if (ch==',') {
@@ -555,6 +554,30 @@ int create_band_info(band_info_t &band_info, std::vector< fj_tile_t > &fj_tile, 
     int zz = (int)band_info.noc[tilevar].size();
 
   }
+
+
+  // special case at the ned if we have spanning tiles.
+  // If we do, fill in the remaining tiles with -1
+  //
+  fj_idx = (int)(fj_tile.size()-1);
+
+  // our final tilestep position
+  //
+
+  n = (int)tileid_part(fj_tile[fj_idx].tileid, 1);
+  n += fj_tile[fj_idx].span;
+
+  noc_v.clear();
+  for (i=band_info.band[0].size(); i<n; i++) { band_info.band[0].push_back(-1); }
+  for (i=band_info.band[1].size(); i<n; i++) { band_info.band[1].push_back(-1); }
+
+  for (i=band_info.noc[0].size(); i<n; i++) { band_info.noc[0].push_back(noc_v); }
+  for (i=band_info.noc[1].size(); i<n; i++) { band_info.noc[1].push_back(noc_v); }
+
+
+
+
+
 
   return 0;
 }

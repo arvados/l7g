@@ -213,6 +213,7 @@ int match_tag(FILE *ref_fp,
   // print out an empty tile path.
   //
   if (match_tile_step.size()==0) {
+    printf(">%s:%s:%04x\n", ref_name.c_str(), chrom_str.c_str(), tilepath);
     printf(fmt_str, fin_tilestep, start_pos);
     return 0;
   }

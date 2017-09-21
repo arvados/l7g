@@ -11,6 +11,9 @@ export tagset="$L7G_TAGSET"
 export dest_ref="hg38"
 export build="hg38"
 
+export SKIP_LIFTOVER="0"
+export VERBOSE_FLAG="1"
+
 if [[ "$hg38" == "" ]] || [[ "$tadb" == "" ]] || [[ "$taidx" == "" ]] || [[ "$tagset" == "" ]] ; then
 
   echo ""
@@ -122,8 +125,12 @@ function echo_test {
 }
 export -f echo_test
 
-echo "$chroms" "($BUFFER_DEFAULT)"
-echo "$chroms" | tr ' ' '\n' | parallel --no-notice --max-procs 10 process_chrom {}
+if [[ "$SKIP_LIFTOVER" != "1" ]] ; then
+
+  echo "$chroms" "($BUFFER_DEFAULT)"
+  echo "$chroms" | tr ' ' '\n' | parallel --no-notice --max-procs 10 process_chrom {}
+
+fi
 
 ## fill in unprocessed tilpaths and collect them into final lifted over tile assembly
 ## file.
@@ -144,10 +151,16 @@ dst_ta_gz_idx_fn="$dst_tafn.gz.fwi"
 mkdir -p $odir
 rm -f "$dst_tafn"
 
+if [[ "$VERBOSE_FLAG" == "1" ]] ; then
+  echo "# FILLING IN"
+fi
+
 # fill in missing assembly files
 #
 for p in {0..862} ; do
   hxp=`printf "%04x" $p`
+
+  chrom=`egrep "$hxp" chr-tilepath.csv | cut -f1 `;
 
   if [[ ! -e "$idir/$hxp.assembly" ]] || [[ ! -s "$idir/$hxp.assembly" ]] ; then
     prev_addr=`tail -n1 "$dst_tafn" | cut -f2 | tr -d ' '`
@@ -158,8 +171,8 @@ for p in {0..862} ; do
 
   cat $idir/$hxp.assembly >> "$dst_tafn"
 
-  prev_chrom="$chrom"
-  chrom=`head -n1 $idir/$hxp.assembly | cut -f2 -d':' `
+  #prev_chrom="$chrom"
+  #chrom=`head -n1 $idir/$hxp.assembly | cut -f2 -d':' `
 
 done
 

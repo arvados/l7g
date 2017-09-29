@@ -6,7 +6,7 @@
 #include <getopt.h>
 #include <string.h>
 
-#include <bgzf.h>
+#include <htslib/bgzf.h>
 
 #include <vector>
 #include <string>

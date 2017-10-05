@@ -4,7 +4,7 @@
 #include <errno.h>
 #include <getopt.h>
 
-#include "bgzf.h"
+#include <htslib/bgzf.h>
 
 #include <vector>
 #include <string>

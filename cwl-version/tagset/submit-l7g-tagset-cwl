@@ -1,0 +1,3 @@
+#!/bin/bash
+
+arvados-cwl-runner --disable-reuse --local l7g-tagset.cwl l7g-tagset.yml

@@ -1,0 +1,16 @@
+script:
+  class: File
+  path: ./build-tagset.sh
+
+cytobandFn:
+  class: File
+  path: keep:320d7a6717aa7b555a09e52976ba4a02+18534/cytoband.hg19.custom.txt
+
+bigwigFn:
+  class: File
+  path: keep:320d7a6717aa7b555a09e52976ba4a02+18534/wgEncodeCrgMapabilityAlign24mer.bw
+
+refFaFn:
+  class: File
+  path: keep:320d7a6717aa7b555a09e52976ba4a02+18534/hg19.fa.gz
+

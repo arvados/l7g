@@ -341,6 +341,7 @@ int load_all(std::string &npy_name_list, std::string &npy_vec_idir, std::string 
   std::string s;
   char buf[1024];
   cnpy::NpyArray raw, names;
+  FILE *tfp=NULL;
 
   int cur_ds;
 
@@ -368,6 +369,16 @@ int load_all(std::string &npy_name_list, std::string &npy_vec_idir, std::string 
 
   for (tilepath=0; tilepath<=862; tilepath++) {
     sprintf(buf, "%s/%03x", npy_vec_idir.c_str(), tilepath);
+
+    // Kludgey but functional:
+    // test to make sure the file is openeable so
+    // that npy_load doesn't throw an 'abort' on
+    // failure.
+    // Skip it if it doesn't exist
+    //
+    if ((tfp=fopen(buf, "r"))==NULL) { continue; }
+    fclose(tfp);
+
 
     raw = cnpy::npy_load(buf);
     n_dataset = (int)(raw.shape[0]);

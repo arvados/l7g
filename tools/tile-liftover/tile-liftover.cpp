@@ -53,6 +53,7 @@ static struct option long_options[] = {
   {"chrom",           required_argument, NULL, 'c'},
   {"ref-name",        required_argument, NULL, 'N'},
   {"start",           required_argument, NULL, 's'},
+  //{"end-tile-position", required_argument, NULL, 'e'},
   {0,0,0,0}
 };
 
@@ -122,6 +123,7 @@ int match_tag(FILE *ref_fp,
   int ch;
   std::string ref, tag;
   std::map< std::string, int >::iterator tpm_it;
+  int ref_count=0;
 
   std::vector< int > orig_tile_step, match_tile_step;
   int *X, *Y;
@@ -137,12 +139,34 @@ int match_tag(FILE *ref_fp,
   std::vector< int > final_tag;
   char fmt_str[] = "%04x\t%10i\n";
 
-  if ((tagset.size()%24)!=0) {
-    return -1;
-  }
+  if ((tagset.size()%24)!=0) { return -1; }
+
   orig_n_tilestep = tagset.size()/24;
+
+  // Take care of the pathalogical case when there are no tags,
+  // which is when the entire tilepath is a single tile.
+  //
   if (orig_n_tilestep==0) {
-    printf(fmt_str, 0, (int)(start_pos + end_tile_length));
+    printf(">%s:%s:%04x\n", ref_name.c_str(), chrom_str.c_str(), tilepath);
+    if (end_tile_length<0) {
+
+      ref_count=0;
+
+      // Jwalk the reference but discard the contents, only
+      // record the number read.
+      //
+      while (!feof(ref_fp)) {
+        ch = fgetc(ref_fp);
+        if (ch==EOF) { continue; }
+        if ((ch=='\r') || (ch=='\n') || (ch==' ')) { continue; }
+        ref_count++;
+      }
+      printf(fmt_str, 0, (int)(start_pos+ref_count));
+
+    }
+    else {
+      printf(fmt_str, 0, (int)(start_pos + end_tile_length));
+    }
     return -1;
   }
 
@@ -350,6 +374,8 @@ int match_tag(FILE *ref_fp,
     printf(fmt_str, n_tilestep, (int)(end_pos_non_inc + start_pos));
   }
 
+  return -1;
+
 }
 
 //
@@ -422,7 +448,7 @@ int greedy_match(FILE *ref_fp,
 int main(int argc, char **argv) {
   int i, j, k;
   int opt, ch, option_index;
-  int pos, start_pos=0;
+  int pos, start_pos_0ref=0;
   int end_tilestep=-1;
   FILE *ref_fp, *ofp;
   FILE *tagset_fp=NULL;
@@ -446,12 +472,15 @@ int main(int argc, char **argv) {
   std::string end_seq;
   int end_tile_length=-1;
 
+  //int end_tile_pos_0ref_noninc = -1;
+
   ref_fp = stdin;
   ofp = stdout;
 
   ref_name = "hg19";
   chrom_str = "unk";
 
+  //while ((opt = getopt_long(argc, argv, "T:s:c:p:R:N:vVhE:M:GOe:", long_options, &option_index))!=-1) switch(opt) {
   while ((opt = getopt_long(argc, argv, "T:s:c:p:R:N:vVhE:M:GO", long_options, &option_index))!=-1) switch(opt) {
     case 0:
       fprintf(stderr, "sanity error, invalid option to parse, exiting\n");
@@ -470,7 +499,7 @@ int main(int argc, char **argv) {
     case 'V':
       show_version(); exit(0); break;
     case 's':
-      start_pos = atoi(optarg); break;
+      start_pos_0ref = atoi(optarg); break;
     case 'E':
       end_seq = optarg; break;
     case 'M':
@@ -481,6 +510,9 @@ int main(int argc, char **argv) {
       greedy_match_flag = 1; opt_match_flag = 0; break;
     case 'O':
       greedy_match_flag = 0; opt_match_flag = 1; break;
+//    case 'e':
+//      end_tile_pos_0ref_noninc = atoi(optarg);
+//      break;
     case 'h':
     default:
       show_help();
@@ -568,14 +600,14 @@ int main(int argc, char **argv) {
   if (opt_match_flag) {
 
     match_tag(ref_fp,
-              ref_name, chrom_str, start_pos, tilepath,
+              ref_name, chrom_str, start_pos_0ref, tilepath,
               tagset, tag_pos_map, end_seq, end_tile_length);
 
   }
   else {
 
     greedy_match(ref_fp,
-                 ref_name, chrom_str, start_pos, tilepath,
+                 ref_name, chrom_str, start_pos_0ref, tilepath,
                  tag_pos_map);
 
   }

@@ -78,6 +78,7 @@ RUN mkdir -p /root/git && \
   GOPATH=/root/.go go build fjfilter.go && \
   cp /root/git/l7g/go/fjtools/fjfilter /usr/local/bin
 
+RUN apt-get install -y bc
 
 RUN cd /usr/local/bin && \
   wget http://hgdownload.cse.ucsc.edu/admin/exe/linux.x86_64/bigWigToBedGraph && \

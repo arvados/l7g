@@ -80,6 +80,13 @@ RUN mkdir -p /root/git && \
 
 RUN apt-get install -y bc
 
+RUN  cd /root/git/l7g/lib/asmukk && make && \
+  cd /root/git/l7g/tools/tile-liftover && make && \
+  cp /root/git/l7g/tools/tile-liftover/tile-liftover /usr/local/bin && \
+  cp /root/git/l7g/tools/tile-liftover/tile-assembly-index /usr/local/bin
+
+
+
 RUN cd /usr/local/bin && \
   wget http://hgdownload.cse.ucsc.edu/admin/exe/linux.x86_64/bigWigToBedGraph && \
   chmod a+x bigWigToBedGraph

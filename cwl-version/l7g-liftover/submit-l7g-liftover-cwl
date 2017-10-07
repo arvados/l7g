@@ -1,0 +1,3 @@
+#!/bin/bash
+
+arvados-cwl-runner --disable-reuse --local l7g-liftover.cwl l7g-liftover.yml

@@ -5,7 +5,7 @@ PASTA Format
 
 **PASTA is still in the experimental stage**
 
-To faciliate easy conversion between different variant call formats (e.g. VCF, GFF, etc.),
+To facilitate easy conversion between different variant call formats (e.g. VCF, GFF, etc.),
 PASTA was invented to serve as an intermediary format that is both simple
 to produce and simple to decode from and to various formats.
 

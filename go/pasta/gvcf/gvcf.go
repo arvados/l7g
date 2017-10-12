@@ -1142,6 +1142,37 @@ func _tol(A string) string {
   return string(z)
 }
 
+func (g *GVCFRefVar) PastaNocallRef(ref_stream *bufio.Reader, out *bufio.Writer) error {
+  n_allele := 2
+
+  for {
+
+    stream_ref_bp,e := ref_stream.ReadByte()
+    for stream_ref_bp == '\n' || stream_ref_bp == ' ' || stream_ref_bp == '\t' || stream_ref_bp == '\r' {
+      stream_ref_bp,e = ref_stream.ReadByte()
+      if e!=nil { return e }
+    }
+    stream_ref_bp = _lb(stream_ref_bp)
+
+    for a:=0; a<n_allele; a++ {
+
+      pasta_ch := pasta.SubMap[stream_ref_bp]['n']
+      if pasta_ch == 0 { return fmt.Errorf("invalid character (ref %c, alt %c)", stream_ref_bp, 'n') }
+
+      if (g.LFMod>0) && (g.OCounter > 0) && ((g.OCounter%g.LFMod)==0) {
+        out.WriteByte('\n')
+      }
+      g.OCounter++
+
+      out.WriteByte(pasta_ch)
+    }
+
+    g.RefPos++
+  }
+
+  return nil
+
+}
 
 // Read in gVCF, one line at a time,  and create a PASTA stream from it.
 //

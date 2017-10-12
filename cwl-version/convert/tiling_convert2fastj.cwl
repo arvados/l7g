@@ -22,6 +22,11 @@ inputs:
   reffa: File
   afn: File
   aidx: File
+  refM: string
+  reffaM: File
+  afnM: File
+  aidxM: File
+  seqidM: string
   tagdir: File
   l7g: File
   pasta: File
@@ -60,6 +65,11 @@ steps:
       reffa: reffa
       afn: afn
       aidx: aidx
+      refM: refM
+      reffaM: reffaM
+      afnM: afnM
+      aidxM: aidxM
+      seqidM: seqidM
       tagdir: tagdir
       l7g: l7g
       pasta: pasta

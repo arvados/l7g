@@ -1,1 +1,0 @@
-./run_tilelib_allCWL.sh /data-sdd/cwl_tiling/tilelib/tilelibCWL.sh  /data-sdd/cwl_tiling/tilelib/fastj2cgflib /data-sdd/cwl_tiling/tilelib/data /data-sdd/cwl_tiling/tilelib/verbose_tagset /data-sdd/data/l7g/tagset.fa/tagset.fa.gz 15

@@ -1,0 +1,13 @@
+bashscript:
+   class: File
+   path: /data-sdd/cwl_tiling/filter/filterCWL.sh
+
+gffDir:
+   class: Directory
+   path: keep:7ef0ebdbbb2158a0acfec8fa4c6573a0+7999
+
+gffPrefix: "A-UPN-UP000241-CL-UPN-1437"
+
+filter_gvcf:
+   class: File
+   path: /data-sdd/cwl_tiling/filter/filter-gvcf

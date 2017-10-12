@@ -30,6 +30,7 @@ find $indir/*.cgf > cgf_list
 function process_tile {
   tilepath=$1
 
+  printf '%03x\n' $tilepath
   h=`printf '%03x' $tilepath`
 
   rm -f tmp/$h.tmp

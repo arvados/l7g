@@ -1,0 +1,6 @@
+refdirectory:
+   class: Directory 
+   path: keep:2a63af2ecdbca9d530032e6d8f2bf36c+8354830
+datafilenames:
+   class: File
+   path: /data-sdd/cwl_tiling/convert/gvcf_version/shortcollectnames.txt

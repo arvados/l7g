@@ -8,7 +8,7 @@ srcdir:
 
 nppdir:
    class: Directory
-   path: keep:7eb413e720438515f29201b64b382ecf+33122/lib
+   path: keep:ca16f598a6118b427a74b007fe8ceb50+667/lib
 
 nthreads: "2"
 

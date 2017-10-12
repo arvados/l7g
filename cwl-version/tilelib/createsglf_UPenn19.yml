@@ -1,6 +1,6 @@
 bashscriptmain:
    class: File
-   path: /data-sdd/cwl_tiling/tilelib/run_tilelib_allCWL.sh 
+   path: /data-sdd/cwl_tiling/tilelib/run_tilelib_allCWL_19.sh 
 
 bashscript:
    class: File

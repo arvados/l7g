@@ -18,7 +18,7 @@ import "github.com/curoverse/l7g/go/pasta"
 
 import "github.com/curoverse/l7g/go/pasta/gvcf"
 
-var VERSION_STR string = "0.2.4"
+var VERSION_STR string = "0.2.5"
 var gVerboseFlag bool
 
 var gProfileFlag bool
@@ -1467,6 +1467,10 @@ func _main_gvcf_to_rotini(c *cli.Context) {
     e:=g.Pasta(gvcf_line, ref_stream, out)
     if e!=nil { fmt.Fprintf(os.Stderr, "ERROR: %v at line %v\n", e, line_no); return }
   }
+  if gFullRefSeqFlag {
+    g.PastaNocallRef(ref_stream, out)
+    out.WriteByte('\n')
+  }
   g.PastaEnd(out)
 
   out.Flush()
@@ -1777,6 +1781,9 @@ func _main( c *cli.Context ) {
     _main_gff_to_pasta(c)
     return
   } else if action == "gvcf-rotini" {
+
+    gFullRefSeqFlag = c.Bool("full-sequence")
+
     _main_gvcf_to_rotini(c)
     return
   } else if action == "cgivar-pasta" {

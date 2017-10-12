@@ -517,7 +517,12 @@ int create_band_info(band_info_t &band_info, std::vector< fj_tile_t > &fj_tile, 
     // Add the tile variant to the appropriate band allele
     //
     sglf_tilevar = sglf_path_step_lookup_seq_variant_id(&sglf_path, tilestep, fj_tile[fj_idx].seq);
-    if (sglf_tilevar<0) { return -4; }
+    if (sglf_tilevar<0) {
+
+      fprintf(stderr, "tilestep %i (0x%x) was not found in pos index %i\n", tilestep, tilestep, fj_idx);
+      fprintf(stderr, "seq: %s\n", fj_tile[fj_idx].seq.c_str());
+      return -4;
+    }
 
     band_info.band[tilevar].push_back(sglf_tilevar);
 

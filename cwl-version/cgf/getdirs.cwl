@@ -1,5 +1,11 @@
+$namespaces:
+  arv: "http://arvados.org/cwl#"
+  cwltool: "http://commonwl.org/cwltool#"
 class: ExpressionTool
 cwlVersion: v1.0
+hints:
+  cwltool:LoadListingRequirement:
+    loadListing: shallow_listing
 inputs:
   refdirectory: Directory
 outputs:

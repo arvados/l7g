@@ -1,6 +1,6 @@
 bashscript:
    class: File
-   path: /data-sdd/cwl_tiling/cgf/convertcgfCWL.sh 
+   path: /data-sdd/cwl_tiling/cgf/convertcgfCWLtest.sh 
 
 fjdir:
    class: Directory 
@@ -11,4 +11,4 @@ cgf:
 
 cglf:
    class: Directory
-   path: keep:keep:30b4b338dfc3b2661b981dbf53b4edc7+30065/lib
+   path: keep:30b4b338dfc3b2661b981dbf53b4edc7+30065/lib

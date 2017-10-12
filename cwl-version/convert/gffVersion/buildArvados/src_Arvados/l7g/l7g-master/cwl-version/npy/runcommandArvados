@@ -1,5 +1,0 @@
-docker run -ti  -v /data-sdd/cwl_tiling/npy/data-vec-pgp:/npy/data-vec-pgp -v /data-sdd/cwl_tiling/npy/buildArvados/dest:/dest -v /data-sdd/cwl_tiling/npy:/npy -v /data-sdd/data/cgf-test:/data/cgf-test pythontools
-
-# need to add volume to account for where the data is...
-
-./create-npyCWL.sh /npy/cgb /data/cgf-test /dest/band-to-matrix-npy /dest/npy-vec-to-hiq-1hot /npy/create-list 16 

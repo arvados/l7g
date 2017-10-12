@@ -1,0 +1,19 @@
+refdirectory:
+   class: Directory
+   path: keep:eacd18bf5de3e74596082b0ccd91e86c+40867 
+
+bashscript:
+   class: File
+   path: /data-sdd/cwl_tiling/cgf3/convertcgfCWL.sh 
+   
+cgft:
+   class: File 
+   path: /data-sdd/cwl_tiling/cgf3/buildArvados/dest_Arvados/cgft
+
+fjt:
+   class: File
+   path: /data-sdd/cwl_tiling/cgf3/buildArvados/dest_Arvados/fjt
+
+cglf:
+   class: Directory
+   path: keep:70975991edc84c17c5795be1a79c3908+43884/lib-merge 

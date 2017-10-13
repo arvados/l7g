@@ -5,6 +5,7 @@ set -a
 gffDir="$1"
 gffPrefix="$2"
 filter_gvcf="$3"
+cutoff="$4"
 
 #gffDir='/data-sdd/cwl_tiling/convert/checkfastJ/keep/by_id/su92l-4zz18-t8ami4w0swhseki'
 #gffPrefix='A-UPN-UP000241-CL-UPN-1437'
@@ -27,7 +28,7 @@ for chrom in chr1 chr2 chr3 chr4 chr5 chr6 chr7 chr8 chr9 chr10 chr11 chr12 chr1
 
    echo "$stripped_name"
 
-   zcat $gffInitial | $filter_gvcf 30 | gzip -c > $newdir'/filtered_'$stripped_name'.gvcf.gz'
-
+   # zcat $gffInitial | $filter_gvcf 30 | gzip -c > $newdir'/filtered_'$stripped_name'.gvcf.gz'
+   zcat $gffInitial | $filter_gvcf $cutoff | gzip -c > $newdir'/filtered_'$stripped_name'.gvcf.gz'
    
 done # chrom 

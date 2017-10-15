@@ -923,7 +923,7 @@ int cgft_output_band_format(cgf_t *cgf, tilepath_t *tilepath, FILE *fp, int outp
 
   // finally, fill in with nocall
 
-  if (output_noc) {
+  //if (output_noc) {
 
     int prev_noc_start = 0;
     for (i=0; i<tilepath->LoqTileStepHom.size(); i++) {
@@ -981,20 +981,20 @@ int cgft_output_band_format(cgf_t *cgf, tilepath_t *tilepath, FILE *fp, int outp
 
     }
 
-  }
+  //}
 
   // output all vectors
   //
 
-  for (i=0; i<2; i++) {
-    fprintf(fp, "[");
-    for (j=0; j<variant_v[i].size(); j++) {
-      fprintf(fp, " %i", variant_v[i][j]);
-    }
-    fprintf(fp, "]\n");
-  }
-
   if (output_noc) {
+    for (i=0; i<2; i++) {
+      fprintf(fp, "[");
+      for (j=0; j<variant_v[i].size(); j++) {
+        fprintf(fp, " %i", variant_v[i][j]);
+      }
+      fprintf(fp, "]\n");
+    }
+
     for (i=0; i<2; i++) {
       fprintf(fp, "[");
       for (j=0; j<noc_v[i].size(); j++) {
@@ -1006,6 +1006,22 @@ int cgft_output_band_format(cgf_t *cgf, tilepath_t *tilepath, FILE *fp, int outp
       }
       fprintf(fp, "]\n");
     }
+  }
+  else {
+    for (i=0; i<2; i++) {
+      fprintf(fp, "[");
+      for (j=0; j<variant_v[i].size(); j++) {
+
+        if (noc_v[i][j].size() > 0) {
+          fprintf(fp, " -2");
+        } else {
+          fprintf(fp, " %i", variant_v[i][j]);
+        }
+      }
+      fprintf(fp, "]\n");
+    }
+
+
   }
 
 }

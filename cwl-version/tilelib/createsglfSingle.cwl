@@ -5,38 +5,43 @@ cwlVersion: v1.0
 class: CommandLineTool
 requirements:
   - class: DockerRequirement
-    dockerPull: javatools-parallel
+    dockerPull: javatools
   - class: InlineJavascriptRequirement
   - class: ResourceRequirement
-    ramMin:  101090 
-    ramMax:  404358 
+    coresMin: 2 
+    coresMax: 2 
 hints:
   arv:RuntimeConstraints:
     keep_cache: 4096
 baseCommand: bash
 inputs:
-  bashscriptmain:
+  bashscript:
     type: File
     inputBinding:
-      position: 1
-  srcdir:
-    type: Directory 
+      position: 1 
+  tilepath:
+    type: string
     inputBinding:
-      position: 2
-  nppdir:
-    type: Directory
+      position: 2  
+  fastj2cgflib:
+    type: File 
     inputBinding:
       position: 3
-  nthreads:
-    type: string 
+  datadir: 
+    type: Directory 
     inputBinding:
       position: 4 
-  mergetilelib:
+  verbose_tagset:
     type: File
     inputBinding:
-      position: 5
+      position: 5 
+  tagset:
+    type: File
+    inputBinding:
+      position: 6 
 outputs:
   out1:
-    type: Directory
+    type: File 
     outputBinding:
-      glob: "*merge*"
+      glob: "lib/*sglf.gz*"
+

@@ -21,6 +21,6 @@ export numthreads="$6"
 #02e6 to 02f8
 #742 to 760
 
-printf '%04x\n' {742..760} | xargs -n1 -P $numthreads -I{} $bashscript {} lib $fastj2cgflib $datadir $verbose_tagset $tagset 
+printf '%04x\n' {742..760} | xargs -n1 -P $numthreads -I{} $bashscript {} $fastj2cgflib $datadir $verbose_tagset $tagset 
 
 #printf '%04x\n' {0..862} | xargs -n1 -P $numthreads -I{} $bashscript {} lib $fastj2cgflib $datadir $verbose_tagset $tagset

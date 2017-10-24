@@ -140,7 +140,7 @@ void tileband_knot(tileband_t &t, int knot_start, int *knot_len, int *loc_knot) 
 
   *loc_knot=0;
 
-  if ((t.noc_v[0][knot_start].size()>0) || 
+  if ((t.noc_v[0][knot_start].size()>0) ||
       (t.noc_v[1][knot_start].size()>0)) {
     *loc_knot = 1;
   }
@@ -151,7 +151,7 @@ void tileband_knot(tileband_t &t, int knot_start, int *knot_len, int *loc_knot) 
     if ((t.v[0][i] < 0) || (t.v[1][i] < 0)) {
       kl++;
 
-      if ((t.noc_v[0][i].size()>0) || 
+      if ((t.noc_v[0][i].size()>0) ||
           (t.noc_v[1][i].size()>0)) {
         *loc_knot = 1;
       }

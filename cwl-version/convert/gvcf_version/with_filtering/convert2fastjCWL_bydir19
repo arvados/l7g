@@ -98,7 +98,8 @@ for chrom in  chr19 ; do
      gff=$gffInitial     
    else
 #     mkdir -p cleaned 
-     gunzip --to-stdout $gffInitial | bgzip > 'indexed/'$stripped_name'.gvcf.gz'
+#     gunzip --to-stdout $gffInitial | bgzip > 'indexed/'$stripped_name'.gvcf.gz'
+     cp -f $gffInitial 'indexed/'$stripped_name'.gvcf.gz'
      gff='indexed/'$stripped_name'.gvcf.gz'
      tabix -f $gff
    fi
@@ -249,6 +250,7 @@ for chrom in  chr19 ; do
       $pasta -action filter-rotini -start $ref_start0 -n $dn > $odir/$path.pa"
 
     $pasta -action gvcf-rotini -start $window_start0 -chrom $chrom \
+      -full-sequence \
       -refstream $tdir/$path.ref \
       -i $tdir/$path.gvcf | \
       $pasta -action filter-rotini -start $ref_start0 -n $dn > $odir/$path.pa

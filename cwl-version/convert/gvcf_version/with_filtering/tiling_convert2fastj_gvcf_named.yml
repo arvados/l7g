@@ -1,14 +1,10 @@
 refdirectory:
    class: Directory
-   path: keep:2a63af2ecdbca9d530032e6d8f2bf36c+8354830
-
-datafilenames:
-   class: File
-   path: /data-sdd/cwl_tiling/convert/gvcf_version/subsetnames.txt
+   path: keep:d09871cbdacfd3eecb1d3ae51b17631a+299659
 
 bashscript:
    class: File
-   path: /data-sdd/cwl_tiling/convert/gvcf_version/convert2fastjCWL_bydir19
+   path: /data-sdd/cwl_tiling/convert/gvcf_version/with_filtering/convert2fastjCWL_bydir19
 
 ref: "hg38"
 
@@ -46,16 +42,16 @@ tagdir:
 
 l7g:
    class: File
-   path: /data-sdd/cwl_tiling/convert/gvcf_version/buildArvados/dest_Arvados/l7g
+   path: /data-sdd/cwl_tiling/convert/gvcf_version/with_filtering/buildArvados/dest_Arvados/l7g
 
 pasta:
    class: File
-   path: /data-sdd/cwl_tiling/convert/gvcf_version/buildArvados/dest_Arvados/pasta
+   path: /data-sdd/cwl_tiling/convert/gvcf_version/with_filtering/buildArvados/dest_Arvados/pasta
 
 refstream:
    class: File
-   path: /data-sdd/cwl_tiling/convert/gvcf_version/buildArvados/dest_Arvados/refstream
+   path: /data-sdd/cwl_tiling/convert/gvcf_version/with_filtering/buildArvados/dest_Arvados/refstream
 
 tile_assembly:
    class: File
-   path: /data-sdd/cwl_tiling/convert/gvcf_version/buildArvados/dest_Arvados/tile-assembly
+   path: /data-sdd/cwl_tiling/convert/gvcf_version/with_filtering/buildArvados/dest_Arvados/tile-assembly

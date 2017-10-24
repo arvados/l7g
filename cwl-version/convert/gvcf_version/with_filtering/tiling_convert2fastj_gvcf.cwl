@@ -15,6 +15,9 @@ requirements:
 hints:
   arv:RuntimeConstraints:
     keep_cache: 4096
+  cwltool:LoadListingRequirement:
+    loadListing: shallow_listing
+
 inputs:
   refdirectory: Directory
   bashscript: File
@@ -49,8 +52,7 @@ steps:
   step1:
     run: getdirs.cwl
     in: 
-      datafilenames: datafilenames
-      datafilepdh: datafilepdh
+      refdirectory: refdirectory
     out: [out1,out2]
 
   step2:

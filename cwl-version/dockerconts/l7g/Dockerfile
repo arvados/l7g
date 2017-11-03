@@ -61,9 +61,9 @@ RUN mkdir -p /root/git && \
   cd /root/git/l7g/tools/cglf-tools && \
   GOPATH=/root/.go go get github.com/codegangsta/cli && \
   GOPATH=/root/.go ./cmp_fastj2cglf.sh && \
-  cp /root/git/l7g/tools/cglf-tools/fastj2cgflib /usr/local/lib && \
+  cp /root/git/l7g/tools/cglf-tools/fastj2cgflib /usr/local/bin && \
 
-  cp /root/git/l7g/tools/misc/refstream /usr/local/lib && \
+  cp /root/git/l7g/tools/misc/refstream /usr/local/bin && \
 
   cd /root/git/l7g/go/pasta/pasta && \
   GOPATH=/root/.go go get github.com/curoverse/l7g/go/autoio && \

@@ -7,7 +7,7 @@ RUN apt-get update && \
   apt-get install -y build-essential golang libssl-dev \
     less wget \
     libncurses5-dev autoconf libbz2-dev liblzma-dev \
-    cmake tabix libhts-dev
+    cmake tabix libhts-dev parallel
 
 RUN mkdir -p /root/git && \
   cd /root/git && \

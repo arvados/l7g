@@ -32,4 +32,4 @@ then
   r=`echo "$r" | cut -f1 -d'+'`'-'$z
 fi
 
-$HOME/bin/samtools faidx $fn $r | egrep -v '^>' | tr '[:upper:]' '[:lower:]' | tr 'm' 'n'
+samtools faidx $fn $r | egrep -v '^>' | tr '[:upper:]' '[:lower:]' | tr 'm' 'n'

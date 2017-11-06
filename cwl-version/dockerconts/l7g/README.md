@@ -23,5 +23,5 @@ docker build --no-cache -t arvados/l7g .
 To upload to Arvados for use as a CWL container:
 
 ```
-arv keep dcoker arvados/l7g
+arv keep docker arvados/l7g
 ```

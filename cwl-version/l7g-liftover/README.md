@@ -17,17 +17,17 @@ CWL Pipeline Submission
 On Arvados:
 
 ```
-arvados-cwl-runner --disable-reuse --local l7g-tagset.cwl l7g-tagset.yml
+arvados-cwl-runner --disable-reuse --local l7g-liftover.cwl l7g-liftover.yml
 ```
 
 Local Run
 ---
 
 ```
-./build-tagset.sh \
-  /path/to/cytoband-file \
-  /path/to/wgEncodeCrgMapabilityAlign24mer.bw \
-  /path/to/hg19.fa.gz
+./build-l7g-liftover.sh \
+  /path/to/tagset.fa \
+  /path/to/hg19.fa.gz \
+  /path/to/cytoband.txt
 ```
 
 This wil create a temporary `stage` directory that will be deleted

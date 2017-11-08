@@ -1,0 +1,3 @@
+#!/bin/bash
+
+arvados-cwl-runner --disable-reuse --local hg38-tileassembly.cwl hg38-tileassembly.yml

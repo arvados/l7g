@@ -820,6 +820,21 @@ func (g *FastJInfo) Convert(pasta_stream *bufio.Reader, tag_stream *bufio.Reader
   //
   if ref_pos == g.AssemblyEndPos {
 
+    // Read the remaining tags
+    //
+    for (!g.TagFinished) {
+
+      e = g.ReadTag(tag_stream)
+      if e==io.EOF {
+        break
+      }
+      if e!=nil {
+        return fmt.Errorf(fmt.Sprintf("ERROR reading tag: %v", e))
+      }
+
+    }
+
+
     //DEBUG
     /*
     out.WriteString( fmt.Sprintf("### ref_pos %d, assemblyendpos %d\n", ref_pos, g.AssemblyEndPos) )

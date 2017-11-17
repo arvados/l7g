@@ -1,0 +1,22 @@
+script:
+  class: File
+  path: ../src/convert_gff_to_fastj.sh
+
+gffFns:
+  - class: File
+    path: keep:8122d87ab406a6475c6826ae8bcfded2+56754/hu826751-GS03052-DNA_B01.gff.gz
+  - class: File
+    path: keep:8122d87ab406a6475c6826ae8bcfded2+56754/hu0211D6-GS01175-DNA_E02.gff.gz
+
+tagset:
+  class: File
+  path: keep:c102dcaa86972313f32f0ccff37358a0+174/tagset.fa.gz
+
+tileassembly:
+  class: File
+  path: keep:98c5e71956730c36cc89bb25b99fe58b+965/assembly.00.hg19.fw.gz
+
+refFaFn:
+  class: File
+  path: keep:320d7a6717aa7b555a09e52976ba4a02+18534/hg19.fa.gz
+

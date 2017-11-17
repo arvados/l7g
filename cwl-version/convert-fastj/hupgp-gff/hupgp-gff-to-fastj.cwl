@@ -48,10 +48,16 @@ inputs:
     inputBinding:
       position: 6
 
+#outputs:
+#  result:
+#    type: File[]
+#    outputBinding:
+#      glob: "*/*.fj.*"
+
 outputs:
   result:
-    type: File[]
+    type: Directory
     outputBinding:
-      glob: "*/*.fj.*"
+      glob: "."
 
 

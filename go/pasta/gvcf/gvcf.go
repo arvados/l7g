@@ -1145,6 +1145,18 @@ func _tol(A string) string {
 func (g *GVCFRefVar) PastaNocallRef(ref_stream *bufio.Reader, out *bufio.Writer) error {
   n_allele := 2
 
+  // Special case of when no gVCFlines have been processed.  This means the
+  // headers for the pasta stream haven't been written, so write them here.
+  if g.FirstFlag {
+
+    out.WriteString( fmt.Sprintf(">C{%s}", g.ChromStr) )
+    out.WriteString( fmt.Sprintf(">P{%d}", g.RefPos) )
+    out.WriteString("\n")
+
+  }
+  g.FirstFlag = false
+
+
   for {
 
     stream_ref_bp,e := ref_stream.ReadByte()

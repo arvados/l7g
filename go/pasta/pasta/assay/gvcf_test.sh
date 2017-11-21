@@ -156,6 +156,42 @@ diff <( ./pasta -action rotini-gvcf -i $odir/snippet5.pa | ./pasta -action gvcf-
 echo 'ok-snippet5'
 
 ## custom small gvcf snippet
+## edge case when whole tilepath is nocall (with
+## a spurious gvcf line) and then filtered
+##
+## full-sequence is needed
+##
+## array-data/ref-snippet5.seq made with:
+##
+##    refstream /data-sdd/data/ref/hg38.fa.gz chrY:17999991+100
+##
+
+gvcf_snippet="chrY 18000000 . C A,<NON_REF> 0.2 . . GT ./."
+
+t5s_a=`pasta -full-sequence \
+  -action gvcf-rotini \
+  -i <( echo "$gvcf_snippet" | tr ' ' '\t' ) \
+  -r "assay-data/ref-snippet6.seq" \
+  -start 17999990 | \
+  pasta -a filter-rotini -start 17999995 -n 10 | \
+  pasta -a rotini-ref | tr -d '\n' | \
+  md5sum | cut -f1 -d' '`
+
+t5s_b=`cat assay-data/ref-snippet6.seq | \
+  tr -d '\n' | \
+  head -c 15 | tail -c 10 | tr -d '\n' | \
+  md5sum | cut -f1 -d' '`
+
+if [[ "$t5s_a" == "$t5s_b" ]] ; then
+  echo "ok-snippet6"
+else
+  echo "FAIL: snippet6"
+fi
+
+
+
+
+## custom small gvcf snippet
 ##
 
 export inpgvcf="assay-data/gvcf-snippet.gvcf"

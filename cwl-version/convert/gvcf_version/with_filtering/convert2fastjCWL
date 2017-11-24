@@ -4,21 +4,22 @@ set -a
 
 DEBUG=0
 export MAKE_NEW_DIR=1
+export VERBOSE=1
 
 function _q {
   echo $1
   exit 1
 }
 
-gffDir="$1"
-gffPrefix="$2"
+gvcfDir="$1"
+gvcfPrefix="$2"
 
-if [ "$gffDir" == "" ] ; then
+if [ "$gvcfDir" == "" ] ; then
   echo "provide inital directory"
   exit 1
 fi
 
-trap "ERROR: $gffDir $path ; exit" ERR
+trap "ERROR: $gvcfDir $path ; exit" ERR
 
 export ref1="$3"
 export reffa1="$4"
@@ -39,8 +40,9 @@ export tile_assembly="${16}"
 
 export LD_LIBRARY_PATH='/usr/local/bin'
 
+if [[ "$VERBOSE" -eq 1 ]] ; then
 echo "individual variable listings"
-echo "dir $gffDir"
+echo "dir $gvcfDir"
 echo "ref $ref1"
 echo "reffa $reffa1"
 echo "afn $afn1"
@@ -55,48 +57,41 @@ echo "pasta $pasta"
 echo "refstream $refstream"
 echo "l7g $l7g"
 echo "tile_assembly $tile_assembly"
+fi
 
 mkdir -p 'indexed'
 
-#ifnInitial=`basename $gffInitial`
-#export gff=$gffInitial
-
-#ifn=`basename $gff`
-#extensionfull=${ifn#*.}
-#extensionfull='.'$extensionfull
-#stripped_name=`basename $ifn $extensionfull`
-
-#huid=`echo "$stripped_name" | cut -f1 -d'-'`
-#dnaid=`echo "$stripped_name" | cut -f2- -d'-'`
-
 for chrom in chr1 chr2 chr3 chr4 chr5 chr6 chr7 chr8 chr9 chr10 chr11 chr12 chr13 chr14 chr15 chr16 chr17 chr18 chr19 chr20 chr21 chr22 chrX chrY chrM ; do
 
-   gffInitial=$gffDir'/filtered_'$gffPrefix.raw_variants.$chrom.gvcf.gz
-   echo "$gffInitial"
-
-   ifnInitial=`basename $gffInitial`
-   echo "$ifnInitial"
- 
+   gvcfInitial=$gvcfDir'/filtered_'$gvcfPrefix.raw_variants.$chrom.gvcf.gz
+   ifnInitial=`basename $gvcfInitial`
    stripped_name=`basename $ifnInitial .gvcf.gz`
 
-   echo "$stripped_name"
-
-   if [[ "$MAKE_NEW_DIR" != 1 ]] ; then
-     tabix -f $gffInitial
-     gff=$gffInitial
-   else
-#     mkdir -p cleaned
-#     gunzip --to-stdout $gffInitial | bgzip > 'indexed/'$stripped_name'.gvcf.gz'
-     cp -f $gffInitial 'indexed/'$stripped_name'.gvcf.gz'
-     gff='indexed/'$stripped_name'.gvcf.gz'
-     tabix -f $gff
+   if [[ "$VERBOSE" -eq 1 ]] ; then
+     echo "gvcfInitial: $gvcfInitial"
+     echo "ifnInitial: $ifnInitial"
+     echo "stripped_name: $stripped_name"
    fi
 
-   echo "$gff"
+   if [[ "$MAKE_NEW_DIR" != 1 ]] ; then
+     tabix -f $gvcfInitial
+     gvcf=$gvcfInitial
+   else
+     cp -f $gvcfInitial 'indexed/'$stripped_name'.gvcf.gz'
+     gvcf='indexed/'$stripped_name'.gvcf.gz'
+     tabix -f $gvcf
+   fi
 
-# Change reference if alternative ref for ChrM
+   if [[ "$VERBOSE" -eq 1 ]] ; then
+     echo "gvcf: $gvcf"
+   fi
+
   if [ "$chrom" == "chrM" ] ; then
-    echo "Using $refM ref for $chrom"
+
+    if [[ "$VERBOSE" -eq 1 ]] ; then
+      echo "Using $refM ref for $chrom"
+    fi
+
     export ref=$refM
     export reffa=$reffaM
     export afn=$afnM
@@ -110,23 +105,21 @@ for chrom in chr1 chr2 chr3 chr4 chr5 chr6 chr7 chr8 chr9 chr10 chr11 chr12 chr1
     export refchrom=$chrom
   fi
 
-  echo $stripped_name processing $chrom
+  if [[ "$VERBOSE" -eq 1 ]] ; then
+    echo $stripped_name processing $chrom
+  fi
 
-  odir="stage/$gffPrefix"
+  odir="stage/$gvcfPrefix"
   mkdir -p $odir
 
   while read line
   do
 
-    path=`echo "$line" | cut -f1 | cut -f3 -d':'`
+    tilepath=`echo "$line" | cut -f1 | cut -f3 -d':'`
 
-    echo "path $path"
-
-    byte_start=`echo "$line" | cut -f3`
-    byte_len=`echo "$line" | cut -f2`
-
-    echo "  byte_start $byte_start"
-    echo "  byte_len $byte_len"
+    if [[ "$VERBOSE" -eq 1 ]] ; then
+      echo "tilepath $tilepath"
+    fi
 
     ## Due to technical limitations, we can't convert from gVCF in the middle
     ## of a gVCF line.
@@ -145,113 +138,86 @@ for chrom in chr1 chr2 chr3 chr4 chr5 chr6 chr7 chr8 chr9 chr10 chr11 chr12 chr1
     ##   length of the reference sequence is taken as the length of the block.
     ##
     ## "window_start" is where the final start of the window for filtering the gVCF is stored
-    ## "ref_dn" is the window length
-    ## "ref_start0" is the start of the tilepath
-    ## "dn" is the length of the tilepath
+    ## "window_len" is the window length
+    ## "tilepath_start0" is the start of the tilepath
+    ## "tilepath_len" is the length of the tilepath
     ##
     ## The larger window is converted from gVCF to PASTA and is then filtered down
     ## to the proper tilepath length.
     ##
-    ##  [window_start ....  +ref_dn)
-    ##   [ref_start0  .... +dn)
+    ##  [window_start     ....         +window_len)
+    ##   [tilepath_start0 .... +tilepath_len]
     ##
 
-    export ref_start0=`$l7g assembly-range $afn $path | tail -n1 | cut -f2`
-    export ref_end0_noninc=`$l7g assembly-range $afn $path | tail -n1 | cut -f3`
-    export ref_end1_inc="$ref_end0_noninc"
+    ## find the bounds for the tilepath
+    ##
+    export tilepath_start0=`$l7g assembly-range $afn $tilepath | tail -n1 | cut -f2`
+    export tilepath_end0_noninc=`$l7g assembly-range $afn $tilepath | tail -n1 | cut -f3`
+    export tilepath_len=`expr "$tilepath_end0_noninc" - "$tilepath_start0"`
 
-    echo ">>>" "$l7g assembly-range $afn $path | tail -n1 | cut -f2"
-    echo ">>>" "$l7g assembly-range $afn $path | tail -n1 | cut -f3"
+    if [[ "$tilepath_len" -eq "0" ]] ; then
+      echo "SKIPPING EMPTY TILEPATH $tilepath (tilepath_len: $tilepath_len)"
+      continue
+    fi
 
-    echo "  ref_start0 $ref_start0"
-    echo "  ref_end0_noninc $ref_end0_noninc"
-    echo "  ref_end1_inc $ref_end1_inc"
+    if [[ "$VERBOSE" -eq 1 ]] ; then
+      echo "## tilepath reference start0 $tilepath_start0"
+      echo "## tilepath len $tilepath_len"
+    fi
 
-    export ref_start1=`expr "$ref_start0" + 1`
-    export ref_end1_noninc=`expr "$ref_end0_noninc" + 1`
+    export tilepath_start1=`expr "$tilepath_start0" + 1`
+    export tilepath_end1_inc=`expr "$tilepath_start0" + "$tilepath_len" + 1`
 
-    echo "  ref_start1 $ref_start1"
-    echo "  ref_end1 $ref_end1_noninc"
+    ## find the bounds for gvcf snippet in question
+    ##
+    export gvcf_start1=`tabix $gvcf $chrom:$tilepath_start1-$tilepath_end1_inc | head -n1 | cut -f2`
+    export gvcf_end1_inc=`tabix $gvcf $chrom:$tilepath_start1-$tilepath_end1_inc | tail -n1 | cut -f2`
 
-    export realstart1=`tabix $gff $chrom:$ref_start1-$ref_end1_inc | head -n1 | cut -f2`
-    export realend1_inc=`tabix $gff $chrom:$ref_start1-$ref_end1_inc | tail -n1 | cut -f2`
+    export gvcf_start0="$tilepath_start0"
+    if [[ "$gvcf_start1" != "" ]] ; then
+      gvcf_start0=`expr "$gvcf_start1" - 1`
+    fi
 
-    alt_end1_inc=`tabix $gff $chrom:$ref_start1-$ref_end1_inc | grep END | tail -n1 | cut -f8 | cut -f2 -d'='`
-    if [[ "$alt_end1_inc" != "" ]] && [[ "$alt_end1_inc" -ge "$realend1_inc" ]] ; then
-      realend1_inc="$alt_end1_inc"
+    gvcf_tok_end1_inc=`tabix $gvcf $chrom:$tilepath_start1-$tilepath_end1_inc | grep END | tail -n1 | cut -f8 | cut -f2 -d'='`
+    if [[ "$gvcf_tok_end1_inc" != "" ]] && [[ "$gvcf_tok_end1_inc" -gt "$gvf_end1_inc" ]] ; then
+      gvcf_end1_inc="$gvcf_tok_end1_inc"
+    fi
+
+    ## The window under consideration starts at the minimum
+    ## of the tilepath start and the gvcf start
+    ##
+    export window_start0="$tilepath_start0"
+    if [[ "$gvcf_start0" -lt "$window_start0" ]] ; then
+      window_start0="$gvcf_start0"
+    fi
+    export window_start1=`expr "$window_start0" + 1`
+
+    ## now find the end of the window by taking the maximum
+    ## of the tilepath end, the last gvcf reported position
+    ##
+
+    export window_end1_inc="$tilepath_end0_noninc"
+    if [[ "$gvcf_end1_inc" != "" ]] && [[ "$gvcf_end1_inc" -gt "$window_end1_inc" ]] ; then
+      window_end1_inc="$gvcf_end1_inc"
     fi
 
     ## take the maximum of the 'END' field or the length of the reference sequence
     ## in the 'REF' column.
     ##
-    alt_len=`tabix $gff $chrom:$ref_start1-$ref_end1_inc | tail -n1 | cut -f4 | tr -d '\n' | wc -c`
-    alt_start1=`tabix $gff $chrom:$ref_start1-$ref_end1_inc | tail -n1 | cut -f2 | tr -d '\n' `
-    alt_end1_inc=`expr $alt_start1 + $alt_len - 1`
+    fin_ent_len=`tabix $gvcf $chrom:$tilepath_start1-$tilepath_end1_inc | tail -n1 | cut -f4 | tr -d '\n' | wc -c`
+    fin_ent_start1=`tabix $gvcf $chrom:$tilepath_start1-$tilepath_end1_inc | tail -n1 | cut -f2 | tr -d '\n' `
+    fin_ent_end1_inc=`expr $fin_ent_start1 + $fin_ent_len - 1`
 
-    if [[ "$alt_end1_inc" != "" ]] && [[ "$alt_end1_inc" -ge "$realend1_inc" ]] ; then
-      realend1_inc="$alt_end1_inc"
+    if [[ "$fin_ent_end1_inc" != "" ]] && [[ "$fin_ent_end1_inc" -gt "$window_end1_inc" ]] ; then
+      window_end1_inc="$fin_ent_end1_inc"
     fi
 
-
-    if [ "$realstart1" == "" ] ; then
-      realstart1=$ref_start1
-    fi
-
-    if [ "$realend1_inc" == "" ] ; then
-      realend1_inc=$ref_end0_noninc
-    fi
-
-    echo "cp1"
-    echo "cp1 $path" 1>&2
-    echo "  realend1_inc $realend1_inc"
-    echo "  realstart1 $realstart1"
-    echo "  ref_end0_noninc $ref_end0_noninc"
-    echo "  ref_start0 $ref_start0"
-    echo "  alt_end1_inc $alt_end1_inc"
-
-    export realdn=`expr "$realend1_inc" - "$realstart1" "+" "1"`
-    export dn=`expr "$ref_end0_noninc" - "$ref_start0"`
-
-    export window_start1="$realstart1"
-    if [ "$realstart1" -ge "$ref_start1" ]
-    then
-      export realstart1="$ref_start1"
-      export window_start1="$ref_start1"
-    fi
-
-    echo "  window_start1 $window_start1"
-
-    export window_start0=`expr "$window_start1" - 1` || true
-
-    echo "cp2"
-    echo "cp2 $path" 1>&2
-
-    export window_end1_inc="$realend1_inc"
-    #if [ "$ref_end1" -ge "$realend1" ]
-    #then
-    #  export realend1=$ref_end1
-    #  export window_end1="$ref_end1"
-    #fi
-
-    ## if the window length is smaller that the size of the
-    ## reference tilepath length, pad out the reference stream.
-    ## We'll filter extra sequence outside of the window
-    ## later.
-    export ref_dn=`expr "$window_end1_inc" "-" "$window_start1" "+" 1 `
-    if [[ "$ref_dn" -lt "$dn" ]] ; then
-
-      ## make sure to consider the reference before the start of the tilepath
-      ## (if any)
-      ##
-      ref_dn=`expr "$ref_start0" - "$window_start0" "+" "$dn" "+" "1"`
-      #ref_dn=`expr "$dn" "+" "1" `
-
-    fi
-
-    if [[ "$window_start1" -ge "$window_end1_inc" ]] ; then
-      echo "SKIPPING EMPTY TILEPATH $path (window: $window_start1-$window_end1_inc)"
+    if [[ "$window_start1" -gt "$window_end1_inc" ]] ; then
+      echo "SKIPPING EMPTY TILEPATH $tilepath (window: $window_start1-$window_end1_inc)"
       continue
     fi
+
+    export window_len=`expr "$window_end1_inc" "-" "$window_start1" + 1`
 
     ## I'm getting segfaults from what I think are truncated streams.  I think the issue
     ## is tabix for some reason prematurely terminating the stream.
@@ -259,49 +225,76 @@ for chrom in chr1 chr2 chr3 chr4 chr5 chr6 chr7 chr8 chr9 chr10 chr11 chr12 chr1
     ##
     tdir=`mktemp -d`
 
-    echo "## TDIR: $tdir"
-    echo "## REF_DN: $ref_dn (dn $dn)"
+    if [[ "$VERBOSE" -eq 1 ]] ; then
 
-    #$refstream $reffa $refchrom:$window_start1-$window_end1 > $tdir/$path.ref
-    $refstream $reffa "$refchrom:$window_start1+$ref_dn" > $tdir/$path.ref
-    cat <( echo -e '\n\n\n' ) <( tabix $gff $chrom:$window_start1-$window_end1_inc ) > $tdir/$path.gvcf
+      echo "##"
+      echo "## window_start0: $window_start0"
+      echo "## window_start1: $window_start1"
+      echo "## window_end1_inc: $window_end1_inc"
+      echo "## window_len: $window_len"
+      echo "##"
 
-    echo "$pasta -action gvcf-rotini -start $window_start0 -chrom $chrom \
-      -refstream $tdir/$path.ref \
-      -i $tdir/$path.gvcf | \
-      $pasta -action filter-rotini -start $ref_start0 -n $dn > $odir/$path.pa"
+      echo "## tilepath_start0: $tilepath_start0"
+      echo "## tilepath_start1: $tilepath_start1"
+      echo "## tilepath_end0_noninc: $tilepath_end0_noninc"
+      echo "## tilepath_end_inc: $tilepath_end1_inc"
+      echo "## tilepath_len $tilepath_len"
+      echo "##"
+
+      echo "## gvcf_start0: $gvcf_start0"
+      echo "## gvcf_start1: $gvcf_start1"
+      echo "## gvcf_end1_inc: $gvcf_end1_inc"
+      echo "## gvcf_tok_end1_inc $gvcf_tok_end1_inc"
+      echo "##"
+
+      echo "## fin_ent_len: $fin_ent_len"
+      echo "## fin_ent_start1: $fin_ent_start1"
+      echo "## fin_ent_end1_inc: $fin_ent_end1_inc"
+      echo "##"
+
+      echo "## TDIR: $tdir"
+    fi
+
+    if [[ "$VERBOSE" -eq 1 ]] ; then
+      echo "$refstream $reffa "$refchrom:$window_start1+$window_len" > $tdir/$tilepath.ref"
+      echo "cat <( echo -e '\n\n\n' ) <( tabix $gvcf $chrom:$window_start1-$window_end1_inc ) > $tdir/$tilepath.gvcf"
+    fi
+
+    $refstream $reffa "$refchrom:$window_start1+$window_len" > $tdir/$tilepath.ref
+    cat <( echo -e '\n\n\n' ) <( tabix $gvcf $chrom:$window_start1-$window_end1_inc ) > $tdir/$tilepath.gvcf
+
+    if [[ "$VERBOSE" -eq 1 ]] ; then
+      echo "$pasta -action gvcf-rotini -start $window_start0 -chrom $chrom \
+        -refstream $tdir/$tilepath.ref \
+        -i $tdir/$tilepath.gvcf | \
+        $pasta -action filter-rotini -start $tilepath_start0 -n $tilepath_len > $odir/$tilepath.pa"
+    fi
 
     $pasta -action gvcf-rotini -start $window_start0 -chrom $chrom \
       -full-sequence \
-      -refstream $tdir/$path.ref \
-      -i $tdir/$path.gvcf | \
-      $pasta -action filter-rotini -start $ref_start0 -n $dn > $odir/$path.pa
+      -refstream $tdir/$tilepath.ref \
+      -i $tdir/$tilepath.gvcf | \
+      $pasta -action filter-rotini -start $tilepath_start0 -n $tilepath_len > $odir/$tilepath.pa
 
     ## clean up gvcf and ref temporary files
     ##
     rm -rf $tdir
 
-    echo "cp3"
-    echo "cp3 $path" 1>&2
+    if [[ "$VERBOSE" -eq 1 ]] ; then
+      echo "$pasta -action rotini-fastj -start $tilepath_start0 -tilepath $tilepath -chrom $chrom -build $ref \
+        -i $odir/$tilepath.pa \
+        -assembly <( $tile_assembly tilepath $afn $tilepath ) \
+        -tag <( cat <( samtools faidx $tagdir $tilepath.00 | egrep -v '^>' | tr -d '\n' | fold -w 24 ) <(echo ) ) > $odir/$tilepath.fj"
+    fi
 
-    echo "$pasta -action rotini-fastj -start $ref_start0 -tilepath $path -chrom $chrom -build $ref \
-      -i $odir/$path.pa \
-      -assembly <( $tile_assembly tilepath $afn $path ) \
-      -tag <( cat <( samtools faidx $tagdir $path.00 | egrep -v '^>' | tr -d '\n' | fold -w 24 ) <(echo ) ) > $odir/$path.fj"
+    $pasta -action rotini-fastj -start $tilepath_start0 -tilepath $tilepath -chrom $chrom -build $ref \
+      -i $odir/$tilepath.pa \
+      -assembly <( $tile_assembly tilepath $afn $tilepath ) \
+      -tag <( cat <( samtools faidx $tagdir $tilepath.00 | egrep -v '^>' | tr -d '\n' | fold -w 24 ) <( echo )  ) > $odir/$tilepath.fj
 
-     $pasta -action rotini-fastj -start $ref_start0 -tilepath $path -chrom $chrom -build $ref \
-      -i $odir/$path.pa \
-      -assembly <( $tile_assembly tilepath $afn $path ) \
-      -tag <( cat <( samtools faidx $tagdir $path.00 | egrep -v '^>' | tr -d '\n' | fold -w 24 ) <( echo )  ) > $odir/$path.fj
-
-      #-assembly <( $l7g assembly $afn $path ) \
-
-    echo "cp4"
-    echo "cp4 $path" 1>&2
-
-    #rm $odir/$path.pa
-    bgzip -f $odir/$path.fj
-    bgzip -r $odir/$path.fj.gz
+    rm -f $odir/$tilepath.pa
+    bgzip -f $odir/$tilepath.fj
+    bgzip -r $odir/$tilepath.fj.gz
 
   done < <( egrep '^'$ref':'$refchrom':' $aidx )
 

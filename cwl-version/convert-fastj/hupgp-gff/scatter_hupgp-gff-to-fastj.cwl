@@ -11,14 +11,6 @@ inputs:
   tileassembly: File
   refFaFn: File
 
-# Source 'result' of type {"items": {"type": "array", "items": "File"}, "type": "array"} is incompatible
-# with sink 'outfiles' of type {"type": "array", "items": "File"}
-
-#outputs:
-#  outfiles:
-#    type: Directory[]
-#    outputSource: convert/result
-
 outputs:
   outfiles:
     type: Directory

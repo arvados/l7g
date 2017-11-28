@@ -153,7 +153,7 @@ for chrom in chr1 chr2 chr3 chr4 chr5 chr6 chr7 chr8 chr9 chr10 chr11 chr12 chr1
     ##
     export tilepath_start0=`$l7g assembly-range $afn $tilepath | tail -n1 | cut -f2`
     export tilepath_end0_noninc=`$l7g assembly-range $afn $tilepath | tail -n1 | cut -f3`
-    export tilepath_len=`expr "$tilepath_end0_noninc" - "$tilepath_start0"`
+    export tilepath_len=`expr "$tilepath_end0_noninc" - "$tilepath_start0"` || true
 
     if [[ "$tilepath_len" -eq "0" ]] ; then
       echo "SKIPPING EMPTY TILEPATH $tilepath (tilepath_len: $tilepath_len)"
@@ -165,8 +165,8 @@ for chrom in chr1 chr2 chr3 chr4 chr5 chr6 chr7 chr8 chr9 chr10 chr11 chr12 chr1
       echo "## tilepath len $tilepath_len"
     fi
 
-    export tilepath_start1=`expr "$tilepath_start0" + 1`
-    export tilepath_end1_inc=`expr "$tilepath_start0" + "$tilepath_len" + 1`
+    export tilepath_start1=`expr "$tilepath_start0" + 1` || true
+    export tilepath_end1_inc=`expr "$tilepath_start0" + "$tilepath_len" + 1` || true
 
     ## find the bounds for gvcf snippet in question
     ##
@@ -175,7 +175,7 @@ for chrom in chr1 chr2 chr3 chr4 chr5 chr6 chr7 chr8 chr9 chr10 chr11 chr12 chr1
 
     export gvcf_start0="$tilepath_start0"
     if [[ "$gvcf_start1" != "" ]] ; then
-      gvcf_start0=`expr "$gvcf_start1" - 1`
+      gvcf_start0=`expr "$gvcf_start1" - 1` || true
     fi
 
     gvcf_tok_end1_inc=`tabix $gvcf $chrom:$tilepath_start1-$tilepath_end1_inc | grep END | tail -n1 | cut -f8 | cut -f2 -d'='`
@@ -190,7 +190,7 @@ for chrom in chr1 chr2 chr3 chr4 chr5 chr6 chr7 chr8 chr9 chr10 chr11 chr12 chr1
     if [[ "$gvcf_start0" -lt "$window_start0" ]] ; then
       window_start0="$gvcf_start0"
     fi
-    export window_start1=`expr "$window_start0" + 1`
+    export window_start1=`expr "$window_start0" + 1` || true
 
     ## now find the end of the window by taking the maximum
     ## of the tilepath end, the last gvcf reported position
@@ -206,7 +206,7 @@ for chrom in chr1 chr2 chr3 chr4 chr5 chr6 chr7 chr8 chr9 chr10 chr11 chr12 chr1
     ##
     fin_ent_len=`tabix $gvcf $chrom:$tilepath_start1-$tilepath_end1_inc | tail -n1 | cut -f4 | tr -d '\n' | wc -c`
     fin_ent_start1=`tabix $gvcf $chrom:$tilepath_start1-$tilepath_end1_inc | tail -n1 | cut -f2 | tr -d '\n' `
-    fin_ent_end1_inc=`expr $fin_ent_start1 + $fin_ent_len - 1`
+    fin_ent_end1_inc=`expr $fin_ent_start1 + $fin_ent_len - 1` || true
 
     if [[ "$fin_ent_end1_inc" != "" ]] && [[ "$fin_ent_end1_inc" -gt "$window_end1_inc" ]] ; then
       window_end1_inc="$fin_ent_end1_inc"
@@ -217,7 +217,7 @@ for chrom in chr1 chr2 chr3 chr4 chr5 chr6 chr7 chr8 chr9 chr10 chr11 chr12 chr1
       continue
     fi
 
-    export window_len=`expr "$window_end1_inc" "-" "$window_start1" + 1`
+    export window_len=`expr "$window_end1_inc" "-" "$window_start1" + 1` || true
 
     ## I'm getting segfaults from what I think are truncated streams.  I think the issue
     ## is tabix for some reason prematurely terminating the stream.

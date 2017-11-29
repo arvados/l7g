@@ -51,7 +51,8 @@ enum FJT_ACTION {
  FJT_CONCAT,
  FJT_FILTER,
  FJT_BAND,
- FJT_BAND_CONVERT
+ FJT_BAND_CONVERT,
+ FJT_BAND_BATCH_HASH
 };
 
 typedef struct band_info_type {
@@ -68,6 +69,7 @@ static struct option long_options[] = {
   {"csv", no_argument, NULL, 'C'},
   {"band", no_argument, NULL, 'B'},
   {"band-convert", no_argument, NULL, 'b'},
+  {"band-batch-hash", no_argument, NULL, 'H'},
   {"concatenate", required_argument, NULL, 'c'},
   {"tile-path", required_argument, NULL, 'p'},
   {"tile-library", required_argument, NULL, 'L'},
@@ -86,6 +88,7 @@ void show_help() {
   printf("  [-C]            Output comma separated `extended tileID`, `hash` and `sequence` (CSV output)\n");
   printf("  [-B]            Output band format\n");
   printf("  [-b]            input band format and output FastJ (requires '-L sglf' option)\n");
+  printf("  [-H]            batch hash of input bands (requires '-L sglf' option)\n");
   printf("  [-c variant]    Concatenate FastJ tiles into sequence.  `variant` is the variant ID to concatenate on\n");
   printf("  [-L sglf]       Simple genome library format tile path file\n");
   printf("  [-i ifn]        input file\n");
@@ -225,6 +228,116 @@ int read_sglf_path(FILE *ifp, sglf_path_t &sp) {
 
   //TODO reorder based on pos_map
 
+
+  return 0;
+}
+
+int read_bands(FILE *ifp, std::vector< band_info_t > &band_info_v) {
+  int i, j,k ;
+  int line_no=0, char_no=0;
+  int ch;
+  std::vector< int > noc_vec;
+
+  std::string buf;
+
+  int read_state = 0;
+  int bracket_count=0;
+  int cur_val=-3;
+
+  band_info_t band_info;
+
+  while (!feof(ifp)) {
+    ch = fgetc(ifp);
+    if (ch==EOF) { continue; }
+
+    char_no++;
+    if (ch=='\n') {
+      line_no++;
+
+      switch(read_state) {
+        case 0:
+          read_state++;
+          break;
+        case 1:
+          read_state++;
+          break;
+        case 2:
+          read_state++;
+          break;
+        case 3:
+          read_state=0;
+          bracket_count=0;
+          buf.clear();
+          band_info_v.push_back(band_info);
+          band_info.band[0].clear();
+          band_info.band[1].clear();
+          band_info.noc[0].clear();
+          band_info.noc[1].clear();
+          break;
+        default:
+          return -1;
+      }
+      continue;
+    }
+
+    if (ch==' ') {
+      if (buf.size()>0) {
+        cur_val = atoi(buf.c_str());
+
+        if (read_state < 2) {
+          band_info.band[read_state].push_back(cur_val);
+        }
+
+        else {
+          noc_vec.push_back(cur_val);
+        }
+
+      }
+      buf.clear();
+      continue;
+    }
+
+    if (ch=='[') { bracket_count++; continue; }
+    if (ch==']') {
+      bracket_count--;
+
+      // Tile variant bands still
+      //
+      if (read_state<2) {
+
+        if (buf.size()>0) {
+          cur_val = atoi(buf.c_str());
+
+          if (read_state < 2) {
+            band_info.band[read_state].push_back(cur_val);
+          }
+          buf.clear();
+        }
+
+      }
+
+      // nocall information
+      //
+      else {
+
+        if (buf.size()>0) {
+          cur_val = atoi(buf.c_str());
+          noc_vec.push_back(cur_val);
+          buf.clear();
+        }
+
+        if (bracket_count==1) {
+          band_info.noc[read_state-2].push_back(noc_vec);
+          noc_vec.clear();
+        }
+      }
+
+      continue;
+    }
+
+    buf += (char)ch;
+
+  }
 
   return 0;
 }
@@ -613,6 +726,14 @@ void band_print(band_info_t &band_info) {
 
 }
 
+void print_bands(std::vector< band_info_t > &band_info_v) {
+  int ii;
+  for (ii=0; ii<band_info_v.size(); ii++) {
+    band_print(band_info_v[ii]);
+  }
+}
+
+
 void print_fold(std::string &s, int fold_w) {
   int pos=0;
   for (pos=0; pos<s.size(); pos++) {
@@ -627,6 +748,95 @@ void print_substr(std::string &s, int beg, int n) {
   m = ( ((int)s.size() < (beg+n)) ? ((int)s.size() - beg) : n );
   for (i=beg; i<(beg+m); i++) { printf("%c", s[i]); }
 }
+
+int band_hash(std::string &m5_s, band_info_t &band_info, sglf_path_t &sglf_path) {
+  int i, j, k;
+  int n, m, a;
+
+  int allele=0;
+  int tilestep=0, tilevar=0, span_len=0;
+  int noc_count=0;
+  int noc_start, noc_len, pos;
+  int fold_w = 50;
+
+  std::string mm;
+
+  char *chp;
+
+  MD5_CTX md5_ctx;
+  unsigned char digest[MD5_DIGEST_LENGTH];
+  char cbuf[32];
+
+  std::string hash, hash_mask, seq, seq_mask;
+  std::string tile_path_step;
+
+  m5_s.clear();
+
+  for (allele=0; allele<2; allele++) {
+
+    MD5_Init(&md5_ctx);
+
+    tilestep = 0;
+    while (tilestep < band_info.band[allele].size()) {
+
+      if (tilestep >= sglf_path.ext_tileid.size()) { return -1; }
+      if (tilestep >= sglf_path.seq.size()) { return -1; }
+
+      span_len=1;
+      while ( ((tilestep + span_len) < band_info.band[allele].size()) &&
+              (band_info.band[allele][tilestep+span_len]==-1) ) {
+        span_len++;
+      }
+
+      tilevar = band_info.band[allele][tilestep];
+
+      if (tilevar >= sglf_path.ext_tileid[tilestep].size()) { return -2; }
+      if (tilevar >= sglf_path.seq[tilestep].size()) { return -2; }
+
+      seq = sglf_path.seq[tilestep][tilevar];
+
+      noc_count=0;
+      for (i=0; i<band_info.noc[allele][tilestep].size(); i+=2) {
+
+        noc_start = band_info.noc[allele][tilestep][i];
+        noc_len = band_info.noc[allele][tilestep][i+1];
+
+        for (pos=noc_start; pos<(noc_start + noc_len); pos++) {
+          seq[pos] = 'n';
+        }
+
+        noc_count += noc_len;
+
+      }
+
+      if (tilestep==0) {
+        MD5_Update(&md5_ctx, (const void *)(seq.c_str()), (unsigned long)seq.size());
+      } else {
+
+        if (seq.size()>24) {
+          MD5_Update(&md5_ctx, (const void *)(seq.c_str()+24), (unsigned long)(seq.size()-24));
+        }
+
+      }
+
+      tilestep+=span_len;
+
+    }
+
+    MD5_Final(digest, &md5_ctx);
+
+    if (allele>0) { m5_s += " "; }
+    for (i=0; i<MD5_DIGEST_LENGTH; i++) {
+      sprintf(cbuf, "%02x", (unsigned int)digest[i]);
+      m5_s += cbuf;
+    }
+
+  }
+
+  return 0;
+}
+
+
 
 int band_convert(band_info_t &band_info, sglf_path_t &sglf_path) {
   int i, j, k;
@@ -668,8 +878,8 @@ int band_convert(band_info_t &band_info, sglf_path_t &sglf_path) {
       noc_count=0;
       for (i=0; i<band_info.noc[allele][tilestep].size(); i+=2) {
 
-        noc_start = band_info.noc[allele][tilestep][i]; 
-        noc_len = band_info.noc[allele][tilestep][i+1]; 
+        noc_start = band_info.noc[allele][tilestep][i];
+        noc_len = band_info.noc[allele][tilestep][i+1];
 
         for (pos=noc_start; pos<(noc_start + noc_len); pos++) {
 
@@ -710,7 +920,7 @@ int band_convert(band_info_t &band_info, sglf_path_t &sglf_path) {
       printf("\"%s\":\"%s\",", "md5sum", hash.c_str());
       printf("\"%s\":\"%s\",", "tagmask_md5sum", hash_mask.c_str());
       printf("\"%s\":%s,", "locus", "[ ]");
-      printf("\"%s\":%i,", "n", (int)sglf_path.seq[tilestep][tilevar].size()); 
+      printf("\"%s\":%i,", "n", (int)sglf_path.seq[tilestep][tilevar].size());
       printf("\"%s\":%i,", "seedTileLength", span_len);
       printf("\"%s\":%s,", "startTile", (tilestep==0) ? "true" : "false" );
       printf("\"%s\":%s,", "endTile", ((tilestep+span_len)==band_info.band[allele].size()) ? "true" : "false" );
@@ -740,12 +950,14 @@ int main(int argc, char **argv) {
   std::vector< fj_tile_t > fj_tile;
   sglf_path_t sglf_path;
   band_info_t band_info;
+  std::vector< band_info_t > band_info_v;
   int show_help_flag = 1;
 
   int fold_width = 50;
   int tilepath=-1;
 
   std::string seq;
+  std::string m5_s;
 
   uint64_t u64;
   uint16_t variant_id;
@@ -754,7 +966,7 @@ int main(int argc, char **argv) {
 
   FJT_ACTION action = FJT_NOOP;
 
-  while ((opt=getopt_long(argc, argv, "vVhc:CL:i:p:Bb", long_options, &option_index))!=-1) switch(opt) {
+  while ((opt=getopt_long(argc, argv, "vVhc:CL:i:p:BbH", long_options, &option_index))!=-1) switch(opt) {
     case 0:
       fprintf(stderr, "invalid option, exiting\n");
       exit(-1);
@@ -795,6 +1007,11 @@ int main(int argc, char **argv) {
       action = FJT_BAND_CONVERT;
       break;
 
+    case 'H':
+      show_help_flag=0;
+      action = FJT_BAND_BATCH_HASH;
+      break;
+
     case 'v':
       show_help_flag=0;
       verbose_flag = 1;
@@ -822,12 +1039,18 @@ int main(int argc, char **argv) {
     }
   }
 
-  if (action != FJT_BAND_CONVERT) {
+  if ( (action != FJT_BAND_CONVERT) &&
+       (action != FJT_BAND_BATCH_HASH) ) {
     read_tiles(ifp, fj_tile);
   }
 
   else if (action == FJT_BAND_CONVERT) {
     read_band(ifp, band_info);
+  }
+
+  else if (action == FJT_BAND_BATCH_HASH) {
+    read_bands(ifp, band_info_v);
+    //print_bands(band_info_v);
   }
 
 
@@ -916,6 +1139,38 @@ int main(int argc, char **argv) {
     ret = band_convert(band_info, sglf_path);
 
     if (sglf_fp!=stdin) { fclose(sglf_fp); }
+
+  }
+
+  else if (action == FJT_BAND_BATCH_HASH) {
+
+    if (sglf_fn.size()==0) {
+      fprintf(stderr, "must provide SGLF file, exiting\n");
+      exit(-1);
+    }
+
+    if ((sglf_fn == "-") && (ifp == stdin)) {
+      fprintf(stderr, "SGLF stream must be different from FastJ input stream, exiting\n");
+      exit(-2);
+    }
+
+    if (sglf_fn=="-") { sglf_fp = stdin; }
+    else { sglf_fp = fopen(sglf_fn.c_str(), "r"); }
+    if (!sglf_fp) {
+      perror(sglf_fn.c_str());
+      exit(-3);
+    }
+
+    read_sglf_path(sglf_fp, sglf_path);
+
+    for (i=0; i<band_info_v.size(); i++) {
+
+      ret = band_hash(m5_s, band_info_v[i], sglf_path);
+      printf("%s\n", m5_s.c_str());
+    }
+
+    if (sglf_fp!=stdin) { fclose(sglf_fp); }
+
 
   }
 

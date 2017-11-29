@@ -64,4 +64,17 @@ b=`cat $testdir/$testtilepath.0.seq | tr -d '\n' | md5sum | cut -f1 -d' '`
 
 ok_or_exit "$a" "$b" "FastJ Coversion"
 
+# test hashing
+#
+x0hash=`./fjt -b -L $testdir/035e.1.sglf $testdir/hu826751-035e.band | fjt -c 0 | tr -d '\n' | md5sum | cut -f1 -d' '`
+x1hash=`./fjt -b -L $testdir/035e.1.sglf $testdir/hu826751-035e.band | fjt -c 1 | tr -d '\n' | md5sum | cut -f1 -d' '`
+
+y0hash=`./fjt -b -L $testdir/035e.1.sglf $testdir/hu34D5B9-035e.band | fjt -c 0 | tr -d '\n' | md5sum | cut -f1 -d' '`
+y1hash=`./fjt -b -L $testdir/035e.1.sglf $testdir/hu34D5B9-035e.band | fjt -c 1 | tr -d '\n' | md5sum | cut -f1 -d' '`
+
+a=`echo -e "$x0hash $x1hash"'\n'"$y0hash $y1hash" | md5sum | cut -f1 -d' '`
+b=`./fjt -H -L $testdir/035e.1.sglf <( cat $testdir/hu826751-035e.band $testdir/hu34D5B9-035e.band ) | md5sum | cut -f1 -d' '`
+
+ok_or_exit "$a" "$b" "Band Hash"
+
 exit 0

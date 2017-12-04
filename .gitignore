@@ -24,3 +24,6 @@ _testmain.go
 *.prof
 
 *~
+
+# Mac OS specific
+.DS_Store

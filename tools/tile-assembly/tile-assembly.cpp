@@ -25,6 +25,7 @@ static struct option long_options[] = {
 
 typedef struct ta_opt_type {
   int show_header;
+  int range_type;
   int debug;
 } ta_opt_t;
 
@@ -280,15 +281,23 @@ int print_range(const char *afn, int tilepath, ta_opt_t *opt) {
 
   r = tileassembly_end_pos(afn, tilepath, &end_step, &end_pos);
 
-  if (show_header) {
-    printf("#nstep\tbeg\tend\tchrom_name\tref_name\n");
+  if (opt->range_type==0) {
+    if (show_header) {
+      printf("#nstep\tbeg\tend\tchrom_name\tref_name\n");
+    }
+    printf("%i\t%i\t%i\t%s\t%s\n",
+        end_step,
+        start_pos,
+        end_pos,
+        tilepath_chrom.c_str(),
+        ref_name.c_str() );
   }
-  printf("%i\t%i\t%i\t%s\t%s\n",
-      end_step,
-      start_pos,
-      end_pos,
-      tilepath_chrom.c_str(),
-      ref_name.c_str() );
+  else if (opt->range_type==1) {
+    printf("%s:%i-%i",
+        tilepath_chrom.c_str(),
+        start_pos+1,
+        end_pos);
+  }
 
   return 0;
 }
@@ -308,6 +317,7 @@ int main(int argc, char **argv ) {
   assembly_fn = DEFAULT_TILE_ASSEMBLY_FILE;
 
   opt.show_header = 0;
+  opt.range_type=0;
   opt.debug=0;
 
   chp = getenv("TILE_ASSEMBLY");
@@ -350,6 +360,12 @@ int main(int argc, char **argv ) {
 
   else if (action == "range") {
     opt.show_header=1;
+    opt.range_type=0;
+    print_range(assembly_fn.c_str(), tilepath, &opt);
+  }
+
+  else if (action == "tabix-range") {
+    opt.range_type=1;
     print_range(assembly_fn.c_str(), tilepath, &opt);
   }
 

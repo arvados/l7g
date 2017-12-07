@@ -36,7 +36,7 @@
 #include "cJSON.h"
 #include "sglf.hpp"
 
-#define FASTJ_TOOL_VERSION "0.1.2"
+#define FASTJ_TOOL_VERSION "0.1.3"
 
 typedef struct fj_tile_type {
   cJSON *hdr;

@@ -235,12 +235,21 @@ int main(int argc, char **argv) {
     exit(-1);
   }
 
+  //DEBUG
+  //printf("## parsed tilepaths\n"); fflush(stdout);
+  //printf("##");
+  //for (i=0; i<tilepath_list.size(); i++) { printf(" %i", tilepath_list[i]); }
+  //printf("\n"); fflush(stdout);
+
   r = sglf_read(sglf_fp, sglf);
   if (r<0) {
     printf("ERROR: SGLF read: got %i\n", r);
     exit(r);
   }
   fclose(sglf_fp);
+
+  //DEBUG
+  //printf("## sglf loaded\n"); fflush(stdout);
 
   r = read_bands(ifp, band_datasets);
   if (r<0) {
@@ -249,15 +258,28 @@ int main(int argc, char **argv) {
   }
   if (ifp!=stdin) { fclose(ifp); }
 
+  //DEBUG
+  //printf("## loaded bands\n"); fflush(stdout);
+
   if ( (band_datasets.size() % tilepath_list.size()) != 0 ){
-  //if ( (int)(band_datasets.size()) != (n_dataset*(int)(tilepath_list.size())) ) {
     printf("ERROR: band dataset size mismatch: number bands %i, tilepath_list size %i, does not divide evenly\n",
         (int)band_datasets.size(),
         (int)(tilepath_list.size()));
+    fflush(stdout);
     exit(-1);
   }
 
-  band_md5_hash(digest, band_datasets, sglf, tilepath_list);
+  //DEBUG
+  //printf("## calculating hahses...\n"); fflush(stdout);
+
+  r = band_md5_hash(digest, band_datasets, sglf, tilepath_list);
+  if (r<0) {
+    printf("ERROR: band_md5_hash got %i\n", r);
+    exit(-1);
+  }
+
+  //DEBUG
+  //printf("## ... no. digests %i\n", (int)digest.size());
 
   for (i=0; i<digest.size(); i++)  {
     printf("%s\n", digest[i].c_str());

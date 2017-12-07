@@ -23,7 +23,6 @@ int band_md5_hash(std::vector< std::string > &digest_str, std::vector< band_info
   cbuf[0]='\0';
 
   for (ds=0, start_idx=0; start_idx<band_v.size(); start_idx += del_idx, ds++) {
-
     MD5_Init(&(md5_ctx[0]));
     MD5_Init(&(md5_ctx[1]));
 
@@ -38,7 +37,9 @@ int band_md5_hash(std::vector< std::string > &digest_str, std::vector< band_info
         tilestep = 0;
         while (tilestep < band_v[idx].band[allele].size()) {
 
-          if (tilestep >= sglf.seq[tilepath].size()) { return -3; }
+          if (tilestep >= sglf.seq[tilepath].size()) {
+            return -3;
+          }
 
           span_len=1;
           while ( ((tilestep + span_len) < band_v[idx].band[allele].size()) &&

@@ -20,7 +20,7 @@ Compact Genome Format (CGF) is a way to represent whole genome information effic
 Each CGF file is stored relative to a tiled genome library, with the tiles stored
 in each CGF file pointing into the tile library.
 
-The CGF is a compromise between compression and acessibility.
+The CGF is a compromise between compression and accessibility.
 
 From a high level perspective, CGF consists mainly of:
 
@@ -99,7 +99,7 @@ Notes
   default tile variant for that tile position) and an unset 'canonical' bit
   indicates a non-canonical tile.
 * A high quality non-canonical tile can be deduced from consulting the hexit cache
-  or the overflow table if the tile varaint isn't/can't be stored in the hexit cache.
+  or the overflow table if the tile variant isn't/can't be stored in the hexit cache.
 * Each hexit has 3 values reserved:
   - 0xf - high quality overflow
   - 0x0 - complex
@@ -110,7 +110,7 @@ Notes
 * A non-anchor spanning tile is indicated with the `Span` bit set and the canonical bit set in the `Cache`.
 * `Het` low quality fields have the `Variant`, `Sum`, `Start`, `Len` have two entries per 'field'.
 * The low quality `LoqTileStep` and `LoqTileNocSum` benefit from delta encoding as they are strictly increasing
-  numbers.  The other low quality fields benefit from the variable length encoding as they are more evently distributed
+  numbers.  The other low quality fields benefit from the variable length encoding as they are more evenly distributed
   within a range.  The variable length encoding is better taken advantage of when these vectors are split out instead
   of interleaved together.
 * A future iteration might want the `Loq` and `Span` vectors to be interleaved in the cache to take advantage of data
@@ -131,7 +131,7 @@ Description
 The tile map is stored as a string with a tile map entry stored per line.
 For each line, each allele is separated by a `:`.
 For each allele, tiles are separated by a `;`.
-If the span of a tile is greater than 1, the lenght of the span is indicated by a `+` followed by
+If the span of a tile is greater than 1, the length of the span is indicated by a `+` followed by
 the number of "base" tiles it spans.
 
 For example, here is a portion of a tile map:
@@ -178,7 +178,7 @@ Genome whole genome data.
 
 Though this might change in the future, a `Cache` element is chosen to be 64 bits with
 the first 32 bits allocated for 'canonical' bits and the last 32 bits to allocated
-for the hexit encodings.
+for the hexit encoding.
 
 A diagram is illustrative:
 
@@ -199,11 +199,11 @@ Here, `b=64`, `s=32`, `h=4` and `H=32`.
 The low quality structures hold information on the tile variant and the runs of nocalls within
 the tile sequence.
 Each of the low quality structures is an encoded array, with each of the encodings chosen to
-best fit the type of data (that is, variable lench encoding or delta encoding, depending).
+best fit the type of data (that is, variable length encoding or delta encoding, depending).
 
 The "het" and "hom" indicates whether the low quality information is the same for both
 alleles and **doesn't** represent whether the tile variants are the same for both alleles.
-In the below, all tile variant arrays have two values per entry to reprent each allele.
+In the below, all tile variant arrays have two values per entry to represent each allele.
 
 * `LoqTileStepHom` : tile steps
 * `LoqTileVariantHom` : tile variants, two per entry

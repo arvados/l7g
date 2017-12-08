@@ -1,0 +1,16 @@
+bashscriptmain:
+   class: File
+   path: /data-sdd/cwl_tiling/npy/from_cgf3/allconsolCWL.sh
+
+indir:
+   class: Directory 
+   path: keep:46d496a3f3ea2348b48741108124febf+4897/npy
+
+outdir: "outdir"
+
+outprefix: "all"
+
+npyconsolfile:
+   class: File
+   path: /data-sdd/cwl_tiling/npy/from_cgf3/buildArvados/dest_Arvados/npy-consolidate 
+

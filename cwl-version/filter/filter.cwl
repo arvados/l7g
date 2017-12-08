@@ -8,40 +8,35 @@ requirements:
     dockerPull: javatools
   - class: InlineJavascriptRequirement
   - class: ResourceRequirement
-    ramMin: 57344 
-    ramMax: 114688 
-    coresMin: 8
-    coresMax: 8
+    coresMin: 2
+    coresMax: 2
 hints:
   arv:RuntimeConstraints:
     keep_cache: 4096
-  cwltool:LoadListingRequirement:
-    loadListing: shallow_listing
 baseCommand: bash
 inputs:
   bashscript:
     type: File
     inputBinding:
       position: 1
-  fjdir:
+  gffDir: 
     type: Directory 
     inputBinding:
       position: 2
-  cgft: 
-    type: File 
+  gffPrefix:
+    type: string
     inputBinding:
-      position: 3 
-  fjt:
+      position: 3
+  filter_gvcf: 
     type: File
     inputBinding:
       position: 4
-  cglf:
-    type: Directory
+  cutoff:
+    type: string
     inputBinding:
-      position: 5 
-outputs:    
-  out1: 
-    type: File 
+      position: 5
+outputs:
+  out1:
+    type: Directory
     outputBinding:
-      glob: "data/*.cgf"
-
+      glob: "filtered/*"

@@ -1,0 +1,21 @@
+datafilenames:
+  - class: File
+    path: /data-sdd/cwl_tiling/filter/set1/collectnames00
+  - class: File
+    path: /data-sdd/cwl_tiling/filter/set1/collectnames01
+
+datafilepdh:
+  - class: File
+    path: /data-sdd/cwl_tiling/filter/set1/pdhs00
+  - class: File
+    path: /data-sdd/cwl_tiling/filter/set1/pdhs01
+
+bashscript:
+   class: File
+   path: /data-sdd/cwl_tiling/filter/filterCWL.sh
+
+filter_gvcf:
+   class: File 
+   path: /data-sdd/cwl_tiling/filter/filter-gvcf
+
+cutoff: "20"

@@ -15,11 +15,15 @@ requirements:
 hints:
   arv:RuntimeConstraints:
     keep_cache: 4096
+  cwltool:LoadListingRequirement:
+    loadListing: shallow_listing
+
 inputs:
-  datafilenames: File
-  datafilepdh: File
+  datafilenames: File[]
+  datafilepdh: File[]
   bashscript: File
   filter_gvcf: File
+  cutoff: string
 outputs:
   out1:
     type: Directory[]
@@ -40,5 +44,6 @@ steps:
       gffDir: step1/collectiondir
       gffPrefix: step1/fileprefix 
       filter_gvcf: filter_gvcf
+      cutoff: cutoff
     run: filter.cwl
     out: [out1]

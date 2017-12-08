@@ -15,9 +15,12 @@ requirements:
 hints:
   arv:RuntimeConstraints:
     keep_cache: 4096
+  cwltool:LoadListingRequirement:
+    loadListing: shallow_listing
+
 inputs:
-  datafilenames: File
-  datafilepdh: File
+  datafilenames: File[]
+  datafilepdh: File[]
   bashscript: File
   filter_gvcf: File
   cutoff: string

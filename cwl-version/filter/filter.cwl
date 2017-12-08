@@ -31,6 +31,10 @@ inputs:
     type: File
     inputBinding:
       position: 4
+  cutoff:
+    type: string
+    inputBinding:
+      position: 5
 outputs:
   out1:
     type: Directory

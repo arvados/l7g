@@ -13,11 +13,12 @@ expression: |
     var value = "0000"
 
     for (var i = inputs.pathmin; i <= inputs.pathmax; i++) {
+      var ival = parseInt(i);
       
-      if      (i >= 0    && i <= 15)    { value = "000" + i.toString(16); }
-      else if (i >= 16   && i <= 255)   { value = "00"  + i.toString(16); }
-      else if (i >= 256  && i <= 4095)  { value = "0"   + i.toString(16); }
-      else if (i >= 4096 && i <= 65535) { value =         i.toString(16); }          
+      if      (ival >= 0    && ival <= 15)    { value = "000" + ival.toString(16); }
+      else if (ival >= 16   && ival <= 255)   { value = "00"  + ival.toString(16); }
+      else if (ival >= 256  && ival <= 4095)  { value = "0"   + ival.toString(16); }
+      else if (ival >= 4096 && ival <= 65535) { value =         ival.toString(16); }          
       values.push(value)
     }
     return {"out1": values};

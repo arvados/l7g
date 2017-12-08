@@ -1,29 +1,14 @@
 #!/bin/bash
 #
-# Download (via arv-get, in parallele, through ./pget.sh)
-# all the relevant fastj files into the data directory.
-# Once collected, run fastj2cgflib to create the library.
-# output to $dstdir/PATH.sglf.gz
 #
-# example usage:
-#
-# ./run_cglf_single.sh 00a1
-#
-
-#set -eo pipefail
 
 export tilepath="$1"
-#export dstdir="$2"
 export fastj2cgflib="$2"
 export datadir="$3"
 export verbose_tagset="$4"
 export tagset="$5"
 
 export dstdir="lib"
-#export fastj2cgflib="/data-sdd/cwl_tiling/tilelib/fastj2cgflib"
-#export datadir="/data-sdd/cwl_tiling/tilelib/data"
-#export verbose_tagset="/data-sdd/cwl_tiling/tilelib/verbose_tagset"
-#export tagset="/data-sdd/data/l7g/tagset.fa/tagset.fa.gz"
 
 if [ "$tilepath" == ""  ] ; then
   echo provide tilepath
@@ -32,10 +17,23 @@ fi
 
 mkdir -p $dstdir
 
-#./pget.sh $tilepath
+## if we don't have any FastJ for thie tilepath, create an empty tile
+## to be inserted into the SGLF
+##
+fj_count=`find $datadir -name "$tilepath.fj.gz" -type f | wc -l`
 
-$fastj2cgflib -V -t <( $verbose_tagset $tilepath $tagset ) -f <( find $datadir -name "$tilepath.fj.gz" | xargs zcat ) | egrep -v '^#' | cut -f2- -d, | sort | bgzip -c > $dstdir/$tilepath.sglf.gz
+if [[ "$fj_count" -eq "0" ]] ; then
 
-#pushd data
-#rm -f */$tilepath.fj.gz
-#popd
+  empty_hash=`echo -e -n '' | md5sum | cut -f1 -d' '`
+  echo "$tilepath.00.0000.000+1,$empty_hash," | bgzip -c > $dstdir/$tilepath.sglf.gz
+
+else
+
+
+  $fastj2cgflib -V -t <( $verbose_tagset $tilepath $tagset ) -f <( find $datadir -name "$tilepath.fj.gz" | xargs zcat ) | \
+    egrep -v '^#' | \
+    cut -f2- -d, | \
+    sort | \
+    bgzip -c > $dstdir/$tilepath.sglf.gz
+
+fi

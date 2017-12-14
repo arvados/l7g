@@ -58,6 +58,9 @@ RUN mkdir -p /root/git && \
   cd /root/git/l7g/tools/glft && make && \
   cp /root/git/l7g/tools/glft/glft /usr/local/bin && \
 
+  cd /root/git/l7g/tools/tileband-hash && make && \
+  cp /root/git/l7g/tools/tileband-hash/tileband-hash /usr/local/bin && \
+
   cd /root/git/l7g/tools/cglf-tools && \
   GOPATH=/root/.go go get github.com/codegangsta/cli && \
   GOPATH=/root/.go ./cmp_fastj2cglf.sh && \

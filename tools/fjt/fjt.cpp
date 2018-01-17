@@ -36,7 +36,7 @@
 #include "cJSON.h"
 #include "sglf.hpp"
 
-#define FASTJ_TOOL_VERSION "0.1.3"
+#define FASTJ_TOOL_VERSION "0.1.4"
 
 typedef struct fj_tile_type {
   cJSON *hdr;
@@ -74,6 +74,7 @@ static struct option long_options[] = {
   {"tile-path", required_argument, NULL, 'p'},
   {"tile-library", required_argument, NULL, 'L'},
   {"input", required_argument, NULL, 'i'},
+  {"unsorted", no_argument, NULL, 'U'},
   {0,0,0,0}
 };
 
@@ -93,11 +94,29 @@ void show_help() {
   printf("  [-L sglf]       Simple genome library format tile path file\n");
   printf("  [-i ifn]        input file\n");
   printf("  [-p tilepath]   Tile path (in decimal)\n");
+  printf("  [-U]            do not sort output (for use with -C option)\n");
   printf("  [-v]            Verbose\n");
   printf("  [-V]            Version\n");
   printf("  [-h]            Help\n");
   printf("\n");
 }
+
+void md5str(std::string &s, std::string &seq) {
+  int i;
+  unsigned char m[MD5_DIGEST_LENGTH];
+  char buf[32];
+
+  s.clear();
+
+  MD5((unsigned char *)(seq.c_str()), seq.size(), m);
+
+  for (i=0; i<MD5_DIGEST_LENGTH; i++) {
+    sprintf(buf, "%02x", (unsigned char)m[i]);
+    s += buf;
+  }
+
+}
+
 
 bool sortTileCmp(const fj_tile_t &lhs, const fj_tile_t &rhs) {
   return lhs.tileid < rhs.tileid;
@@ -440,6 +459,165 @@ int read_band(FILE *ifp, band_info_t &band_info) {
 }
 
 
+int read_tiles_and_print_csv(FILE *ifp) {
+  int i, j,k ;
+  int line_no=0, char_no=0;
+  int ch;
+
+  std::string m5;
+
+  fj_tile_t cur_tile;
+
+  fj_input_state state;
+  std::string buf;
+
+  state = EXPECT_HDR;
+
+  while (!feof(ifp)) {
+    ch = fgetc(ifp);
+    if (ch==EOF) { continue; }
+    char_no++;
+    if (ch=='\n') { line_no++; }
+
+    if (state==EXPECT_HDR) {
+      if (ch=='\n') { continue; }
+      if (ch==' ') { continue; }
+
+      if (ch=='>') {
+
+        // add to list
+        //
+        if (buf.size()>0) {
+          cur_tile.seq = buf;
+
+          if (cur_tile.hdr==NULL) { return -8; }
+          cJSON *tid = cjson_obj(cur_tile.hdr, "tileID");
+          if (cJSON_IsString(tid)) {
+            cur_tile.tileid = parse_tileid(tid->valuestring);
+
+            cJSON *span = cjson_obj(cur_tile.hdr, "seedTileLength");
+            if (cJSON_IsNumber(span)) {
+              cur_tile.span = (int)(span->valuedouble);
+            } else {
+              return -1;
+            }
+          } else { return -4; }
+
+          print_tileid(cur_tile.tileid);
+          printf("+%x", cur_tile.span);
+          md5str(m5, cur_tile.seq);
+          printf(",%s", m5.c_str());
+          printf(",%s\n", cur_tile.seq.c_str());
+
+          //fj_tile.push_back(cur_tile);
+          if (cur_tile.hdr) { cJSON_Delete(cur_tile.hdr); }
+          cur_tile.hdr = NULL;
+          cur_tile.seq.clear();
+        }
+
+        buf.clear();
+        state = READ_HDR;
+        continue;
+      }
+
+      return -2;
+    }
+
+    if (state==READ_HDR) {
+      if (ch=='\n') {
+        cur_tile.hdr = cJSON_Parse(buf.c_str());
+        if (cur_tile.hdr==NULL) { return -3; }
+        buf.clear();
+        state = READ_SEQ;
+
+        continue;
+      }
+      buf += (char)ch;
+      continue;
+    }
+
+    if (state==READ_SEQ) {
+      if ((ch==' ') || (ch=='\n')) { continue; }
+      if (ch=='>') {
+
+        // add to list
+        //
+        if (buf.size()>0) {
+          cur_tile.seq = buf;
+
+          if (cur_tile.hdr==NULL) { return -9; }
+          cJSON *tid = cjson_obj(cur_tile.hdr, "tileID");
+          if (cJSON_IsString(tid)) {
+            cur_tile.tileid = parse_tileid(tid->valuestring);
+
+            cJSON *span = cjson_obj(cur_tile.hdr, "seedTileLength");
+            if (cJSON_IsNumber(span)) {
+              cur_tile.span = (int)(span->valuedouble);
+            } else {
+              return -1;
+            }
+          } else { return -4; }
+
+
+          print_tileid(cur_tile.tileid);
+          printf("+%x", cur_tile.span);
+          md5str(m5, cur_tile.seq);
+          printf(",%s", m5.c_str());
+          printf(",%s\n", cur_tile.seq.c_str());
+
+          //fj_tile.push_back(cur_tile);
+          if (cur_tile.hdr) { cJSON_Delete(cur_tile.hdr); }
+          cur_tile.hdr = NULL;
+
+          cur_tile.seq.clear();
+        }
+
+        buf.clear();
+        state = READ_HDR;
+        continue;
+
+      }
+
+      buf += (char)ch;
+      continue;
+
+    }
+
+  }
+
+  // add final element to list
+  //
+  if (buf.size()>0) {
+    cur_tile.seq = buf;
+
+    if (cur_tile.hdr==NULL) { return -10; }
+    cJSON *tid = cjson_obj(cur_tile.hdr, "tileID");
+    if (cJSON_IsString(tid)) {
+      cur_tile.tileid = parse_tileid(tid->valuestring);
+
+      cJSON *span = cjson_obj(cur_tile.hdr, "seedTileLength");
+      if (cJSON_IsNumber(span)) {
+        cur_tile.span = (int)(span->valuedouble);
+      } else {
+        return -1;
+      }
+    } else { return -4; }
+
+    print_tileid(cur_tile.tileid);
+    printf("+%x", cur_tile.span);
+    md5str(m5, cur_tile.seq);
+    printf(",%s", m5.c_str());
+    printf(",%s\n", cur_tile.seq.c_str());
+
+    if (cur_tile.hdr) { cJSON_Delete(cur_tile.hdr); }
+    cur_tile.hdr = NULL;
+    cur_tile.seq.clear();
+  }
+
+  return 0;
+
+}
+
 int read_tiles(FILE *ifp, std::vector< fj_tile_t > &fj_tile) {
   int i, j,k ;
   int line_no=0, char_no=0;
@@ -546,22 +724,6 @@ int read_tiles(FILE *ifp, std::vector< fj_tile_t > &fj_tile) {
   }
 
   std::sort( fj_tile.begin(), fj_tile.end(), sortTileCmp );
-
-}
-
-void md5str(std::string &s, std::string &seq) {
-  int i;
-  unsigned char m[MD5_DIGEST_LENGTH];
-  char buf[32];
-
-  s.clear();
-
-  MD5((unsigned char *)(seq.c_str()), seq.size(), m);
-
-  for (i=0; i<MD5_DIGEST_LENGTH; i++) {
-    sprintf(buf, "%02x", (unsigned char)m[i]);
-    s += buf;
-  }
 
 }
 
@@ -952,6 +1114,7 @@ int main(int argc, char **argv) {
   band_info_t band_info;
   std::vector< band_info_t > band_info_v;
   int show_help_flag = 1;
+  int unsorted_flag = 0;
 
   int fold_width = 50;
   int tilepath=-1;
@@ -966,7 +1129,7 @@ int main(int argc, char **argv) {
 
   FJT_ACTION action = FJT_NOOP;
 
-  while ((opt=getopt_long(argc, argv, "vVhc:CL:i:p:BbH", long_options, &option_index))!=-1) switch(opt) {
+  while ((opt=getopt_long(argc, argv, "vVhc:CL:i:p:BbHU", long_options, &option_index))!=-1) switch(opt) {
     case 0:
       fprintf(stderr, "invalid option, exiting\n");
       exit(-1);
@@ -976,6 +1139,10 @@ int main(int argc, char **argv) {
       show_help_flag=0;
       action = FJT_CSV;
       break;
+    case 'U':
+      unsorted_flag = 1;
+      break;
+
     case 'c':
       show_help_flag=0;
       action = FJT_CONCAT;
@@ -1039,8 +1206,15 @@ int main(int argc, char **argv) {
     }
   }
 
-  if ( (action != FJT_BAND_CONVERT) &&
-       (action != FJT_BAND_BATCH_HASH) ) {
+  if (action==FJT_CSV) {
+    if (unsorted_flag==0) {
+      read_tiles(ifp, fj_tile);
+    }
+    else {
+    }
+  }
+  else if ( (action != FJT_BAND_CONVERT) &&
+            (action != FJT_BAND_BATCH_HASH) ) {
     read_tiles(ifp, fj_tile);
   }
 
@@ -1055,17 +1229,29 @@ int main(int argc, char **argv) {
 
 
   if (action ==  FJT_CSV) {
-    std::string m5;
 
-    for (i=0; i<fj_tile.size(); i++) {
+    if (unsorted_flag) {
+      ret = read_tiles_and_print_csv(ifp);
 
-      print_tileid(fj_tile[i].tileid);
-      printf("+%x", fj_tile[i].span);
+      if (ret<0) {
+        printf("ERROR: %i\n", ret);
+      }
 
-      md5str(m5, fj_tile[i].seq);
-      printf(",%s", m5.c_str());
-      printf(",%s\n", fj_tile[i].seq.c_str());
+    }
+    else {
 
+      std::string m5;
+
+      for (i=0; i<fj_tile.size(); i++) {
+
+        print_tileid(fj_tile[i].tileid);
+        printf("+%x", fj_tile[i].span);
+
+        md5str(m5, fj_tile[i].seq);
+        printf(",%s", m5.c_str());
+        printf(",%s\n", fj_tile[i].seq.c_str());
+
+      }
     }
 
   }

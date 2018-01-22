@@ -212,6 +212,7 @@ int twoBit_t::twoBitToDnaSeq(std::string &seq) {
   return 0;
 }
 
+/*
 void debug_print(twoBit_t *twobit) {
   int i;
 
@@ -237,6 +238,7 @@ void debug_print(twoBit_t *twobit) {
   }
   printf("\n");
 }
+*/
 
 void self_test(void) {
   twoBit_t twobit;

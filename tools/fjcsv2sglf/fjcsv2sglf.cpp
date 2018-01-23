@@ -62,7 +62,11 @@ int normalize_name(twoBit_t *twobit) {
   int prev_pos=0;
 
   if (twobit->name.size()==0) {
-    twobit->name = "0000.00.0000.0000+0000";
+
+    // place holder name, not necessarily a real tileid or a
+    // tileid we are using.
+    //
+    twobit->name = "000f.00.000f.000f+000f";
     return 0;
   }
   n = twobit->name.size();
@@ -271,13 +275,15 @@ int get_tilestep_from_normalized_name(std::string &name) {
   return (int)li;
 }
 
+// Tilespan is in hex
+//
 int get_tilespan_from_normalized_name(std::string &name) {
   int i;
   std::string buf;
   long int li;
 
   for (i=0; i<4; i++) { buf += name[18+i]; }
-  li = strtol(buf.c_str(), NULL, 10);
+  li = strtol(buf.c_str(), NULL, 16);
 
   return (int)li;
 }
@@ -500,10 +506,10 @@ void print_sglf_seq(std::vector<std::string> &tagset, std::vector<sglf2bit_t *> 
       idx_n++;
     }
 
-    // now find a block within this tile step block
-    // where the tile spans are the same and the sequence sizes are identical.
-    // For echo of those blocks, find the canonical sequence, fill in the
-    // appropriate
+    // now find a sub-block within this tile step block where the
+    // tile spans and tile sequence lengths are the same.
+    // Once we find a group of tiles that have the same tile step, span
+    // and sequence size, create the canonical sequence.
     //
     seq_idx_s = idx;
     while (seq_idx_s < (idx + idx_n)) {

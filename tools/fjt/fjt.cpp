@@ -27,6 +27,7 @@
 #include <getopt.h>
 
 #include <openssl/md5.h>
+#include <zlib.h>
 
 #include <vector>
 #include <string>
@@ -35,6 +36,7 @@
 
 #include "cJSON.h"
 #include "sglf.hpp"
+//#include "sglf2bit.hpp"
 
 #define FASTJ_TOOL_VERSION "0.1.4"
 
@@ -74,6 +76,7 @@ static struct option long_options[] = {
   {"tile-path", required_argument, NULL, 'p'},
   {"tile-library", required_argument, NULL, 'L'},
   {"input", required_argument, NULL, 'i'},
+  {"input-file-list", required_argument, NULL, 'I'},
   {"unsorted", no_argument, NULL, 'U'},
   {0,0,0,0}
 };
@@ -93,6 +96,7 @@ void show_help() {
   printf("  [-c variant]    Concatenate FastJ tiles into sequence.  `variant` is the variant ID to concatenate on\n");
   printf("  [-L sglf]       Simple genome library format tile path file\n");
   printf("  [-i ifn]        input file\n");
+  printf("  [-I ifn_list]   file containing gziped list of FastJ files to convert\n");
   printf("  [-p tilepath]   Tile path (in decimal)\n");
   printf("  [-U]            do not sort output (for use with -C option)\n");
   printf("  [-v]            Verbose\n");
@@ -137,118 +141,6 @@ void print_tileid(uint64_t tileid) {
     printf( ofmt[curpos].c_str(), (unsigned int)u64 );
   }
 
-}
-
-uint16_t tileid_part(uint64_t tileid, int part) {
-  uint64_t u64;
-  uint16_t u16;
-  u64 = tileid>>(8*2*part);
-  u64 &= 0xffff;
-  u16 = (uint16_t)u64;
-  return u16;
-}
-
-uint64_t parse_tileid(const char *tileid) {
-  const char *chp;
-  std::string s;
-  unsigned long long int ull;
-  uint64_t v=0, u64;
-  int curpos=0;
-  unsigned int byte_offset[] = { 6, 4, 2, 0 };
-
-  for (chp=tileid; *chp; chp++) {
-    //if (*chp == '.') {
-    if ((*chp == '.') || (*chp=='+')) {
-      ull = strtoull(s.c_str(), NULL, 16);
-      u64 = (uint64_t)ull;
-      v |= (u64 << (8*byte_offset[curpos]));
-      curpos++;
-      if (curpos>=4) { break; }
-      s.clear();
-      continue;
-    }
-
-    s+=*chp;
-  }
-
-  if (curpos<4) {
-    ull = strtoull(s.c_str(), NULL, 16);
-    u64 = (uint64_t)ull;
-    v |= (u64 << (8*byte_offset[curpos]));
-  }
-
-  return v;
-}
-
-int read_sglf_path(FILE *ifp, sglf_path_t &sp) {
-  int i;
-  int ch;
-  std::string line;
-  std::string tid_str, hash_str, seq;
-  int cur_tilestep=0, cur_tilevar_idx=0;
-  int prev_tilestep=-1, prev_tilevar_idx=-1;
-  uint64_t tileid;
-  std::pair< int, int > ipair;
-
-  int read_state = 0;
-
-  std::vector< std::string > svec;
-
-  sp.ext_tileid.clear();
-  sp.hash.clear();
-  sp.seq.clear();
-
-  while (!feof(ifp)) {
-    ch = fgetc(ifp);
-    if (ch==EOF) { continue; }
-    if (ch=='\n') {
-
-      tileid = parse_tileid(tid_str.c_str());
-      cur_tilestep = (int)tileid_part(tileid, 1);
-      cur_tilevar_idx = (int)tileid_part(tileid, 0);
-
-      if ( cur_tilestep >= (int)(sp.ext_tileid.size()) ) {
-        int del = cur_tilestep - (int)(sp.ext_tileid.size()) + 1;
-        for (i=0; i<del; i++) {
-
-          svec.clear();
-          sp.ext_tileid.push_back(svec);
-          sp.hash.push_back(svec);
-          sp.seq.push_back(svec);
-        }
-      }
-
-      sp.ext_tileid[cur_tilestep].push_back(tid_str);
-      sp.hash[cur_tilestep].push_back(hash_str);
-      sp.seq[cur_tilestep].push_back(seq);
-
-      ipair.first = cur_tilestep;
-      ipair.second = cur_tilevar_idx;
-      sp.hash_pos[hash_str] = ipair;
-
-      read_state=0;
-      tid_str.clear();
-      hash_str.clear();
-      seq.clear();
-
-      continue;
-    }
-
-    if (ch==',') {
-      read_state++;
-      continue;
-    }
-
-    if (read_state==0)      { tid_str += ch; }
-    else if (read_state==1) { hash_str += ch; }
-    else if (read_state==2) { seq += ch; }
-
-  }
-
-  //TODO reorder based on pos_map
-
-
-  return 0;
 }
 
 int read_bands(FILE *ifp, std::vector< band_info_t > &band_info_v) {
@@ -618,6 +510,116 @@ int read_tiles_and_print_csv(FILE *ifp) {
 
 }
 
+int read_tiles_gz(gzFile gz_fp, std::vector< fj_tile_t > &fj_tile) {
+  int i, j,k ;
+  int line_no=0, char_no=0;
+  int ch;
+  //std::vector< fj_tile_t > fj_tile;
+  fj_tile_t cur_tile;
+
+  fj_input_state state;
+  std::string buf;
+
+  state = EXPECT_HDR;
+
+  while (gzeof(gz_fp)==0) {
+    ch = gzgetc(gz_fp);
+    if (ch<0) { continue; }
+    char_no++;
+    if (ch=='\n') { line_no++; }
+
+    if (state==EXPECT_HDR) {
+      if (ch=='\n') { continue; }
+      if (ch==' ') { continue; }
+
+      if (ch=='>') {
+
+        // add to list
+        //
+        if (buf.size()>0) {
+          cur_tile.seq = buf;
+          fj_tile.push_back(cur_tile);
+          cur_tile.hdr = NULL;
+          cur_tile.seq.clear();
+        }
+
+        buf.clear();
+        state = READ_HDR;
+        continue;
+      }
+
+      return -2;
+    }
+
+    if (state==READ_HDR) {
+      if (ch=='\n') {
+        cur_tile.hdr = cJSON_Parse(buf.c_str());
+        if (cur_tile.hdr==NULL) { return -3; }
+        buf.clear();
+        state = READ_SEQ;
+        continue;
+      }
+      buf += (char)ch;
+      continue;
+    }
+
+    if (state==READ_SEQ) {
+      if ((ch==' ') || (ch=='\n')) { continue; }
+      if (ch=='>') {
+
+        // add to list
+        //
+        if (buf.size()>0) {
+          cur_tile.seq = buf;
+          fj_tile.push_back(cur_tile);
+          cur_tile.hdr = NULL;
+          cur_tile.seq.clear();
+        }
+
+        buf.clear();
+        state = READ_HDR;
+        continue;
+
+      }
+
+      buf += (char)ch;
+      continue;
+
+    }
+
+  }
+
+  // add final element to list
+  //
+  if (buf.size()>0) {
+    cur_tile.seq = buf;
+    fj_tile.push_back(cur_tile);
+    cur_tile.hdr = NULL;
+    cur_tile.seq.clear();
+  }
+
+  for (i=0; i<fj_tile.size(); i++) {
+    cJSON *tid = cjson_obj(fj_tile[i].hdr, "tileID");
+    if (cJSON_IsString(tid)) {
+      fj_tile[i].tileid = parse_tileid(tid->valuestring);
+
+      cJSON *span = cjson_obj(fj_tile[i].hdr, "seedTileLength");
+      if (cJSON_IsNumber(span)) {
+        fj_tile[i].span = (int)(span->valuedouble);
+      } else {
+        return -1;
+      }
+    } else {
+      //printf("ERROR, element %i does not have tileID\n", i);
+      return -4;
+    }
+  }
+
+  std::sort( fj_tile.begin(), fj_tile.end(), sortTileCmp );
+
+}
+
+
 int read_tiles(FILE *ifp, std::vector< fj_tile_t > &fj_tile) {
   int i, j,k ;
   int line_no=0, char_no=0;
@@ -749,6 +751,111 @@ void cleanup_tiles(std::vector< fj_tile_t > &fj_tile) {
   for (i=0; i<fj_tile.size(); i++) { cJSON_Delete(fj_tile[i].hdr); }
 }
 
+int create_band_info_sglf2bit(band_info_t &band_info, std::vector< fj_tile_t > &fj_tile, sglf2bit_tilepath_t &sglf2bit_tilepath) {
+  int i, j, fj_idx, n, m;
+  int tilestep=0, tilevar=0;
+  int prev_tilestep=-1, prev_tilevar=-1;
+  int sglf_tilevar=-1;
+  std::vector< int > noc_v;
+
+  int noc_start, noc_len;
+
+  band_info.band[0].clear();
+  band_info.band[1].clear();
+
+  band_info.noc[0].clear();
+  band_info.noc[1].clear();
+
+  n = (int)fj_tile.size();
+
+  for (fj_idx=0; fj_idx<n; fj_idx++) {
+
+    noc_v.clear();
+
+    tilestep = (int)tileid_part(fj_tile[fj_idx].tileid, 1);
+    tilevar = (int)tileid_part(fj_tile[fj_idx].tileid, 0);
+
+    if (tilevar>=2) { return -1; }
+    if (tilevar<0) { return -2; }
+    if (tilestep<0) { return -3; }
+
+    // fill in the non-spanning tile vector positions
+    //
+    for (i=band_info.band[tilevar].size(); i<tilestep; i++) {
+      band_info.band[tilevar].push_back( -1 );
+      band_info.noc[tilevar].push_back(noc_v);
+    }
+
+    // Add the tile variant to the appropriate band allele
+    //
+    sglf_tilevar = sglf2bit_tilepath_step_lookup_seq_variant_id(sglf2bit_tilepath, tilestep, fj_tile[fj_idx].seq);
+    if (sglf_tilevar<0) {
+
+      fprintf(stderr, "tilestep %i (0x%x) was not found in pos index %i\n", tilestep, tilestep, fj_idx);
+      fprintf(stderr, "seq: %s\n", fj_tile[fj_idx].seq.c_str());
+      return -4;
+    }
+
+    band_info.band[tilevar].push_back(sglf_tilevar);
+
+    // add to nocall band vector
+    //
+    noc_v.clear();
+
+    m = fj_tile[fj_idx].seq.size();
+    noc_start = -1;
+    noc_len = 0;
+    for (i=0; i<m; i++) {
+      if ((fj_tile[fj_idx].seq[i]=='n') ||
+          (fj_tile[fj_idx].seq[i]=='N')) {
+        if (noc_start>=0) { noc_len++; }
+        else { noc_start = i; noc_len=1; }
+      }
+
+      else {
+        if (noc_start>=0) {
+          noc_v.push_back(noc_start);
+          noc_v.push_back(noc_len);
+        }
+        noc_start=-1;
+        noc_len=0;
+      }
+    }
+
+    if (noc_start>=0) {
+      noc_v.push_back(noc_start);
+      noc_v.push_back(noc_len);
+    }
+
+    band_info.noc[tilevar].push_back(noc_v);
+    int zz = (int)band_info.noc[tilevar].size();
+
+  }
+
+
+  // special case at the ned if we have spanning tiles.
+  // If we do, fill in the remaining tiles with -1
+  //
+  fj_idx = (int)(fj_tile.size()-1);
+
+  // our final tilestep position
+  //
+
+  n = (int)tileid_part(fj_tile[fj_idx].tileid, 1);
+  n += fj_tile[fj_idx].span;
+
+  noc_v.clear();
+  for (i=band_info.band[0].size(); i<n; i++) { band_info.band[0].push_back(-1); }
+  for (i=band_info.band[1].size(); i<n; i++) { band_info.band[1].push_back(-1); }
+
+  for (i=band_info.noc[0].size(); i<n; i++) { band_info.noc[0].push_back(noc_v); }
+  for (i=band_info.noc[1].size(); i<n; i++) { band_info.noc[1].push_back(noc_v); }
+
+  return 0;
+}
+
+
+
 int create_band_info(band_info_t &band_info, std::vector< fj_tile_t > &fj_tile, sglf_path_t &sglf_path) {
   int i, j, fj_idx, n, m;
   int tilestep=0, tilevar=0;
@@ -786,7 +893,6 @@ int create_band_info(band_info_t &band_info, std::vector< fj_tile_t > &fj_tile, 
       band_info.band[tilevar].push_back( -1 );
       band_info.noc[tilevar].push_back(noc_v);
     }
-
 
 
     // Add the tile variant to the appropriate band allele
@@ -853,11 +959,6 @@ int create_band_info(band_info_t &band_info, std::vector< fj_tile_t > &fj_tile, 
 
   for (i=band_info.noc[0].size(); i<n; i++) { band_info.noc[0].push_back(noc_v); }
   for (i=band_info.noc[1].size(); i<n; i++) { band_info.noc[1].push_back(noc_v); }
-
-
-
-
-
 
   return 0;
 }
@@ -1105,10 +1206,137 @@ int band_convert(band_info_t &band_info, sglf_path_t &sglf_path) {
 
 }
 
+void print_sglf2bit_tilepath(sglf2bit_tilepath_t &sglf2bit_tilepath) {
+  size_t n, m, tilestep, tilevar;
+  std::string seq;
+
+  n = sglf2bit_tilepath.ext_tileid.size();
+  if ((n!=sglf2bit_tilepath.hash.size()) ||
+      (n!=sglf2bit_tilepath.seq2bit.size())) {
+    fprintf(stderr, "ERROR: size mismatch in sglf2bit_tilepath %i != (%i, %i)\n",
+        (int)n,
+        (int)sglf2bit_tilepath.hash.size(),
+        (int)sglf2bit_tilepath.seq2bit.size());
+    return;
+  }
+
+  for (tilestep=0; tilestep<n; tilestep++) {
+    m = sglf2bit_tilepath.ext_tileid[tilestep].size();
+
+    if ((m!=sglf2bit_tilepath.hash[tilestep].size()) ||
+        (m!=sglf2bit_tilepath.seq2bit[tilestep].size())) {
+      fprintf(stderr, "ERROR: size mismatch on tilestep %i in sglf2bit_tilepath %i != (%i, %i)\n",
+          (int)tilestep,
+          (int)m,
+          (int)sglf2bit_tilepath.hash[tilestep].size(),
+          (int)sglf2bit_tilepath.seq2bit[tilestep].size());
+      return;
+    }
+
+    for (tilevar=0; tilevar<m; tilevar++) {
+      seq.clear();
+      sglf2bit_tilepath.seq2bit[tilestep][tilevar].twoBitToDnaSeq(seq);
+
+      printf("%s,%s,%s\n",
+          sglf2bit_tilepath.ext_tileid[tilestep][tilevar].c_str(),
+          sglf2bit_tilepath.hash[tilestep][tilevar].c_str(),
+          seq.c_str());
+
+    }
+
+  }
+}
+
+int batch_fastj_to_band(FILE *ifp_stream, FILE *sglf_fp) {
+  sglf2bit_tilepath_t sglf2bit_tilepath;
+  std::vector< fj_tile_t > fj_tile;
+  band_info_t band_info;
+  int ch, ret;
+  gzFile gz_fp;
+  FILE *ifp;
+  std::string fn;
+
+  fn.clear();
+
+  //DEBUG
+  printf("## reading sglf2bit\n"); fflush(stdout);
+
+  read_sglf2bit_tilepath(sglf_fp, sglf2bit_tilepath);
+
+  //DEBUG
+  printf("## sglf2bit read, processing files\n"); fflush(stdout);
+
+  while (!feof(ifp_stream)) {
+    ch = fgetc(ifp_stream);
+    if ((ch==EOF) || (ch=='\n')) {
+      if (fn.size()==0) { continue; }
+
+      band_info.band[0].clear();
+      band_info.band[1].clear();
+      band_info.noc[0].clear();
+      band_info.noc[1].clear();
+      //fj_tile.clear();
+
+      //DEBUG
+      printf("## cleared, opening %s\n", fn.c_str()); fflush(stdout);
+
+      gz_fp = gzopen(fn.c_str(), "r");
+      if (gz_fp == Z_NULL) { return -1; }
+      fn.clear();
+
+      //DEBUG
+      printf("## reading tiles\n"); fflush(stdout);
+
+      read_tiles_gz(gz_fp, fj_tile);
+
+      //DEBUG
+      printf("## tiles read\n"); fflush(stdout);
+
+      gzclose(gz_fp);
+
+      //DEBUG
+      printf("## creating band info\n"); fflush(stdout);
+
+      ret = create_band_info_sglf2bit(band_info, fj_tile, sglf2bit_tilepath);
+      if (ret<0) { return ret; }
+
+      //DEBUG
+      printf("## printing band\n"); fflush(stdout);
+
+      band_print(band_info);
+
+      //DEBUG
+      printf("## cleaning tiles\n"); fflush(stdout);
+
+      cleanup_tiles(fj_tile);
+
+
+      //DEBUG
+      printf("## tiles cleared\n"); fflush(stdout);
+
+
+      fj_tile.clear();
+
+      //DEBUG
+      printf("## ...\n"); fflush(stdout);
+
+      continue;
+    }
+
+    fn += (char)ch;
+  }
+
+  return 0;
+}
+
 int main(int argc, char **argv) {
   int i, ret;
   int ch, opt, option_index;
   std::string ifn = "-", sglf_fn;
+
+  int ifn_stream=0;
+  std::vector< std::string > ifns;
+
   std::vector< fj_tile_t > fj_tile;
   sglf_path_t sglf_path;
   band_info_t band_info;
@@ -1129,7 +1357,7 @@ int main(int argc, char **argv) {
 
   FJT_ACTION action = FJT_NOOP;
 
-  while ((opt=getopt_long(argc, argv, "vVhc:CL:i:p:BbHU", long_options, &option_index))!=-1) switch(opt) {
+  while ((opt=getopt_long(argc, argv, "vVhc:CL:i:p:BbHUI:", long_options, &option_index))!=-1) switch(opt) {
     case 0:
       fprintf(stderr, "invalid option, exiting\n");
       exit(-1);
@@ -1156,6 +1384,12 @@ int main(int argc, char **argv) {
 
     case 'i':
       show_help_flag=0;
+      ifn = optarg;
+      break;
+
+    case 'I':
+      show_help_flag=0;
+      ifn_stream = 1;
       ifn = optarg;
       break;
 
@@ -1215,7 +1449,19 @@ int main(int argc, char **argv) {
   }
   else if ( (action != FJT_BAND_CONVERT) &&
             (action != FJT_BAND_BATCH_HASH) ) {
-    read_tiles(ifp, fj_tile);
+
+    if ((action == FJT_BAND) &&
+        (ifn_stream==1)) {
+      // don't read in FastJ tiles.
+      // The stream represents a list of files
+      // that for batch processing with will be
+      // read below.
+      //
+    }
+    else {
+      read_tiles(ifp, fj_tile);
+    }
+
   }
 
   else if (action == FJT_BAND_CONVERT) {
@@ -1285,17 +1531,28 @@ int main(int argc, char **argv) {
       exit(-3);
     }
 
-    read_sglf_path(sglf_fp, sglf_path);
+    if (ifn_stream) {
 
-    //sglf_path_print(&sglf_path);
+      ret = batch_fastj_to_band(ifp, sglf_fp);
+      if (ret<0) {
+        fprintf(stderr, "Error, invalid return code when converting batch band format: %i\n", ret);
+        exit(-3);
+      }
 
-    ret = create_band_info(band_info, fj_tile, sglf_path);
-    if (ret<0) {
-      fprintf(stderr, "Error, invalid return code when covnerting to band format: %i\n", ret);
-      exit(-3);
     }
+    else {
 
-    band_print(band_info);
+      read_sglf_path(sglf_fp, sglf_path);
+
+      ret = create_band_info(band_info, fj_tile, sglf_path);
+      if (ret<0) {
+        fprintf(stderr, "Error, invalid return code when covnerting to band format: %i\n", ret);
+        exit(-3);
+      }
+
+      band_print(band_info);
+
+    }
 
     if (sglf_fp!=stdin) { fclose(sglf_fp); }
 

@@ -38,6 +38,8 @@
 #include "sglf.hpp"
 //#include "sglf2bit.hpp"
 
+//#define FASTJ_TOOL_DEBUG 1
+
 #define FASTJ_TOOL_VERSION "0.1.4"
 
 typedef struct fj_tile_type {
@@ -1258,13 +1260,7 @@ int batch_fastj_to_band(FILE *ifp_stream, FILE *sglf_fp) {
 
   fn.clear();
 
-  //DEBUG
-  printf("## reading sglf2bit\n"); fflush(stdout);
-
   read_sglf2bit_tilepath(sglf_fp, sglf2bit_tilepath);
-
-  //DEBUG
-  printf("## sglf2bit read, processing files\n"); fflush(stdout);
 
   while (!feof(ifp_stream)) {
     ch = fgetc(ifp_stream);
@@ -1275,50 +1271,23 @@ int batch_fastj_to_band(FILE *ifp_stream, FILE *sglf_fp) {
       band_info.band[1].clear();
       band_info.noc[0].clear();
       band_info.noc[1].clear();
-      //fj_tile.clear();
-
-      //DEBUG
-      printf("## cleared, opening %s\n", fn.c_str()); fflush(stdout);
 
       gz_fp = gzopen(fn.c_str(), "r");
       if (gz_fp == Z_NULL) { return -1; }
       fn.clear();
 
-      //DEBUG
-      printf("## reading tiles\n"); fflush(stdout);
-
       read_tiles_gz(gz_fp, fj_tile);
 
-      //DEBUG
-      printf("## tiles read\n"); fflush(stdout);
-
       gzclose(gz_fp);
-
-      //DEBUG
-      printf("## creating band info\n"); fflush(stdout);
 
       ret = create_band_info_sglf2bit(band_info, fj_tile, sglf2bit_tilepath);
       if (ret<0) { return ret; }
 
-      //DEBUG
-      printf("## printing band\n"); fflush(stdout);
-
       band_print(band_info);
-
-      //DEBUG
-      printf("## cleaning tiles\n"); fflush(stdout);
 
       cleanup_tiles(fj_tile);
 
-
-      //DEBUG
-      printf("## tiles cleared\n"); fflush(stdout);
-
-
       fj_tile.clear();
-
-      //DEBUG
-      printf("## ...\n"); fflush(stdout);
 
       continue;
     }

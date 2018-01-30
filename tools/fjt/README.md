@@ -144,7 +144,7 @@ $ ./fjt -B -I <( echo -e 'testdata/035e.fj.gz\ntestdata/035e.fj.gz' ) -L testdat
 ```
 
 Often, the SGLF file is large and is the bottleneck to processing.
-Batching in this tries to speed the band format conversion process by
+Batching tries to speed up the band format conversion process by
 loading the SGLF file once, at the beginning, into memory and then
 processing each FastJ conversion serially.
 This method also keeps the SGLF information in a 2bit representation

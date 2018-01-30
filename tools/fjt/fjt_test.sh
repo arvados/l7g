@@ -77,4 +77,12 @@ b=`./fjt -H -L $testdir/035e.1.sglf <( cat $testdir/hu826751-035e.band $testdir/
 
 ok_or_exit "$a" "$b" "Band Hash"
 
+# batch band conversion
+#
+
+a=`./fjt -B -L $testdir/$testtilepath.sglf -I <( echo testdata/$testtilepath.fj.gz ) | sed 's/\[ */[/g' | sed 's/ *\]/]/g' | md5sum | cut -f1 -d' '`
+b=`cat $testdir/$testtilepath.band | sed 's/\[ */[/g' | sed 's/ *\]/]/g' | md5sum | cut -f1 -d' '`
+
+ok_or_exit "$a" "$b" "Batch Band"
+
 exit 0

@@ -17,10 +17,13 @@ usage:
   [-C]            Output comma separated `extended tileID`, `hash` and `sequence` (CSV output)
   [-B]            Output band format
   [-b]            input band format and output FastJ (requires '-L sglf' option)
+  [-H]            batch hash of input bands (requires '-L sglf' option)
   [-c variant]    Concatenate FastJ tiles into sequence.  `variant` is the variant ID to concatenate on
   [-L sglf]       Simple genome library format tile path file
   [-i ifn]        input file
+  [-I ifn_list]   file containing gziped list of FastJ files to convert
   [-p tilepath]   Tile path (in decimal)
+  [-U]            do not sort output (for use with -C option)
   [-v]            Verbose
   [-V]            Version
   [-h]            Help
@@ -116,27 +119,53 @@ To produce the 'band format', an `SGLF` file needs to be specified.
 For example, on the `testdata` provided, here is the result:
 
 ```bash
-$ ./fjt -B testdata/035e.fj -L testdata/035e.sglf 
+$ ./fjt -B testdata/035e.fj -L testdata/035e.sglf
 [ 79 8 0 0 0 0 0 -1 0 0 0 389 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 1 0 0 -1 34 -1 185 1]
 [ 79 8 0 0 0 0 0 -1 0 0 0 389 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 1 0 0 -1 34 -1 185 1]
 [[ ][ ][ ][ ][ ][ ][ 903 1 ][ ][ 16 1 ][ ][ ][ ][ ][ ][ ][ ][ ][ ][ ][ ][ ][ 96 1 ][ ][ ][ ][ ][ ][ ][ ][ ][ ][ ][ ][ ][ 291 2 ]]
 [[ ][ ][ ][ ][ ][ ][ 903 1 ][ ][ 16 1 ][ ][ ][ ][ ][ ][ ][ ][ ][ ][ ][ ][ ][ 96 1 ][ ][ ][ ][ ][ ][ ][ ][ ][ ][ ][ ][ ][ 291 2 ]]
 ```
 
+### Batch Band Format `fjt -B -I ...`
+
+Produce 'band format' output for a series of input gziped FastJ files.
+A stream with the list of gziped FastJ files is provided with the `-I` option.
+
+```bash
+$ ./fjt -B -I <( echo -e 'testdata/035e.fj.gz\ntestdata/035e.fj.gz' ) -L testdata/035e.sglf
+[ 79 8 0 0 0 0 0 -1 0 0 0 389 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 1 0 0 -1 34 -1 185 1]
+[ 79 8 0 0 0 0 0 -1 0 0 0 389 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 1 0 0 -1 34 -1 185 1]
+[[ ][ ][ ][ ][ ][ ][ 903 1 ][ ][ 16 1 ][ ][ ][ ][ ][ ][ ][ ][ ][ ][ ][ ][ ][ 96 1 ][ ][ ][ ][ ][ ][ ][ ][ ][ ][ ][ ][ ][ 291 2 ]]
+[[ ][ ][ ][ ][ ][ ][ 903 1 ][ ][ 16 1 ][ ][ ][ ][ ][ ][ ][ ][ ][ ][ ][ ][ ][ 96 1 ][ ][ ][ ][ ][ ][ ][ ][ ][ ][ ][ ][ ][ 291 2 ]]
+[ 79 8 0 0 0 0 0 -1 0 0 0 389 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 1 0 0 -1 34 -1 185 1]
+[ 79 8 0 0 0 0 0 -1 0 0 0 389 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 1 0 0 -1 34 -1 185 1]
+[[ ][ ][ ][ ][ ][ ][ 903 1 ][ ][ 16 1 ][ ][ ][ ][ ][ ][ ][ ][ ][ ][ ][ ][ ][ 96 1 ][ ][ ][ ][ ][ ][ ][ ][ ][ ][ ][ ][ ][ 291 2 ]]
+[[ ][ ][ ][ ][ ][ ][ 903 1 ][ ][ 16 1 ][ ][ ][ ][ ][ ][ ][ ][ ][ ][ ][ ][ ][ 96 1 ][ ][ ][ ][ ][ ][ ][ ][ ][ ][ ][ ][ ][ 291 2 ]]
+```
+
+Often, the SGLF file is large and is the bottleneck to processing.
+Batching in this tries to speed the band format conversion process by
+loading the SGLF file once, at the beginning, into memory and then
+processing each FastJ conversion serially.
+This method also keeps the SGLF information in a 2bit representation
+to try and reduce the memory footprint.
+
 
 ### CSV Output `fjt -C`
 
-To produce the tiles in `sglf` format (simple genome library format), outputing the tiles in CSV can be done.
-The output CSV is `extended tileID`, `hash` and `sequence`.
+Output comma separated fields with `extended tileID`, `hash` and `sequence`.
+The `hash` is the MD5SUM of the ASCII sequence with no trailing newline.
+Note this is not `SGLF` output as the sequence can have `n`'s for portions of the
+sequence that have not been confidently called.
 
 For example, using the `035e.fj` file included in `testdata` would produce:
 
 ```
 $ ./fjt -C testdata/035e.fj  | head -n4
-035e.00.0000.000+1,7346f663d221ed28c112df86eb5986ef,gatcacaggtctatcaccctattaaccactcacgggagctctccatgcatttggtattttcgtctggggggcgtgcacgcgatagcattgcgggacgctggagccggagcaccctatgtcgcagtatctgtctttgattcctgcctcattctattatttatcgcacctacgttcaatattacaggcgaacatacctactaaagtgtgttaattaattaatgcttgtaggacataataataacaa
-035e.00.0000.001+1,7346f663d221ed28c112df86eb5986ef,gatcacaggtctatcaccctattaaccactcacgggagctctccatgcatttggtattttcgtctggggggcgtgcacgcgatagcattgcgggacgctggagccggagcaccctatgtcgcagtatctgtctttgattcctgcctcattctattatttatcgcacctacgttcaatattacaggcgaacatacctactaaagtgtgttaattaattaatgcttgtaggacataataataacaa
-035e.00.0001.000+1,1cadbbf41d5898b9e37ecdfd1d751f4e,gcttgtaggacataataataacaattgaatgtctgcacagccgctttccacacagacatcataacaaaaaatttccaccaaacccccccccctctccccccgcttctggccacagcacttaaacacatctctgccaaaccccaaaaacaaagaaccctaacaccagcctaaccagatttcaaattttatctttaggcggtatgcacttttaacagtcaccccccaactaacacattattttcccctcccactc
-035e.00.0001.000+1,1cadbbf41d5898b9e37ecdfd1d751f4e,gcttgtaggacataataataacaattgaatgtctgcacagccgctttccacacagacatcataacaaaaaatttccaccaaacccccccccctctccccccgcttctggccacagcacttaaacacatctctgccaaaccccaaaaacaaagaaccctaacaccagcctaaccagatttcaaattttatctttaggcggtatgcacttttaacagtcaccccccaactaacacattattttcccctcccactc
+035e.00.0021.000+1,fc72f8955140a5423023488dcd374b94,cacccaagtattgactcacccatcaacaaccgctatgtatttcgtacattactgccagcctccatgaatattgtacggtaccataaatacttgaccacctgtagtacataaaaacccaatccacatcaaaccccccccccccatgcttacaagcaagtacagcaatcaaccttcaactatcacacatcaactgcaactccaaagccacccctcacccactaggataccaacaaacctacccacccttaa
+035e.00.0021.001+1,fc72f8955140a5423023488dcd374b94,cacccaagtattgactcacccatcaacaaccgctatgtatttcgtacattactgccagcctccatgaatattgtacggtaccataaatacttgaccacctgtagtacataaaaacccaatccacatcaaaccccccccccccatgcttacaagcaagtacagcaatcaaccttcaactatcacacatcaactgcaactccaaagccacccctcacccactaggataccaacaaacctacccacccttaa
+035e.00.0022.000+1,5c5eb5980f21f9232dab6bc4fa066bd2,accaacaaacctacccacccttaacagtacatagtacataaagtcatttaccgtacatagcacattacagtcaaatcccttctcgtccccatggatgacccccctcagataggggtcccttgaccaccatcctccgtgaaatcaatatcccgcacaagagtgctactctcctcgctccgggcccataacacttgggggtagctaaagtgaactgtatccgacatctggttcctacttcagggccataaagcctaaatagcccacacgttccccttaaataagacatcacgann
+035e.00.0022.001+1,5c5eb5980f21f9232dab6bc4fa066bd2,accaacaaacctacccacccttaacagtacatagtacataaagtcatttaccgtacatagcacattacagtcaaatcccttctcgtccccatggatgacccccctcagataggggtcccttgaccaccatcctccgtgaaatcaatatcccgcacaagagtgctactctcctcgctccgggcccataacacttgggggtagctaaagtgaactgtatccgacatctggttcctacttcagggccataaagcctaaatagcccacacgttccccttaaataagacatcacgann
 ```
 
 ### FastJ Output From Band Format `fjt -b`

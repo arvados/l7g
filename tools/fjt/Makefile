@@ -1,5 +1,5 @@
-#OPT='-g'
-OPT='-O3'
-LIBS='-lcrypto'
-fjt: fjt.cpp cJSON.c sglf.cpp sglf.hpp
-	g++ ${OPT} fjt.cpp cJSON.c sglf.cpp -o fjt ${LIBS}
+#OPT=-g
+OPT=-O3
+LIBS=-lcrypto -lz
+fjt: fjt.cpp cJSON.c sglf.cpp sglf.hpp twoBit.hpp twoBit.cpp
+	g++ ${OPT} fjt.cpp cJSON.c sglf.cpp twoBit.cpp -o fjt ${LIBS}

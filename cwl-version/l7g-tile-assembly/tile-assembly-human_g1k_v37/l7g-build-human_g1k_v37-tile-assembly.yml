@@ -1,0 +1,16 @@
+script:
+  class: File
+  path: ./src/build-l7g-human_g1k_v37-assembly.sh
+
+tagset:
+  class: File
+  path: keep:c102dcaa86972313f32f0ccff37358a0+174/tagset.fa.gz
+
+refFaFn:
+  class: File
+  path: keep:320d7a6717aa7b555a09e52976ba4a02+18534/human_g1k_v37.fasta.gz
+
+cytobandFn:
+  class: File
+  path: keep:320d7a6717aa7b555a09e52976ba4a02+18534/cytoband.hg19.custom.txt
+

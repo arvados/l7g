@@ -1,0 +1,58 @@
+
+script:
+  class: File
+  path: ../src/convert_gff_to_fastj.sh
+
+tagset:
+  class: File
+  path: keep:c102dcaa86972313f32f0ccff37358a0+174/tagset.fa.gz
+
+tileassembly:
+  class: File
+  path: keep:98c5e71956730c36cc89bb25b99fe58b+965/assembly.00.human_g1k_v37.fw.gz
+
+refFaFn:
+  class: File
+  path: keep:320d7a6717aa7b555a09e52976ba4a02+18534/human_g1k_v37.fasta.gz
+
+gffFns:
+  - class: File
+    path: keep:8122d87ab406a6475c6826ae8bcfded2+56754/hu089792-GS02269-DNA_B02.gff.gz
+  - class: File
+    path: keep:8122d87ab406a6475c6826ae8bcfded2+56754/hu1187FF-GS02269-DNA_A04.gff.gz
+  - class: File
+    path: keep:8122d87ab406a6475c6826ae8bcfded2+56754/hu27FD1F-GS02269-DNA_B04.gff.gz
+  - class: File
+    path: keep:8122d87ab406a6475c6826ae8bcfded2+56754/hu3A1B15-GS02269-DNA_C01.gff.gz
+  - class: File
+    path: keep:8122d87ab406a6475c6826ae8bcfded2+56754/hu474789-GS02269-DNA_G04.gff.gz
+  - class: File
+    path: keep:8122d87ab406a6475c6826ae8bcfded2+56754/hu49F623-GS02269-DNA_F01.gff.gz
+  - class: File
+    path: keep:8122d87ab406a6475c6826ae8bcfded2+56754/hu5B8771-GS02269-DNA_B01.gff.gz
+  - class: File
+    path: keep:8122d87ab406a6475c6826ae8bcfded2+56754/hu5E55F5-GS02269-DNA_B03.gff.gz
+  - class: File
+    path: keep:8122d87ab406a6475c6826ae8bcfded2+56754/hu5FCE15-GS01195-DNA_B01.gff.gz
+  - class: File
+    path: keep:8122d87ab406a6475c6826ae8bcfded2+56754/hu602487-GS02269-DNA_F02.gff.gz
+  - class: File
+    path: keep:8122d87ab406a6475c6826ae8bcfded2+56754/hu620F18-GS02269-DNA_E02.gff.gz
+  - class: File
+    path: keep:8122d87ab406a6475c6826ae8bcfded2+56754/hu76CAA5-GS02269-DNA_G03.gff.gz
+  - class: File
+    path: keep:8122d87ab406a6475c6826ae8bcfded2+56754/hu868880-GS02269-DNA_E01.gff.gz
+  - class: File
+    path: keep:8122d87ab406a6475c6826ae8bcfded2+56754/huA02824-GS02269-DNA_G01.gff.gz
+  - class: File
+    path: keep:8122d87ab406a6475c6826ae8bcfded2+56754/huAA245C-GS02269-DNA_D03.gff.gz
+  - class: File
+    path: keep:8122d87ab406a6475c6826ae8bcfded2+56754/huB4883B-GS02269-DNA_H04.gff.gz
+  - class: File
+    path: keep:8122d87ab406a6475c6826ae8bcfded2+56754/huB4F9B2-GS02269-DNA_A05.gff.gz
+  - class: File
+    path: keep:8122d87ab406a6475c6826ae8bcfded2+56754/huE2E371-GS02269-DNA_H03.gff.gz
+  - class: File
+    path: keep:8122d87ab406a6475c6826ae8bcfded2+56754/huF2DA6F-GS02269-DNA_A01.gff.gz
+  - class: File
+    path: keep:8122d87ab406a6475c6826ae8bcfded2+56754/huFCC1C1-GS02269-DNA_A02.gff.gz

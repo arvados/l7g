@@ -19,7 +19,6 @@ expression: |
       gathered_dirs.listing.push(ele.listing[0]);
 
     }
-    var x = JSON.stringify(gathered_dirs);
     return { "out": gathered_dirs };
   }
 

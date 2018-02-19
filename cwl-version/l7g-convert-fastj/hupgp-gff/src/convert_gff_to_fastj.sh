@@ -61,7 +61,10 @@ fi
 trap "ERROR: $gffInitial $path ; exit" ERR
 
 if [ "$ref" == "" ] ; then
-  export ref='hg19'
+  #export ref='hg19'
+  ref=`basename $reffa .gz`
+  ref=`basename $ref .fa`
+  ref=`basename $ref .fasta`
 fi
 
 if [[ "$out_name" == "" ]] ; then
@@ -80,6 +83,21 @@ for chrom in chr1 chr2 chr3 chr4 chr5 chr6 chr7 chr8 chr9 chr10 chr11 chr12 chr1
 
   echo "#### $gff process $chrom"
 
+  ## Some Harvard PGP datasets used the 'human_g1k_v37' alternate mitochondrial sequence
+  ## instead of the 'hg19' sequence.
+  ## For these, the chromosome names differ, with the leading 'chr' taken out
+  ## or renaming it to 'MT' for the 'chrM' sequence.
+  ## The only places the alternate "chromosome" name should appear is in
+  ## accessing the sequence fromt he FASTA reference sequence file
+  ## and accessing the tile assembly index file.
+  ##
+  refchrom="$chrom"
+  if [[ "$ref" == "human_g1k_v37" ]] ; then
+    refchrom=`echo "$chrom" | sed 's/^chr//'`
+    if [[ "$refchrom" == "M" ]] ; then
+      refchrom="MT"
+    fi
+  fi
 
   while read line
   do
@@ -156,7 +174,7 @@ for chrom in chr1 chr2 chr3 chr4 chr5 chr6 chr7 chr8 chr9 chr10 chr11 chr12 chr1
     ## we want.
     ##
     pasta -action gff-rotini -start $window_start0 -chrom $chrom \
-      -refstream <( refstream $reffa $chrom:$window_start1-$window_end1 ) \
+      -refstream <( refstream $reffa $refchrom:$window_start1-$window_end1 ) \
       -i <( cat <( echo -e '\n\n\n' ) <( tabix $gff $chrom:$window_start1-$window_end1 ) ) | \
       pasta -action filter-rotini -start $ref_start0 -n $dn > $odir/$tilepath.pa
 
@@ -175,6 +193,6 @@ for chrom in chr1 chr2 chr3 chr4 chr5 chr6 chr7 chr8 chr9 chr10 chr11 chr12 chr1
     bgzip -f $odir/$tilepath.fj
     bgzip -r $odir/$tilepath.fj.gz
 
-  done < <( egrep '^'$ref':'$chrom':' $aidx )
+  done < <( egrep '^'$ref':'$refchrom':' $aidx )
 
 done # chrom

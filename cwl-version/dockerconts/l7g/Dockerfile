@@ -31,14 +31,21 @@ RUN mkdir -p /root/git && \
   cd /root/git/l7g/tools/fjt && make && \
   cp /root/git/l7g/tools/fjt/fjt /usr/local/bin && \
 
+  cd /root/git/l7g/tools/fjcsv2sglf && make && \
+  cp /root/git/l7g/tools/fjcsv2sglf/fjcsv2sglf /usr/local/bin && \
+
+  cd /root/git/l7g/tools/which-ref && make && \
+  cp /root/git/l7g/tools/which-ref/which-ref /usr/local/bin && \
+
   cd /root/git/l7g/tools/cgft && make && \
   cp /root/git/l7g/tools/cgft/cgft /usr/local/bin && \
 
   cd /root/git/l7g/tools/tile-assembly && make && \
   cp /root/git/l7g/tools/tile-assembly/tile-assembly /usr/local/bin && \
 
-  cd /root/git/l7g/tools/tile-lib && go build merge-tilelib.go && \
+  cd /root/git/l7g/tools/tile-lib && go build merge-tilelib.go && make && \
   cp /root/git/l7g/tools/tile-lib/merge-tilelib /usr/local/bin  && \
+  cp /root/git/l7g/tools/tile-lib/merge-sglf /usr/local/bin  && \
 
   cd /root/git/l7g/tools/tagset/src && make && \
   cp /root/git/l7g/tools/tagset/src/tagsetFa /usr/local/bin && \

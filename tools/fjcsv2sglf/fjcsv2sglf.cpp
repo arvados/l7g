@@ -586,7 +586,7 @@ void print_sglf_seq(std::vector<std::string> &tagset, std::vector<sglf2bit_t *> 
 
       for (j=0; j<12; j++) { printf("%c", sglf2bit[sglf_idx]->twobit->name[j]); }
       span = strtol(sglf2bit[sglf_idx]->twobit->name.c_str() + 18, NULL, 16);
-      printf(".%03x+%d,%s,", i, span, m5_freq_idx_dedup[i].m5str.c_str());
+      printf(".%03x+%x,%s,", i, span, m5_freq_idx_dedup[i].m5str.c_str());
       print_raw_seq(stdout, sglf2bit[sglf_idx]->twobit);
       printf("\n");
     }

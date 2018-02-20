@@ -1,0 +1,76 @@
+#!/bin/bash
+#
+# Do some basic sanity checks on the provided
+# sglf files.
+#
+# Check for:
+#
+#  * correct span formatting
+#  * no spurious characters in sequence
+#
+# This will be extended as needed to provide more checks.
+# These checks aren't meant to be comprehensive as the
+# final check is to make sure the CGF can be converted
+# using the SGLF.
+#
+
+VERBOSE=1
+
+inp="$1"
+out="$2"
+
+if [[ "$inp" == "" ]] ; then
+  echo "provide input SGLF directory or file"
+  exit 1
+fi
+
+if [[ "$out" == "" ]] ; then
+  out=/dev/stdout
+fi
+
+function check_sglf_file {
+  fn="$1"
+
+  if [[ ! -f "$fn" ]] ; then
+    return 1
+  fi
+
+  nplus=`zcat $fn | cut -f1 -d',' | cut -f2- -d'+' | egrep -o '\+' | wc -c`
+  if [[ "$nplus" != "0" ]] ; then
+    echo "ERROR: spurious span fields found for $fn, exiting"
+    exit 1
+  fi
+
+  nchar=`zcat $fn | cut -f3 -d',' | tr -d 'actg\n' | wc -c`
+  if [[ "$nchar" != "0" ]] ; then
+    echo "ERROR: spurious characters found in sequence field for $fn, exiting"
+    exit 1
+  fi
+
+}
+
+if [[ -f "$inp" ]] ; then
+  if [[ "$VERBOSE" == "1" ]] ; then
+    echo "checking $fn" >> "$out"
+  fi
+
+  check_sglf_file $inp
+elif [[ -d "$inp" ]] ; then
+  for fn in `find $inp/ -maxdepth 1 -type f -name '*.sglf.gz'` ; do
+
+    if [[ "$VERBOSE" == "1" ]] ; then
+      echo "checking $fn" >> "$out"
+    fi
+
+    check_sglf_file $fn >> "$out"
+  done
+else
+  echo "ERROR: unknown file $inp (not directory or file)"
+  exit 1
+fi
+
+if [[ "$VERBOSE" == 1 ]] ; then
+  echo "ok sglf" >> "$out"
+fi
+
+exit 0

@@ -90,7 +90,7 @@ RUN mkdir -p /root/git && \
   GOPATH=/root/.go go build fjfilter.go && \
   cp /root/git/l7g/go/fjtools/fjfilter /usr/local/bin
 
-RUN apt-get install -y bc
+RUN apt-get install -y bc file
 
 RUN  cd /root/git/l7g/lib/asmukk && make && \
   cd /root/git/l7g/tools/tile-liftover && make && \

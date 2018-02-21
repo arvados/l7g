@@ -1,0 +1,70 @@
+#!/bin/bash
+#
+# Take out non-header comments.
+# Take out 'NOCALL' lines
+#
+
+export igvcf="$1"
+export out_gvcf="$2"
+export QUAL_cutoff="$3"
+export filter_exe="$4"
+
+
+if [[ "$igvcf" == "" ]] ; then
+  echo "provide input gvcf to filter"
+  exit 1
+fi
+
+if [[ "$out_gvcf" == "" ]] ; then
+  out_gvcf=`basename $igvcf`
+  out_gvcf=`basename $out_gvcf .gz`
+  out_gvcf=`basename $out_gvcf .bz2`
+  out_gvcf=`basename $out_gvcf .txt`
+  out_gvcf=`basename $out_gvcf .tsv`
+  out_gvcf=`basename $out_gvcf .vcf`
+  out_gvcf=`basename $out_gvcf .gvcf`
+  out_gvcf=`basename $out_gvcf .g`
+  out_gvcf="$out_gvcf.vcf.gz"
+fi
+
+if [[ "$out_gvcf" == "" ]] ; then
+  echo "invalid output gvcf"
+  exit 1
+fi
+
+if [[ "$QUAL_cutoff" != "" ]] ; then
+  if [[ "$filter_exe" == ""  ]] ; then
+    echo "provide filter program if quality threshold is set"
+    exit 1
+  fi
+fi
+
+export file_type=`file -b $igvcf | head -n1 | cut -f1 -d' ' `
+export hdr_lastline=0
+export tmp_out=`mktemp`
+
+if [[ "$file_type" == "ASCII" ]] ; then
+  hdr_lastline=`grep -m1 -n '^#CHROM' "$igvcf" | cut -f1 -d':'`
+  cat <( head -n $hdr_lastline "$igvcf" ) <( egrep -v '^#' "$igvcf" | egrep -v 'NOCALL' ) | bgzip -c > "$tmp_out"
+elif [[ "$file_type" == "bzip2" ]] ; then
+  hdr_lastline=`bzgrep -m1 -n '^#CHROM' "$igvcf" | cut -f1 -d':'`
+  cat <( bgzcat "$igvcf" | head -n $hdr_lastline ) <( bzcat "$igvcf" | egrep -v '^#' | egrep -v 'NOCALL' ) | bgzip -c > "$tmp_out"
+elif [[ "$file_type" == "gzip" ]] ; then
+  hdr_lastline=`zgrep -m1 -n '^#CHROM' "$igvcf" | cut -f1 -d':'`
+  cat <( zcat "$igvcf" | head -n $hdr_lastline ) <( zcat "$igvcf" | egrep -v '^#' | egrep -v 'NOCALL' ) | bgzip -c > "$tmp_out"
+else
+  echo "unsuported file type: $file_type"
+  exit 1
+fi
+
+if [[ "$QUAL_cutoff" != "" ]] ; then
+  zcat "$tmp_out" | $filter_exe $QUAL_cutoff | bgzip -c > "$out_gvcf"
+  rm "$tmp_out"
+else
+  mv "$tmp_out" "$out_gvcf"
+fi
+
+bgzip -r "$out_gvcf"
+tabix -f "$out_gvcf"
+
+

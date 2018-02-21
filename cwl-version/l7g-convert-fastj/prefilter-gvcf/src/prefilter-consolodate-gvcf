@@ -1,0 +1,90 @@
+#!/bin/bash
+#
+# Take out non-header comments.
+# Take out 'NOCALL' lines
+# Put all gvcf files into single gvcf and index.
+#
+
+export igvcfs="$1"
+export out_gvcf="$2"
+export QUAL_cutoff="$3"
+export filter_exe="$4"
+
+
+if [[ "$igvcfs" == "" ]] ; then
+  echo "provide input gvcfs to consolidate and filter"
+  exit 1
+fi
+
+igvcf=`echo $igvcfs | cut -f1 -d' '`
+
+if [[ "$out_gvcf" == "" ]] ; then
+  out_gvcf=`basename $igvcf`
+  out_gvcf=`echo "$igvcf" | cut -f1 -d'.'`
+  out_gvcf="$out_gvcf.vcf.gz"
+fi
+
+if [[ "$out_gvcf" == "" ]] ; then
+  echo "invalid output gvcf"
+  exit 1
+fi
+
+if [[ "$QUAL_cutoff" != "" ]] ; then
+  if [[ "$filter_exe" == ""  ]] ; then
+    echo "provide filter program if quality threshold is set"
+    exit 1
+  fi
+fi
+
+export tmp_out=`mktemp`
+export hdr_lastline=0
+export first_file="1"
+
+for igvcf in $igvcfs ; do
+
+  export file_type=`file -b $igvcf | head -n1 | cut -f1 -d' ' `
+
+  if [[ "$first_file" == "1" ]] ; then
+
+    if [[ "$file_type" == "ASCII" ]] ; then
+      hdr_lastline=`grep -m1 -n '^#CHROM' "$igvcf" | cut -f1 -d':'`
+      cat <( head -n $hdr_lastline "$igvcf" ) <( egrep -v '^#' "$igvcf" | egrep -v 'NOCALL' )
+    elif [[ "$file_type" == "bzip2" ]] ; then
+      hdr_lastline=`bzgrep -m1 -n '^#CHROM' "$igvcf" | cut -f1 -d':'`
+      cat <( bgzcat "$igvcf" | head -n $hdr_lastline ) <( bzcat "$igvcf" | egrep -v '^#' | egrep -v 'NOCALL' )
+    elif [[ "$file_type" == "gzip" ]] ; then
+      hdr_lastline=`zgrep -m1 -n '^#CHROM' "$igvcf" | cut -f1 -d':'`
+      cat <( zcat "$igvcf" | head -n $hdr_lastline ) <( zcat "$igvcf" | egrep -v '^#' | egrep -v 'NOCALL' )
+    else
+      echo "unsuported file type: $file_type"
+      exit 1
+    fi
+
+  else
+
+    if [[ "$file_type" == "ASCII" ]] ; then
+      egrep -v '^#' "$igvcf" | egrep -v 'NOCALL'
+    elif [[ "$file_type" == "bzip2" ]] ; then
+      bzcat "$igvcf" | egrep -v '^#' | egrep -v 'NOCALL'
+    elif [[ "$file_type" == "gzip" ]] ; then
+      zcat "$igvcf" | egrep -v '^#' | egrep -v 'NOCALL'
+    else
+      echo "unsuported file type: $file_type"
+      exit 1
+    fi
+
+  fi
+
+  first_file="0"
+
+done | bgzip -c > "$tmp_out"
+
+if [[ "$QUAL_cutoff" != "" ]] ; then
+  zcat "$tmp_out" | $filter_exe $QUAL_cutoff | bgzip -c > "$out_gvcf"
+  rm -f "$tmp_out"
+else
+  mv "$tmp_out" "$out_gvcf"
+fi
+
+bgzip -r "$out_gvcf"
+tabix -f "$out_gvcf"

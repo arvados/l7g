@@ -18,22 +18,18 @@ inputs:
     type: File
     inputBinding:
       position: 1
-  gvcf:
+  in_gvcf:
     type: File
     inputBinding:
       position: 2
-  ofn:
-    type: string
-    inputBinding:
-      position: 3
   qual_cutoff:
     type: string
     inputBinding:
-      position: 4
-  qual_filter_exe:
-    type: File
+      position: 3
+  out_gvcf:
+    type: string
     inputBinding:
-      position: 5
+      position: 4
 
 outputs:
   result:

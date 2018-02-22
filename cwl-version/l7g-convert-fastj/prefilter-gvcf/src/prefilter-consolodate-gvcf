@@ -5,23 +5,15 @@
 # Put all gvcf files into single gvcf and index.
 #
 
-export igvcfs="$1"
-export out_gvcf="$2"
-export QUAL_cutoff="$3"
-export filter_exe="$4"
-
+export out_gvcf="$1"
+shift
+export igvcfs="$@"
 
 if [[ "$igvcfs" == "" ]] ; then
-  echo "provide input gvcfs to consolidate and filter"
+  echo ""
+  echo "usage:  prefilter-consolidate-gvcf <outgvcf> <inpgvcf0> <inpgvcf1> ..."
+  echo ""
   exit 1
-fi
-
-igvcf=`echo $igvcfs | cut -f1 -d' '`
-
-if [[ "$out_gvcf" == "" ]] ; then
-  out_gvcf=`basename $igvcf`
-  out_gvcf=`echo "$igvcf" | cut -f1 -d'.'`
-  out_gvcf="$out_gvcf.vcf.gz"
 fi
 
 if [[ "$out_gvcf" == "" ]] ; then
@@ -29,14 +21,6 @@ if [[ "$out_gvcf" == "" ]] ; then
   exit 1
 fi
 
-if [[ "$QUAL_cutoff" != "" ]] ; then
-  if [[ "$filter_exe" == ""  ]] ; then
-    echo "provide filter program if quality threshold is set"
-    exit 1
-  fi
-fi
-
-export tmp_out=`mktemp`
 export hdr_lastline=0
 export first_file="1"
 
@@ -77,14 +61,7 @@ for igvcf in $igvcfs ; do
 
   first_file="0"
 
-done | bgzip -c > "$tmp_out"
-
-if [[ "$QUAL_cutoff" != "" ]] ; then
-  zcat "$tmp_out" | $filter_exe $QUAL_cutoff | bgzip -c > "$out_gvcf"
-  rm -f "$tmp_out"
-else
-  mv "$tmp_out" "$out_gvcf"
-fi
+done | bgzip -c > "$out_gvcf"
 
 bgzip -r "$out_gvcf"
 tabix -f "$out_gvcf"

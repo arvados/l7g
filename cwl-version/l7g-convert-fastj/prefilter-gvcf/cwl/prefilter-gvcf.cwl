@@ -18,11 +18,11 @@ inputs:
     type: File
     inputBinding:
       position: 1
-  gvcf:
+  in_gvcf:
     type: File
     inputBinding:
       position: 2
-  ofn:
+  out_gvcf:
     type: string
     inputBinding:
       position: 3

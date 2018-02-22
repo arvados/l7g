@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <errno.h>
 
 #include <string>
 #include <vector>
@@ -9,6 +10,10 @@
 #include <openssl/md5.h>
 
 #include "twoBit.hpp"
+
+#define  TILE_ID_NORMAL_NAME_EXAMPLE "000f.00.000f.000f+000f"
+#define TILE_POS_NORMAL_NAME_EXAMPLE "000f.00.000f"
+#define FJCSV2SGLF_VERSION "0.1.2"
 
 //#define DEBUG_RUN
 
@@ -66,7 +71,8 @@ int normalize_name(twoBit_t *twobit) {
     // place holder name, not necessarily a real tileid or a
     // tileid we are using.
     //
-    twobit->name = "000f.00.000f.000f+000f";
+    //twobit->name = "000f.00.000f.000f+000f";
+    twobit->name = TILE_ID_NORMAL_NAME_EXAMPLE;
     return 0;
   }
   n = twobit->name.size();
@@ -131,14 +137,18 @@ int normalize_name(twoBit_t *twobit) {
 // Sort on tile ID and sequence length for later processing.
 //
 int read_csvseq_to_twobit(FILE *ifp, std::vector<sglf2bit_t *> &sglf2bit, opt_t &opt) {
-  int i, ch;
+  int i, ch, ii;
   sglf2bit_t *s2b=NULL;
   twoBit_t *twobit=NULL;
   int state=0, tile_freq;
-  std::string name, m5, seq;
+  std::string name, tid_m5_key, seq;
+
+  std::string tile_pos_example;
 
   std::map< std::string, int > fj_m5_map, fj_m5_idx_map;
   std::map< std::string, int >::iterator srch;
+
+  tile_pos_example = TILE_POS_NORMAL_NAME_EXAMPLE;
 
 #ifdef DEBUG_RUN
   uint64_t line_no=0, line_print_n = 1000;
@@ -158,7 +168,7 @@ int read_csvseq_to_twobit(FILE *ifp, std::vector<sglf2bit_t *> &sglf2bit, opt_t 
 
       if (seq.size()==0) {
         name.clear();
-        m5.clear();
+        tid_m5_key.clear();
         seq.clear();
         state=0;
         continue;
@@ -169,7 +179,7 @@ int read_csvseq_to_twobit(FILE *ifp, std::vector<sglf2bit_t *> &sglf2bit, opt_t 
       if (opt.dedup_fj) {
 
         tile_freq = 0;
-        srch = fj_m5_map.find(m5);
+        srch = fj_m5_map.find(tid_m5_key);
         if (srch != fj_m5_map.end()) {
 
           tile_freq = srch->second;
@@ -177,13 +187,13 @@ int read_csvseq_to_twobit(FILE *ifp, std::vector<sglf2bit_t *> &sglf2bit, opt_t 
         else { }
 
         tile_freq++;
-        fj_m5_map[m5] = tile_freq;
+        fj_m5_map[tid_m5_key] = tile_freq;
 
         if (tile_freq == 1) {
           twobit = new twoBit_t;
           twobit->twoBitFromDnaSeq((const char *)seq.c_str());
 
-          fj_m5_idx_map[m5] = (int)sglf2bit.size();
+          fj_m5_idx_map[tid_m5_key] = (int)sglf2bit.size();
 
           if (name.size()>0) {
             twobit->name = name;
@@ -198,14 +208,14 @@ int read_csvseq_to_twobit(FILE *ifp, std::vector<sglf2bit_t *> &sglf2bit, opt_t 
         }
         else {
 
-          srch = fj_m5_idx_map.find(m5);
+          srch = fj_m5_idx_map.find(tid_m5_key);
           if (srch != fj_m5_idx_map.end()) {
             sglf2bit[ srch->second ]->freq = tile_freq;
           }
 
         }
 
-        name.clear(); m5.clear(); seq.clear();
+        name.clear(); tid_m5_key.clear(); seq.clear();
         state=0;
         continue;
       }
@@ -227,16 +237,28 @@ int read_csvseq_to_twobit(FILE *ifp, std::vector<sglf2bit_t *> &sglf2bit, opt_t 
       sglf2bit.push_back(s2b);
 
       name.clear();
-      m5.clear();
+      tid_m5_key.clear();
       seq.clear();
       state=0;
       continue;
     }
 
-    if (ch==',') { state++; continue; }
+    if (ch==',') {
+
+      // use tile position as key prefix for our frequency lookup
+      //
+      if (state==0) {
+        for (ii=0; (ii<tile_pos_example.size()) && (ii<name.size()); ii++) {
+          tid_m5_key += name[ii];
+        }
+        tid_m5_key += ".";
+      }
+
+      state++; continue;
+    }
 
     if      (state==0) { name += (char)ch; }
-    else if (state==1) { m5 += (char)ch; }
+    else if (state==1) { tid_m5_key += (char)ch; }
     else if (state==2) { seq += (char)ch; }
     else { return -1; }
 
@@ -630,17 +652,39 @@ int main(int argc, char **argv) {
   int i, j, k;
   std::vector<sglf2bit_t *> sglf2bit;
   std::vector<std::string> tagset;
-  FILE *tagset_fp;
+  FILE *tagset_fp, *fjcsv_fp=stdin;
+
+  std::string tagset_fn, fj_fn="-";
 
   opt_t opt;
 
   opt.dedup_fj = 1;
 
+  if (argc < 2) {
+    printf("\n");
+    printf("version %s\n", FJCSV2SGLF_VERSION);
+    printf("usage:  fjcsv2sglf <tagset> [<fastj-csv-stream>]\n\n");
+    exit(0);
+  }
+
+  if (argc>=3) {
+    fj_fn = argv[2];
+    if (fj_fn != "-") {
+      fjcsv_fp = fopen(fj_fn.c_str(), "r");
+      if (fjcsv_fp == NULL) {
+        perror(fj_fn.c_str());
+        exit(1);
+      }
+    }
+  }
+
   tagset_fp = fopen(argv[1], "r");
   read_tagset(tagset_fp, tagset);
   fclose(tagset_fp);
 
-  read_csvseq_to_twobit(stdin, sglf2bit, opt);
+  read_csvseq_to_twobit(fjcsv_fp, sglf2bit, opt);
   print_sglf_seq(tagset, sglf2bit);
   cleanup(sglf2bit);
+
+  if (fjcsv_fp != stdin) { fclose(fjcsv_fp); }
 }

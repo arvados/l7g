@@ -4,6 +4,7 @@
 export igvcf="$1"
 export qual="$2"
 export out_fn="$3"
+export no_index="$4"
 export catcmd="cat"
 
 if [[ "$igvcf" == "" ]]  || [[ "$qual" == "" ]] ; then
@@ -22,6 +23,10 @@ if [[ "$ft" == "gzip" ]] ; then
   catcmd="zcat"
 elif [[ "$ft" == "bzip2" ]] ; then
   catcmd="bzcat"
+fi
+
+if [[ "$no_index" == "" ]] ; then
+  no_index=0
 fi
 
 cat <<EOF > filter_gvcf_qual.py
@@ -76,3 +81,11 @@ else
 fi
 
 rm filter_gvcf_qual.py
+
+# if no index is not set, index
+# a confusing double negative: index gvcf file if no_index is 0
+#
+if [[ "$no_index" == "0" ]] ; then
+  bgzip -r "$out_fn"
+  tabix -f "$out_fn"
+fi

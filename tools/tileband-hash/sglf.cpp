@@ -1,5 +1,7 @@
 #include "sglf.hpp"
 
+//#define _SGLF_LIB_DEBUG
+
 int parse_etileid(int *tilepath, int *tilever, int *tilestep, int *tilevar, int *span, std::string &field) {
   int i, j, k, n;
   std::vector<int> comma_pos;
@@ -15,10 +17,6 @@ int parse_etileid(int *tilepath, int *tilever, int *tilestep, int *tilevar, int 
       plus_pos=i;
     }
   }
-
-  //DEBUG
-  //printf("comma_pos.size() %i, plus_pos %i\n",
-  //    (int)comma_pos.size(), plus_pos);
 
   if (comma_pos.size()!=3) { return -2; }
 
@@ -66,7 +64,7 @@ int sglf_read(FILE *ifp, sglf_t &sglf) {
     if ((ch=='\n') || (ch==EOF)) {
       if (ch=='\n') { char_no++; line_no++; }
 
-      if (buf.size()>0) {
+      if (field_state==2) {
 
         while (tilepath >= sglf.seq.size()) {
           sglf.seq.push_back(empty_vvs);
@@ -105,13 +103,29 @@ int sglf_read(FILE *ifp, sglf_t &sglf) {
         r = parse_etileid(&tilepath, &tilever, &tilestep, &tilevar, &span, buf);
         if (span<1) { return -10; }
         if (r<0) { return r; }
+
+#ifdef _SGLF_LIB_DEBUG
+        printf("## %x.%x.%x.%x+%x\n", tilepath, tilever, tilestep, tilevar, span);
+#endif
+
       }
       else if (field_state==1) {
         m5str = buf;
+
+#ifdef _SGLF_LIB_DEBUG
+        printf("## m5: %s\n", m5str.c_str());
+#endif
+
+
       }
       else { return -5; }
 
       field_state++;
+
+#ifdef _SGLF_LIB_DEBUG
+      printf("## field_state %i\n", field_state);
+#endif
+
       buf.clear();
       continue;
     }
@@ -154,13 +168,14 @@ int sglf_print(sglf_t &sglf, int tilepath, int tilever) {
   return 0;
 }
 
-/*
+#ifdef _SGLF_LIB_DEBUG
+
 int main(int argc, char **argv) {
   int i, j, k;
   sglf_t sglf;
   int r;
 
-  int tilepath=0x35e;
+  int n_tilepath=863, tilepath;
   tilepath=0;
 
   FILE *sglf_fp=stdin;
@@ -168,14 +183,19 @@ int main(int argc, char **argv) {
   r = sglf_read(sglf_fp, sglf);
   if (r<0) { printf("ERROR: sglf_read: %i\n", r); exit(-1); }
 
-  for (tilepath=0; tilepath<sglf.seq.size(); tilepath++) {
+  printf(".... %i\n", (int)sglf.seq.size()); fflush(stdout);
+
+  for (tilepath=0; tilepath<n_tilepath; tilepath++) {
     if (sglf.seq[tilepath].size() > 0) {
+
+      printf("## printing tilepath %i (%x)\n", tilepath, tilepath);
+
       r = sglf_print(sglf, tilepath, 0);
       if (r<0) { printf("ERROR: sglf_print: %i\n", r); exit(-2); }
     }
   }
 
-  //printf("... %i\n", r);
+
 }
 
-*/
+#endif

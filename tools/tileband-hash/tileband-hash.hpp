@@ -9,6 +9,8 @@
 #include <vector>
 #include <string>
 
+#define TILEBAND_HASH_VERSION "0.1.1"
+
 typedef struct band_info_type {
   std::vector< int > band[2];
   std::vector< std::vector< int > > noc[2];

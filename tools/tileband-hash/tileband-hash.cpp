@@ -3,6 +3,7 @@
 
 int band_md5_hash(std::vector< std::string > &digest_str, std::vector< band_info_t > &band_v, sglf_t &sglf, std::vector< int > &tilepath_list) {
   int i, j, k, n, m, a;
+  size_t n_tilepath, n_tilestep, n_tilevar;
 
   int allele=0, tilepath=0, tilestep=0, tilevar=0, span_len=0;
   int noc_count=0, noc_start, noc_len, pos;
@@ -28,7 +29,10 @@ int band_md5_hash(std::vector< std::string > &digest_str, std::vector< band_info
 
     for (idx=start_idx; idx < (start_idx+del_idx); idx++) {
 
-      if (tilepath >= (int)sglf.seq.size()) { return -2; }
+      n_tilepath = ((sglf.type == SGLF_TYPE_SEQ) ? sglf.seq.size() : sglf.seq2bit.size() );
+
+      //if (tilepath >= (int)sglf.seq.size()) { return -2; }
+      if (tilepath >= (int)n_tilepath) { return -2; }
 
       tilepath = tilepath_list[idx-start_idx];
 
@@ -37,9 +41,9 @@ int band_md5_hash(std::vector< std::string > &digest_str, std::vector< band_info
         tilestep = 0;
         while (tilestep < band_v[idx].band[allele].size()) {
 
-          if (tilestep >= sglf.seq[tilepath].size()) {
-            return -3;
-          }
+          //if (tilestep >= sglf.seq[tilepath].size()) {
+          n_tilestep = ((sglf.type == SGLF_TYPE_SEQ) ? sglf.seq[tilepath].size() : sglf.seq2bit[tilepath].size() );
+          if (tilestep >= (int)n_tilestep) { return -3; }
 
           span_len=1;
           while ( ((tilestep + span_len) < band_v[idx].band[allele].size()) &&
@@ -49,9 +53,15 @@ int band_md5_hash(std::vector< std::string > &digest_str, std::vector< band_info
 
           tilevar = band_v[idx].band[allele][tilestep];
 
-          if (tilevar >= sglf.seq[tilepath][tilestep].size()) { return -4; }
+          //if (tilevar >= sglf.seq[tilepath][tilestep].size()) { return -4; }
+          n_tilevar = ((sglf.type == SGLF_TYPE_SEQ) ? sglf.seq[tilepath][tilestep].size() : sglf.seq2bit[tilepath][tilestep].size() );
+          if (tilevar >= (int)n_tilevar) { return -4; }
 
-          seq = sglf.seq[tilepath][tilestep][tilevar];
+          if (sglf.type == SGLF_TYPE_SEQ) {
+            seq = sglf.seq[tilepath][tilestep][tilevar];
+          } else {
+            sglf.seq2bit[tilepath][tilestep][tilevar].twoBitToDnaSeq(seq);
+          }
 
           noc_count=0;
           for (i=0; i<band_v[idx].noc[allele][tilestep].size(); i+=2) {
@@ -106,6 +116,117 @@ int band_md5_hash(std::vector< std::string > &digest_str, std::vector< band_info
 
   return 0;
 }
+
+//--
+
+/*
+int band_md5_hash_2bit(std::vector< std::string > &digest_str, std::vector< band_info_t > &band_v, sglf2bit_t &sglf, std::vector< int > &tilepath_list) {
+  int i, j, k, n, m, a;
+
+  int allele=0, tilepath=0, tilestep=0, tilevar=0, span_len=0;
+  int noc_count=0, noc_start, noc_len, pos;
+
+  int start_idx, idx, del_idx, ds=0;
+
+  MD5_CTX md5_ctx[2];
+  unsigned char digest[MD5_DIGEST_LENGTH];
+  char cbuf[128], *chp;
+
+  std::string hash, hash_mask, seq, seq_mask, m5_s;
+
+  k = (int)(band_v.size()) % (int)(tilepath_list.size());
+  if (k!=0) { return -1; }
+
+  del_idx = (int)tilepath_list.size();
+  m5_s.clear();
+  cbuf[0]='\0';
+
+  for (ds=0, start_idx=0; start_idx<band_v.size(); start_idx += del_idx, ds++) {
+    MD5_Init(&(md5_ctx[0]));
+    MD5_Init(&(md5_ctx[1]));
+
+    for (idx=start_idx; idx < (start_idx+del_idx); idx++) {
+
+      if (tilepath >= (int)sglf.seq2bit.size()) { return -2; }
+
+      tilepath = tilepath_list[idx-start_idx];
+
+      for (allele=0; allele<2; allele++) {
+
+        tilestep = 0;
+        while (tilestep < band_v[idx].band[allele].size()) {
+
+          if (tilestep >= sglf.seq2bit[tilepath].size()) {
+            return -3;
+          }
+
+          span_len=1;
+          while ( ((tilestep + span_len) < band_v[idx].band[allele].size()) &&
+                  (band_v[idx].band[allele][tilestep+span_len]==-1) ) {
+            span_len++;
+          }
+
+          tilevar = band_v[idx].band[allele][tilestep];
+
+          if (tilevar >= sglf.seq2bit[tilepath][tilestep].size()) { return -4; }
+
+
+          sglf.seq2bit[tilepath][tilestep][tilevar].twoBitToDnaSeq(seq);
+
+          noc_count=0;
+          for (i=0; i<band_v[idx].noc[allele][tilestep].size(); i+=2) {
+
+            noc_start = band_v[idx].noc[allele][tilestep][i];
+            noc_len = band_v[idx].noc[allele][tilestep][i+1];
+
+            for (pos=noc_start; pos<(noc_start + noc_len); pos++) {
+              seq[pos] = 'n';
+            }
+
+            noc_count += noc_len;
+
+          }
+
+          if (tilestep==0) {
+            MD5_Update(&(md5_ctx[allele]), (const void *)(seq.c_str()), (unsigned long)seq.size());
+          } else {
+
+            if (seq.size()>24) {
+              MD5_Update(&(md5_ctx[allele]), (const void *)(seq.c_str()+24), (unsigned long)(seq.size()-24));
+            }
+
+          }
+
+          tilestep+=span_len;
+
+        }
+
+      }
+
+    }
+
+    m5_s.clear();
+    MD5_Final(digest, &(md5_ctx[0]));
+    for (i=0; i<MD5_DIGEST_LENGTH; i++) {
+      sprintf(cbuf, "%02x", (unsigned int)digest[i]);
+      m5_s += cbuf;
+    }
+
+    m5_s += " ";
+
+    MD5_Final(digest, &(md5_ctx[1]));
+    for (i=0; i<MD5_DIGEST_LENGTH; i++) {
+      sprintf(cbuf, "%02x", (unsigned int)digest[i]);
+      m5_s += cbuf;
+    }
+
+    digest_str.push_back(m5_s);
+
+  }
+
+  return 0;
+}
+*/
 
 //--
 

@@ -12,12 +12,12 @@
 #include "sglf.hpp"
 #include "tileband-hash.hpp"
 
-#define TILEBAND_HASH_VERSION "0.1.0"
-
 static struct option long_options[] = {
   {"help", no_argument, NULL, 'h'},
   {"verbose", no_argument, NULL, 'v'},
   {"version", no_argument, NULL, 'V'},
+
+  {"string-seq", no_argument, NULL, 'W'},
 
   {"n-dataset", required_argument, NULL, 'n'},
   {"sglf", required_argument, NULL, 'L'},
@@ -37,6 +37,7 @@ void show_help() {
   printf("  -L sglf_stream  SGLF stream\n");
   printf("  -T tilepaths    decimal list of tilepaths (e.g. '752+2', '752-753', '752,753')\n");
   printf("  [-n N]          number of datasets to convert (input band count must be a 4x this number, default 1)\n");
+  printf("  [-W]            store sequence as ASCII in mem (default 2bit)\n");
   printf("  [-v]            Verbose\n");
   printf("  [-V]            Version\n");
   printf("  [-h]            Help\n");
@@ -152,7 +153,7 @@ int main(int argc, char **argv) {
   std::string ifn = "-", sglf_fn = "", tilepaths = "";
   FILE *ifp=NULL, *sglf_fp=NULL;
   int show_help_flag=1;
-  int verbose_flag=0;
+  int verbose_flag=0, string_seq_flag=0;
   int ch, opt, option_index;
 
   int n_dataset=1, r=0;
@@ -166,7 +167,7 @@ int main(int argc, char **argv) {
 
   sglf_t sglf;
 
-  while ((opt=getopt_long(argc, argv, "hvVL:T:n:", long_options, &option_index))!=-1) switch(opt) {
+  while ((opt=getopt_long(argc, argv, "hvVL:T:n:W", long_options, &option_index))!=-1) switch(opt) {
     case 0:
       fprintf(stderr, "invalid option, exiting\n");
       exit(-1);
@@ -183,6 +184,11 @@ int main(int argc, char **argv) {
     case 'n':
       show_help_flag=0;
       n_dataset=atoi(optarg);
+      break;
+
+    case 'W':
+      show_help_flag=0;
+      string_seq_flag=1;
       break;
 
     case 'V':
@@ -211,6 +217,9 @@ int main(int argc, char **argv) {
     }
   }
 
+  sglf.type = SGLF_TYPE_2BIT;
+  if (string_seq_flag==1) { sglf.type = SGLF_TYPE_SEQ; }
+
   if (tilepaths.size()==0) {
     printf("please provide tilepaths\n\n");
     show_help();
@@ -235,21 +244,28 @@ int main(int argc, char **argv) {
     exit(-1);
   }
 
-  //DEBUG
-  //printf("## parsed tilepaths\n"); fflush(stdout);
-  //printf("##");
-  //for (i=0; i<tilepath_list.size(); i++) { printf(" %i", tilepath_list[i]); }
-  //printf("\n"); fflush(stdout);
+  // Read SGLF library into memory
+  //
 
-  r = sglf_read(sglf_fp, sglf);
-  if (r<0) {
-    printf("ERROR: SGLF read: got %i\n", r);
-    exit(r);
+  if (sglf.type == SGLF_TYPE_SEQ) {
+
+    r = sglf_read(sglf_fp, sglf);
+    if (r<0) {
+      printf("ERROR: SGLF read: got %i\n", r);
+      exit(r);
+    }
+    fclose(sglf_fp);
+
+  } else {
+
+    r = sglf_read_2bit(sglf_fp, sglf);
+    if (r<0) {
+      printf("ERROR: SGLF read: got %i\n", r);
+      exit(r);
+    }
+    fclose(sglf_fp);
+
   }
-  fclose(sglf_fp);
-
-  //DEBUG
-  //printf("## sglf loaded\n"); fflush(stdout);
 
   r = read_bands(ifp, band_datasets);
   if (r<0) {
@@ -257,9 +273,6 @@ int main(int argc, char **argv) {
     exit(r);
   }
   if (ifp!=stdin) { fclose(ifp); }
-
-  //DEBUG
-  //printf("## loaded bands\n"); fflush(stdout);
 
   if ( (band_datasets.size() % tilepath_list.size()) != 0 ){
     printf("ERROR: band dataset size mismatch: number bands %i, tilepath_list size %i, does not divide evenly\n",
@@ -269,17 +282,11 @@ int main(int argc, char **argv) {
     exit(-1);
   }
 
-  //DEBUG
-  //printf("## calculating hahses...\n"); fflush(stdout);
-
   r = band_md5_hash(digest, band_datasets, sglf, tilepath_list);
   if (r<0) {
     printf("ERROR: band_md5_hash got %i\n", r);
     exit(-1);
   }
-
-  //DEBUG
-  //printf("## ... no. digests %i\n", (int)digest.size());
 
   for (i=0; i<digest.size(); i++)  {
     printf("%s\n", digest[i].c_str());

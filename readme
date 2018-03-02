@@ -1,0 +1,11 @@
+Directories explained:
+cwl-version: when lightning scripts become cwl, they go here
+doc: documentation
+go: originally Lightning was to be written in go, but now is written
+in c++. Many go scripts are still used and live here.
+img: when documentation contains images, they end up here.
+prototype: vestigial directory
+proxy: vestigial directory
+sandbox: testing, playing, experimenting
+tools: main directory, where usefule scripts live
+

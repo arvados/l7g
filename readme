@@ -25,7 +25,7 @@ lightning tile library.
 A compact representation of a genome can be created by storing arrays of
 indexes into the Lightning tile libary referencing their underlying sequence.
 
-A representation of the compact genome represenation we've developed is called
+A representation of the compact genome representation we've developed is called
 "compact genome format" (CGF) that can represent a whole genome in ~30Mb, depending
 on the amount of low quality data in the original genome sample.
 

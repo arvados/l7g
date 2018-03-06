@@ -7,6 +7,8 @@
 #include <map>
 #include <vector>
 
+#define SGLF_MERGE_VERSION "0.1.1"
+
 typedef struct sglf_type {
   std::string tileid;
   std::string md5str;
@@ -432,6 +434,7 @@ int sglf_merge_and_print(FILE *ofp, FILE *src_fp, FILE *add_fp) {
 
 void show_help(void) {
   printf("\n");
+  printf("sglf-merge version: %s\n\n", SGLF_MERGE_VERSION);
   printf("usage: merge-sglf <source-sglf> <new-sglf>\n");
   printf("\n");
 }

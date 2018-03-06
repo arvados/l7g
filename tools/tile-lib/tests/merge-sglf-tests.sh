@@ -3,6 +3,7 @@
 VERBOSE=1
 
 merge_exec="../merge-sglf"
+sglf_check="../sglf-check"
 idir="./data"
 
 tf0="$idir/035e-small.sglf"
@@ -14,6 +15,12 @@ tf4="$idir/035e-small-top5-bot5.sglf"
 tf5="$idir/035e-small-mid20.sglf"
 
 tf6="$idir/035e-small-top8-bot8.sglf"
+
+t_a0="$idir/035e-a0.sglf"
+t_a1="$idir/035e-a1.sglf"
+
+t_b0="$idir/035e-b0.sglf"
+t_b1="$idir/035e-b1.sglf"
 
 ##
 
@@ -147,6 +154,32 @@ fi
 
 if [[ "$VERBOSE" == 1 ]] ; then
   echo "top-bottom-mid merge: ok"
+fi
+
+##
+
+a=`$merge_exec $t_a0 $t_a1 | $sglf_check -`
+
+if [[ "$a" != "ok" ]] ; then
+  echo "ERROR: single source start tilestep block: $t_a0 $t_a1 ($a)"
+  exit 1
+fi
+
+if [[ "$VERBOSE" == 1 ]] ; then
+  echo "single start tilestep block: ok"
+fi
+
+##
+
+a=`$merge_exec $t_b0 $t_b1 | $sglf_check -`
+
+if [[ "$a" != "ok" ]] ; then
+  echo "ERROR: single tilestep block failed: $t_b0 $t_b1 ($a)"
+  exit 1
+fi
+
+if [[ "$VERBOSE" == 1 ]] ; then
+  echo "single tilestep block: ok"
 fi
 
 ##

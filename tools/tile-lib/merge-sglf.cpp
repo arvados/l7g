@@ -7,6 +7,8 @@
 #include <map>
 #include <vector>
 
+#define SGLF_MERGE_VERSION "0.1.1"
+
 typedef struct sglf_type {
   std::string tileid;
   std::string md5str;
@@ -67,6 +69,23 @@ int parse_tileid(int &tilepath, int &tilever, int &tilestep, int &tilevar, int &
   return 0;
 }
 
+enum SGLF_READSTATE_ENUM {
+  SGLF_RS_ERR = -1,
+  SGLF_RS_OK = 0,
+  SGLF_RS_OK_EOF = 1,
+  SGLF_RS_EOF = 2,
+};
+
+// Read in an SGLF line and store the tilepath, tile library version, tilestep and tile span into the
+// appropriate variables.
+// Fill the `m5st` and `seq` variables with the rad in hash and sequence from the file.
+//
+// Return:
+//  -1 - error
+//   0 - success
+//   1 - EOF (line read in successfully but encountered an EOF at the end)
+//   2 - EOF (no data read)
+//
 int read_sglf_line(FILE *fp,
     int &tilepath, int &tilever, int &tilestep, int &tilevar, int &tilespan,
     std::string &m5str,
@@ -84,7 +103,7 @@ int read_sglf_line(FILE *fp,
     }
   }
 
-  if (ch==EOF) { return 2; }
+  if (ch==EOF) { return SGLF_RS_EOF; }
 
   buf.clear();
   while (!feof(fp)) {
@@ -110,22 +129,26 @@ int read_sglf_line(FILE *fp,
   seq = buf;
 
   if (char_count>0) {
-    if (state != 2) { return -1; }
-    if (ch==EOF) { return 1; }
+    if (state != 2) { return SGLF_RS_ERR; }
+    if (ch==EOF) { return SGLF_RS_OK_EOF; }
   }
   else if (char_count==0) {
-    if (ch==EOF) { return 2; }
+    if (ch==EOF) { return SGLF_RS_EOF; }
   }
 
-  return 0;
+  return SGLF_RS_OK;
 }
 
 typedef struct tile_type {
   int path, ver, step, var, span;
-  //std::string md5str;
-  //std::string seq;
 } tile_t;
 
+// This does a 'zipper'-like merge of both SGLF streams.
+// A whole tilestep is read from the first stream and printed
+// and the second stream is read for a whole tilestep, only
+// printing the tiles that haven't already been printed.
+//
+//
 int sglf_merge_and_print(FILE *ofp, FILE *src_fp, FILE *add_fp) {
   int r, src_line_no=0, add_line_no=0;
   int varid=-1;
@@ -146,17 +169,28 @@ int sglf_merge_and_print(FILE *ofp, FILE *src_fp, FILE *add_fp) {
 
   while ( (!feof(src_fp)) && (!feof(add_fp)) ) {
 
+    // reset the variable id and map of seen seqeunce hashes
+    // per tilestep block
+    //
     varid = -1;
     src_m5_map.clear();
 
+
+    // print the already read in line of the beginning of the
+    // 'tilestep block'.
+    // We want to skip on the first pass so we've used a flag.
+    //
     if (src_print_prev) {
       src_m5_map[src_m5] = 1;
       printf("%04x.%02x.%04x.%03x+%x,%s,%s\n",
         src.path, src.ver, src.step, src.var, src.span,
         src_m5.c_str(),
         src_seq.c_str());
+      varid = src.var;
     }
 
+    // Read a tilestep block from the 'src' SGLF stream
+    //
     while (!feof(src_fp)) {
       r = read_sglf_line(src_fp,
                          src.path, src.ver, src.step, src.var, src.span,
@@ -164,16 +198,15 @@ int sglf_merge_and_print(FILE *ofp, FILE *src_fp, FILE *add_fp) {
                          src_seq);
       src_line_no++;
       if (r<0) { fprintf(stderr, "ERROR on source sglf line %i\n", src_line_no); continue; }
-      else if (r==1) {
-        // we've read a line but got EOF instead of newline at the end, let the logic outside
-        // of this loop print the result.
+
+      // we've read a line but got EOF instead of newline at the end, let the logic outside
+      // of this loop print the result.
+      //
+      else if (r==SGLF_RS_OK_EOF) {
         src_print_prev=1;
         continue;
       }
-      else if (r==2) {
-
-        // non-error eof
-        //
+      else if (r==SGLF_RS_EOF) {
         src_print_prev=0;
         continue;
       }
@@ -187,6 +220,8 @@ int sglf_merge_and_print(FILE *ofp, FILE *src_fp, FILE *add_fp) {
 
       src_print_prev=1;
 
+      // We've encountered the next tilestep block, break
+      //
       if ((src.path != src_prev.path) ||
           (src.ver  != src_prev.ver) ||
           (src.step != src_prev.step)) {
@@ -215,11 +250,20 @@ int sglf_merge_and_print(FILE *ofp, FILE *src_fp, FILE *add_fp) {
 
     }
 
+    // The 'src' SGLF stream tilestep block is catching up
+    // to the 'add' SGLF stream, so keep on processing
+    // the 'src' SGLF stream.
+    //
     if ((add.path == src.path) &&
         (add.step >= src.step)) {
       continue;
     }
 
+    // src.step holds the beginning of the 'queued' tilestep block
+    // from the 'src' stream.
+    // Print the beginning of the tilestep block if appropriate
+    // We want to skip on the first pass so we've used a flag.
+    //
     if (add_print_prev) {
 
       if ( (add.path < src.path) ||
@@ -231,14 +275,11 @@ int sglf_merge_and_print(FILE *ofp, FILE *src_fp, FILE *add_fp) {
           varid++;
 
           printf("%04x.%02x.%04x.%03x+%x,%s,%s\n",
-              //add.path, add.ver, add.step, add.var, add.span,
               add.path, add.ver, add.step, varid, add.span,
               add_m5.c_str(),
               add_seq.c_str());
         }
-        else {
-          //printf("# add skip %s\n", add_m5.c_str());
-        }
+        else { }
 
       }
 
@@ -253,16 +294,15 @@ int sglf_merge_and_print(FILE *ofp, FILE *src_fp, FILE *add_fp) {
 
       add_line_no++;
       if (r<0) { fprintf(stderr, "ERROR on other sglf line %i\n", add_line_no); continue; }
-      else if (r==1) {
-        // we've read a line but got EOF instead of newline at the end, let the logic outside
-        // of this loop print the result.
+
+      // we've read a line but got EOF instead of newline at the end, let the logic outside
+      // of this loop print the result.
+      //
+      else if (r==SGLF_RS_OK_EOF) {
         add_print_prev=1;
         continue;
       }
-      else if (r==2) {
-
-        // non-error eof
-        //
+      else if (r==SGLF_RS_EOF) {
         add_print_prev=0;
         continue;
       }
@@ -273,7 +313,6 @@ int sglf_merge_and_print(FILE *ofp, FILE *src_fp, FILE *add_fp) {
         add_prev.step = add.step;
       }
       add_beg=0;
-
 
       add_print_prev = 1;
 
@@ -289,9 +328,7 @@ int sglf_merge_and_print(FILE *ofp, FILE *src_fp, FILE *add_fp) {
               add_m5.c_str(),
               add_seq.c_str());
         }
-        else {
-          //printf("# skipping %s\n", add_m5.c_str());
-        }
+        else { }
 
         if (add.step != add_prev.step) { varid=-1; }
 
@@ -308,7 +345,7 @@ int sglf_merge_and_print(FILE *ofp, FILE *src_fp, FILE *add_fp) {
 
   }
 
-  // Doa final process of the src sglf
+  // Do a final process of the src sglf
   //
   if (src_print_prev) {
     src_m5_map[src_m5] = 1;
@@ -318,9 +355,10 @@ int sglf_merge_and_print(FILE *ofp, FILE *src_fp, FILE *add_fp) {
       src_seq.c_str());
   }
 
-
-  //DEBUG
-  //printf("...cp\n"); fflush(stdout);
+  // One of the two streams is at EOF so run through and
+  // process and print both with the understadning that only
+  // one will actually be processed.
+  //
 
   while (!feof(src_fp)) {
     r = read_sglf_line(src_fp,
@@ -329,32 +367,7 @@ int sglf_merge_and_print(FILE *ofp, FILE *src_fp, FILE *add_fp) {
                        src_seq);
     src_line_no++;
     if (r<0) { fprintf(stderr, "ERROR on source sglf line %i\n", src_line_no); continue; }
-    else if (r==2) { continue; }
-
-    /*
-    if (src_print_prev==0) {
-      src_prev.path = src.path;
-      src_prev.ver  = src.ver;
-      src_prev.step = src.step;
-      src_prev.var  = src.var;
-    }
-
-    src_print_prev=1;
-
-    if ((src.path != src_prev.path) ||
-        (src.ver  != src_prev.ver) ||
-        (src.step != src_prev.step)) {
-
-      src_prev.path = src.path;
-      src_prev.ver  = src.ver;
-      src_prev.step = src.step;
-
-      break;
-    }
-    */
-
-  //DEBUG
-  //printf("...cp1\n"); fflush(stdout);
+    else if (r==SGLF_RS_EOF) { continue; }
 
     src_m5_map[src_m5] = 1;
     printf("%04x.%02x.%04x.%03x+%x,%s,%s\n",
@@ -387,9 +400,7 @@ int sglf_merge_and_print(FILE *ofp, FILE *src_fp, FILE *add_fp) {
           add_m5.c_str(),
           add_seq.c_str());
     }
-    else {
-      //printf("# add skip (fin) %s\n", add_m5.c_str());
-    }
+    else { }
 
   }
 
@@ -400,7 +411,7 @@ int sglf_merge_and_print(FILE *ofp, FILE *src_fp, FILE *add_fp) {
                        add_seq);
     add_line_no++;
     if (r<0) { fprintf(stderr, "ERROR on other sglf line %i\n", add_line_no); continue; }
-    else if (r==2) { continue; }
+    else if (r==SGLF_RS_EOF) { continue; }
     //else if (r==1) { continue; }
 
     add_print_prev = 1;
@@ -414,18 +425,16 @@ int sglf_merge_and_print(FILE *ofp, FILE *src_fp, FILE *add_fp) {
           add_m5.c_str(),
           add_seq.c_str());
     }
-    else {
-      //printf("# skipping %s\n", add_m5.c_str());
-    }
+    else { }
 
   }
 
-
-
+  return 0;
 }
 
 void show_help(void) {
   printf("\n");
+  printf("sglf-merge version: %s\n\n", SGLF_MERGE_VERSION);
   printf("usage: merge-sglf <source-sglf> <new-sglf>\n");
   printf("\n");
 }

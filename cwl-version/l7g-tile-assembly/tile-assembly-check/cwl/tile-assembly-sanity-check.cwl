@@ -7,39 +7,28 @@ requirements:
     coresMin: 1
   - class: InlineJavascriptRequirement
 
-baseCommand: bash
+baseCommand: python
 
 inputs:
   script:
     type: File
     inputBinding:
       position: 1
-  tileassembly_hg19:
+  tileassembly:
     type: File
     inputBinding:
       position: 2
     secondaryFiles:
       - .gzi
       - .fwi
-  tagset:
-    type: File
+  out_fn:
+    type: string
     inputBinding:
       position: 3
-    secondaryFiles:
-      - .fai
-      - .gzi
-  refFa_hg38:
-    type: File
-    inputBinding:
-      position: 4
-    secondaryFiles:
-      - .fai
-      - .gzi
 
 outputs:
   result:
-    type: File[]
+    type: Directory
     outputBinding:
-      glob: "assembly.*"
-
+      glob: "."
 

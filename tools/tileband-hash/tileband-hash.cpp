@@ -55,7 +55,12 @@ int band_md5_hash(std::vector< std::string > &digest_str, std::vector< band_info
 
           //if (tilevar >= sglf.seq[tilepath][tilestep].size()) { return -4; }
           n_tilevar = ((sglf.type == SGLF_TYPE_SEQ) ? sglf.seq[tilepath][tilestep].size() : sglf.seq2bit[tilepath][tilestep].size() );
-          if (tilevar >= (int)n_tilevar) { return -4; }
+          if (tilevar >= (int)n_tilevar) {
+
+            printf("ERROR: could not find %04x.00.%04x.%03x in sglf (%i >= %i)\n", tilepath, tilestep, tilevar, (int)tilevar, (int)n_tilevar);
+
+            return -4;
+          }
 
           if (sglf.type == SGLF_TYPE_SEQ) {
             seq = sglf.seq[tilepath][tilestep][tilevar];

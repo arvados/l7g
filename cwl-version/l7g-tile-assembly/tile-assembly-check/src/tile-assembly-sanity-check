@@ -1,0 +1,124 @@
+#!/usr/bin/python
+#
+# Check for tile assembly consistency.
+# This check won't catch all errors but is meant to
+# do some basic sanity checking to have some reasonable
+# assurances the data is valid.
+#
+
+import sys
+import gzip
+
+VERBOSE = False
+
+if len(sys.argv) < 2:
+  print "provide input tile assembly file"
+  sys.exit(0)
+assembly_fn = sys.argv[1]
+
+out_fp = sys.stdout
+if len(sys.argv) >= 3:
+  out_fp = open(sys.argv[2], "w")
+
+chrom_l0 = [ "chr" + str(c) for c in range(1,23) ] + [ "chrX", "chrY", "chrM" ]
+chrom_l1 = [ str(c) for c in range(1,23) ] + [ "X", "Y", "MT" ]
+
+def check_assembly(fn):
+  fp = gzip.open(fn)
+  line_no=0
+
+  first = True
+  prev_chrom_idx = 0
+  prev_pos = 0
+  prev_ref = 'unk'
+  prev_chrom = 'unk'
+  prev_tilepath_hx = -1
+  prev_tilestep_hx = -1
+  prev_tilepath = -1
+
+  prev_tilestep_hx = ""
+  prev_tilestep = -1
+
+  for line in fp:
+    line = line.strip()
+    line_no+=1
+
+    if len(line) == 0 : continue
+    if line[0] == '#': continue
+    if line[0] == '>':
+      fields = line[1:].split(":")
+      if first:
+        prev_chrom_idx = 0
+        prev_pos = 0
+        prev_chrom = fields[1]
+        prev_tilepath_hx = fields[2]
+        prev_tilepath = int(prev_tilepath_hx, 16)
+        prev_ref = fields[0]
+
+        prev_tilestep = -1
+        first = False
+
+        if VERBOSE:
+          out_fp.write("# first: " + str(prev_chrom_idx) + " " + str(prev_chrom) + " " +  str(prev_pos) + " " + str(prev_tilepath_hx) + " " + str(prev_ref) + "\n")
+
+        continue
+
+      if len(fields)!=3:
+        return "ERROR: incorrect format for fields in tilepath header (line " + str(line_no) + ")"
+
+      cur_ref, cur_chrom, cur_tilepath_hx = fields[0], fields[1], fields[2]
+      if cur_ref != prev_ref:
+        return "ERROR: prev_ref " + prev_ref + " != " + fields[0] + " (line " + str(line_no) + ")"
+      if cur_chrom != prev_chrom:
+        if (prev_chrom_idx + 1) >= len(chrom_l0):
+          return "ERROR: chrom exceeded (line " + str(line_no) + ")"
+        if (cur_chrom != chrom_l0[prev_chrom_idx + 1]) and (cur_chrom != chrom_l1[prev_chrom_idx + 1]):
+          return "ERROR: invalid chromosome name: " + cur_chrom + " (line " + str(line_no) + ")"
+      cur_tilepath = int(cur_tilepath_hx, 16)
+      if (cur_tilepath - prev_tilepath) != 1:
+        return "ERROR: invalid tilepath: " + cur_tilepath_hx + " (line " + str(line_no) + ")"
+
+      if cur_chrom != prev_chrom:
+        prev_pos = 0
+        prev_chrom_idx += 1
+
+      ##DEBUG
+      if VERBOSE:
+        out_fp.write("# hdr: "  + str(cur_chrom) + " " + str(cur_ref) + " " + str(cur_tilepath) + " " + str(cur_tilepath_hx))
+        out_fp.write("#      " + str(prev_chrom_idx) + " " + str(prev_chrom) + " " + str(prev_pos) + " " + str(prev_tilepath_hx) + " " + str(prev_ref))
+
+      prev_tilepath = cur_tilepath
+      prev_tilepah_hx = cur_tilepath_hx
+      prev_chrom = cur_chrom
+      prev_ref = cur_ref
+      prev_tilestep = -1
+      continue
+
+    fields = line.split("\t")
+    if len(fields) != 2:
+      return "ERROR: invlaid format for tilestep fields (line " + str(line_no) + ")"
+    cur_tilestep_hx,pos_str = fields[0],fields[1]
+
+    cur_tilestep = int(cur_tilestep_hx,16)
+    cur_pos = int(pos_str)
+
+    if cur_tilestep <= prev_tilestep:
+      return "ERROR: incorrect tilestep: " + str(cur_tilestep_hx) + " (line " + str(line_no) + ")"
+    if (cur_pos - prev_pos) < 0:
+      return "ERROR: position non increasing (line " + str(line_no) + ")"
+
+    prev_tilestep_hx = cur_tilestep_hx
+    prev_tilestep = cur_tilestep
+    prev_pos = cur_pos
+
+  return None
+
+
+
+r = check_assembly(assembly_fn)
+
+if r is not None:
+  out_fp.write(r + "\n")
+else:
+  out_fp.write("ok\n")
+

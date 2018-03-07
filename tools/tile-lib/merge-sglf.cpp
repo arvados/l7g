@@ -322,6 +322,11 @@ int sglf_merge_and_print(FILE *ofp, FILE *src_fp, FILE *add_fp) {
         srch = src_m5_map.find(add_m5);
         if (srch == src_m5_map.end()) {
 
+          // The 'src' stream skipped a tilestep but the 'add' stream
+          // hasn't, so reset the varid counter
+          //
+          if (add.step != add_prev.step) { varid=-1; }
+
           varid++;
           printf("%04x.%02x.%04x.%03x+%x,%s,%s\n",
               add.path, add.ver, add.step, varid, add.span,
@@ -330,12 +335,8 @@ int sglf_merge_and_print(FILE *ofp, FILE *src_fp, FILE *add_fp) {
         }
         else { }
 
-        if (add.step != add_prev.step) { varid=-1; }
-
       }
-      else {
-        break;
-      }
+      else { break; }
 
       add_prev.path = add.path;
       add_prev.ver  = add.ver;

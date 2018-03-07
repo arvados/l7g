@@ -10,6 +10,8 @@
 #include <map>
 #include <vector>
 
+std::string errmsg;
+
 enum SGLF_READSTATE_ENUM {
   SGLF_RS_ERR = -1,
   SGLF_RS_OK = 0,
@@ -84,8 +86,17 @@ int parse_tileid(int &tilepath, int &tilever, int &tilestep, int &tilevar, int &
   //--
 
   li = strtol(tileid_str.c_str() + pos, NULL, 16);
-  if ((errno == ERANGE) || (errno == EINVAL)) { return -7; }
+  if ((errno == ERANGE) || (errno == EINVAL)) { return -8; }
   tilespan = (int)li;
+
+  for (;
+      (pos<n) &&
+      ( ((tileid_str[pos] >= '0') && (tileid_str[pos] <= '9')) ||
+        ((tileid_str[pos] >= 'a') && (tileid_str[pos] <= 'f')) ||
+        ((tileid_str[pos] >= 'A') && (tileid_str[pos] <= 'F')) ) ;
+        pos++);
+
+  if (pos!=n) { return -9; }
 
   return 0;
 }
@@ -95,6 +106,7 @@ int read_sglf_line(FILE *fp,
     int &tilepath, int &tilever, int &tilestep, int &tilevar, int &tilespan,
     std::string &m5str,
     std::string &seq) {
+  int ret=0;
   int ch, state=0, char_count=0;
   std::string buf;
 
@@ -119,7 +131,13 @@ int read_sglf_line(FILE *fp,
 
     if (ch==',') {
 
-      if      (state == 0) { parse_tileid(tilepath, tilever, tilestep, tilevar, tilespan, buf); }
+      if      (state == 0) {
+        ret=parse_tileid(tilepath, tilever, tilestep, tilevar, tilespan, buf);
+        if (ret<0) {
+          errmsg = "invalid tileid: " + buf;
+          return SGLF_RS_ERR;
+        }
+      }
       else if (state == 1) { m5str = buf; }
 
       buf.clear();
@@ -134,7 +152,10 @@ int read_sglf_line(FILE *fp,
   seq = buf;
 
   if (char_count>0) {
-    if (state != 2) { return SGLF_RS_ERR; }
+    if (state != 2) {
+      errmsg = "invalid state";
+      return SGLF_RS_ERR;
+    }
     if (ch==EOF) { return SGLF_RS_OK_EOF; }
   }
   else if (char_count==0) {
@@ -182,16 +203,16 @@ int main(int argc, char **argv) {
     line_no++;
 
     if (r==SGLF_RS_ERR) {
-      printf("ERROR: got %i at line_no %i\n", r, line_no);
+      printf("ERROR: got %i at line_no %i (%s)\n", r, line_no, errmsg.c_str());
       exit(-1);
     }
     else if (r==SGLF_RS_EOF) { continue; }
 
     if (tilespan <= 0) {
-      printf("ERROR: got %i (%04x.%02x.%04x.%03x+%x) for tile span at line_no %i\n",
+      printf("ERROR: got %i for tile span at line_no %i (%04x.%02x.%04x.%03x+%x)\n",
           tilespan,
-          tilepath, tilever, tilestep, tilevar, tilespan,
-          line_no);
+          line_no,
+          tilepath, tilever, tilestep, tilevar, tilespan);
       exit(-2);
     }
 

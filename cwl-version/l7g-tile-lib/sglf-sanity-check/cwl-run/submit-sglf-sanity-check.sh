@@ -5,6 +5,6 @@ arvados-cwl-runner \
   --disable-reuse \
   --api=containers \
   --no-wait \
-  sglf-sanity-check.cwl \
-  cwl-run/sglf-sanity-check.yml
+  cwl/sglf-sanity-check.cwl \
+  yml/sglf-sanity-check.yml
 

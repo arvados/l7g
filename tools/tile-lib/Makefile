@@ -10,3 +10,5 @@ sglf-check: sglf-check.cpp
 
 merge-sglf_debug: merge-sglf.cpp
 	${CC} ${OPT_DEBUG} merge-sglf.cpp -o merge-sglf_debug
+
+all: merge-sglf sglf-check merge-sglf_debug

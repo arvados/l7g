@@ -170,7 +170,7 @@ int main(int argc, char **argv) {
   std::string fn;
   FILE *fp=stdin;
 
-  int line_no=0;
+  int i, line_no=0;
 
   int tilepath, tilever, tilestep, tilevar, tilespan;
   int prv_tilepath=-1, prv_tilever=-1, prv_tilestep=-1, prv_tilevar=-1, prv_tilespan=-1;
@@ -226,7 +226,17 @@ int main(int argc, char **argv) {
             line_no);
         exit(-6);
       }
+    }
 
+    for (i=0; i<seq.size(); i++) {
+      if ( (seq[i]!='a') &&
+           (seq[i]!='c') &&
+           (seq[i]!='g') &&
+           (seq[i]!='t') ) {
+        printf("ERROR: sequence contains not 'a', 'c', 'g', 't' characters (seq pos %i) at line_no %i\n",
+            i, line_no);
+        exit(-7);
+      }
     }
 
     if (tilepath != prv_tilepath) { }

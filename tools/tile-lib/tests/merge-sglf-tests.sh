@@ -22,6 +22,9 @@ t_a1="$idir/035e-a1.sglf"
 t_b0="$idir/035e-b0.sglf"
 t_b1="$idir/035e-b1.sglf"
 
+t_c0="$idir/035e-c0.sglf"
+t_c1="$idir/035e-c1.sglf"
+
 skip0="$idir/035e-skip-tilestep-0.sglf"
 skip1="$idir/035e-skip-tilestep-1.sglf"
 
@@ -183,6 +186,19 @@ fi
 
 if [[ "$VERBOSE" == 1 ]] ; then
   echo "single tilestep block: ok"
+fi
+
+##
+
+a=`$merge_exec $t_c0 $t_c1 | $sglf_check -`
+
+if [[ "$a" != "ok" ]] ; then
+  echo "ERROR: single/missing tilestep blocks failed: $t_c0 $t_c1 ($a)"
+  exit 1
+fi
+
+if [[ "$VERBOSE" == 1 ]] ; then
+  echo "single/missing tilestep blocks: ok"
 fi
 
 ##

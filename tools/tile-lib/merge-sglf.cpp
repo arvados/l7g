@@ -7,7 +7,7 @@
 #include <map>
 #include <vector>
 
-#define SGLF_MERGE_VERSION "0.1.1"
+#define SGLF_MERGE_VERSION "0.1.3"
 
 typedef struct sglf_type {
   std::string tileid;
@@ -75,6 +75,16 @@ enum SGLF_READSTATE_ENUM {
   SGLF_RS_OK_EOF = 1,
   SGLF_RS_EOF = 2,
 };
+
+void make_tile_key(std::string &key, int tilepath, int tilever, int tilestep, std::string &m5str) {
+  char buf[64];
+
+  snprintf(buf, 63, "%04x.%02x.%04x:", tilepath, tilever, tilestep);
+
+  key.clear();
+  key = buf;
+  key += m5str;
+}
 
 // Read in an SGLF line and store the tilepath, tile library version, tilestep and tile span into the
 // appropriate variables.
@@ -153,11 +163,16 @@ int sglf_merge_and_print(FILE *ofp, FILE *src_fp, FILE *add_fp) {
   int r, src_line_no=0, add_line_no=0;
   int varid=-1;
 
-  tile_t src, src_prev, add, add_prev;
+  tile_t src, src_prev, add;
+
+  int have_emitted=0;
+  tile_t last_emitted;
 
   std::string src_buf, add_buf;
   std::string src_m5, src_seq;
   std::string add_m5, add_seq;
+
+  std::string src_m5_key, add_m5_key;
 
   int src_print_prev=0, add_print_prev=0, add_beg=1;
 
@@ -181,12 +196,15 @@ int sglf_merge_and_print(FILE *ofp, FILE *src_fp, FILE *add_fp) {
     // We want to skip on the first pass so we've used a flag.
     //
     if (src_print_prev) {
-      src_m5_map[src_m5] = 1;
+      //src_m5_map[src_m5] = 1;
+      src_m5_map[src_m5_key] = 1;
       printf("%04x.%02x.%04x.%03x+%x,%s,%s\n",
         src.path, src.ver, src.step, src.var, src.span,
         src_m5.c_str(),
         src_seq.c_str());
       varid = src.var;
+
+      last_emitted = src;
     }
 
     // Read a tilestep block from the 'src' SGLF stream
@@ -211,6 +229,8 @@ int sglf_merge_and_print(FILE *ofp, FILE *src_fp, FILE *add_fp) {
         continue;
       }
 
+      make_tile_key(src_m5_key, src.path, src.ver, src.step, src_m5);
+
       if (src_print_prev==0) {
         src_prev.path = src.path;
         src_prev.ver  = src.ver;
@@ -233,7 +253,8 @@ int sglf_merge_and_print(FILE *ofp, FILE *src_fp, FILE *add_fp) {
         break;
       }
 
-      src_m5_map[src_m5] = 1;
+      //src_m5_map[src_m5] = 1;
+      src_m5_map[src_m5_key] = 1;
       printf("%04x.%02x.%04x.%03x+%x,%s,%s\n",
           src.path, src.ver, src.step, src.var, src.span,
           src_m5.c_str(),
@@ -243,11 +264,7 @@ int sglf_merge_and_print(FILE *ofp, FILE *src_fp, FILE *add_fp) {
       src_prev.step = src.step;
 
       varid = src.var;
-
-      src_prev.path = src.path;
-      src_prev.ver  = src.ver;
-      src_prev.step = src.step;
-
+      last_emitted = src;
     }
 
     // The 'src' SGLF stream tilestep block is catching up
@@ -269,7 +286,8 @@ int sglf_merge_and_print(FILE *ofp, FILE *src_fp, FILE *add_fp) {
       if ( (add.path < src.path) ||
            ((add.path == src.path) && (add.step < src.step)) ) {
 
-        srch = src_m5_map.find(add_m5);
+        //srch = src_m5_map.find(add_m5);
+        srch = src_m5_map.find(add_m5_key);
         if (srch == src_m5_map.end()) {
 
           varid++;
@@ -278,6 +296,11 @@ int sglf_merge_and_print(FILE *ofp, FILE *src_fp, FILE *add_fp) {
               add.path, add.ver, add.step, varid, add.span,
               add_m5.c_str(),
               add_seq.c_str());
+
+          add_beg=0;
+
+          last_emitted = add;
+          last_emitted.var = varid;
         }
         else { }
 
@@ -285,7 +308,6 @@ int sglf_merge_and_print(FILE *ofp, FILE *src_fp, FILE *add_fp) {
 
     }
 
-    add_beg=1;
     while (!feof(add_fp)) {
       r = read_sglf_line(add_fp,
                          add.path, add.ver, add.step, add.var, add.span,
@@ -307,41 +329,40 @@ int sglf_merge_and_print(FILE *ofp, FILE *src_fp, FILE *add_fp) {
         continue;
       }
 
-      if (add_beg==1) {
-        add_prev.path = add.path;
-        add_prev.ver  = add.ver;
-        add_prev.step = add.step;
-      }
-      add_beg=0;
+      make_tile_key(add_m5_key, add.path, add.ver, add.step, add_m5);
 
       add_print_prev = 1;
 
       if ( (add.path < src.path) ||
            ((add.path == src.path) && (add.step < src.step)) ) {
 
-        srch = src_m5_map.find(add_m5);
+        //srch = src_m5_map.find(add_m5);
+        srch = src_m5_map.find(add_m5_key);
         if (srch == src_m5_map.end()) {
 
           // The 'src' stream skipped a tilestep but the 'add' stream
           // hasn't, so reset the varid counter
           //
-          if (add.step != add_prev.step) { varid=-1; }
+          if ( (last_emitted.path != add.path) ||
+               (last_emitted.step != add.step) ) {
+            varid=-1;
+          }
 
           varid++;
+
           printf("%04x.%02x.%04x.%03x+%x,%s,%s\n",
               add.path, add.ver, add.step, varid, add.span,
               add_m5.c_str(),
               add_seq.c_str());
+
+          last_emitted = add;
+          last_emitted.var = varid;
+
         }
         else { }
 
       }
       else { break; }
-
-      add_prev.path = add.path;
-      add_prev.ver  = add.ver;
-      add_prev.step = add.step;
-
     }
 
   }
@@ -349,11 +370,14 @@ int sglf_merge_and_print(FILE *ofp, FILE *src_fp, FILE *add_fp) {
   // Do a final process of the src sglf
   //
   if (src_print_prev) {
-    src_m5_map[src_m5] = 1;
+    //src_m5_map[src_m5] = 1;
+    src_m5_map[src_m5_key] = 1;
     printf("%04x.%02x.%04x.%03x+%x,%s,%s\n",
       src.path, src.ver, src.step, src.var, src.span,
       src_m5.c_str(),
       src_seq.c_str());
+
+    last_emitted = src;
   }
 
   // One of the two streams is at EOF so run through and
@@ -370,7 +394,10 @@ int sglf_merge_and_print(FILE *ofp, FILE *src_fp, FILE *add_fp) {
     if (r<0) { fprintf(stderr, "ERROR on source sglf line %i\n", src_line_no); continue; }
     else if (r==SGLF_RS_EOF) { continue; }
 
-    src_m5_map[src_m5] = 1;
+    make_tile_key(src_m5_key, src.path, src.ver, src.step, src_m5);
+
+    //src_m5_map[src_m5] = 1;
+    src_m5_map[src_m5_key] = 1;
     printf("%04x.%02x.%04x.%03x+%x,%s,%s\n",
         src.path, src.ver, src.step, src.var, src.span,
         src_m5.c_str(),
@@ -381,18 +408,21 @@ int sglf_merge_and_print(FILE *ofp, FILE *src_fp, FILE *add_fp) {
 
     varid = src.var;
 
-    src_prev.path = src.path;
-    src_prev.ver  = src.ver;
-    src_prev.step = src.step;
-
+    last_emitted = src;
   }
 
   // Do a final process on the 'add' sglf
   //
   if (add_print_prev) {
 
-    srch = src_m5_map.find(add_m5);
+    //srch = src_m5_map.find(add_m5);
+    srch = src_m5_map.find(add_m5_key);
     if (srch == src_m5_map.end()) {
+
+      if ( (last_emitted.path != add.path) ||
+           (last_emitted.step != add.step) ) {
+        varid=-1;
+      }
 
       varid++;
 
@@ -400,6 +430,9 @@ int sglf_merge_and_print(FILE *ofp, FILE *src_fp, FILE *add_fp) {
           add.path, add.ver, add.step, varid, add.span,
           add_m5.c_str(),
           add_seq.c_str());
+
+      last_emitted = add;
+      last_emitted.var = varid;
     }
     else { }
 
@@ -415,16 +448,27 @@ int sglf_merge_and_print(FILE *ofp, FILE *src_fp, FILE *add_fp) {
     else if (r==SGLF_RS_EOF) { continue; }
     //else if (r==1) { continue; }
 
+    make_tile_key(add_m5_key, add.path, add.ver, add.step, add_m5);
+
     add_print_prev = 1;
 
-    srch = src_m5_map.find(add_m5);
+    //srch = src_m5_map.find(add_m5);
+    srch = src_m5_map.find(add_m5_key);
     if (srch == src_m5_map.end()) {
+
+      if ( (last_emitted.path != add.path) ||
+           (last_emitted.step != add.step) ) {
+        varid=-1;
+      }
 
       varid++;
       printf("%04x.%02x.%04x.%03x+%x,%s,%s\n",
           add.path, add.ver, add.step, varid, add.span,
           add_m5.c_str(),
           add_seq.c_str());
+
+      last_emitted = add;
+      last_emitted.var = varid;
     }
     else { }
 

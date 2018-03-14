@@ -7,7 +7,7 @@
 #include <map>
 #include <vector>
 
-#define SGLF_MERGE_VERSION "0.1.3"
+#define SGLF_MERGE_VERSION "0.1.4"
 
 typedef struct sglf_type {
   std::string tileid;

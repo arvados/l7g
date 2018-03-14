@@ -1,0 +1,77 @@
+#!/bin/bash
+#
+# Do some basic sanity checks on the provided
+# sglf files.
+#
+# input is directory containing files to scan
+# optional output file
+# optional parallel option
+#
+# only checks files with '.sglf.gz' extension
+
+export VERBOSE=1
+
+idir="$1"
+ofn="$2"
+ncore="$3"
+
+
+if [[ "$idir" == "" ]] ; then
+  echo "provide input file containing SGLF files to check"
+  echo ""
+  echo "usage:"
+  echo ""
+  echo "    sglf-sanity-check-p <input-directory> [output-log-file] [ncore]"
+  echo ""
+  echo ""
+  exit 1
+fi
+if [[ "$ofn" == "" ]] ; then ofn="/dev/stdout" ; fi
+if [[ "$ncore" == "" ]] ; then ncore=1 ;  fi
+
+if [[ "$VERBOSE" == "1" ]] ; then
+  echo "# idir: $idir"
+  echo "# ofn: $ofn"
+  echo "# ncore: $ncore"
+fi
+
+function check_sglf_file {
+  ifn="$1"
+  ofn="$2"
+  hxp=`basename $ifn .sglf.gz`
+
+  if [[ "$ofn" == "" ]] ; then ofn="/dev/stdout"; fi
+
+  if [[ "$VERBOSE" == "1" ]] ; then
+    echo "# processing $ifn -> $ofn ($hxp)"
+  fi
+
+  cat <( echo -n "$hxp: ") <( sglf-check <( zcat "$ifn" ) ) >> $ofn
+}
+export -f check_sglf_file
+
+tdir=`mktemp -d`
+
+if [[ "$VERBOSE" == "1" ]] ; then echo "# starting"; fi
+
+while IFS='' read -r line || [[ -n "$line" ]] ; do
+  hxp=`basename $line .sglf.gz`
+  echo "$line" $tdir/$hxp
+done < <( find $idir -maxdepth 1 -type f | egrep '\.sglf\.gz$' ) | \
+  xargs -n1 -P$ncore -I{} bash -c 'check_sglf_file {}'
+
+if [[ "$ofn" != "/dev/stdout" ]] ; then
+  rm -f $ofn
+fi
+
+if [[ "$VERBOSE" == "1" ]] ; then echo "# collecting results"; fi
+
+for x in `find $tdir -type f | sort` ; do
+  cat $x >> $ofn
+done
+
+if [[ "$VERBOSE" == "1" ]] ; then echo "# cleaning up"; fi
+
+rm -rf $tdir
+
+if [[ "$VERBOSE" == "1" ]] ; then echo "# done "; fi

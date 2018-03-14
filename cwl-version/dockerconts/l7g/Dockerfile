@@ -43,7 +43,8 @@ RUN mkdir -p /root/git && \
   cd /root/git/l7g/tools/tile-assembly && make && \
   cp /root/git/l7g/tools/tile-assembly/tile-assembly /usr/local/bin && \
 
-  cd /root/git/l7g/tools/tile-lib && go build merge-tilelib.go && make all && \
+  cd /root/git/l7g/tools/tile-lib && go build merge-tilelib.go && \
+  make all && \
   cp /root/git/l7g/tools/tile-lib/merge-tilelib /usr/local/bin  && \
   cp /root/git/l7g/tools/tile-lib/merge-sglf /usr/local/bin  && \
   cp /root/git/l7g/tools/tile-lib/sglf-check /usr/local/bin  && \

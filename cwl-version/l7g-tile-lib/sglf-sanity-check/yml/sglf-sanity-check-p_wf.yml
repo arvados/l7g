@@ -1,0 +1,10 @@
+
+script:
+  class: File
+  path: ../src/sglf-sanity-check-p
+
+idir:
+  class: Directory
+  path: keep:cf503ce74715c987aa24502628a427fb+82575
+
+nBatch: "12"

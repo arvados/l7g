@@ -5,7 +5,6 @@ requirements:
     dockerPull: arvados/l7g
   - class: ResourceRequirement
     coresMin: 1
-  - class: InlineJavascriptRequirement
 
 baseCommand: python
 

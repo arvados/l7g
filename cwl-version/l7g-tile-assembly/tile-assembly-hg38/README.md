@@ -17,17 +17,21 @@ CWL Pipeline Submission
 On Arvados:
 
 ```
-arvados-cwl-runner --disable-reuse --local l7g-hg38-tile-assemble.cwl l7g-hg38-tile-assembly.yml
+arvados-cwl-runner \
+  --disable-reuse \
+  --local \
+  cwl/hg38-tileassemble.cwl \
+  yml/hg38-tileassembly.yml
 ```
 
 Local Run
 ---
 
 ```
-./build-tagset.sh \
-  /path/to/cytoband-file \
-  /path/to/wgEncodeCrgMapabilityAlign24mer.bw \
-  /path/to/hg19.fa.gz
+./src/build-hg38-tileassembly.sh \
+  /path/to/assembly.00.hg19.fw.gz \
+  /path/to/tagset.fa.gz \
+  /path/to/hg38.fa.gz
 ```
 
 This wil create a temporary `stage` directory that will be deleted
@@ -35,8 +39,8 @@ after completion.
 
 Four files are created:
 
-* `assembly.00.hg19.fw.gz` - The tile assembly file compressed with `bgzip`
-* `assembly.00.hg19.fw.gz.gzi` - The index to the `.gz` file above
-* `assembly.00.hg19.fw.gz.fwi` - The index to the fixed width
-* `assembly.00.hg19.fw.fwi` - The index to the fixed width (identical to `assembly.00.hg19.fw.gz.fwi`)
+* `assembly.00.hg38.fw.gz` - The tile assembly file compressed with `bgzip`
+* `assembly.00.hg38.fw.gz.gzi` - The index to the `.gz` file above
+* `assembly.00.hg38.fw.gz.fwi` - The index to the fixed width
+* `assembly.00.hg38.fw.fwi` - The index to the fixed width (identical to `assembly.00.hg38.fw.gz.fwi`)
 

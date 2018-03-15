@@ -1,0 +1,10 @@
+script:
+  class: File
+  path: ../src/tile-assembly-sanity-check
+
+tileassembly:
+  class: File
+  path: keep:98c5e71956730c36cc89bb25b99fe58b+965/assembly.00.human_g1k_v37.fw.gz
+
+out_fn: "out.log"
+

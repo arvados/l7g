@@ -1,15 +1,11 @@
 cwlVersion: v1.0
 class: CommandLineTool
-$namespaces:
-  arv: "http://arvados.org/cwl#"
 requirements:
   - class: DockerRequirement
     dockerPull: arvados/l7g
   - class: ResourceRequirement
     coresMin: 1
   - class: InlineJavascriptRequirement
-  - class: arv:RuntimeConstraints
-    keep_cache: 10000
 
 baseCommand: bash
 
@@ -18,13 +14,13 @@ inputs:
     type: File
     inputBinding:
       position: 1
-  gffFn:
+  tileassembly_hg19:
     type: File
     inputBinding:
       position: 2
     secondaryFiles:
-      - .tbi
       - .gzi
+      - .fwi
   tagset:
     type: File
     inputBinding:
@@ -32,30 +28,18 @@ inputs:
     secondaryFiles:
       - .fai
       - .gzi
-  tileassembly:
+  refFa_hg38:
     type: File
     inputBinding:
       position: 4
     secondaryFiles:
-      - .fwi
-      - .gzi
-  refFaFn:
-    type: File
-    inputBinding:
-      position: 5
-    secondaryFiles:
       - .fai
       - .gzi
-  name:
-    type: string
-    default: ""
-    inputBinding:
-      position: 6
 
 outputs:
   result:
-    type: Directory
+    type: File[]
     outputBinding:
-      glob: "."
+      glob: "assembly.*"
 
 

@@ -1,0 +1,57 @@
+script:
+  class: File
+  path: ../src/prefilter-consolidate-gvcf
+
+in_gvcfs:
+  - class: File
+    path: keep:d28635852ef99ec078a10ee7dcc5d9cc+1119/out/hu826751_chr1.gvcf.gz
+  - class: File
+    path: keep:d28635852ef99ec078a10ee7dcc5d9cc+1119/out/hu826751_chr2.gvcf.gz
+  - class: File
+    path: keep:d28635852ef99ec078a10ee7dcc5d9cc+1119/out/hu826751_chr3.gvcf.gz
+  - class: File
+    path: keep:d28635852ef99ec078a10ee7dcc5d9cc+1119/out/hu826751_chr4.gvcf.gz
+  - class: File
+    path: keep:d28635852ef99ec078a10ee7dcc5d9cc+1119/out/hu826751_chr5.gvcf.gz
+  - class: File
+    path: keep:d28635852ef99ec078a10ee7dcc5d9cc+1119/out/hu826751_chr6.gvcf.gz
+  - class: File
+    path: keep:d28635852ef99ec078a10ee7dcc5d9cc+1119/out/hu826751_chr7.gvcf.gz
+  - class: File
+    path: keep:d28635852ef99ec078a10ee7dcc5d9cc+1119/out/hu826751_chr8.gvcf.gz
+  - class: File
+    path: keep:d28635852ef99ec078a10ee7dcc5d9cc+1119/out/hu826751_chr9.gvcf.gz
+  - class: File
+    path: keep:d28635852ef99ec078a10ee7dcc5d9cc+1119/out/hu826751_chr10.gvcf.gz
+  - class: File
+    path: keep:d28635852ef99ec078a10ee7dcc5d9cc+1119/out/hu826751_chr11.gvcf.gz
+  - class: File
+    path: keep:d28635852ef99ec078a10ee7dcc5d9cc+1119/out/hu826751_chr12.gvcf.gz
+  - class: File
+    path: keep:d28635852ef99ec078a10ee7dcc5d9cc+1119/out/hu826751_chr13.gvcf.gz
+  - class: File
+    path: keep:d28635852ef99ec078a10ee7dcc5d9cc+1119/out/hu826751_chr14.gvcf.gz
+  - class: File
+    path: keep:d28635852ef99ec078a10ee7dcc5d9cc+1119/out/hu826751_chr15.gvcf.gz
+  - class: File
+    path: keep:d28635852ef99ec078a10ee7dcc5d9cc+1119/out/hu826751_chr16.gvcf.gz
+  - class: File
+    path: keep:d28635852ef99ec078a10ee7dcc5d9cc+1119/out/hu826751_chr17.gvcf.gz
+  - class: File
+    path: keep:d28635852ef99ec078a10ee7dcc5d9cc+1119/out/hu826751_chr18.gvcf.gz
+  - class: File
+    path: keep:d28635852ef99ec078a10ee7dcc5d9cc+1119/out/hu826751_chr19.gvcf.gz
+  - class: File
+    path: keep:d28635852ef99ec078a10ee7dcc5d9cc+1119/out/hu826751_chr20.gvcf.gz
+  - class: File
+    path: keep:d28635852ef99ec078a10ee7dcc5d9cc+1119/out/hu826751_chr21.gvcf.gz
+  - class: File
+    path: keep:d28635852ef99ec078a10ee7dcc5d9cc+1119/out/hu826751_chr22.gvcf.gz
+  - class: File
+    path: keep:d28635852ef99ec078a10ee7dcc5d9cc+1119/out/hu826751_chrX.gvcf.gz
+  - class: File
+    path: keep:d28635852ef99ec078a10ee7dcc5d9cc+1119/out/hu826751_chrY.gvcf.gz
+  - class: File
+    path: keep:d28635852ef99ec078a10ee7dcc5d9cc+1119/out/hu826751_chrM.gvcf.gz
+
+out_gvcf: "hu826751.gvcf.gz"

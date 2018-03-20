@@ -1,0 +1,11 @@
+script:
+  class: File
+  path: ../src/filter-qual-gvcf
+
+in_gvcf:
+  class: File
+  path: keep:0c1f29b4690c0f870e69c1725c32e5aa+172/PGP-Harvard-hu826751-var.vcf.gz
+
+out_gvcf: "hu826751.gvcf.gz"
+
+qual_cutoff: "30"

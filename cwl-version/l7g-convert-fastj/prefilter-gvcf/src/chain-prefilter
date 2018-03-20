@@ -1,0 +1,61 @@
+#!/bin/bash
+#
+# run the three prefilter scripts on a set of gVCFs
+#
+
+export VERBOSE="1"
+
+export exe_consolidate="$1"
+export exe_prefilter="$2"
+export exe_qual="$3"
+export out_gvcf="$4"
+export qual_cutoff="$5"
+shift
+shift
+shift
+shift
+shift
+export igvcfs="$@"
+
+
+if [[ "$out_gvcf" == "" ]] || [[ "$qual_cutoff" == "" ]] || [[ "$igvcfs" == "" ]] ; then
+  echo ""
+  echo "usage:"
+  echo ""
+  echo "    chain-prefilter <consolidate_script> <prefilter_script> <qual_cutoff_script> <out_gvcf_fn> <qual_cutoff> <in_gvcf0> <in_gvcf1> ... <in_gvcf{n-1}>"
+  echo ""
+  exit 1
+fi
+
+
+if [[ "$VERBOSE" == "1" ]] ; then
+  echo "## exe_consolidate: $exe_consolidate"
+  echo "## exe_prefilter: $exe_prefilter"
+  echo "## exe_qual: $exe_qual"
+  echo "## out_gvcf: $out_gvcf"
+  echo "## qual_cutoff: $qual_cutoff"
+  echo "## igvcfs: $igvcfs"
+fi
+
+export tmp_gvcf0=`mktemp`
+export tmp_gvcf1=`mktemp`
+
+
+if [[ "$VERBOSE" == "1" ]] ; then echo "## consolidating from $igvcfs into $tmp_gvcf0" ; fi
+
+echo "## >>>> $exe_consolidate $tmp_gvcf0 $igvcfs"
+$exe_consolidate $tmp_gvcf0 $igvcfs
+
+if [[ "$VERBOSE" == "1" ]] ; then echo "## filtering from $tmp_gvcf0 into $tmp_gvcf1" ; fi
+
+$exe_prefilter $tmp_gvcf0 $tmp_gvcf1
+
+if [[ "$VERBOSE" == "1" ]] ; then echo "## filtering quality ($qual_cutoff) from $tmp_gvcf1 into $out_gvcf" ; fi
+
+$exe_qual $tmp_gvcf1 $qual_cutoff $out_gvcf
+
+if [[ "$VERBOSE" == "1" ]] ; then echo "## cleaning up" ; fi
+
+rm -f $tmp_gvcf0 $tmp_gvcf1
+
+exit 0

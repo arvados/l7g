@@ -1,0 +1,218 @@
+
+script:
+  class: File
+  path: ../src/convert_gff_to_fastj.sh
+
+tagset:
+  class: File
+  path: keep:c102dcaa86972313f32f0ccff37358a0+174/tagset.fa.gz
+
+tileassembly:
+  class: File
+  path: keep:98c5e71956730c36cc89bb25b99fe58b+965/assembly.00.hg19.fw.gz
+
+refFaFn:
+  class: File
+  path: keep:320d7a6717aa7b555a09e52976ba4a02+18534/hg19.fa.gz
+
+gffFns:
+  - class: File
+    path: keep:8122d87ab406a6475c6826ae8bcfded2+56754/hu011C57-GS01669-DNA_B05.gff.gz
+  - class: File
+    path: keep:8122d87ab406a6475c6826ae8bcfded2+56754/hu016B28-GS01669-DNA_H03.gff.gz
+  - class: File
+    path: keep:8122d87ab406a6475c6826ae8bcfded2+56754/hu01F73B-GS03133-DNA_A02.gff.gz
+  - class: File
+    path: keep:8122d87ab406a6475c6826ae8bcfded2+56754/hu0211D6-GS01175-DNA_E02.gff.gz
+  - class: File
+    path: keep:8122d87ab406a6475c6826ae8bcfded2+56754/hu025CEA-GS01669-DNA_D02.gff.gz
+  - class: File
+    path: keep:8122d87ab406a6475c6826ae8bcfded2+56754/hu032C04-GS01669-DNA_A10.gff.gz
+  - class: File
+    path: keep:8122d87ab406a6475c6826ae8bcfded2+56754/hu034DB1-GS00253-DNA_A02.gff.gz
+  - class: File
+    path: keep:8122d87ab406a6475c6826ae8bcfded2+56754/hu034DB1-GS01669-DNA_A03.gff.gz
+  - class: File
+    path: keep:8122d87ab406a6475c6826ae8bcfded2+56754/hu03E3D2-GS03132-DNA_D01.gff.gz
+  - class: File
+    path: keep:8122d87ab406a6475c6826ae8bcfded2+56754/hu040C0A-GS01175-DNA_F05.gff.gz
+  - class: File
+    path: keep:8122d87ab406a6475c6826ae8bcfded2+56754/hu0486D6-GS03132-DNA_C01.gff.gz
+  - class: File
+    path: keep:8122d87ab406a6475c6826ae8bcfded2+56754/hu04DF3C-GS01670-DNA_A02.gff.gz
+  - class: File
+    path: keep:8122d87ab406a6475c6826ae8bcfded2+56754/hu04F220-GS01670-DNA_A01.gff.gz
+  - class: File
+    path: keep:8122d87ab406a6475c6826ae8bcfded2+56754/hu04FD18-GS00253-DNA_F01.gff.gz
+  - class: File
+    path: keep:8122d87ab406a6475c6826ae8bcfded2+56754/hu050E9C-GS01173-DNA_G06.gff.gz
+  - class: File
+    path: keep:8122d87ab406a6475c6826ae8bcfded2+56754/hu05FD49-GS01175-DNA_D04.gff.gz
+  - class: File
+    path: keep:8122d87ab406a6475c6826ae8bcfded2+56754/hu085B6D-GS03132-DNA_A01.gff.gz
+  - class: File
+    path: keep:8122d87ab406a6475c6826ae8bcfded2+56754/hu0A4518-GS01670-DNA_F01.gff.gz
+  - class: File
+    path: keep:8122d87ab406a6475c6826ae8bcfded2+56754/hu0CF2EE-GS01175-DNA_F06.gff.gz
+  - class: File
+    path: keep:8122d87ab406a6475c6826ae8bcfded2+56754/hu0D1FA1-GS01669-DNA_G09.gff.gz
+  - class: File
+    path: keep:8122d87ab406a6475c6826ae8bcfded2+56754/hu0D879F-GS00253-DNA_G01.gff.gz
+  - class: File
+    path: keep:8122d87ab406a6475c6826ae8bcfded2+56754/hu0D879F-GS01669-DNA_A08.gff.gz
+  - class: File
+    path: keep:8122d87ab406a6475c6826ae8bcfded2+56754/hu0E64A1-GS01173-DNA_B02.gff.gz
+  - class: File
+    path: keep:8122d87ab406a6475c6826ae8bcfded2+56754/hu0E7AAF-GS03023-DNA_A01.gff.gz
+  - class: File
+    path: keep:8122d87ab406a6475c6826ae8bcfded2+56754/hu132B5C-GS01670-DNA_E01.gff.gz
+  - class: File
+    path: keep:8122d87ab406a6475c6826ae8bcfded2+56754/hu1378E3-GS01669-DNA_C03.gff.gz
+  - class: File
+    path: keep:8122d87ab406a6475c6826ae8bcfded2+56754/hu15FECA-GS01175-DNA_F03.gff.gz
+  - class: File
+    path: keep:8122d87ab406a6475c6826ae8bcfded2+56754/hu1904EC-GS01175-DNA_E06.gff.gz
+  - class: File
+    path: keep:8122d87ab406a6475c6826ae8bcfded2+56754/hu19C09F-GS01669-DNA_F05.gff.gz
+  - class: File
+    path: keep:8122d87ab406a6475c6826ae8bcfded2+56754/hu1E868D-GS03166-DNA_C02.gff.gz
+  - class: File
+    path: keep:8122d87ab406a6475c6826ae8bcfded2+56754/hu1F73AB-GS01669-DNA_B07.gff.gz
+  - class: File
+    path: keep:8122d87ab406a6475c6826ae8bcfded2+56754/hu241DEA-GS01175-DNA_D05.gff.gz
+  - class: File
+    path: keep:8122d87ab406a6475c6826ae8bcfded2+56754/hu24A473-GS03132-DNA_F01.gff.gz
+  - class: File
+    path: keep:8122d87ab406a6475c6826ae8bcfded2+56754/hu24C863-GS01670-DNA_B02.gff.gz
+  - class: File
+    path: keep:8122d87ab406a6475c6826ae8bcfded2+56754/hu259AC7-GS01175-DNA_A05.gff.gz
+  - class: File
+    path: keep:8122d87ab406a6475c6826ae8bcfded2+56754/hu26B551-GS01175-DNA_F04.gff.gz
+  - class: File
+    path: keep:8122d87ab406a6475c6826ae8bcfded2+56754/hu2843C9-GS01669-DNA_D05.gff.gz
+  - class: File
+    path: keep:8122d87ab406a6475c6826ae8bcfded2+56754/hu297562-GS01669-DNA_H01.gff.gz
+  - class: File
+    path: keep:8122d87ab406a6475c6826ae8bcfded2+56754/hu2C1D94-GS01175-DNA_H02.gff.gz
+  - class: File
+    path: keep:8122d87ab406a6475c6826ae8bcfded2+56754/hu2D6140-GS01173-DNA_F06.gff.gz
+  - class: File
+    path: keep:8122d87ab406a6475c6826ae8bcfded2+56754/hu2DBF2D-GS01173-DNA_G02.gff.gz
+  - class: File
+    path: keep:8122d87ab406a6475c6826ae8bcfded2+56754/hu2FEC01-GS01175-DNA_E03.gff.gz
+  - class: File
+    path: keep:8122d87ab406a6475c6826ae8bcfded2+56754/hu3073E3-GS01239-DNA_D02.gff.gz
+  - class: File
+    path: keep:8122d87ab406a6475c6826ae8bcfded2+56754/hu33E2D9-GS01669-DNA_G10.gff.gz
+  - class: File
+    path: keep:8122d87ab406a6475c6826ae8bcfded2+56754/hu342A08-GS01175-DNA_B05.gff.gz
+  - class: File
+    path: keep:8122d87ab406a6475c6826ae8bcfded2+56754/hu34D5B9-GS01173-DNA_C07.gff.gz
+  - class: File
+    path: keep:8122d87ab406a6475c6826ae8bcfded2+56754/hu34D5B9-GS01670-DNA_E02.gff.gz
+  - class: File
+    path: keep:8122d87ab406a6475c6826ae8bcfded2+56754/hu38168C-GS01173-DNA_H06.gff.gz
+  - class: File
+    path: keep:8122d87ab406a6475c6826ae8bcfded2+56754/hu3A8D13-GS01669-DNA_E11.gff.gz
+  - class: File
+    path: keep:8122d87ab406a6475c6826ae8bcfded2+56754/hu3C0611-GS01669-DNA_E08.gff.gz
+  - class: File
+    path: keep:8122d87ab406a6475c6826ae8bcfded2+56754/hu3CAB43-GS01175-DNA_D03.gff.gz
+  - class: File
+    path: keep:8122d87ab406a6475c6826ae8bcfded2+56754/hu3DC5EA-GS03184-DNA_F01.gff.gz
+  - class: File
+    path: keep:8122d87ab406a6475c6826ae8bcfded2+56754/hu3F864B-GS01669-DNA_F08.gff.gz
+  - class: File
+    path: keep:8122d87ab406a6475c6826ae8bcfded2+56754/hu4040B8-GS01175-DNA_D01.gff.gz
+  - class: File
+    path: keep:8122d87ab406a6475c6826ae8bcfded2+56754/hu42B622-GS03387-DNA_A03.gff.gz
+  - class: File
+    path: keep:8122d87ab406a6475c6826ae8bcfded2+56754/hu42D651-GS01669-DNA_G03.gff.gz
+  - class: File
+    path: keep:8122d87ab406a6475c6826ae8bcfded2+56754/hu432EB5-GS01670-DNA_F02.gff.gz
+  - class: File
+    path: keep:8122d87ab406a6475c6826ae8bcfded2+56754/hu4339C0-GS01175-DNA_H01.gff.gz
+  - class: File
+    path: keep:8122d87ab406a6475c6826ae8bcfded2+56754/hu43860C-GS00253-DNA_A01.gff.gz
+  - class: File
+    path: keep:8122d87ab406a6475c6826ae8bcfded2+56754/hu448C4B-GS01669-DNA_E07.gff.gz
+  - class: File
+    path: keep:8122d87ab406a6475c6826ae8bcfded2+56754/hu44DCFF-GS01669-DNA_C07.gff.gz
+  - class: File
+    path: keep:8122d87ab406a6475c6826ae8bcfded2+56754/hu470099-GS01175-DNA_G06.gff.gz
+  - class: File
+    path: keep:8122d87ab406a6475c6826ae8bcfded2+56754/hu48C4EB-GS01239-DNA_D01.gff.gz
+  - class: File
+    path: keep:8122d87ab406a6475c6826ae8bcfded2+56754/hu4B0812-GS01669-DNA_A11.gff.gz
+  - class: File
+    path: keep:8122d87ab406a6475c6826ae8bcfded2+56754/hu4BE6F2-GS01669-DNA_A06.gff.gz
+  - class: File
+    path: keep:8122d87ab406a6475c6826ae8bcfded2+56754/hu4BF398-GS01175-DNA_A06.gff.gz
+  - class: File
+    path: keep:8122d87ab406a6475c6826ae8bcfded2+56754/hu4CA5B9-GS01669-DNA_B03.gff.gz
+  - class: File
+    path: keep:8122d87ab406a6475c6826ae8bcfded2+56754/hu4FE0D1-GS01669-DNA_G04.gff.gz
+  - class: File
+    path: keep:8122d87ab406a6475c6826ae8bcfded2+56754/hu52B7E5-GS01669-DNA_H04.gff.gz
+  - class: File
+    path: keep:8122d87ab406a6475c6826ae8bcfded2+56754/hu52F345-GS01669-DNA_G07.gff.gz
+  - class: File
+    path: keep:8122d87ab406a6475c6826ae8bcfded2+56754/hu553620-GS01669-DNA_B08.gff.gz
+  - class: File
+    path: keep:8122d87ab406a6475c6826ae8bcfded2+56754/hu566AA7-GS03274-DNA_H01.gff.gz
+  - class: File
+    path: keep:8122d87ab406a6475c6826ae8bcfded2+56754/hu57A769-GS01669-DNA_C08.gff.gz
+  - class: File
+    path: keep:8122d87ab406a6475c6826ae8bcfded2+56754/hu589D0B-GS01669-DNA_H11.gff.gz
+  - class: File
+    path: keep:8122d87ab406a6475c6826ae8bcfded2+56754/hu5962F5-GS03166-DNA_C01.gff.gz
+  - class: File
+    path: keep:8122d87ab406a6475c6826ae8bcfded2+56754/hu599905-GS01670-DNA_H01.gff.gz
+  - class: File
+    path: keep:8122d87ab406a6475c6826ae8bcfded2+56754/hu5CD2C6-GS01669-DNA_F04.gff.gz
+  - class: File
+    path: keep:8122d87ab406a6475c6826ae8bcfded2+56754/hu5FA322-GS01669-DNA_E06.gff.gz
+  - class: File
+    path: keep:8122d87ab406a6475c6826ae8bcfded2+56754/hu5FB1B9-GS01669-DNA_C06.gff.gz
+  - class: File
+    path: keep:8122d87ab406a6475c6826ae8bcfded2+56754/hu60180F-GS01175-DNA_B06.gff.gz
+  - class: File
+    path: keep:8122d87ab406a6475c6826ae8bcfded2+56754/hu604D39-GS00253-DNA_B02.gff.gz
+  - class: File
+    path: keep:8122d87ab406a6475c6826ae8bcfded2+56754/hu60AB7C-GS01670-DNA_D01.gff.gz
+  - class: File
+    path: keep:8122d87ab406a6475c6826ae8bcfded2+56754/hu619F51-GS01669-DNA_B02.gff.gz
+  - class: File
+    path: keep:8122d87ab406a6475c6826ae8bcfded2+56754/hu627574-GS01669-DNA_E01.gff.gz
+  - class: File
+    path: keep:8122d87ab406a6475c6826ae8bcfded2+56754/hu63EB0A-GS01175-DNA_C05.gff.gz
+  - class: File
+    path: keep:8122d87ab406a6475c6826ae8bcfded2+56754/hu64DBF7-GS01669-DNA_D03.gff.gz
+  - class: File
+    path: keep:8122d87ab406a6475c6826ae8bcfded2+56754/hu661AD0-GS01670-DNA_C02.gff.gz
+  - class: File
+    path: keep:8122d87ab406a6475c6826ae8bcfded2+56754/hu67EBB3-GS01669-DNA_G06.gff.gz
+  - class: File
+    path: keep:8122d87ab406a6475c6826ae8bcfded2+56754/hu687B6B-GS01669-DNA_H07.gff.gz
+  - class: File
+    path: keep:8122d87ab406a6475c6826ae8bcfded2+56754/hu68929D-GS01669-DNA_F11.gff.gz
+  - class: File
+    path: keep:8122d87ab406a6475c6826ae8bcfded2+56754/hu6A01AF-GS03132-DNA_G01.gff.gz
+  - class: File
+    path: keep:8122d87ab406a6475c6826ae8bcfded2+56754/hu6C733E-GS01669-DNA_E05.gff.gz
+  - class: File
+    path: keep:8122d87ab406a6475c6826ae8bcfded2+56754/hu6E4515-GS01173-DNA_D07.gff.gz
+  - class: File
+    path: keep:8122d87ab406a6475c6826ae8bcfded2+56754/hu6EDC7E-GS02995-DNA_F02.gff.gz
+  - class: File
+    path: keep:8122d87ab406a6475c6826ae8bcfded2+56754/hu704A85-GS01239-DNA_E01.gff.gz
+  - class: File
+    path: keep:8122d87ab406a6475c6826ae8bcfded2+56754/hu7123C1-GS01669-DNA_D07.gff.gz
+  - class: File
+    path: keep:8122d87ab406a6475c6826ae8bcfded2+56754/hu71E59D-GS01239-DNA_F01.gff.gz
+  - class: File
+    path: keep:8122d87ab406a6475c6826ae8bcfded2+56754/hu72A81D-GS01173-DNA_C02.gff.gz
+  - class: File
+    path: keep:8122d87ab406a6475c6826ae8bcfded2+56754/hu72C17A-GS01669-DNA_F07.gff.gz
+  - class: File
+    path: keep:8122d87ab406a6475c6826ae8bcfded2+56754/hu7379BC-GS03052-DNA_E01.gff.gz

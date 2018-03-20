@@ -32,5 +32,3 @@ steps:
       tileassembly: tileassembly
       refFaFn: refFaFn
     out: [result]
-
-

@@ -1,0 +1,52 @@
+#!/bin/bash
+#
+# Take out non-header comments.
+# Take out 'NOCALL' lines
+#
+
+export igvcf="$1"
+export out_gvcf="$2"
+
+if [[ "$igvcf" == "" ]] ; then
+  echo ""
+  echo "usage: prefilter-gvcf <gvcf> <out_gvcf>"
+  echo ""
+  exit 1
+fi
+
+if [[ "$out_gvcf" == "" ]] ; then
+  out_gvcf=`basename $igvcf`
+  out_gvcf=`basename $out_gvcf .gz`
+  out_gvcf=`basename $out_gvcf .bz2`
+  out_gvcf=`basename $out_gvcf .txt`
+  out_gvcf=`basename $out_gvcf .tsv`
+  out_gvcf=`basename $out_gvcf .vcf`
+  out_gvcf=`basename $out_gvcf .gvcf`
+  out_gvcf=`basename $out_gvcf .g`
+  out_gvcf="$out_gvcf.vcf.gz"
+fi
+
+if [[ "$out_gvcf" == "" ]] ; then
+  echo "invalid output gvcf"
+  exit 1
+fi
+
+export file_type=`file -b $igvcf | head -n1 | cut -f1 -d' ' `
+export hdr_lastline=0
+
+if [[ "$file_type" == "ASCII" ]] ; then
+  hdr_lastline=`grep -m1 -n '^#CHROM' "$igvcf" | cut -f1 -d':'`
+  cat <( head -n $hdr_lastline "$igvcf" ) <( egrep -v '^#' "$igvcf" | egrep -v 'NOCALL' ) | bgzip -c > "$out_gvcf"
+elif [[ "$file_type" == "bzip2" ]] ; then
+  hdr_lastline=`bzgrep -m1 -n '^#CHROM' "$igvcf" | cut -f1 -d':'`
+  cat <( bgzcat "$igvcf" | head -n $hdr_lastline ) <( bzcat "$igvcf" | egrep -v '^#' | egrep -v 'NOCALL' ) | bgzip -c > "$out_gvcf"
+elif [[ "$file_type" == "gzip" ]] ; then
+  hdr_lastline=`zgrep -m1 -n '^#CHROM' "$igvcf" | cut -f1 -d':'`
+  cat <( zcat "$igvcf" | head -n $hdr_lastline ) <( zcat "$igvcf" | egrep -v '^#' | egrep -v 'NOCALL' ) | bgzip -c > "$out_gvcf"
+else
+  echo "unsuported file type: $file_type"
+  exit 1
+fi
+
+bgzip -r "$out_gvcf"
+tabix -f "$out_gvcf"

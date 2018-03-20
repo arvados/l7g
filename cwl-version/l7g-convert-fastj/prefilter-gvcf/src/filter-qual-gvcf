@@ -1,0 +1,91 @@
+#!/bin/bash
+#
+
+export igvcf="$1"
+export qual="$2"
+export out_fn="$3"
+export no_index="$4"
+export catcmd="cat"
+
+if [[ "$igvcf" == "" ]]  || [[ "$qual" == "" ]] ; then
+  echo ""
+  echo "usage:  filter-qual-gvcf <igvcf> <qual>"
+  echo ""
+  exit 1
+fi
+
+if [[ "$out_fn" == "" ]] ; then
+  out_fn="/dev/stdout"
+fi
+
+ft=`file -b $igvcf | cut -f1 -d' '`
+if [[ "$ft" == "gzip" ]] ; then
+  catcmd="zcat"
+elif [[ "$ft" == "bzip2" ]] ; then
+  catcmd="bzcat"
+fi
+
+if [[ "$no_index" == "" ]] ; then
+  no_index=0
+fi
+
+cat <<EOF > filter_gvcf_qual.py
+#!/usr/bin/python
+#
+
+import sys
+
+if len(sys.argv) < 2:
+  print "\nusage:   filter-qual-gvcf <QUAL_threshold>\n"
+  sys.exit(1)
+
+QUAL = float(sys.argv[1])
+
+def process_line(quality_threshold, orig_line):
+  line = orig_line.strip()
+
+  if len(line)==0:
+    return "ok", orig_line
+  if line[0]=='#':
+    return "ok", orig_line
+
+  fields = line.split("\t")
+  if len(fields)<10: return "err", orig_line
+
+  keys = fields[8].split(":")
+  vals = fields[9].split(":")
+
+  gq=100.0
+  for k,kn in enumerate(keys):
+    if kn=="GQ":
+      gq=float(vals[k])
+      break
+  if quality_threshold <= gq:
+    return "ok", orig_line
+  return "filtered", orig_line
+
+
+for line in sys.stdin:
+  code,out_line = process_line(QUAL, line)
+  if code == "ok":
+    sys.stdout.write(out_line)
+
+EOF
+
+chmod u+x filter_gvcf_qual.py
+
+if [[ "$out_fn" == "/dev/stdout" ]] || [[ "$out_fn" == "-" ]] ; then
+  $catcmd $igvcf | ./filter_gvcf_qual.py $qual
+else
+  $catcmd $igvcf | ./filter_gvcf_qual.py $qual | bgzip -c > $out_fn
+fi
+
+rm filter_gvcf_qual.py
+
+# if no index is not set, index
+# a confusing double negative: index gvcf file if no_index is 0
+#
+if [[ "$no_index" == "0" ]] ; then
+  bgzip -r "$out_fn"
+  tabix -f "$out_fn"
+fi

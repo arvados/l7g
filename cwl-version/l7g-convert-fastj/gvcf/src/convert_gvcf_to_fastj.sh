@@ -19,7 +19,7 @@ ref="$5"
 out_name="$6"
 
 if [[ "$gvcf" == "" ]] ; then
-  ehco "provide gvcf file"
+  echo "provide gvcf file"
   exit 1
 fi
 
@@ -27,6 +27,8 @@ if [ "$tagset" == "" ] || [ "$afn" == "" ] || [ "$reffa" == "" ] ; then
   echo "provide tagset, tile assembly and FASTA reference"
   exit 1
 fi
+
+export aidx="$afn.fwi"
 
 if [ "$ref" == "" ] ; then
   #export ref='hg19'
@@ -51,8 +53,15 @@ if [[ "$VERBOSE" -eq 1 ]] ; then
   echo "out_name $out_name"
 fi
 
-#for chrom in chr1 chr2 chr3 chr4 chr5 chr6 chr7 chr8 chr9 chr10 chr11 chr12 chr13 chr14 chr15 chr16 chr17 chr18 chr19 chr20 chr21 chr22 chrX chrY chrM ; do
-for chrom in chr22 ; do
+mkdir -p $out_name
+export odir="$out_name"
+
+for chrom in chr1 chr2 chr3 chr4 chr5 chr6 chr7 chr8 chr9 chr10 chr11 chr12 chr13 chr14 chr15 chr16 chr17 chr18 chr19 chr20 chr21 chr22 chrX chrY chrM ; do
+#for chrom in chr22 chrM ; do
+
+  if [[ "$VERBOSE" -eq 1 ]] ; then
+    echo "## chrom $chrom"
+  fi
 
   refchrom="$chrom"
   if [[ "$ref" == "human_g1k_v37" ]] ; then
@@ -60,6 +69,10 @@ for chrom in chr22 ; do
     if [[ "$refchrom" == "M" ]] ; then
       refchrom="MT"
     fi
+  fi
+
+  if [[ "$VERBOSE" -eq 1 ]] ; then
+    echo "## refchrom $refchrom"
   fi
 
   while read line
@@ -234,13 +247,13 @@ for chrom in chr22 ; do
       echo "pasta -action rotini-fastj -start $tilepath_start0 -tilepath $tilepath -chrom $chrom -build $ref \
         -i $odir/$tilepath.pa \
         -assembly <( tile-assembly tilepath $afn $tilepath ) \
-        -tag <( cat <( samtools faidx $tagdir $tilepath.00 | egrep -v '^>' | tr -d '\n' | fold -w 24 ) <(echo ) ) > $odir/$tilepath.fj"
+        -tag <( cat <( samtools faidx $tagset $tilepath.00 | egrep -v '^>' | tr -d '\n' | fold -w 24 ) <(echo ) ) > $odir/$tilepath.fj"
     fi
 
     pasta -action rotini-fastj -start $tilepath_start0 -tilepath $tilepath -chrom $chrom -build $ref \
       -i $odir/$tilepath.pa \
       -assembly <( tile-assembly tilepath $afn $tilepath ) \
-      -tag <( cat <( samtools faidx $tagdir $tilepath.00 | egrep -v '^>' | tr -d '\n' | fold -w 24 ) <( echo )  ) > $odir/$tilepath.fj
+      -tag <( cat <( samtools faidx $tagset $tilepath.00 | egrep -v '^>' | tr -d '\n' | fold -w 24 ) <( echo )  ) > $odir/$tilepath.fj
 
     rm -f $odir/$tilepath.pa
     bgzip -f $odir/$tilepath.fj

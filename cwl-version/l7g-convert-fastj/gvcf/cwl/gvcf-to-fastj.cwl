@@ -7,44 +7,58 @@ requirements:
     dockerPull: arvados/l7g
   - class: ResourceRequirement
     coresMin: 1
+  - class: InlineJavascriptRequirement
   - class: arv:RuntimeConstraints
     keep_cache: 10000
 
 baseCommand: bash
 
 inputs:
-  script_chain:
+
+  script:
     type: File
     inputBinding:
       position: 1
 
-  script_prefilter_consolidate:
+  gvcfFn:
     type: File
     inputBinding:
       position: 2
+    secondaryFiles:
+      - .tbi
+      - .gzi
 
-  script_prefilter:
+  tagset:
     type: File
     inputBinding:
       position: 3
+    secondaryFiles:
+      - .fai
+      - .gzi
 
-  script_filter_qual:
+  tileassembly:
     type: File
     inputBinding:
       position: 4
+    secondaryFiles:
+      - .fwi
+      - .gzi
 
-  out_gvcf:
-    type: string
+  refFaFn:
+    type: File
     inputBinding:
       position: 5
+    secondaryFiles:
+      - .fai
+      - .gzi
 
-  qual_cutoff:
+  refName:
     type: string
     inputBinding:
       position: 6
 
-  in_gvcfs:
-    type: File[]
+  outName:
+    type: string
     inputBinding:
       position: 7
 
@@ -53,5 +67,3 @@ outputs:
     type: Directory
     outputBinding:
       glob: "."
-
-

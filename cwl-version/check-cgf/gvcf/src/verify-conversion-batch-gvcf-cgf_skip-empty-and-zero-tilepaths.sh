@@ -173,7 +173,8 @@ while read line ; do
           echo "## copying gVCF locally and indexing ($tgvcf)" >> $outfile
         fi
 
-        cp $gvcf_fn $tgvcf
+        #cp $gvcf_fn $tgvcf
+        ln -s $gvcf_fn $tgvcf
         tabix $tgvcf
 
       else

@@ -7,8 +7,8 @@ arvados-cwl-runner \
   --api=containers \
   --eval-timeout 20000 \
   --local \
-  scatter_hupgp-gff-to-fastj.cwl \
-  cwl-run/scatter_hupgp-gff-to-fastj_hg19.yml
+  cwl/scatter_hupgp-gff-to-fastj.cwl \
+  yml/scatter_hupgp-gff-to-fastj_hg19.yml
 
 exit
 

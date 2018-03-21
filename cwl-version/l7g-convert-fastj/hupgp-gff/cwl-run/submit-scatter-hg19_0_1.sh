@@ -6,8 +6,8 @@ arvados-cwl-runner \
   --no-wait \
   --api=containers \
   --submit-runner-ram 80480 \
-  scatter_hupgp-gff-to-fastj.cwl \
-  cwl-run/scatter_hupgp-gff-to-fastj_hg19_0.yml
+  cwl/scatter_hupgp-gff-to-fastj.cwl \
+  yml/scatter_hupgp-gff-to-fastj_hg19_0.yml
 
 arvados-cwl-runner \
   --submit \
@@ -15,6 +15,6 @@ arvados-cwl-runner \
   --no-wait \
   --api=containers \
   --submit-runner-ram 80480 \
-  scatter_hupgp-gff-to-fastj.cwl \
-  cwl-run/scatter_hupgp-gff-to-fastj_hg19_1.yml
+  cwl/scatter_hupgp-gff-to-fastj.cwl \
+  yml/scatter_hupgp-gff-to-fastj_hg19_1.yml
 

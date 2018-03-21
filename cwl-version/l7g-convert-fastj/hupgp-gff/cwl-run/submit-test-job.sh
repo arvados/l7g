@@ -1,3 +1,3 @@
 #!/bin/bash
 
-arvados-cwl-runner --disable-reuse --local hupgp-gff-to-fastj.cwl cwl-run/hupgp-gff-to-fastj_Arvados-test.yml
+arvados-cwl-runner --disable-reuse --local cwl/hupgp-gff-to-fastj.cwl yml/hupgp-gff-to-fastj_Arvados-test.yml

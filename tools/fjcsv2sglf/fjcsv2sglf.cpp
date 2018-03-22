@@ -679,6 +679,10 @@ int main(int argc, char **argv) {
   }
 
   tagset_fp = fopen(argv[1], "r");
+  if (!tagset_fp) {
+    perror(argv[1]);
+    exit(1);
+  }
   read_tagset(tagset_fp, tagset);
   fclose(tagset_fp);
 

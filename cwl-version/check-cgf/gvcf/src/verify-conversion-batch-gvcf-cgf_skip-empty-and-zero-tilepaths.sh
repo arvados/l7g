@@ -22,6 +22,13 @@ export outfile="$9"
 export ref=`basename $ref_fa .fa.gz`
 export aidx="$afn.fwi"
 
+if [[ "$outfile" == "" ]] ; then
+  outfile=/dev/stdout
+else
+  rm -rf $outfile
+fi
+
+
 if [[ "$cgf_dir" == "" ]] || \
    [[ "$sglf_dir" == "" ]] || \
    [[ "$sglf_dir" == "" ]] || \
@@ -33,12 +40,6 @@ if [[ "$cgf_dir" == "" ]] || \
   echo "  ./verify-conversion-batch-gvcf-cgf.sh <cgf_dir> <sglf_dir> <gvcf_dir> <tileassembly> <ref.fa> [chrom] [gvcf_prefix] [gvcf_suffix}" >> $outfile
   echo "" >> $outfile
   exit -1
-fi
-
-if [[ "$outfile" == "" ]] ; then
-  outifle=/dev/stdout
-else
-  rm -rf $outfile
 fi
 
 if [[ "$VERBOSE" -eq 1 ]] ; then

@@ -1,0 +1,67 @@
+#!/bin/bash
+#
+
+set -e -o pipefail
+export SHELL=/bin/bash
+
+export VERBOSE=1
+
+export srcdir="$1"
+export nppdir="$2"
+export dstdir="$3"
+export nthreads="$4"
+
+if [[ "$srcdir" == "" ]] || \
+   [[ "$nppdir" == "" ]] ; then
+  echo ""
+  echo "usage:"
+  echo ""
+  echo "  sglf-merge <srcdir> <nppdir> [dstdir] [nthreads]"
+  echo ""
+  exit
+fi
+
+if [[ "$dstdir" == "" ]] ; then dstdir="." ; fi
+if [[ "$nthreads" == "" ]] ; then nthreads="1" ; fi
+
+if [[ "$VERBOSE" -eq 1 ]] ; then
+  echo "# srcdir: $srcdir"
+  echo "# nppdir: $nppdir"
+  echo "# dstdir: $dstdir"
+  echo "# nthreads: $nthreads"
+fi
+
+mkdir -p $dstdir
+
+function process {
+  tpath=$1
+  tfn="$tpath.sglf.gz"
+
+  if [[ "$VERBOSE" -eq 1 ]] ; then echo "processing $tpath" ; fi
+
+  srcfn="$srcdir/$tfn"
+  nppfn="$nppdir/$tfn"
+  dstfn="$dstdir/$tfn"
+
+  if [[ "$VERBOSE" -eq 1 ]] ; then echo ">>> $srcfn $nppfn $dstfn" ; fi
+
+  if [[ -e $nppfn ]] ; then
+    merge-sglf <( zcat $srcfn ) <( zcat $nppfn ) | bgzip -c > $dstfn
+  else
+
+    if [[ "$VERBOSE" -eq 1 ]] ; then
+      echo "# WARNING: $nppfn does not exist, copying $srcfn to $dstfn"
+    fi
+
+    cp $srcfn $dstfn
+  fi
+
+  if [[ "$VERBOSE" -eq 1 ]] ; then echo "  $tpath done" ; fi
+}
+export -f process
+
+#for tfn in `ls $srcdir` ; do
+for tfn in `find $srcdir -name '*.sglf.gz'` ; do
+  tpath=`basename $tfn .sglf.gz`
+  echo $tpath
+done | parallel --no-notice --max-procs $nthreads process {}

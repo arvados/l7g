@@ -1,0 +1,15 @@
+script:
+  class: File
+  path: ../src/sglf-merge-tile-libraries
+
+srcdir:
+  class: Directory
+  path: keep:6458335b87037643b06205b50044bd3d+184
+
+nppdir:
+  class: Directory
+  path: keep:2e9f220b700b3574115f441ff60d9141+184
+
+dstdir: "."
+
+nthreads: "1"

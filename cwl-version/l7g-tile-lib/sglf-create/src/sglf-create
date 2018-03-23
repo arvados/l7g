@@ -1,0 +1,80 @@
+#!/bin/bash
+#
+
+export VERBOSE=1
+
+export tilepath="$1"
+export fastj_base_dir="$2"
+export tagset="$3"
+export dstdir="$4"
+
+if [[ "$tilepath" == "" ]] || [[ "$fastj_base_dir" == "" ]] || [[ "$tagset" == "" ]] ; then
+  echo ""
+  echo "usage:\n"
+  echo ""
+  echo "  sglf-create <tilepath> <fastj-data-dir> <tagset> [dstdir]"
+  echo ""
+  exit 1
+fi
+
+if [[ "$dstdir" == "" ]] ; then
+  dstdir="lib"
+fi
+
+if [[ "$VERBOSE" -eq 1 ]] ; then
+  echo "# tilepath: $tilepath"
+  echo "# fastj_base_dir: $fast_base_dir"
+  echo "# tagset: $tagset"
+  echo "# dstdir: $dstdir"
+fi
+
+function verbose_tagset {
+	tagver="00"
+	tilepath=$1
+	tagset=$2
+
+	if [ "$tilepath" == "" ] ; then
+		echo "provide tilepath"
+		exit 1
+	fi
+
+	echo '>{"type":"tagset","path":"'$tilepath'","field":{0:"path",1:"step",2:"startTag"}}'
+	echo "$tilepath,0000,"
+
+	tilestep=1
+
+	while read line ; do
+		hstep=`printf '%04x' $tilestep`
+
+		echo "$tilepath,$hstep,$line"
+
+		let tilestep="$tilestep + 1"
+	done < <( samtools faidx $tagset $tilepath.$tagver | egrep -v '^>' | tr -d '\n' | fold -w 24 ; echo )
+}
+export -f verbose_tagset
+
+mkdir -p $dstdir
+
+## if we don't have any FastJ for the tilepath, create an empty tile
+## to be inserted into the SGLF
+##
+fj_count=`find $fastj_base_dir -name "$tilepath.fj.gz" -type f | wc -l`
+
+if [[ "$fj_count" -eq "0" ]] ; then
+
+  empty_hash=`echo -e -n '' | md5sum | cut -f1 -d' '`
+
+  if [[ "$VERBOSE" -eq 1 ]] ; then
+    echo "$tilepath.00.0000.000+1,$empty_hash," | bgzip -c > $dstdir/$tilepath.sglf.gz
+  fi
+
+else
+
+
+  fastj2cgflib -V -t <( verbose_tagset $tilepath $tagset ) -f <( find $fastj_base_dir -name "$tilepath.fj.gz" -type f | sort -R | xargs zcat ) | \
+    egrep -v '^#' | \
+    cut -f2- -d, | \
+    sort | \
+    bgzip -c > $dstdir/$tilepath.sglf.gz
+
+fi

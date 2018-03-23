@@ -1,0 +1,15 @@
+script:
+  class: File
+  path: ../src/sglf-create
+
+tilepath: "035e"
+
+fastj_base_dir:
+  class: Directory
+  path: keep:4a8d44ae227b274ead1494da942b17aa+112691
+
+tagset:
+  class: File
+  path: keep:c102dcaa86972313f32f0ccff37358a0+174/tagset.fa.gz
+
+outdir: "."

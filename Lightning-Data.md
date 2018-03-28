@@ -160,10 +160,10 @@ in a compressed and indexed text file,
 The text file consists of a header followed by fixed with data.  The header is
 a greater than symbol (`>`) followed by a triple of the reference name, chromosome
 name and 4 digit ASCII hex tile path, delimited by a colon (`:`).
-The subsequent data is a tilestep followed by a non-inclusive, 0 index, ending base position of the tile.
-That is, the reported base position is one past the inclusive end of the 0 reference start of the next
+The subsequent data is a tilestep followed by a non-inclusive, 0 index, ending reference base position of the tile.
+That is, the reported reference base position is one past the inclusive end of the 0 reference start of the next
 tile, where it exists.
-Each tilestep and ending position are on individual lines with a tab (`\t`) immediately
+Each tilestep and ending reference position are on individual lines with a tab (`\t`) immediately
 following the 4 (ASCII) hex digit tile step and spaces left padding the (base 10)
 ending tile position, padding to make a total of 10 characters.
 

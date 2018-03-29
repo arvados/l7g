@@ -1,0 +1,11 @@
+datafilenames:   
+  - class: File 
+    path: /data-sdd/cwl_tiling/filter/collectnames00
+  - class: File
+    path: /data-sdd/cwl_tiling/filter/collectnames01
+
+datafilepdh:
+  - class: File
+    path: /data-sdd/cwl_tiling/filter/pdhs00
+  - class: File
+    path: /data-sdd/cwl_tiling/filter/pdhs01

@@ -4,9 +4,9 @@ bashscript:
 
 gffDir:
    class: Directory
-   path: keep:7ef0ebdbbb2158a0acfec8fa4c6573a0+7999
+   path: keep:xxxx
 
-gffPrefix: "A-UPN-UP000241-CL-UPN-1437"
+gffPrefix: "xxxx"
 
 filter_gvcf:
    class: File

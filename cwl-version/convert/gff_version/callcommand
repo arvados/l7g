@@ -1,2 +1,0 @@
-./convert2fastjCWL /data-sdd/cwl_tiling/testdir/hu704A85-GS01239-DNA_E01.gff.gz hg19 /data-sdd/cwl_tiling/convert/ref/hg19.fa.gz /data-sdd/cwl_tiling/convert/ref/assembly.00.hg19.fw.gz /data-sdd/cwl_tiling/convert/ref/assembly.00.hg19.fw.fwi /data-sdd/cwl_tiling/convert/ref/tagset.fa.gz /data-sdd/cwl_tiling/l7g/l7g-master/tools/l7g /data-sdd/tiling/pasta/pasta /home/sarah/imputation/fileconversionGFF/refstream
-

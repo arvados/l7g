@@ -8,8 +8,8 @@ requirements:
     dockerPull: javatools
   - class: InlineJavascriptRequirement
   - class: ResourceRequirement
-    coresMin: 2
-    coresMax: 2
+    coresMin: 2 
+    coresMax: 2 
 hints:
   arv:RuntimeConstraints:
     keep_cache: 4096

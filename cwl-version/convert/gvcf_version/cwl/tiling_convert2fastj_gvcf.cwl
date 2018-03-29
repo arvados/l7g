@@ -7,17 +7,19 @@ requirements:
   - class: DockerRequirement
     dockerPull: javatools
   - class: ResourceRequirement
-    coresMin: 2
-    coresMax: 2
+    coresMin: 1 
+    coresMax: 1
   - class: ScatterFeatureRequirement
   - class: InlineJavascriptRequirement
   - class: SubworkflowFeatureRequirement
 hints:
   arv:RuntimeConstraints:
     keep_cache: 4096
+  cwltool:LoadListingRequirement:
+    loadListing: shallow_listing
+
 inputs:
-  datafilenames: File
-  datafilepdh: File
+  refdirectory: Directory
   bashscript: File
   ref: string 
   reffa: File
@@ -48,19 +50,18 @@ outputs:
 
 steps:
   step1:
-    run: getCollections.cwl
+    run: getdirs.cwl
     in: 
-      datafilenames: datafilenames
-      datafilepdh: datafilepdh
-    out: [fileprefix,collectiondir]
+      refdirectory: refdirectory
+    out: [out1,out2]
 
   step2:
-    scatter: [gffPrefix,gffDir] 
+    scatter: [gffDir,gffPrefix] 
     scatterMethod: dotproduct
     in: 
       bashscript: bashscript
-      gffDir: step1/collectiondir
-      gffPrefix: step1/fileprefix 
+      gffDir: step1/out1
+      gffPrefix: step1/out2
       ref: ref
       reffa: reffa
       afn: afn

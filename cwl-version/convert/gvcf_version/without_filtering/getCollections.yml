@@ -1,7 +1,0 @@
-datafilenames:   
-   class: File 
-   path: /data-sdd/cwl_tiling/convert/gvcf_version/shortcollectnames.txt
-
-datafilepdh:
-   class: File
-   path: /data-sdd/cwl_tiling/convert/gvcf_version/shortpdhs.txt

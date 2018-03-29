@@ -1,2 +1,0 @@
-split -n l/2 -d pdhs.txt pdhs
-split -n l/2 -d collectnames.txt collectnames

@@ -1,6 +1,6 @@
 refdirectory:
    class: Directory
-   path: keep:f4a95a5b9a04b20b022dd39a4bc572fa+27847234
+   path: keep:xxxx
 
 bashscript:
    class: File
@@ -16,4 +16,4 @@ fjt:
 
 cglf:
    class: Directory
-   path: keep:3df03a6e837d7c890b6c18ec3f6dcc64+129940/lib-merge
+   path: keep:xxxx/lib-merge

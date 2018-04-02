@@ -4,7 +4,7 @@ bashscript:
 
 fjdir:
    class: Directory 
-   path: keep:ee2189c7e2a7a3e75db7d1dc97b37e6e+27879549/A-ACT-AC000014-BL-NCR-15AD78694
+   path: keep:xxxxx
 
 cgft:
    class: File 

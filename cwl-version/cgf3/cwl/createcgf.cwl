@@ -8,11 +8,13 @@ requirements:
     dockerPull: javatools
   - class: InlineJavascriptRequirement
   - class: ResourceRequirement
-    ramMin: 14336 
-    ramMax: 14336 
+    ramMin: 10000 
+    coresMin: 2 
 hints:
   arv:RuntimeConstraints:
-    keep_cache: 4096
+    keep_cache: 1046
+  cwltool:LoadListingRequirement:
+    loadListing: shallow_listing
 baseCommand: bash
 inputs:
   bashscript:

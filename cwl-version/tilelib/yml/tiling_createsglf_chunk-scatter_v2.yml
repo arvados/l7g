@@ -14,7 +14,7 @@ fjcsv2sglf:
 
 datadir:
    class: Directory
-   path: keep:c563294f0dfebd12d13b1368bf4bf52d+167305537
+   path: keep:xxxx
 
 fjt:
    class: File

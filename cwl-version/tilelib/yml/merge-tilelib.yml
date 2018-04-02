@@ -4,11 +4,11 @@ bashscriptmain:
 
 srcdir:
    class: Directory 
-   path: keep:e42bb85c89303ed63931a35a605eb74d+67874
+   path: keep:xxxx
 
 nppdir:
    class: Directory
-   path: keep:15fc461cc9e27e7931a8b940d07556af+100820
+   path: keep:xxxx
 
 nthreads: "6"
 

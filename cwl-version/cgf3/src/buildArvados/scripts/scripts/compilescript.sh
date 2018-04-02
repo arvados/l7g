@@ -12,7 +12,8 @@ FJTDIR='../src/l7g/l7g-master/tools/fjt'
 
 #echo $DEST
 
-g++ -g ${FJTDIR}/fjt.cpp ${FJTDIR}/cJSON.c ${FJTDIR}/sglf.cpp -o ../dest/fjt ${LIB} 
+(cd '../src/l7g/l7g-master/tools/fjt'; make;) # cp -p cgft ${DEST}/fjt)
+cp -p ../src/l7g/l7g-master/tools/fjt/fjt ../dest/fjt
 
 (cd '../src/l7g/l7g-master/tools/cgft'; make;) # cp -p cgft ${DEST}/cgft)
 cp -p ../src/l7g/l7g-master/tools/cgft/cgft ../dest/cgft

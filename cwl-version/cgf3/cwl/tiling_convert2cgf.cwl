@@ -11,8 +11,6 @@ requirements:
   - class: SubworkflowFeatureRequirement
 
 hints:
-  arv:RuntimeConstraints:
-    keep_cache: 4096
   cwltool:LoadListingRequirement:
     loadListing: shallow_listing
 inputs:

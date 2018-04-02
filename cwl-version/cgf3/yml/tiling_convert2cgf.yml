@@ -1,10 +1,10 @@
 refdirectory:
    class: Directory
-   path: keep:eacd18bf5de3e74596082b0ccd91e86c+40867 
+   path: keep:f4a95a5b9a04b20b022dd39a4bc572fa+27847234
 
 bashscript:
    class: File
-   path: /data-sdd/cwl_tiling/cgf3/convertcgfCWL.sh 
+   path: /data-sdd/cwl_tiling/cgf3/convertcgfCWL-empty-problem-tilepaths3.sh 
    
 cgft:
    class: File 
@@ -16,4 +16,4 @@ fjt:
 
 cglf:
    class: Directory
-   path: keep:70975991edc84c17c5795be1a79c3908+43884/lib-merge 
+   path: keep:3df03a6e837d7c890b6c18ec3f6dcc64+129940/lib-merge

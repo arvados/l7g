@@ -12,7 +12,7 @@ fjcsv2sglf:
 
 datadir:
    class: Directory
-   path: keep:0f9d0ba8bd62dcaeb3497d3792b3c7cb+58226/stage
+   path: keep:xxxx/stage
 
 fjt:
    class: File

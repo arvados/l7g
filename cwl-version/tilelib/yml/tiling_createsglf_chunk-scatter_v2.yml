@@ -1,0 +1,25 @@
+pathmin: '0'
+
+pathmax: '862'
+
+nchunks: '5'
+
+bashscript:
+   class: File
+   path: /data-sdd/cwl_tiling/tilelib/tilelib_chunk_v2CWL.sh
+
+fjcsv2sglf:
+   class: File
+   path: /data-sdd/cwl_tiling/tilelib/buildArvados/destArvados/fjcsv2sglf
+
+datadir:
+   class: Directory
+   path: keep:c563294f0dfebd12d13b1368bf4bf52d+167305537
+
+fjt:
+   class: File
+   path: /data-sdd/cwl_tiling/tilelib/buildArvados/destArvados/fjt
+
+tagset:
+   class: File
+   path: keep:6f0b48919ea97da91e3749f65969f03f+627/tagset.fa.gz

@@ -8,11 +8,13 @@ requirements:
     dockerPull: javatools-parallel
   - class: InlineJavascriptRequirement
   - class: ResourceRequirement
-    ramMin:  101090 
-    ramMax:  404358 
+    ramMin: 120000
+    coresMin: 16
 hints:
   arv:RuntimeConstraints:
     keep_cache: 4096
+  cwltool:LoadListingRequirement:
+    loadListing: shallow_listing
 baseCommand: bash
 inputs:
   bashscriptmain:

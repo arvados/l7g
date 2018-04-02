@@ -8,8 +8,8 @@ requirements:
     dockerPull: pythontools 
   - class: InlineJavascriptRequirement
   - class: ResourceRequirement
-    coresMin: 20 
-    coresMax: 20
+    ramMin: 120000 
+    coresMin: 16
 hints:
   arv:RuntimeConstraints:
     keep_cache: 4096
@@ -19,24 +19,36 @@ inputs:
     type: File
     inputBinding:
       position: 1
-  indir:
-    type: Directory 
-    inputBinding:
-      position: 2
-  outdir:
-    type: string 
-    inputBinding:
-      position: 3
-  outprefix:
-    type: string 
-    inputBinding:
-      position: 4 
-  npyconsolfile:
+  cgft:
     type: File 
     inputBinding:
+      position: 2
+  cgfdirectory:
+    type: Directory
+    inputBinding:
+      position: 3
+  band2matrix:
+    type: File
+    inputBinding:
+      position: 4 
+  cnvrt2hiq:
+    type: File
+    inputBinding:
       position: 5
+  makelist:
+    type: File
+    inputBinding:
+      position: 6
+  nthreads:
+    type: string
+    inputBinding:
+      position: 7
 outputs:
   out1:
     type: Directory
     outputBinding:
-      glob: $(inputs.outdir)
+      glob: "npy"
+  out2:
+    type: Directory
+    outputBinding:
+      glob: "npy-hiq"

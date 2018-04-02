@@ -4,7 +4,7 @@ bashscriptmain:
 
 indir:
    class: Directory 
-   path: keep:46d496a3f3ea2348b48741108124febf+4897/npy
+   path: keep:xxxx/npy
 
 outdir: "outdir"
 

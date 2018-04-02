@@ -1,1 +1,0 @@
-Need to recompile c++ code to run on Arvados docker image. This contains the code and the scripts to do this automatically.  runcompile in the scripts directory is what you need to run.  Note it probably should be updated to the correct paths for your directory structure.

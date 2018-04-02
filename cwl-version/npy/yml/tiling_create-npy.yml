@@ -4,19 +4,19 @@ bashscriptmain:
 
 cgft:
    class: File
-   path: /data-sdd/cwl_tiling/npy/from_cgf3/cgb
+   path: /data-sdd/cwl_tiling/npy/from_cgf3/buildArvados/dest_Arvados/cgft
 
 cgfdirectory:
    class: Directory
-   path: keep:e70402e1957ad26917d054b2c505560e+397450
+   path: keep:xxxxxx
 
 band2matrix:
    class: File
-   path: /data-sdd/cwl_tiling/npy/from_cgf3/buildArvados/dest/band-to-matrix-npy
+   path: /data-sdd/cwl_tiling/npy/from_cgf3/buildArvados/dest_Arvados/band-to-matrix-npy
 
 cnvrt2hiq:
    class: File
-   path: /data-sdd/cwl_tiling/npy/from_cgf3/buildArvados/dest/npy-vec-to-hiq-1hot
+   path: /data-sdd/cwl_tiling/npy/from_cgf3/buildArvados/dest_Arvados/npy-vec-to-hiq-1hot
 
 makelist:
    class: File

@@ -11,7 +11,8 @@ requirements:
   - class: SubworkflowFeatureRequirement
 
 inputs:
-  bashscriptmain: File
+  bashscriptmain_create: File
+  bashcriptmain_consol: File
   cgft: File
   cgfdirectory: Directory
   band2matrix: File
@@ -31,17 +32,23 @@ steps:
   step1:
     run: /cwl_steps/tiling_create-npy.cwl
     in:
-      datafilenames: datafilenames
-      refdirectory: refdirectory
+      bashscriptmain: bashcriptmain_create
+      cgft: cgft
+      cgfdirectory: cgfdirectory
+      band2matrix: band2matrix
+      cnvrt2hiq: cnvrt2hiq
+      makelist: makelist
+      nthreads: nthreads
     out: [out1,out2]
 
   step2:
-    run: /cwl_steps/
-    in:
-      bashscript: bashscript
-      gvcfDir: step1/out1
-      gvcfPrefix: step1/out2
-      cleanvcf: cleanvcf
+    run: /cwl_steps/tiling_consol-npy.cwl
+    in: 
+      bashscriptmain: bashcriptmain_consol
+      indir: step1/out1
+      outdir: outdir
+      outprefix: outprefix
+      npyconsolfile: npyconsolfile
     out: [out1]
                                                               46,1          Bot
 

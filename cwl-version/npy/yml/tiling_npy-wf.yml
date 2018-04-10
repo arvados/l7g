@@ -8,11 +8,11 @@ bashscriptmain_consol:
 
 cgft: 
    class: File
-   path: ../src/buildArvados/dest/cgb
+   path: ../src/buildArvados/dest/cgft
 
 cgfdirectory:
    class: Directory
-   path: keep:a61b7b4e0cd4be1b9f1fc8506a4ca707+283 
+   path: keep:xxxxx 
 
 band2matrix:
    class: File
@@ -34,4 +34,4 @@ outprefix: "all"
 
 npyconsolfile:
    class: File
-   path:   ../src/buildArvados/dest/npy-consolidate
+   path:  ../src/buildArvados/dest/npy-consolidate

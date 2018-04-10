@@ -12,7 +12,7 @@ requirements:
 
 inputs:
   bashscriptmain_create: File
-  bashcriptmain_consol: File
+  bashscriptmain_consol: File
   cgft: File
   cgfdirectory: Directory
   band2matrix: File
@@ -25,14 +25,14 @@ inputs:
 
 outputs:
   out1:
-    type: Directory[]
+    type: Directory
     outputSource: step2/out1
 
 steps:
   step1:
-    run: /cwl_steps/tiling_create-npy.cwl
+    run: ../cwl/cwl_steps/tiling_create-npy.cwl
     in:
-      bashscriptmain: bashcriptmain_create
+      bashscriptmain: bashscriptmain_create
       cgft: cgft
       cgfdirectory: cgfdirectory
       band2matrix: band2matrix
@@ -42,13 +42,11 @@ steps:
     out: [out1,out2]
 
   step2:
-    run: /cwl_steps/tiling_consol-npy.cwl
+    run: ../cwl/cwl_steps/tiling_consol-npy.cwl
     in: 
-      bashscriptmain: bashcriptmain_consol
+      bashscriptmain: bashscriptmain_consol
       indir: step1/out1
       outdir: outdir
       outprefix: outprefix
       npyconsolfile: npyconsolfile
     out: [out1]
-                                                              46,1          Bot
-

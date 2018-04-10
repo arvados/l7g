@@ -12,7 +12,7 @@ cgft:
 
 cgfdirectory:
    class: Directory
-   path: 
+   path: keep:a61b7b4e0cd4be1b9f1fc8506a4ca707+283 
 
 band2matrix:
    class: File

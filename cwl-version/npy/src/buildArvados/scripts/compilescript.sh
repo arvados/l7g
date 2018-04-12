@@ -19,7 +19,6 @@ g++ -static -o ../dest/npy-vec-to-hiq-1hot ../src/l7g/l7g-master/tools/tile-npy/
 
 g++ -static -o ../dest/npy-consolidate ../src/l7g/l7g-master/tools/tile-npy/npy-consolidate.cpp -L$liblocation -lcnpy -I$liblocation
 
-cgbdir='../src/cgf/cgf-master/cpp'
-
-g++ -g $cgbdir/main.cpp $cgbdir/cgb.cpp $cgbdir/cgb_read.cpp $cgbdir/cgb_print.cpp $cgbdir/dlug.c -o ../dest/cgb
+(cd '../src/l7g/l7g-master/tools/cgft'; make;) # cp -p cgft ${DEST}/cgft)
+cp -p ../src/l7g/l7g-master/tools/cgft/cgft ../dest/cgft
 

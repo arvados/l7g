@@ -1,37 +1,4 @@
-bashscriptmain_create:
-   class: File
-   path: ../src/create-npyCWL.sh 
-
-bashscriptmain_consol:
-   class: File
-   path: ../src/allconsolCWL.sh
-
-cgft: 
-   class: File
-   path: ../src/buildArvados/dest/cgft
-
 cgfdirectory:
    class: Directory
-   path: keep:xxxxx 
+   path: keep:xxx
 
-band2matrix:
-   class: File
-   path: ../src/buildArvados/dest/band-to-matrix-npy
-
-cnvrt2hiq:
-   class: File
-   path: ../src/buildArvados/dest/npy-vec-to-hiq-1hot
-
-makelist:
-   class: File
-   path: ../src/create-list
-
-nthreads: "16"
-
-outdir: "outdir"
-
-outprefix: "all"
-
-npyconsolfile:
-   class: File
-   path:  ../src/buildArvados/dest/npy-consolidate

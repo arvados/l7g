@@ -11,17 +11,17 @@ requirements:
   - class: SubworkflowFeatureRequirement
 
 inputs:
-  bashscriptmain_create: File
-  bashscriptmain_consol: File
-  cgft: File
+  bashscriptmain_create: File?
+  bashscriptmain_consol: File?
+  cgft: File?
   cgfdirectory: Directory
-  band2matrix: File
-  cnvrt2hiq: File
-  makelist: File
-  nthreads: string
-  outdir: string
-  outprefix: string
-  npyconsolfile: File
+  band2matrix: File?
+  cnvrt2hiq: File?
+  makelist: File?
+  nthreads: string?
+  outdir: string?
+  outprefix: string?
+  npyconsolfile: File?
 
 outputs:
   out1:

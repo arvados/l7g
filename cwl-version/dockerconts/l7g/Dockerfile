@@ -7,7 +7,7 @@ RUN apt-get update && \
   apt-get install -y build-essential golang libssl-dev \
     less wget \
     libncurses5-dev autoconf libbz2-dev liblzma-dev \
-    cmake tabix libhts-dev parallel
+    cmake tabix libhts-dev parallel python-numpy 
 
 RUN mkdir -p /root/git && \
   cd /root/git && \
@@ -96,8 +96,6 @@ RUN  cd /root/git/l7g/lib/asmukk && make && \
   cd /root/git/l7g/tools/tile-liftover && make && \
   cp /root/git/l7g/tools/tile-liftover/tile-liftover /usr/local/bin && \
   cp /root/git/l7g/tools/tile-liftover/tile-assembly-index /usr/local/bin
-
-
 
 RUN cd /usr/local/bin && \
   wget http://hgdownload.cse.ucsc.edu/admin/exe/linux.x86_64/bigWigToBedGraph && \

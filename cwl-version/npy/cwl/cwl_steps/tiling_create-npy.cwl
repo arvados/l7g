@@ -5,7 +5,7 @@ cwlVersion: v1.0
 class: CommandLineTool
 requirements:
   - class: DockerRequirement
-    dockerPull: pythontools 
+    dockerPull: arvados/l7g 
   - class: InlineJavascriptRequirement
   - class: ResourceRequirement
     ramMin: 100000 
@@ -23,12 +23,10 @@ inputs:
       class: File
       location: ../../src/create-npyCWL.sh
   cgft:
-    type: File? 
+    type: ["null",File,string]
     inputBinding:
       position: 2
-    default:
-      class: File
-      location: ../../src/buildArvados/dest/cgft
+    default: "usr/bin/cgft"
   cgfdirectory:
     type: Directory
     inputBinding:

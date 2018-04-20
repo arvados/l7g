@@ -5,7 +5,7 @@ cwlVersion: v1.0
 class: Workflow
 requirements:
   - class: DockerRequirement
-    dockerPull: javatools
+    dockerPull: arvados/l7g 
   - class: ScatterFeatureRequirement
   - class: InlineJavascriptRequirement
   - class: SubworkflowFeatureRequirement
@@ -13,7 +13,7 @@ requirements:
 inputs:
   bashscriptmain_create: File?
   bashscriptmain_consol: File?
-  cgft: File?
+  cgft: [File?,string?]
   cgfdirectory: Directory
   band2matrix: File?
   cnvrt2hiq: File?

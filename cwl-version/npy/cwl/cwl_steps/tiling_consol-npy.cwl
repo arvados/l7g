@@ -5,7 +5,7 @@ cwlVersion: v1.0
 class: CommandLineTool
 requirements:
   - class: DockerRequirement
-    dockerPull: pythontools 
+    dockerPull: arvados/l7g
   - class: InlineJavascriptRequirement
   - class: ResourceRequirement
     ramMin: 100000

@@ -3,6 +3,7 @@ $namespaces:
   cwltool: "http://commonwl.org/cwltool#"
 cwlVersion: v1.0
 class: Workflow
+label: "Tiling numpy workflow"
 requirements:
   - class: DockerRequirement
     dockerPull: arvados/l7g 

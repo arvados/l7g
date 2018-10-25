@@ -14,7 +14,7 @@ requirements:
 inputs:
   bashscriptmain_create: File?
   bashscriptmain_consol: File?
-  cgft: [File?,string?]
+  cgft: ["null", "File", "string"]
   cgfdirectory: Directory
   band2matrix: File?
   cnvrt2hiq: File?

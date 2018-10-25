@@ -20,8 +20,8 @@ inputs:
     type: File
     inputBinding:
       position: 1
-  gffDir: 
-    type: Directory 
+  gffDir:
+    type: Directory
     inputBinding:
       position: 2
   gffPrefix:

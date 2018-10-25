@@ -9,7 +9,7 @@ gffDir:
 gffPrefix: "A-IIAA-IA000604-BL-NCR-14AD67907"
 
 filter_gvcf:
-   class: File 
+   class: File
    path: ../src/filter-gvcf
 
 cutoff: "20"

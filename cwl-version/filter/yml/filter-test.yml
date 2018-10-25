@@ -1,0 +1,15 @@
+bashscript:
+   class: File
+   path: ../src/filterCWL.sh
+
+gffDir:
+   class: Directory
+   path: keep:47e5a217867e6a69efe10378541b38e7+7816
+
+gffPrefix: "A-IIAA-IA000604-BL-NCR-14AD67907"
+
+filter_gvcf:
+   class: File 
+   path: ../src/filter-gvcf
+
+cutoff: "20"

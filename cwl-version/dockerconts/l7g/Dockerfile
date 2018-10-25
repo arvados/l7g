@@ -100,5 +100,3 @@ RUN  cd /root/git/l7g/lib/asmukk && make && \
 RUN cd /usr/local/bin && \
   wget http://hgdownload.cse.ucsc.edu/admin/exe/linux.x86_64/bigWigToBedGraph && \
   chmod a+x bigWigToBedGraph
-
-USER crunch

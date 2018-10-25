@@ -5,7 +5,7 @@ cwlVersion: v1.0
 class: Workflow
 requirements:
   - class: DockerRequirement
-    dockerPull: javatools
+    dockerPull: arvados/l7g
   - class: ResourceRequirement
     coresMin: 2
     coresMax: 2

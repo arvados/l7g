@@ -18,9 +18,9 @@ for root, dirnames, filenames in os.walk('cwl-version'):
 
 print matches
 
-REPO_SLUG = 'curoverse/l7g/tree/master/'
+REPO_SLUG = 'curoverse/l7g/blob/master/'
 #Testing WORKFLOW_PATH
-WORKFLOW_PATH = 'cwl-version/npy/cwl/cwl_steps/tiling_consol-npy.cwl'
+WORKFLOW_PATH = 'cwl-version/filter/cwl/tiling_filtergvcf19.cwl'
 
 #This will loop through matches, need to indent everything after to make work
 #for WORKFLOW_PATH in matches:

@@ -37,12 +37,12 @@ steps:
     out: [fileprefix,collectiondir]
 
   step2:
-    scatter: [gffPrefix,gffDir] 
+    scatter: [gffPrefix,gffDir]
     scatterMethod: dotproduct
     in: 
       bashscript: bashscript
       gffDir: step1/collectiondir
-      gffPrefix: step1/fileprefix 
+      gffPrefix: step1/fileprefix
       filter_gvcf: filter_gvcf
       cutoff: cutoff
     run: filter.cwl

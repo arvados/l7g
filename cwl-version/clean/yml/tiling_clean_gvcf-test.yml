@@ -1,0 +1,7 @@
+refdirectory:
+   class: Directory
+   path: keep:737d98bc10c9182474d6d708f47b62aa+43103
+
+bashscript:
+   class: File
+   path: ../src/cleanCWL.sh

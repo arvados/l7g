@@ -5,11 +5,12 @@ cwlVersion: v1.0
 class: CommandLineTool
 requirements:
   - class: DockerRequirement
-    dockerPull: javatools
+    dockerPull: arvados/l7g
   - class: InlineJavascriptRequirement
   - class: ResourceRequirement
-    coresMin: 1 
-    coresMax: 1 
+    coresMin: 2
+    coresMax: 2
+    ramMin: 13000
 hints:
   arv:RuntimeConstraints:
     keep_cache: 4096
@@ -19,7 +20,7 @@ inputs:
     type: File
     inputBinding:
       position: 1
-  gvcfDir: 
+  gvcfDir:
     type: Directory
     inputBinding:
       position: 2
@@ -28,11 +29,12 @@ inputs:
     inputBinding:
       position: 3
   cleanvcf:
-    type: File
+    type: [File,string]
+    default: "/usr/local/bin/cleanvcf"
     inputBinding:
-      position: 4 
+      position: 4
 outputs:
   out1:
-    type: Directory 
+    type: Directory
     outputBinding:
       glob: "cleaned/*"

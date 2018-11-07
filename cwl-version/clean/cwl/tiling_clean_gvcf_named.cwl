@@ -5,10 +5,10 @@ cwlVersion: v1.0
 class: Workflow
 requirements:
   - class: DockerRequirement
-    dockerPull: javatools
+    dockerPull: arvados/l7g
   - class: ResourceRequirement
-    coresMin: 1 
-    coresMax: 1
+    coresMin: 2
+    coresMax: 2
   - class: ScatterFeatureRequirement
   - class: InlineJavascriptRequirement
   - class: SubworkflowFeatureRequirement
@@ -19,7 +19,9 @@ inputs:
   refdirectory: Directory
   datafilenames: File
   bashscript: File
-  cleanvcf: File
+  cleanvcf:
+    type: [File,string]
+    default: "/usr/local/bin/cleanvcf"
 
 outputs:
   out1:
@@ -31,13 +33,13 @@ steps:
     run: getdirs_testset.cwl
     in: 
       datafilenames: datafilenames
-      refdirectory: refdirectory 
+      refdirectory: refdirectory
     out: [out1,out2]
 
   step2:
-    scatter: [gvcfDir,gvcfPrefix] 
+    scatter: [gvcfDir,gvcfPrefix]
     scatterMethod: dotproduct
-    in: 
+    in:
       bashscript: bashscript
       gvcfDir: step1/out1
       gvcfPrefix: step1/out2

@@ -1,0 +1,9 @@
+bashscript:
+   class: File
+   path: ../src/cleanCWL.sh
+
+gvcfDir:
+   class: Directory
+   path: keep:737d98bc10c9182474d6d708f47b62aa+43103/A-IIAA-IA000604-BL-NCR-14AD67907
+
+gvcfPrefix: "A-IIAA-IA000604-BL-NCR-14AD67907"

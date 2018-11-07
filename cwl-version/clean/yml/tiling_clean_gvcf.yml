@@ -4,7 +4,7 @@ refdirectory:
 
 bashscript:
    class: File
-   path: /data-sdd/cwl_tiling/clean/cleanCWL.sh 
+   path: /data-sdd/cwl_tiling/clean/cleanCWL.sh
    
 cleanvcf:
    class: File

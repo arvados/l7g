@@ -5,11 +5,12 @@ cwlVersion: v1.0
 class: CommandLineTool
 requirements:
   - class: DockerRequirement
-    dockerPull: javatools
+    dockerPull: arvados/l7g
   - class: InlineJavascriptRequirement
   - class: ResourceRequirement
     coresMin: 2 
     coresMax: 2 
+    ramMin: 13000
 hints:
   arv:RuntimeConstraints:
     keep_cache: 4096
@@ -68,19 +69,23 @@ inputs:
     inputBinding:
       position: 13
   l7g:
-    type: File
+    type: [File,string]
+    default: "/usr/local/bin/l7g"
     inputBinding:
       position: 14
   pasta:
-    type: File
+    type: [File,string]
+    default: "/usr/local/bin/pasta"
     inputBinding:
       position: 15
   refstream:
-    type: File
+    type: [File,string]
+    default: "/usr/local/bin/refstream"
     inputBinding:
       position: 16
   tile_assembly:
-    type: File
+    type: [File,string]
+    default: "/usr/local/bin/tile-assembly"
     inputBinding:
       position: 17
 outputs:
@@ -92,4 +97,3 @@ outputs:
     type: File[]
     outputBinding:
       glob: "indexed/*.gz*"
-

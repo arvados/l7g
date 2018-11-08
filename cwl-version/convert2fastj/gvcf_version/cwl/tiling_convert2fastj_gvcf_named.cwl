@@ -5,16 +5,17 @@ cwlVersion: v1.0
 class: Workflow
 requirements:
   - class: DockerRequirement
-    dockerPull: javatools
+    dockerPull: arvados/l7g
   - class: ResourceRequirement
     coresMin: 2
     coresMax: 2
   - class: ScatterFeatureRequirement
-  - class: InlineJavascriptRequirement
-  - class: SubworkflowFeatureRequirement
 hints:
   arv:RuntimeConstraints:
     keep_cache: 4096
+  cwltool:LoadListingRequirement:
+    loadListing: shallow_listing
+
 inputs:
   refdirectory: Directory
   datafilenames: File
@@ -29,10 +30,18 @@ inputs:
   aidxM: File
   seqidM: string
   tagdir: File
-  l7g: File
-  pasta: File
-  refstream: File
-  tile_assembly: File
+  l7g:
+    type: [File,string]
+    default: "/usr/local/bin/l7g"
+  pasta:
+    type: [File,string]
+    default: "/usr/local/bin/pasta"
+  refstream:
+    type: [File,string]
+    default: "/usr/local/bin/refstream"
+  tile_assembly:
+    type: [File,string]
+    default: "/usr/local/bin/tile-assembly"
 
 outputs:
   out1:

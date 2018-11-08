@@ -10,8 +10,6 @@ requirements:
     coresMin: 2
     coresMax: 2
   - class: ScatterFeatureRequirement
-  - class: InlineJavascriptRequirement
-  - class: SubworkflowFeatureRequirement
 hints:
   arv:RuntimeConstraints:
     keep_cache: 4096

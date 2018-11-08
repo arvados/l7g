@@ -10,11 +10,12 @@ requirements:
     coresMin: 2
     coresMax: 2
   - class: ScatterFeatureRequirement
-  - class: InlineJavascriptRequirement
-  - class: SubworkflowFeatureRequirement
 hints:
   arv:RuntimeConstraints:
     keep_cache: 4096
+  cwltool:LoadListingRequirement:
+    loadListing: shallow_listing
+
 inputs:
   refdirectory: Directory
   datafilenames: File

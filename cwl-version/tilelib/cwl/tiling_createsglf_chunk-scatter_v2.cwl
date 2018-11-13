@@ -3,6 +3,7 @@ $namespaces:
   cwltool: "http://commonwl.org/cwltool#"
 cwlVersion: v1.0
 class: Workflow 
+label: This step creates a set of SGLF files (tile library) for a given set of FASTJ files.
 requirements:
   - class: DockerRequirement
     dockerPull: javatools

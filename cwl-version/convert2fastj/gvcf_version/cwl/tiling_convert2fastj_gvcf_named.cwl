@@ -3,6 +3,7 @@ $namespaces:
   cwltool: "http://commonwl.org/cwltool#"
 cwlVersion: v1.0
 class: Workflow
+label: Creates a FASTJ file per path for each named GVCF
 requirements:
   - class: DockerRequirement
     dockerPull: javatools

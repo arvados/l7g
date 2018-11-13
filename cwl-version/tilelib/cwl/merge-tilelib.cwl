@@ -3,6 +3,7 @@ $namespaces:
   cwltool: "http://commonwl.org/cwltool#"
 cwlVersion: v1.0
 class: CommandLineTool
+label: This step merges all the sglf libraries
 requirements:
   - class: DockerRequirement
     dockerPull: javatools-parallel

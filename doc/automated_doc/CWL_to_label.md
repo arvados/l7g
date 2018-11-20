@@ -1,10 +1,10 @@
-./cgf3/cwl/createcgf.cwl
+<s>./cgf3/cwl/createcgf.cwl</s>
 
-./cgf3/cwl/getdirs20.cwl
+<s>./cgf3/cwl/getdirs20.cwl</s>
 
 <s>./cgf3/cwl/tiling_convert2cgf.cwl</s>
 
-./cgf3/cwl/getdirs.cwl
+<s>./cgf3/cwl/getdirs.cwl</s>
 
 ./checks/check-cgf/gvcf/cwl/validate-conversion-gvcf-cgf-ch
 rom_workflow.cwl

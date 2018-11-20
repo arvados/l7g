@@ -3,6 +3,7 @@ $namespaces:
   cwltool: "http://commonwl.org/cwltool#"
 cwlVersion: v1.0
 class: CommandLineTool
+label: Start Arvados docker. Process and create cgf files from fastj files.
 requirements:
   - class: DockerRequirement
     dockerPull: javatools

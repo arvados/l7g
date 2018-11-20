@@ -3,6 +3,7 @@ $namespaces:
   cwltool: "http://commonwl.org/cwltool#"
 class: ExpressionTool
 cwlVersion: v1.0
+label: Create list of directories with subdirectories
 hints:
   cwltool:LoadListingRequirement:
     loadListing: shallow_listing

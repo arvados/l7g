@@ -15,9 +15,9 @@ rom_workflow.cwl</s>
 
 <s>./checks/check-sglf/cwl/sglf-sanity-check.cwl</s>
 
-./tagset/l7g-tagset.cwl
+<s>./tagset/l7g-tagset.cwl</s>
 
-./tagset/tagset.cwl
+<s>./tagset/tagset.cwl</s>
 
 ./convert2fastj/gff_version/cwl/mergedirs.cwl
 

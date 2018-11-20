@@ -13,16 +13,6 @@ Output: Filtered GVCFs (all in 1 collection, per run)
 ### tiling_filtergvcf19.cwl
 ![tiling_filtergvcf19.cwl](tiling_filtergvcf19.cwl.png)
 
-## Stats:
-### Total time:
-    Set1: It has runtime of 7h41m(7mqueued) and used 76d20h37m of node allocation time (240.2⨯ scaling).
-    Set2: It has runtime of 4h9m(8mqueued) and used 38d21h11m of node allocation time (225.3⨯ scaling).
-    Total for both sets: ~115 days or ~12 hrs in parallel
-
-### Total cost:
-    Estimated: 115 days * 24hrs * 0.11perhr (D2v3node) = $303.6
-    Divide by ~4000 = 0.076 per genome
-
 ----
 
 ## Step2: Clean the GVCFs
@@ -35,13 +25,6 @@ Output: Filtered GVCFs (all in 1 collection, per run)
 
 ### tiling_clean_gvcf.cwl
 ![tiling_clean_gvcf.cwl](tiling_clean_gvcf.cwl.png)
-
-## Stats:
-### Total time:
-    For 1 set of 454 -- It has runtime of 3h60m(12mqueued) and used 13d19h51m of node allocation time (83.0⨯ scaling).   13.8*24*0.11perhr (D2v3node)= 91.08
-
-### Total cost:
-    Estimated per genome:(91.08/454) = 0.20
 
 ----
 
@@ -56,12 +39,6 @@ Output: Filtered GVCFs (all in 1 collection, per run)
 ### tiling_convert2fastj_gvcf.cwl
 ![tiling_convert2fastj_gvcf.cwl](tiling_convert2fastj_gvcf.cwl.png)
 
-
-## Stats:
-### Total time:
-    For run #1
-    It has runtime of 8h31m and used 41d4h10m of node allocation time (116.0⨯ scaling). (41*24+4) * 0.11 per/hr (D2v3node) =  108.68
-
 ----
 
 # Step4: Create the SGLF files
@@ -72,12 +49,6 @@ Output: Filtered GVCFs (all in 1 collection, per run)
 ### tiling_createsglf_chunk-scatter_v2.cwl
 ![tiling_createsglf_chunk-scatter_v2.cwl](tiling_createsglf_chunk-scatter_v2.cwl.png)
 
-## Stats:
-### Total time:
-    Set 1 - runtime of 23h27m(10mqueued) and used 82d3h52m of node allocation time (84.1⨯ scaling)
-    Set 2 - runtime of 13h26m(10mqueued) and used 50d10h9m of node allocation time (90.1⨯ scaling).
-    Total runtime -- 132 days 15hr on a E16s v3 (i think?) 1.17 an hr
-    Total cost, estimated per genome: 0.73 per genome
 
 ## Step4b:  “Sanity” Check the SGLF files
 ### Brief Description:
@@ -104,12 +75,6 @@ Output: Filtered GVCFs (all in 1 collection, per run)
 
 ### tiling_convert2cgf.cwl
 ![tiling_convert2cgf.cwl](tiling_convert2cgf.cwl.png)
-
-## Stats
-### Total time:
-    It has runtime of 21h26m and used 103d1h60m of node allocation time (115.5⨯ scaling).
-    Run on D11v2 0.185 per hr = 2474*0.185 = 457.69/454 = $1
-    Total cost, estimated per genome: 457.69/454 = $1
 
 ## Step6b:  Check the CGF Files
 

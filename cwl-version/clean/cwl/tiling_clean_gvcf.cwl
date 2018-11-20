@@ -3,7 +3,7 @@ $namespaces:
   cwltool: "http://commonwl.org/cwltool#"
 cwlVersion: v1.0
 class: Workflow
-label: Resolve duplicate/overlapping calls in the GVCFs
+label: Resolve duplicate/overlapping calls in GVCFs
 requirements:
   - class: DockerRequirement
     dockerPull: javatools

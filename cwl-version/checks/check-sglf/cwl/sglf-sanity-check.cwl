@@ -1,6 +1,6 @@
 cwlVersion: v1.0
 class: CommandLineTool
-label: Checks tile library (SGLFs) for correct span formatting and no spurious characters
+label: Check tile library (SGLFs) for correct formatting and spurious characters
 $namespaces:
   arv: "http://arvados.org/cwl#"
 requirements:

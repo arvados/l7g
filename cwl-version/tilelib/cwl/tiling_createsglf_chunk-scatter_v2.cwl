@@ -3,7 +3,7 @@ $namespaces:
   cwltool: "http://commonwl.org/cwltool#"
 cwlVersion: v1.0
 class: Workflow 
-label: Create a set of SGLF files (tile library) for a given set of FASTJ files
+label: Create a tile library (SGLF) for a given set of FASTJ files
 requirements:
   - class: DockerRequirement
     dockerPull: javatools

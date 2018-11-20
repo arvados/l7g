@@ -3,7 +3,7 @@ $namespaces:
   cwltool: "http://commonwl.org/cwltool#"
 cwlVersion: v1.0
 class: CommandLineTool
-label: Merge all of the tile libraries (SGLF)
+label: Merge all of the tile libraries (SGLFs)
 requirements:
   - class: DockerRequirement
     dockerPull: javatools-parallel

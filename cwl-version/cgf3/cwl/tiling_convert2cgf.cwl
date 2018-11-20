@@ -3,7 +3,7 @@ $namespaces:
   cwltool: "http://commonwl.org/cwltool#"
 cwlVersion: v1.0
 class: Workflow
-label: Creates a cgf for each FASTj file
+label: Creates a cgf for each FASTJ file
 requirements:
   - class: DockerRequirement
     dockerPull: javatoolsparallel

@@ -1,5 +1,6 @@
 cwlVersion: v1.0
 class: CommandLineTool
+label: Output a FASTA file for the tagset
 requirements:
   - class: DockerRequirement
     dockerPull: arvados/l7g

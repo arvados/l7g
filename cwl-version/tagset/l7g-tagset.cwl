@@ -1,5 +1,6 @@
 cwlVersion: v1.0
 class: Workflow
+label: Workflow to create a FASTA file for the tagset
 requirements:
   - class: DockerRequirement
     dockerPull: arvados/l7g

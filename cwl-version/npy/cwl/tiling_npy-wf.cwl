@@ -3,7 +3,7 @@ $namespaces:
   cwltool: "http://commonwl.org/cwltool#"
 cwlVersion: v1.0
 class: Workflow
-label: Create numpy arrays from cgf and merge all numpy arrays into a single array
+label: Create numpy arrays from cgf, merge all numpy arrays into one array
 requirements:
   - class: DockerRequirement
     dockerPull: arvados/l7g 

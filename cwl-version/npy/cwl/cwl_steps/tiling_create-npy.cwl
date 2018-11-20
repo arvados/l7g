@@ -3,6 +3,7 @@ $namespaces:
   cwltool: "http://commonwl.org/cwltool#"
 cwlVersion: v1.0
 class: CommandLineTool
+label: Create numpy vectors based on tile library paths
 requirements:
   - class: DockerRequirement
     dockerPull: arvados/l7g 

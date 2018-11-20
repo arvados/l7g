@@ -12,6 +12,7 @@ rom_workflow.cwl
 ./checks/check-cgf/gvcf/cwl/gather_validate-conversion-gvcf-cgf.cwl
 
 ./checks/check-cgf/gvcf/cwl/validate-conversion-gvcf-cgf-chrom.cwl
+
 <s>./checks/check-sglf/cwl/sglf-sanity-check.cwl</s>
 
 ./tagset/l7g-tagset.cwl

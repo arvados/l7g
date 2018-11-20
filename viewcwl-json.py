@@ -7,8 +7,7 @@ import os
 import glob
 
 # You can alternatively define these in travis.yml as env vars or arguments
-BASE_URL = 'https://view.commonwl.org'
-WORKFLOW_PATH = '/workflows/workflow.cwl'
+BASE_URL = 'https://view.commonwl.org/workflows'
 
 #get the cwl in l7g/cwl-version
 matches = []
@@ -19,14 +18,6 @@ for root, dirnames, filenames in os.walk('cwl-version'):
 print matches
 
 REPO_SLUG = 'curoverse/l7g/blob/master/'
-#Testing WORKFLOW_PATH
-WORKFLOW_PATH = 'cwl-version/filter/cwl/tiling_filtergvcf19.cwl'
-
-#This will loop through matches, need to indent everything after to make work
-#for WORKFLOW_PATH in matches:
-# Whole workflow URL on github
-workflowURL = 'https://github.com/' + REPO_SLUG + WORKFLOW_PATH
-print workflowURL,'\n'
 
 # Headers
 HEADERS = {
@@ -34,43 +25,30 @@ HEADERS = {
 'accept': 'application/json'
 }
 
-# Add new workflow with the specific commit ID of this build
-addResponse = requests.post(BASE_URL + '/workflows',
-data={'url': workflowURL},
-headers=HEADERS)
+#Testing WORKFLOW_PATH
+#WORKFLOW_PATH = 'cwl-version/clean/cwl/tiling_clean_gvcf.cwl'
 
-if addResponse.status_code == requests.codes.accepted:
-    qLocation = addResponse.headers['location']
+#This will loop through matches, need to indent everything after to make work
+for WORKFLOW_PATH in matches:
+# Whole workflow URL on github
+    workflowURL = 'https://github.com/' + REPO_SLUG + WORKFLOW_PATH
+    print '\n',workflowURL,'\n'
 
-    # Get the queue item until success
-    qResponse = requests.get(BASE_URL + qLocation,
-    headers=HEADERS,
-    allow_redirects=False)
-    maxAttempts = 5
-    while qResponse.status_code == requests.codes.ok and qResponse.json()['cwltoolStatus'] == 'RUNNING' and maxAttempts > 0:
-        time.sleep(5)
-        qResponse = requests.get(BASE_URL + qLocation,
-        headers=HEADERS,
-        allow_redirects=False)
-        maxAttempts -= 1
+    # Add new workflow with the specific commit ID of this build
+    addResponse = requests.post(BASE_URL,
+                                data={'url': workflowURL},
+                                headers = HEADERS)
 
-        if qResponse.headers['location']:
-            # Success, get the workflow
-            workflowResponse = requests.get(BASE_URL + qResponse.headers['location'], headers=HEADERS)
-            if (workflowResponse.status_code == requests.codes.ok):
-                workflowJson = workflowResponse.json()
-                # Do what you want with the workflow JSON
-                # Include details in documentation files etc
-                print(BASE_URL + workflowJson['visualisationSvg'])
-                print('Verified with cwltool version ' + workflowJson['cwltoolVersion'])
-                # etc...
-            else:
-                print('Could not get returned workflow')
-        elif qResponse.json()['cwltoolStatus'] == 'ERROR':
-            # Cwltool failed to run here
-            print(qResponse.json()['message'])
-        elif maxAttempts == 0:
-            print('Timeout: Cwltool did not finish')
+    print BASE_URL,'\n',workflowURL,'\n\n'
 
-else:
-    print('Error adding workflow')
+    print(addResponse)
+    print(addResponse.encoding)
+    print(addResponse.content)
+    print(addResponse.url)
+    print(addResponse.request)
+    print(addResponse.raw)
+    print(addResponse.headers)
+
+    print('\n\n End Sarah\'s code \n\n')
+    print('Sleep 1 second\n\n')
+    time.sleep(1)

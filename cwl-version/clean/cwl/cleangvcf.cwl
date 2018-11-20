@@ -6,7 +6,6 @@ class: CommandLineTool
 requirements:
   - class: DockerRequirement
     dockerPull: arvados/l7g
-  - class: InlineJavascriptRequirement
   - class: ResourceRequirement
     coresMin: 2
     coresMax: 2

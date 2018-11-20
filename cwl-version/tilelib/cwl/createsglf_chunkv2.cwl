@@ -5,12 +5,11 @@ cwlVersion: v1.0
 class: CommandLineTool
 requirements:
   - class: DockerRequirement
-    dockerPull: javatools
-  - class: InlineJavascriptRequirement
+    dockerPull: arvados/l7g
   - class: ResourceRequirement
-    ramMin: 100000
     coresMin: 16
     coresMax: 16
+    ramMin: 100000
 hints:
   arv:RuntimeConstraints:
     keep_cache: 4096
@@ -31,26 +30,27 @@ inputs:
     type: string
     inputBinding:
       position: 3
-  fjcsv2sglf: 
-    type: File 
+  fjcsv2sglf:
+    type: [File,string]
+    default: "/usr/local/bin/fjcsv2sglf"
     inputBinding:
       position: 4
-  datadir: 
-    type: Directory 
+  datadir:
+    type: Directory
     inputBinding:
-      position: 5 
+      position: 5
   fjt:
-    type: File
+    type: [File,string]
+    default: "/usr/local/bin/fjt"
     inputBinding:
-      position: 6 
+      position: 6
   tagset:
     type: File
     inputBinding:
-      position: 7 
+      position: 7
 
 outputs:
   out1:
     type: File[]
     outputBinding:
       glob: "lib/*sglf.gz*"
-

@@ -5,9 +5,7 @@ cwlVersion: v1.0
 class: Workflow 
 requirements:
   - class: DockerRequirement
-    dockerPull: javatools
-  - class: InlineJavascriptRequirement
-  - class: SubworkflowFeatureRequirement
+    dockerPull: arvados/l7g
   - class: ScatterFeatureRequirement
 hints:
   arv:RuntimeConstraints:
@@ -19,9 +17,13 @@ inputs:
   pathmax: string
   nchunks: string
   bashscript: File
-  fjcsv2sglf: File 
-  datadir: Directory 
-  fjt: File
+  fjcsv2sglf:
+    type: [File,string]
+    default: "/usr/local/bin/fjcsv2sglf"
+  datadir: Directory
+  fjt:
+    type: [File,string]
+    default: "/usr/local/bin/fjt"
   tagset: File
 
 outputs:
@@ -41,15 +43,15 @@ steps:
       pathmax: pathmax
       nchunks: nchunks
     out: [out1,out2]
-  
+
   step2:
      scatter: [tilepathmin, tilepathmax]
      scatterMethod: dotproduct
-     in: 
+     in:
        bashscript: bashscript
        tilepathmin: step1/out1
        tilepathmax: step1/out2
-       fjcsv2sglf: fjcsv2sglf 
+       fjcsv2sglf: fjcsv2sglf
        datadir: datadir
        fjt: fjt
        tagset: tagset

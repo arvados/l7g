@@ -1,5 +1,6 @@
 cwlVersion: v1.0
 class: CommandLineTool
+label: Validate the conversion of the gVCF to cgf against the SGLF (Tile Library)
 requirements:
   - class: DockerRequirement
     dockerPull: arvados/l7g

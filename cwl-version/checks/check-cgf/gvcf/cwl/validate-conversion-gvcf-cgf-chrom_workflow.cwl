@@ -1,5 +1,6 @@
 cwlVersion: v1.0
 class: Workflow
+label:
 requirements:
   ScatterFeatureRequirement: {}
   InlineJavascriptRequirement: {}

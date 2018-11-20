@@ -1,5 +1,6 @@
 class: ExpressionTool
 cwlVersion: v1.0
+label: Collect list of validated cgfs, return JSON bundle
 requirements:
   InlineJavascriptRequirement: {}
 

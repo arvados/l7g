@@ -15,16 +15,22 @@ hints:
   cwltool:LoadListingRequirement:
     loadListing: shallow_listing
 inputs:
-  refdirectory: Directory
-  bashscript: File
-  cgft: File
-  fjt: File
-  cglf: Directory 
+  refdirectory
+    type: Directory
+  bashscript
+    type: File
+  cgft
+    type: File
+  fjt
+    type: File
+  cglf
+    type: Directory
 
 outputs:
-  out1: 
+  out1:
     type: File[]
-    outputSource: step2/out1 
+    outputSource: step2/out1
+    label: Outputs cgf from FASTJ
 steps:
   step1:
     run: getdirs.cwl
@@ -40,5 +46,5 @@ steps:
       cgft: cgft
       fjt: fjt
       cglf: cglf
-    run: createcgf.cwl 
+    run: createcgf.cwl
     out: [out1]

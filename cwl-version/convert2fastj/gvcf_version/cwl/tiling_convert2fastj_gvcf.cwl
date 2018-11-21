@@ -8,7 +8,7 @@ requirements:
   - class: DockerRequirement
     dockerPull: javatools
   - class: ResourceRequirement
-    coresMin: 1 
+    coresMin: 1
     coresMax: 1
   - class: ScatterFeatureRequirement
   - class: InlineJavascriptRequirement
@@ -20,22 +20,38 @@ hints:
     loadListing: shallow_listing
 
 inputs:
-  refdirectory: Directory
-  bashscript: File
-  ref: string 
-  reffa: File
-  afn: File
-  aidx: File
-  refM: string
-  reffaM: File
-  afnM: File
-  aidxM: File
-  seqidM: string
-  tagdir: File
-  l7g: File
-  pasta: File
-  refstream: File
-  tile_assembly: File
+  refdirectory
+    type: Directory
+  bashscript
+    type: File
+  ref
+    type: string
+  reffa
+    type: File
+  afn
+    type: File
+  aidx
+    type: File
+  refM
+    type: string
+  reffaM
+    type: File
+  afnM
+    type: File
+  aidxM
+    type: File
+  seqidM
+    type: string
+  tagdir
+    type: File
+  l7g
+    type: File
+  pasta
+    type: File
+  refstream
+    type: File
+  tile_assembly
+    type: File
 
 outputs:
   out1:
@@ -52,14 +68,14 @@ outputs:
 steps:
   step1:
     run: getdirs.cwl
-    in: 
+    in:
       refdirectory: refdirectory
     out: [out1,out2]
 
   step2:
-    scatter: [gffDir,gffPrefix] 
+    scatter: [gffDir,gffPrefix]
     scatterMethod: dotproduct
-    in: 
+    in:
       bashscript: bashscript
       gffDir: step1/out1
       gffPrefix: step1/out2
@@ -75,7 +91,7 @@ steps:
       tagdir: tagdir
       l7g: l7g
       pasta: pasta
-      refstream: refstream 
+      refstream: refstream
       tile_assembly: tile_assembly
     run: convertgvcf.cwl
     out: [out1,out2]

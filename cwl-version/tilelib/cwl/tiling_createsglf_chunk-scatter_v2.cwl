@@ -2,7 +2,7 @@ $namespaces:
   arv: "http://arvados.org/cwl#"
   cwltool: "http://commonwl.org/cwltool#"
 cwlVersion: v1.0
-class: Workflow 
+class: Workflow
 label: Create a tile library (SGLF) for a given set of FASTJ files
 requirements:
   - class: DockerRequirement
@@ -12,18 +12,26 @@ requirements:
   - class: ScatterFeatureRequirement
 hints:
   arv:RuntimeConstraints:
-    keep_cache: 16384 
+    keep_cache: 16384
   cwltool:LoadListingRequirement:
     loadListing: shallow_listing
 inputs:
-  pathmin: string
-  pathmax: string
-  nchunks: string
-  bashscript: File
-  fjcsv2sglf: File 
-  datadir: Directory 
-  fjt: File
-  tagset: File
+  pathmin
+    type: string
+  pathmax
+    type: string
+  nchunks
+    type: string
+  bashscript
+    type: File
+  fjcsv2sglf
+    type: File
+  datadir
+    type: Directory
+  fjt
+    type: File
+  tagset
+    type: File
 
 outputs:
   out1:
@@ -42,15 +50,15 @@ steps:
       pathmax: pathmax
       nchunks: nchunks
     out: [out1,out2]
-  
+
   step2:
      scatter: [tilepathmin, tilepathmax]
      scatterMethod: dotproduct
-     in: 
+     in:
        bashscript: bashscript
        tilepathmin: step1/out1
        tilepathmax: step1/out2
-       fjcsv2sglf: fjcsv2sglf 
+       fjcsv2sglf: fjcsv2sglf
        datadir: datadir
        fjt: fjt
        tagset: tagset

@@ -4,6 +4,9 @@ $namespaces:
 cwlVersion: v1.0
 class: Workflow
 label: Filters GVCFs by some quality cutoff
+doc: |
+    This workflow takes in RAW gVCFs, and using the cutoff integer as a quality
+    cutoff filters out gVCFs in the given path that do not meat that cutoff.
 requirements:
   - class: DockerRequirement
     dockerPull: javatools

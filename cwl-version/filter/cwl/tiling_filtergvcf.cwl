@@ -5,8 +5,9 @@ cwlVersion: v1.0
 class: Workflow
 label: Filters GVCFs by some quality cutoff
 doc: |
-    This workflow takes in RAW gVCFs, and using the cutoff integer as a quality
-    cutoff filters out gVCFs in the given path that do not meat that cutoff.
+    This workflow takes in RAW gVCFs, and using the defined cutoff integer as
+    a quality cutoff, filters out gVCFs in the given path that do not meet that
+    cutoff.
 requirements:
   - class: DockerRequirement
     dockerPull: javatools
@@ -23,31 +24,42 @@ hints:
     loadListing: shallow_listing
 
 inputs:
-  datafilenames: File[]
-  datafilepdh: File[]
-  bashscript: File
-  filter_gvcf: File
-  cutoff: string
+  datafilenames:
+    type: File
+    label: Filter collections
+  datafilepdh:
+    type: File
+    label: Data path for filtering
+  bashscript:
+    type: File
+    label: Calls the script filterCWL.sh1
+  filter_gvcf:
+    type: File
+    label: gVCFs to filter
+  cutoff:
+    type: string
+    label: The filtering cutoff threshhold
 outputs:
   out1:
     type: Directory[]
     outputSource: step2/out1
     label: Output directory of filterd gVCFs
+
 steps:
   step1:
     run: getCollections.cwl
-    in: 
+    in:
       datafilenames: datafilenames
       datafilepdh: datafilepdh
     out: [fileprefix,collectiondir]
 
   step2:
-    scatter: [gffPrefix,gffDir] 
+    scatter: [gffPrefix,gffDir]
     scatterMethod: dotproduct
-    in: 
+    in:
       bashscript: bashscript
       gffDir: step1/collectiondir
-      gffPrefix: step1/fileprefix 
+      gffPrefix: step1/fileprefix
       filter_gvcf: filter_gvcf
       cutoff: cutoff
     run: filter.cwl

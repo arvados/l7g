@@ -17,14 +17,19 @@ hints:
 inputs:
   refdirectory
     type: Directory
+    label: Keep input directory
   bashscript
     type: File
+    label: Run convertcgfCWL-empty-problem-tilepaths3.sh
   cgft
     type: File
+    label: cgft files
   fjt
     type: File
+    label: JastJ Files
   cglf
     type: Directory
+    label: Merged Directory
 
 outputs:
   out1:

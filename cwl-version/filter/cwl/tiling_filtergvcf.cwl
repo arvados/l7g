@@ -3,11 +3,11 @@ $namespaces:
   cwltool: "http://commonwl.org/cwltool#"
 cwlVersion: v1.0
 class: Workflow
-label: Filters GVCFs by some quality cutoff
+label: Filters gVCFs by some quality cutoff
 doc: |
     This workflow takes in RAW gVCFs, and using the defined cutoff integer as
-    a quality cutoff, filters out gVCFs in the given path that do not meet that
-    cutoff.
+    a quality cutoff, filters out variant calls do not meet the cutoff
+    specified.
 requirements:
   - class: DockerRequirement
     dockerPull: javatools

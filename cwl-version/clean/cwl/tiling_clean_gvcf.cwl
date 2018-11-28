@@ -21,7 +21,7 @@ hints:
 inputs:
   refdirectory
     type: Directory
-    label: Location in Arvados Keep of gVCF to clean
+    label: Location in Arvados Keep of gVCFs to clean
   bashscript
     type: File
     label: Master bash script to control cleaning
@@ -33,7 +33,7 @@ outputs:
   out1:
     type: Directory[]
     outputSource: step2/out1
-    label: Output directory to put clean gVCFs in
+    label: Directory where clean gVCFs are placed
 
 steps:
   step1:

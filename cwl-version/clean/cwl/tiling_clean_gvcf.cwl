@@ -21,19 +21,19 @@ hints:
 inputs:
   refdirectory
     type: Directory
-    label: Reference directory in Keep
+    label: Location in Arvados Keep of gVCF to clean
   bashscript
     type: File
-    label: Calls the script cleanCWL.sh
+    label: Master bash script to control cleaning
   cleanvcf
     type: File
-    label: The local location of the clean gVCF
+    label: Compiled code that cleans gVCFs
 
 outputs:
   out1:
     type: Directory[]
     outputSource: step2/out1
-    label: Local Directory to put clean gVCFs in
+    label: Output directory to put clean gVCFs in
 
 steps:
   step1:

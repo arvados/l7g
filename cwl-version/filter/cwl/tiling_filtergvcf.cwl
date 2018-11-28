@@ -32,7 +32,7 @@ inputs:
     label: Data path for filtering
   bashscript:
     type: File
-    label: Calls the script filterCWL.sh1
+    label: Calls the script filterCWL.sh
   filter_gvcf:
     type: File
     label: gVCFs to filter

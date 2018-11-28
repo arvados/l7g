@@ -4,6 +4,8 @@ $namespaces:
 cwlVersion: v1.0
 class: Workflow
 label: Create a tile library (SGLF) for a given set of FASTJ files
+doc: |
+    Creates the tile library set (SGLF) in Compact Genome Format (cgf)
 requirements:
   - class: DockerRequirement
     dockerPull: javatools

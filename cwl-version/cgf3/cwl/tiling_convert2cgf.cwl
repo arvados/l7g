@@ -4,6 +4,8 @@ $namespaces:
 cwlVersion: v1.0
 class: Workflow
 label: Creates a cgf for each FASTJ file
+doc: |
+    Second intermediate step that takes in FASTJ files and creates compact genome representations of them for the Tile library.
 requirements:
   - class: DockerRequirement
     dockerPull: javatoolsparallel

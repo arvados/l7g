@@ -4,6 +4,8 @@ $namespaces:
 cwlVersion: v1.0
 class: Workflow
 label: Creates a FASTJ file for each GVCF
+doc: |
+    This workflow is an intermediate step to creating the cgf files for each gVCF
 requirements:
   - class: DockerRequirement
     dockerPull: javatools

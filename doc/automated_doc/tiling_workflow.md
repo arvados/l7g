@@ -10,9 +10,6 @@ Output: Filtered GVCFs (all in 1 collection, per run)
 ### tiling_filtergvcf.cwl
 ![tiling_filtergvcf.cwl](tiling_filtergvcf.cwl.png)
 
-### tiling_filtergvcf19.cwl
-![tiling_filtergvcf19.cwl](tiling_filtergvcf19.cwl.png)
-
 ----
 
 ## Step2: Clean the GVCFs

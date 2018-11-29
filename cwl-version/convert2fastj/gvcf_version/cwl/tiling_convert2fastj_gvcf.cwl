@@ -24,8 +24,10 @@ hints:
 inputs:
   refdirectory
     type: Directory
+    label: Input Directory
   bashscript
     type: File
+    label: Master mash script that controls converting FASTJ to gVCFs 
   ref
     type: string
     label: Reference genome

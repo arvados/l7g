@@ -6,7 +6,7 @@ class: Workflow
 label: Create numpy arrays from cgf, merge all numpy arrays into one array
 requirements:
   - class: DockerRequirement
-    dockerPull: arvados/l7g 
+    dockerPull: arvados/l7g
   - class: ScatterFeatureRequirement
   - class: InlineJavascriptRequirement
   - class: SubworkflowFeatureRequirement
@@ -44,7 +44,7 @@ steps:
 
   step2:
     run: ../cwl/cwl_steps/tiling_consol-npy.cwl
-    in: 
+    in:
       bashscriptmain: bashscriptmain_consol
       indir: step1/out1
       outdir: outdir

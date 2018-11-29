@@ -24,10 +24,12 @@ inputs:
     type: File
     inputBinding:
       position: 1
+    label: Bash script to merge cgf into Tile library
   srcdir:
     type: Directory
     inputBinding:
       position: 2
+    label: Directory in keep where cgf files reside
   nppdir:
     type: Directory
     inputBinding:
@@ -36,10 +38,12 @@ inputs:
     type: string
     inputBinding:
       position: 4
+    label: Number of threads to use
   mergetilelib:
     type: File
     inputBinding:
       position: 5
+    label: Compiled C++ that reads in an SGLF line and stores the tilepath, tile library version, tilestep and tile span
 outputs:
   out1:
     type: Directory

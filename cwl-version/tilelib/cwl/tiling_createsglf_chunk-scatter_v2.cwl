@@ -20,21 +20,28 @@ hints:
 inputs:
   pathmin
     type: string
+    label: Beginning tile library path [0]
   pathmax
     type: string
+    label: Last/Maximum tile library path
   nchunks
     type: string
+    label: Number of chunks to scatter
   bashscript
     type: File
+    label: Bash script that iterates over the FASTJ to create paths
   fjcsv2sglf
     type: File
+    label: Compiled C++ that creates 2bit sequence and tile ID and size
   datadir
     type: Directory
+    label: Directory in Keep for Data
   fjt
     type: File
+    label: fjt is a tool to manipulate FastJ (text) files
   tagset
     type: File
-
+    label: Compressed tagset in FASTA format
 outputs:
   out1:
     type:

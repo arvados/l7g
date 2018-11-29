@@ -27,30 +27,35 @@ inputs:
     type: string
     inputBinding:
       position: 2
+    label: Beginning tile library path [0]
   tilepathmax:
     type: string
     inputBinding:
       position: 3
-  fjcsv2sglf: 
-    type: File 
+    label: Last/Maximum tile library path
+  fjcsv2sglf:
+    type: File
     inputBinding:
       position: 4
-  datadir: 
-    type: Directory 
+    label: Compiled C++ that creates 2bit sequence and tile ID and size
+  datadir:
+    type: Directory
     inputBinding:
-      position: 5 
+      position: 5
+    label: Directory in Keep for Data
   fjt:
     type: File
     inputBinding:
-      position: 6 
+      position: 6
+      label: fjt is a tool to manipulate FastJ (text) files
   tagset:
     type: File
     inputBinding:
-      position: 7 
+      position: 7
+    label: Compressed tagset in FASTA format
 
 outputs:
   out1:
     type: File[]
     outputBinding:
       glob: "lib/*sglf.gz*"
-

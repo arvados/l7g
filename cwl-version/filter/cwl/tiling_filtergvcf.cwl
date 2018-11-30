@@ -25,10 +25,10 @@ hints:
 
 inputs:
   datafilenames:
-    type: File
+    type: File[]
     label: List of directories of gVCF chromosome files to be filtered
   datafilepdh:
-    type: File
+    type: File[]
     label: List of Portable Data Hashes that point to locations in Arvados
   bashscript:
     type: File

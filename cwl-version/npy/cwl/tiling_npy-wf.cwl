@@ -19,7 +19,7 @@ inputs:
     label: Master bash script for creating the numpy arrays
   bashscriptmain_consol:
     type: File?
-    labe: Bash script to Consolidate individual Lightning numpy arrays broken out by tilepath into a single numpy matrix
+    label: Bash script to Consolidate individual Lightning numpy arrays broken out by tilepath into a single numpy matrix
   cgft:
     type: ["null", "File", "string"]
     label: compact genome format type

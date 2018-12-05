@@ -7,12 +7,10 @@ requirements:
     dockerPull: arvados/l7g
   - class: ResourceRequirement
     coresMin: 1
-  - class: InlineJavascriptRequirement
-  - class: arv:RuntimeConstraints
+hints:
+  arv:RuntimeConstraints:
     keep_cache: 10000
-
 baseCommand: bash
-
 inputs:
   script:
     type: File
@@ -26,10 +24,8 @@ inputs:
     type: string
     inputBinding:
       position: 3
-
 outputs:
   result:
     type: Directory
     outputBinding:
       glob: "."
-

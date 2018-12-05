@@ -9,8 +9,8 @@ requirements:
     dockerPull: javatools
   - class: InlineJavascriptRequirement
   - class: ResourceRequirement
-    ramMin: 10000 
-    coresMin: 2 
+    ramMin: 10000
+    coresMin: 2
 hints:
   arv:RuntimeConstraints:
     keep_cache: 1046
@@ -20,27 +20,31 @@ baseCommand: bash
 inputs:
   bashscript:
     type: File
+    label: Main bash script for converting fastJ to cgf
     inputBinding:
       position: 1
   fjdir:
-    type: Directory 
+    type: Directory
+    label: FastJ directory
     inputBinding:
       position: 2
-  cgft: 
-    type: File 
+  cgft:
+    type: File
+    label: Location of the Compact Genome Format Tool, a swiss army knife tool to manipulate and inspect CGF files
     inputBinding:
-      position: 3 
+      position: 3
   fjt:
     type: File
+    label: a tool to manipulate FastJ (text) files.
     inputBinding:
       position: 4
   cglf:
     type: Directory
+    label: creates the tile library
     inputBinding:
-      position: 5 
-outputs:    
-  out1: 
-    type: File 
+      position: 5
+outputs:
+  out1:
+    type: File
     outputBinding:
       glob: "data/*.cgf"
-

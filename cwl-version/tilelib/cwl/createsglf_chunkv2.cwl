@@ -15,7 +15,6 @@ hints:
     keep_cache: 4096
   cwltool:LoadListingRequirement:
     loadListing: shallow_listing
-
 baseCommand: bash
 inputs:
   bashscript:
@@ -48,7 +47,6 @@ inputs:
     type: File
     inputBinding:
       position: 7
-
 outputs:
   out1:
     type: File[]

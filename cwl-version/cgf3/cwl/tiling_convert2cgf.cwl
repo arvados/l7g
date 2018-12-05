@@ -22,7 +22,7 @@ inputs:
     label: Keep input directory
   bashscript
     type: File
-    label: Run convertcgfCWL-empty-problem-tilepaths3.sh
+    label: Bash script to convert FastJ to CGF using SGLF library
   cgft
     type: File
     label: Location of the Compact Genome Format Tool, a swiss army knife tool to manipulate and inspect CGF files
@@ -31,7 +31,7 @@ inputs:
     label: a tool to manipulate FastJ (text) files.
   cglf
     type: Directory
-    label: creates the tile library here
+    label: Tile library location
 
 outputs:
   out1:

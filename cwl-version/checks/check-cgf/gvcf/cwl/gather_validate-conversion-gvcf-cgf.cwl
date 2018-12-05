@@ -6,8 +6,10 @@ requirements:
 
 inputs:
   infiles: File[]
+  label: List of input files to be processed
 outputs:
   out: Directory
+  label: Output Directory
 expression: |
   ${
     var gathered_dirs = { "class" : "Directory", "basename": "output", "listing" : [] };
@@ -25,4 +27,3 @@ expression: |
     //var x = JSON.stringify(gathered_dirs);
     return { "out": gathered_dirs };
   }
-

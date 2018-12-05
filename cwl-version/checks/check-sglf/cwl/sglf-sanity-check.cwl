@@ -19,12 +19,15 @@ inputs:
     type: File
     inputBinding:
       position: 1
+    label: Bash master workflow directory
   sglfDir:
     type: Directory
+    label: Tile Library Directory
     inputBinding:
       position: 2
   outFileName:
     type: string
+    label: Name of output file, often includes chrom number
     inputBinding:
       position: 3
 
@@ -33,4 +36,3 @@ outputs:
     type: Directory
     outputBinding:
       glob: "."
-

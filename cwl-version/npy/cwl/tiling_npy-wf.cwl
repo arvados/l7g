@@ -22,7 +22,7 @@ inputs:
     label: Bash script to Consolidate individual Lightning numpy arrays broken out by tilepath into a single numpy matrix
   cgft:
     type: ["null", "File", "string"]
-    label: compact genome format type
+    label: compact genome format tool
   cgfdirectory:
     type: Directory
     label: Directory for compact genome format files

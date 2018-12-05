@@ -9,8 +9,10 @@ hints:
     loadListing: shallow_listing
 inputs:
   refdirectory: Directory
+  label: Directory of files to be analyzed
 outputs:
-  out1: Directory[] 
+  out1: Directory[]
+  label: List of processed directories
 requirements:
   InlineJavascriptRequirement: {}
 expression: |
@@ -24,4 +26,4 @@ expression: |
           }
     }
     return {"out1": samples};
-  } 
+  }

@@ -10,10 +10,14 @@ requirements:
   - class: SubworkflowFeatureRequirement
 
 inputs:
-  cytobandFn: File
-  bigwigFn: File
-  refFaFn : File
-  script: File
+  cytobandFn:
+    type: File
+  bigwigFn:
+    type: File
+  refFaFn:
+    type: File
+  script:
+    type: File
 
 outputs:
   result:
@@ -29,4 +33,3 @@ steps:
       refFaFn: refFaFn
       script: script
     out: [result]
-

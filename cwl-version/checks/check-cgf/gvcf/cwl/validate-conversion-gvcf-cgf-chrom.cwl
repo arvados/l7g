@@ -18,9 +18,11 @@ inputs:
     type: File
     inputBinding:
       position: 1
+    label: Bash script that runs the Workflow
 
   cgfDir:
     type: Directory
+    label: Compact Genome Format Directory
     inputBinding:
       position: 2
     secondaryFiles:
@@ -28,6 +30,7 @@ inputs:
 
   sglfDir:
     type: Directory
+    label: Tile Library Directory
     inputBinding:
       position: 3
     secondaryFiles:
@@ -35,6 +38,7 @@ inputs:
 
   gvcfDir:
     type: Directory
+    label: gVCF Directory
     inputBinding:
       position: 4
     secondaryFiles:
@@ -43,6 +47,7 @@ inputs:
 
   chrom:
     type: string
+    label: Chromosomes to analyze
     inputBinding:
       position: 5
 
@@ -64,18 +69,22 @@ inputs:
 
   gvcfPrefix:
     type: string
+    label: Prefixes to add to gVCF
     inputBinding:
       position: 8
 
   gvcfSuffix:
     type: string
+    label: Suffixes to add to gVCF
     inputBinding:
       position: 9
 
   outfileName:
     type: string
+    label: Name of output file, often includes chrom number
     inputBinding:
       position: 10
+
 
 outputs:
 

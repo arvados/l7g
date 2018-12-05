@@ -7,15 +7,31 @@ requirements:
   StepInputExpressionRequirement: {}
 
 inputs:
-  script: File
-  cgfDir: Directory
-  sglfDir: Directory
-  gvcfDir: Directory
-  chroms: string[]
-  tileassembly: File
-  refFaFn: File
-  gvcfPrefixes: string[]
-  gvcfSuffixes: string[]
+  script:
+    type: File
+    label: Bash script that runs the Workflow
+  cgfDir:
+    type: Directory
+    label: Compact Genome Format Directory
+  sglfDir:
+    type: Directory
+    label: Tile Library Directory
+  gvcfDir:
+    type: Directory
+    label: gVCF Directory
+  chroms:
+    type: string[]
+    label: Chromosomes to analyze
+  tileassembly:
+    type: File
+  refFaFn:
+    type: File
+  gvcfPrefixes:
+    type: string[]
+    label: Prefixes to add to gVCF
+  gvcfSuffixes:
+    type: string[]
+    label: Suffixes to add to gVCF
 
 outputs:
   result:
@@ -45,4 +61,3 @@ steps:
     in:
       infiles: cgf_gvcf_check/result
     out: [out]
-

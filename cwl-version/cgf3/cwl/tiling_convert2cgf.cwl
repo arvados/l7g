@@ -25,13 +25,13 @@ inputs:
     label: Run convertcgfCWL-empty-problem-tilepaths3.sh
   cgft
     type: File
-    label: cgft files
+    label: Location of the Compact Genome Format Tool, a swiss army knife tool to manipulate and inspect CGF files
   fjt
     type: File
-    label: JastJ Files
+    label: a tool to manipulate FastJ (text) files.
   cglf
     type: Directory
-    label: Merged Directory
+    label: creates the tile library here
 
 outputs:
   out1:

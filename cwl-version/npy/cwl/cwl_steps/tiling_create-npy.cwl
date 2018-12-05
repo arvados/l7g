@@ -6,10 +6,10 @@ class: CommandLineTool
 label: Create numpy vectors based on tile library paths
 requirements:
   - class: DockerRequirement
-    dockerPull: arvados/l7g 
+    dockerPull: arvados/l7g
   - class: InlineJavascriptRequirement
   - class: ResourceRequirement
-    ramMin: 100000 
+    ramMin: 100000
     coresMin: 16
 hints:
   arv:RuntimeConstraints:
@@ -18,6 +18,7 @@ baseCommand: bash
 inputs:
   bashscriptmain:
     type: File?
+    label: Main bash workflow script
     inputBinding:
       position: 1
     default:
@@ -25,22 +26,26 @@ inputs:
       location: ../../src/create-npyCWL.sh
   cgft:
     type: ["null",File,string]
+    label: compact genome format tool
     inputBinding:
       position: 2
     default: "usr/bin/cgft"
   cgfdirectory:
     type: Directory
+    label: Directory for compact genome format files
     inputBinding:
       position: 3
   band2matrix:
     type: File?
+    label: Cconvert band information into a Lightning tile numpy array.
     inputBinding:
-      position: 4 
+      position: 4
     default:
       class: File
       location: ../../src/buildArvados/dest/band-to-matrix-npy
   cnvrt2hiq:
     type: File?
+    label: create flat numpy hiq tile vector arrays and its info file
     inputBinding:
       position: 5
     default:
@@ -48,13 +53,15 @@ inputs:
       location: ../../src/buildArvados/dest/npy-vec-to-hiq-1hot
   makelist:
     type: File?
+    label: used for saving the names of the datasets as a numpy array
     inputBinding:
       position: 6
-    default: 
+    default:
       class: File
       location: ../../src/create-list
   nthreads:
     type: string?
+    label: Number of threads to use
     inputBinding:
       position: 7
     default: "16"

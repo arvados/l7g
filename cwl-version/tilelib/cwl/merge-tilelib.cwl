@@ -5,11 +5,10 @@ cwlVersion: v1.0
 class: CommandLineTool
 requirements:
   - class: DockerRequirement
-    dockerPull: javatools-parallel
-  - class: InlineJavascriptRequirement
+    dockerPull: arvados/l7g
   - class: ResourceRequirement
-    ramMin: 120000
     coresMin: 16
+    ramMin: 120000
 hints:
   arv:RuntimeConstraints:
     keep_cache: 4096
@@ -22,7 +21,7 @@ inputs:
     inputBinding:
       position: 1
   srcdir:
-    type: Directory 
+    type: Directory
     inputBinding:
       position: 2
   nppdir:
@@ -30,11 +29,12 @@ inputs:
     inputBinding:
       position: 3
   nthreads:
-    type: string 
+    type: string
     inputBinding:
-      position: 4 
+      position: 4
   mergetilelib:
-    type: File
+    type: [File,string]
+    default: "/usr/local/bin/merge-sglf"
     inputBinding:
       position: 5
 outputs:

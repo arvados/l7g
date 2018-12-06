@@ -43,7 +43,7 @@ inputs:
     label: Name of output directory
   outprefix:
     type: string?
-    label: Prefix or patch to prepend to output Directory
+    label: Prefix or path to prepend to output Directory
   npyconsolfile:
     type: File?
     label: Name of consolidated numpy array

@@ -123,9 +123,7 @@ Output: Filtered gVCFs (all in 1 collection, per run)
 
 ----
 
-CWL code (master cwl workflow) run:
-
-# Tiling Workflow 1.0
+# Tiling Workflow 1.0 (master cwl workflow)
 
 ## Step1: Filter the GVCFs
 `tiling_filtergvcf.cwl`

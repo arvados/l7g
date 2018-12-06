@@ -13,12 +13,14 @@ hints:
 
 inputs:
   datafilenames:
-   type:
-     type: array
-     items: File 
-     inputBinding:
-       loadContents: true
+    label: List of directories of gVCF chromosome files to be filtered
+    type:
+      type: array
+      items: File
+      inputBinding:
+        loadContents: true
   datafilepdh:
+    label: List of Portable Data Hashes that point to locations in Arvados
     type:
       type: array
       items: File
@@ -34,14 +36,12 @@ expression: |
      var fileprefix=[];
      var collectiondir=[];
      var ssdir=[];
-
-
      for (var jj = 0; jj < inputs.datafilenames.length; jj++) {
       var names=inputs.datafilenames[jj].contents.split('\n');
       var nblines1=names.length;
       for (var j = 0; j < nblines1-1; j++) {
        var nn=names[j];
-       fileprefix.push(nn);  
+       fileprefix.push(nn);
        }
       }
 

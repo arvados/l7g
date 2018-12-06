@@ -3,7 +3,7 @@ $namespaces:
   cwltool: "http://commonwl.org/cwltool#"
 cwlVersion: v1.0
 class: Workflow
-label: Resolve duplicate/overlapping calls in GVCFs
+label: Resolve duplicate/overlapping calls in gVCFs
 doc: |
    Parses all gVCFs and cleans them returning a clean set
 requirements:

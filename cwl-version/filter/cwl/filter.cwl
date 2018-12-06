@@ -17,22 +17,27 @@ baseCommand: bash
 inputs:
   bashscript:
     type: File
+    label: Master bash script to control filtering
     inputBinding:
       position: 1
-  gffDir: 
-    type: Directory 
+  gffDir:
+    type: Directory
+    label: Path with compressed gff files
     inputBinding:
       position: 2
   gffPrefix:
     type: string
+    label: Prefix of all gff files
     inputBinding:
       position: 3
-  filter_gvcf: 
+  filter_gvcf:
     type: File
+    label: Compiled code that filters gVCFs
     inputBinding:
       position: 4
   cutoff:
     type: string
+    label: Filtering cutoff threshold
     inputBinding:
       position: 5
 outputs:

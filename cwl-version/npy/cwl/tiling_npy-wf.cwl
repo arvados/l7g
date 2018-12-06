@@ -31,7 +31,7 @@ inputs:
     label: Compiled C++ band-to-matrix-npy convert band information into a Lightning tile numpy array
   cnvrt2hiq:
     type: File?
-    label: Compiled C++ npy-vec-to-hiq-1hot create 'flat' numpy hiq tile vector arrays and its info file
+    label: Compiled C++ npy-vec-to-hiq-1hot create flat numpy hiq tile vector arrays and its info file
   makelist:
     type: File?
     label: used for saving the names of the datasets as a numpy array

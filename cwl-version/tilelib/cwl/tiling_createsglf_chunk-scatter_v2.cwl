@@ -29,7 +29,7 @@ inputs:
     label: Number of chunks to scatter
   bashscript
     type: File
-    label: Bash script that iterates over the FASTJ to create paths
+    label: Bash script that iterates over the FastJ to create paths
   fjcsv2sglf
     type: File
     label: Compiled C++ that creates 2bit sequence and tile ID and size

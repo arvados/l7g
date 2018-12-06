@@ -8,79 +8,96 @@ requirements:
     dockerPull: javatools
   - class: InlineJavascriptRequirement
   - class: ResourceRequirement
-    coresMin: 2 
-    coresMax: 2 
+    coresMin: 2
+    coresMax: 2
 hints:
   arv:RuntimeConstraints:
     keep_cache: 4096
 baseCommand: bash
 inputs:
-  bashscript:
+  bashscript
     type: File
+    label: Master bash script that controls converting FastJ to gVCFs
     inputBinding:
       position: 1
-  gffDir: 
+  gffDir:
     type: Directory
+    label: Path with compressed gff files
     inputBinding:
       position: 2
   gffPrefix:
     type: string
+    label: Prefix of all gff files
     inputBinding:
       position: 3
-  ref:
+  ref
     type: string
+    label: Reference genome
     inputBinding:
       position: 4
-  reffa: 
+  reffa:
     type: File
+    label: Reference genome in Fasta format
     inputBinding:
       position: 5
   afn:
     type: File
+    label: Compressed assembly fixed width file
     inputBinding:
       position: 6
   aidx:
     type: File
+    label: Assembly index file
     inputBinding:
       position: 7
   refM:
     type: string
+    label: Mitochondrial reference genome
     inputBinding:
       position: 8
   reffaM:
     type: File
+    label: Reference mitochondrial genome in FASTA format
     inputBinding:
       position: 9
   afnM:
     type: File
+    label: Compressed mitochondrial assembly fixed width file
     inputBinding:
       position: 10
   aidxM:
     type: File
+    label: Mitochondrial assembly index file
     inputBinding:
       position: 11
   seqidM:
-    type: string 
+    type: string
+    label: Mitochondrial naming scheme for gVCF
     inputBinding:
       position: 12
   tagdir:
     type: File
+    label: Compressed tagset in FASTA format
     inputBinding:
       position: 13
   l7g:
     type: File
+    label: Underlying Go application
     inputBinding:
       position: 14
   pasta:
     type: File
+    label: Go tool for steaming and converting varian call formats
     inputBinding:
       position: 15
   refstream:
     type: File
+    label: Wrapper around 'samtools faidx' to get a stream out of a FASTA file
     inputBinding:
       position: 16
   tile_assembly:
     type: File
+    label: Compiled C++ to extract information from the Tile Assembly files
     inputBinding:
       position: 17
 outputs:
@@ -92,4 +109,3 @@ outputs:
     type: File[]
     outputBinding:
       glob: "indexed/*.gz*"
-

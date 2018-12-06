@@ -16,9 +16,9 @@ inputs:
 
   script:
     type: File
+    label: Bash script that runs the Workflow
     inputBinding:
       position: 1
-    label: Bash script that runs the Workflow
 
   cgfDir:
     type: Directory

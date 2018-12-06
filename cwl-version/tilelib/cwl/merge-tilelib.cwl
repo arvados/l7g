@@ -22,28 +22,30 @@ baseCommand: bash
 inputs:
   bashscriptmain:
     type: File
+    label: Bash script to merge cgf into Tile library
     inputBinding:
       position: 1
-    label: Bash script to merge cgf into Tile library
   srcdir:
     type: Directory
+    label: Directory in keep where cgf files reside
     inputBinding:
       position: 2
-    label: Directory in keep where cgf files reside
   nppdir:
     type: Directory
+    label: Directory for new additions
     inputBinding:
       position: 3
   nthreads:
     type: string
+    label: Number of threads to use
     inputBinding:
       position: 4
-    label: Number of threads to use
   mergetilelib:
     type: File
+    label: Compiled C++ that reads in an SGLF line and stores the tilepath, tile library version, tilestep and tile span
     inputBinding:
       position: 5
-    label: Compiled C++ that reads in an SGLF line and stores the tilepath, tile library version, tilestep and tile span
+
 outputs:
   out1:
     type: Directory

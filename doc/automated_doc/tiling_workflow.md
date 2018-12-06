@@ -4,11 +4,17 @@
 ### Brief Description:
     This step filtered the GVCF by some quality cutoff.
 
-Input: “RAW” GVCFs (each in a different collection/project)
-Output: Filtered GVCFs (all in 1 collection, per run)
+Input: “RAW” gVCFs (each in a different collection/project)
+Output: Filtered gVCFs (all in 1 collection, per run)
 
 ### tiling_filtergvcf.cwl
 ![tiling_filtergvcf.cwl](tiling_filtergvcf.cwl.png)
+
+
+### Workflow
+`tiling_filtergvcf.cwl`
+  - `getCollections.cwl`
+  - `filter.cwl`
 
 ----
 
@@ -23,6 +29,10 @@ Output: Filtered GVCFs (all in 1 collection, per run)
 ### tiling_clean_gvcf.cwl
 ![tiling_clean_gvcf.cwl](tiling_clean_gvcf.cwl.png)
 
+### Workflow
+`tiling_clean_gvcf.cwl`
+  - `getdirs.cwl`
+  - `cleangvcf.cwl`
 ----
 
 ## Step3:  Create the FASTJ files
@@ -36,16 +46,19 @@ Output: Filtered GVCFs (all in 1 collection, per run)
 ### tiling_convert2fastj_gvcf.cwl
 ![tiling_convert2fastj_gvcf.cwl](tiling_convert2fastj_gvcf.cwl.png)
 
+### Workflow
+`tiling_convert2fastj_gvcf.cwl`
+  - `getdirs.cwl`
+  - `convertgvcf.cwl`
+
 ----
 
 # Step4: Create the SGLF files
 ## Brief Description:
   This step creates a set of SGLF files (tile library) for a given set of FASTJ files.
 
-
 ### tiling_createsglf_chunk-scatter_v2.cwl
 ![tiling_createsglf_chunk-scatter_v2.cwl](tiling_createsglf_chunk-scatter_v2.cwl.png)
-
 
 ## Step4b:  “Sanity” Check the SGLF files
 ### Brief Description:
@@ -55,6 +68,12 @@ Output: Filtered GVCFs (all in 1 collection, per run)
   Output: File out.txt with “ok” if all files pass the test
 
 ### sglf-sanity-check.cwl (no figure)
+
+### Workflow
+`tiling_createsglf_chunk-scatter_v2.cwl`
+  - `getpaths_chunk.cwl`
+  - `createsglf_chunkv2.cwl`
+`merge-tilelib.cwl`
 
 ----
 
@@ -78,6 +97,18 @@ Output: Filtered GVCFs (all in 1 collection, per run)
 ### Brief Description:
     This step checks the cgf to make sure the sequence derived from them matches the sequence derived from the FASTJ files.  
 
+### Workflow
+`tiling_convert2cgf.cwl`
+  - `getdirs.cwl`
+  - `createcgf.cwl`
+
+  ---
+
+## check-cgf
+`gather_validate-conversion-gvcf-cgf.cwl`
+`validate-conversion-gvcf-cgf-chrom.cwl`
+`validate-conversion-gvcf-cgf-chrom_workflow.cwl`
+
 ----
 
 ## Step7: Create the Numpy Files
@@ -85,7 +116,11 @@ Output: Filtered GVCFs (all in 1 collection, per run)
 ### Brief Description:
     This step is actually a two step process 1) create numpy arrays for each path from the cgf files and the sglf library  2) merge path numpy arrays into a single numpy array.  Ran this workflow on the 10 sets of ~400 cgf files.  
 
-Input:
-Output:
+### Workflow
+`tiling_npy-wf.cwl`
+  - `tiling_create-npy.cwl`
+  - `tiling_consol-npy.cwl`
+
+----
 
 CWL code (master cwl workflow) run:

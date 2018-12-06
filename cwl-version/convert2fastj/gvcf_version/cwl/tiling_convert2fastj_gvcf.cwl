@@ -3,7 +3,7 @@ $namespaces:
   cwltool: "http://commonwl.org/cwltool#"
 cwlVersion: v1.0
 class: Workflow
-label: Creates a FASTJ file for each GVCF
+label: Creates a FastJ file for each gVCF
 doc: |
     This workflow is an intermediate step to creating the cgf files for each gVCF
 requirements:
@@ -27,13 +27,13 @@ inputs:
     label: Input Directory
   bashscript
     type: File
-    label: Master mash script that controls converting FASTJ to gVCFs 
+    label: Master bash script that controls converting FastJ to gVCFs 
   ref
     type: string
     label: Reference genome
   reffa
     type: File
-    label: Reference genome in FASTA format
+    label: Reference genome in Fasta format
   afn
     type: File
     label: Compressed assembly fixed width file

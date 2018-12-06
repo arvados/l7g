@@ -104,11 +104,11 @@ Output: Filtered gVCFs (all in 1 collection, per run)
 
   ---
 
-## check-cgf
+## check-cgf Workflow
 `validate-conversion-gvcf-cgf-chrom_workflow.cwl`
   - `gather_validate-conversion-gvcf-cgf.cwl`
   - `validate-conversion-gvcf-cgf-chrom.cwl`
-  
+
 ----
 
 ## Step7: Create the Numpy Files
@@ -124,3 +124,47 @@ Output: Filtered gVCFs (all in 1 collection, per run)
 ----
 
 CWL code (master cwl workflow) run:
+
+# Tiling Workflow 1.0
+
+## Step1: Filter the GVCFs
+`tiling_filtergvcf.cwl`
+  - `getCollections.cwl`
+  - `filter.cwl`
+
+## Step2: Clean the GVCFs
+`tiling_clean_gvcf.cwl`
+  - `getdirs.cwl`
+  - `cleangvcf.cwl`
+
+## Step3: Create the FASTJ files
+`tiling_convert2fastj_gvcf.cwl`
+  - `getdirs.cwl`
+  - `convertgvcf.cwl`
+
+## Step4: Create the SGLF files
+`tiling_createsglf_chunk-scatter_v2.cwl`
+  - `getpaths_chunk.cwl`
+  - `createsglf_chunkv2.cwl`
+`merge-tilelib.cwl`
+
+## Step4a
+`sglf-sanity-check.cwl`
+
+## Step5: Merge the SGLF files (Tile Library Merging)
+`merge-tilelib.cwl`
+
+## Step6a: Create the CGF files
+`tiling_convert2cgf.cwl`
+  - `getdirs.cwl`
+  - `createcgf.cwl`
+
+## Step6b: check-cgf Workflow
+`validate-conversion-gvcf-cgf-chrom_workflow.cwl`
+  - `gather_validate-conversion-gvcf-cgf.cwl`
+  - `validate-conversion-gvcf-cgf-chrom.cwl`
+
+## Step7: Create the Numpy Files
+`tiling_npy-wf.cwl`
+  - `tiling_create-npy.cwl`
+  - `tiling_consol-npy.cwl`

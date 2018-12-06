@@ -53,6 +53,7 @@ inputs:
 
   tileassembly:
     type: File
+    label: The Tile Assembly
     inputBinding:
       position: 6
     secondaryFiles:
@@ -61,6 +62,7 @@ inputs:
 
   refFaFn:
     type: File
+    label: Reference Fasta File
     inputBinding:
       position: 7
     secondaryFiles:
@@ -69,13 +71,13 @@ inputs:
 
   gvcfPrefix:
     type: string
-    label: Prefixes to add to gVCF
+    label: Prefixes of gVCFs
     inputBinding:
       position: 8
 
   gvcfSuffix:
     type: string
-    label: Suffixes to add to gVCF
+    label: Suffixes of gVCFs
     inputBinding:
       position: 9
 

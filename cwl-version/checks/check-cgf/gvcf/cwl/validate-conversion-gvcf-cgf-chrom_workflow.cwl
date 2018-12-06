@@ -24,14 +24,16 @@ inputs:
     label: Chromosomes to analyze
   tileassembly:
     type: File
+    label: The Tile Assembly
   refFaFn:
     type: File
+    label: Reference Fasta File
   gvcfPrefixes:
     type: string[]
-    label: Prefixes to add to gVCF
+    label: Prefixes of gVCFs
   gvcfSuffixes:
     type: string[]
-    label: Suffixes to add to gVCF
+    label: Suffixes of gVCFs
 
 outputs:
   result:

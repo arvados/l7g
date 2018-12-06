@@ -22,7 +22,7 @@ refdirectory
   label: Input Directory
 bashscript
   type: File
-  label: Master mash script that controls converting FASTJ to gVCFs
+  label: Master bash script that controls converting FASTJ to gVCFs
 ref
   type: string
   label: Reference genome

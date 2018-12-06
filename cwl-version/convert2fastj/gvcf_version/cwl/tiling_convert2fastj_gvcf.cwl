@@ -3,9 +3,7 @@ $namespaces:
   cwltool: "http://commonwl.org/cwltool#"
 cwlVersion: v1.0
 class: Workflow
-label: Creates a FastJ file for each gVCF
-doc: |
-    This workflow is an intermediate step to creating the cgf files for each gVCF
+label: Creates a FastJ file for each gVCF by path
 requirements:
   - class: DockerRequirement
     dockerPull: javatools
@@ -27,7 +25,7 @@ inputs:
     label: Input Directory
   bashscript
     type: File
-    label: Master bash script that controls converting FastJ to gVCFs 
+    label: Master bash script that controls converting gVCFs to FastJ
   ref
     type: string
     label: Reference genome
@@ -63,13 +61,13 @@ inputs:
     label: Underlying Go application
   pasta
     type: File
-    label: Go tool for steaming and converting varian call formats
+    label: Go tool for steaming and converting variant call formats
   refstream
     type: File
     label: Wrapper around 'samtools faidx' to get a stream out of a FASTA file
   tile_assembly
     type: File
-    label: Compiled C++ to extract information from the Tile Assembly files
+    label: Compiled C++ to extract information from the tile assembly files
 
 outputs:
   out1:

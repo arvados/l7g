@@ -22,17 +22,17 @@ inputs:
       position: 1
   gffDir:
     type: Directory
-    label: Path with compressed gff files
+    label: Directory of gVCF files
     inputBinding:
       position: 2
   gffPrefix:
     type: string
-    label: Prefix of all gff files
+    label: Prefix of all gVCF files
     inputBinding:
       position: 3
   filter_gvcf:
     type: File
-    label: Compiled code that filters gVCFs
+    label: Code that filters gVCFs
     inputBinding:
       position: 4
   cutoff:
@@ -43,5 +43,6 @@ inputs:
 outputs:
   out1:
     type: Directory
+    label: Output directory of filtered gVCFs
     outputBinding:
       glob: "filtered/*"

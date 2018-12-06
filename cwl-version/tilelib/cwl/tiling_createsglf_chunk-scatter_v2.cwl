@@ -4,8 +4,6 @@ $namespaces:
 cwlVersion: v1.0
 class: Workflow
 label: Create a tile library (SGLF) for a given set of FASTJ files
-doc: |
-    Creates the tile library set (SGLF) in Compact Genome Format (cgf)
 requirements:
   - class: DockerRequirement
     dockerPull: javatools
@@ -20,25 +18,25 @@ hints:
 inputs:
   pathmin
     type: string
-    label: Beginning tile library path [0]
+    label: First tile in tile library
   pathmax
     type: string
-    label: Last/Maximum tile library path
+    label: Last/Maximum tile in library
   nchunks
     type: string
     label: Number of chunks to scatter
   bashscript
     type: File
-    label: Bash script that iterates over the FastJ to create paths
+    label: Bash script that iterates over the FastJ to create
   fjcsv2sglf
     type: File
-    label: Compiled C++ that creates 2bit sequence and tile ID and size
+    label: Tool to create tile library
   datadir
     type: Directory
-    label: Directory in Keep for Data
+    label: Directory of FastJ files
   fjt
     type: File
-    label: fjt is a tool to manipulate FastJ (text) files
+    label: Tool to manipulate FastJ (text) files
   tagset
     type: File
     label: Compressed tagset in FASTA format
@@ -49,6 +47,7 @@ outputs:
       items:
         type: array
         items: File
+    label: Output tile library 
     outputSource: step2/out1
 
 steps:

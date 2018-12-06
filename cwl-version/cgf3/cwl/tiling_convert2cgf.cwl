@@ -3,9 +3,9 @@ $namespaces:
   cwltool: "http://commonwl.org/cwltool#"
 cwlVersion: v1.0
 class: Workflow
-label: Creates a cgf for each FASTJ file
+label: Creates a cgf for each FastJ file
 doc: |
-    Second intermediate step that takes in FASTJ files and creates compact genome representations of them for the Tile library.
+    Takes in FASTJ files and creates compact genome representations of them for the Tile library.
 requirements:
   - class: DockerRequirement
     dockerPull: javatoolsparallel
@@ -19,16 +19,16 @@ hints:
 inputs:
   refdirectory
     type: Directory
-    label: Keep input directory
+    label: Input Directory of FastJs
   bashscript
     type: File
     label: Bash script to convert FastJ to CGF using SGLF library
   cgft
     type: File
-    label: Location of the Compact Genome Format Tool, a swiss army knife tool to manipulate and inspect CGF files
+    label: Compact Genome Format Tool, for manipulating and inspecting CGF files
   fjt
     type: File
-    label: a tool to manipulate FastJ (text) files.
+    label: Tool to manipulate FastJ (text) files.
   cglf
     type: Directory
     label: Tile library location
@@ -37,7 +37,7 @@ outputs:
   out1:
     type: File[]
     outputSource: step2/out1
-    label: Outputs cgf from FASTJ
+    label: cgf created from FastJ
 steps:
   step1:
     run: getdirs.cwl

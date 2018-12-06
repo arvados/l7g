@@ -3,7 +3,7 @@ $namespaces:
   cwltool: "http://commonwl.org/cwltool#"
 cwlVersion: v1.0
 class: CommandLineTool
-label: Process and create cgf files from fastj files.
+label: Process and create cgf files from FastJ files.
 requirements:
   - class: DockerRequirement
     dockerPull: javatools
@@ -20,7 +20,7 @@ baseCommand: bash
 inputs:
   bashscript:
     type: File
-    label: Main bash script for converting fastJ to cgf
+    label: Main bash script for converting FastJ to cgf
     inputBinding:
       position: 1
   fjdir:
@@ -30,7 +30,7 @@ inputs:
       position: 2
   cgft:
     type: File
-    label: Location of the Compact Genome Format Tool, a swiss army knife tool to manipulate and inspect CGF files
+    label: Compact Genome Format Tool, a tool to manipulate and inspect cgf files
     inputBinding:
       position: 3
   fjt:

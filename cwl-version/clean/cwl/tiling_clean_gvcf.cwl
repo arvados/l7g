@@ -33,7 +33,7 @@ outputs:
   out1:
     type: Directory[]
     outputSource: step2/out1
-    label: Directory where clean gVCFs are placed
+    label: Output of Directory clean gVCFs
 
 steps:
   step1:

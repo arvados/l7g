@@ -22,7 +22,7 @@ inputs:
       position: 1
   gvcfDir:
     type: Directory
-    label: Path with compressed gVCF files
+    label: Directory with compressed gVCF files
     inputBinding:
       position: 2
   gvcfPrefix:
@@ -32,11 +32,12 @@ inputs:
       position: 3
   cleanvcf:
     type: File
-    label: Compiled C++ command to do gVCF cleaning
+    label: Tool to do gVCF cleaning
     inputBinding:
       position: 4
 outputs:
   out1:
     type: Directory
+    label: Output of Directory clean gVCFs
     outputBinding:
       glob: "cleaned/*"

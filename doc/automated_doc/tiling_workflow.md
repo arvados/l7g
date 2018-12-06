@@ -144,7 +144,6 @@ Output: Filtered gVCFs (all in 1 collection, per run)
 `tiling_createsglf_chunk-scatter_v2.cwl`
   - `getpaths_chunk.cwl`
   - `createsglf_chunkv2.cwl`
-`merge-tilelib.cwl`
 
 ## Step4a
 `sglf-sanity-check.cwl`

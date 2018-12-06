@@ -13,14 +13,14 @@ hints:
 
 inputs:
   datafilenames:
-    label: List of directories of gVCF chromosome files to be filtered
+    label: Directories of gVCF chromosome files
     type:
       type: array
       items: File
       inputBinding:
         loadContents: true
   datafilepdh:
-    label: List of Portable Data Hashes that point to locations in Arvados
+    label: List of portable data hashes (pdh) in Arvados
     type:
       type: array
       items: File
@@ -28,8 +28,12 @@ inputs:
         loadContents: true
 
 outputs:
-  fileprefix: string[]
-  collectiondir: Directory[]
+  fileprefix
+    type: string[]
+    label: Array of directory names
+  collectiondir
+    type: Directory[]
+    label: Array of directories containting gVCFs
 
 expression: |
    ${

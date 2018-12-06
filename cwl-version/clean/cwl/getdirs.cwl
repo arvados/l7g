@@ -9,10 +9,15 @@ hints:
 inputs:
   refdirectory:
     type: Directory
-    label: Location in Arvados Keep of gVCFs to clean
+    label: Location of gVCFs to clean
 outputs:
-  out1: Directory[]
-  out2: string[]
+  out1
+    type: Directory[]
+    label: Array of directories
+  out2
+    type: string[]
+    label: List of filename directories
+
 requirements:
   InlineJavascriptRequirement: {}
 expression: |

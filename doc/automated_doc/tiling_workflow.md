@@ -105,10 +105,10 @@ Output: Filtered gVCFs (all in 1 collection, per run)
   ---
 
 ## check-cgf
-`gather_validate-conversion-gvcf-cgf.cwl`
-`validate-conversion-gvcf-cgf-chrom.cwl`
 `validate-conversion-gvcf-cgf-chrom_workflow.cwl`
-
+  - `gather_validate-conversion-gvcf-cgf.cwl`
+  - `validate-conversion-gvcf-cgf-chrom.cwl`
+  
 ----
 
 ## Step7: Create the Numpy Files

@@ -20,7 +20,7 @@ hints:
     loadListing: shallow_listing
 
 inputs:
-  refdirectory
+  refdirectory:
     type: Directory
     label: Input Directory
   bashscript:
@@ -62,12 +62,12 @@ inputs:
   pasta:
     type: File
     label: Tool for steaming and converting variant call formats
-  refstream
+  refstream:
     type: File
     label: Wrapper around 'samtools faidx' to get a stream out of a FASTA file
-  tile_assembly
+  tile_assembly:
     type: File
-    label: Compiled C++ to extract information from the tile assembly files
+    label: Tool to extract information from the tile assembly files
 
 outputs:
   out1:

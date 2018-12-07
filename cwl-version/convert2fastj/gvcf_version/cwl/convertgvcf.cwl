@@ -15,7 +15,7 @@ hints:
     keep_cache: 4096
 baseCommand: bash
 inputs:
-  bashscript
+  bashscript:
     type: File
     label: Master bash script that controls converting FastJ to gVCFs
     inputBinding:
@@ -30,7 +30,7 @@ inputs:
     label: Prefix of all gVCF files
     inputBinding:
       position: 3
-  ref
+  ref:
     type: string
     label: Reference genome
     inputBinding:

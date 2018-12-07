@@ -17,7 +17,7 @@ hints:
   cwltool:LoadListingRequirement:
     loadListing: shallow_listing
 inputs:
-  refdirectory
+  refdirectory:
     type: Directory
     label: Input Directory of FastJs
   bashscript:

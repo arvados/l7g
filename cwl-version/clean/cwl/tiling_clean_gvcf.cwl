@@ -19,7 +19,7 @@ hints:
   arv:RuntimeConstraints:
     keep_cache: 4096
 inputs:
-  refdirectory
+  refdirectory:
     type: Directory
     label: Location in Arvados Keep of gVCFs to clean
   bashscript:

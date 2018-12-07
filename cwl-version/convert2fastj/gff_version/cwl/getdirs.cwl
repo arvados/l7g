@@ -1,7 +1,10 @@
 class: ExpressionTool
 cwlVersion: v1.0
+label: Create list of gff directories to process
 inputs:
-  refdirectory: Directory
+  refdirectory:
+    type: Directory
+    label: Location of gff to  convert
 outputs:
   out1: File[]
 requirements:
@@ -18,4 +21,4 @@ expression: |
           }
     }
     return {"out1": samples};
-  } 
+  }

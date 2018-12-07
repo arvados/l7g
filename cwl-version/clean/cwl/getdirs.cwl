@@ -3,6 +3,7 @@ $namespaces:
   cwltool: "http://commonwl.org/cwltool#"
 class: ExpressionTool
 cwlVersion: v1.0
+label: Create list of gVCFs directories to clean
 hints:
   cwltool:LoadListingRequirement:
     loadListing: shallow_listing

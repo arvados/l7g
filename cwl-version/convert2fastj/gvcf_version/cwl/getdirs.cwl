@@ -2,17 +2,23 @@ $namespaces:
   arv: "http://arvados.org/cwl#"
   cwltool: "http://commonwl.org/cwltool#"
 class: ExpressionTool
+label: Create list of gVCF directories to process
 cwlVersion: v1.0
 hints:
   cwltool:LoadListingRequirement:
     loadListing: shallow_listing
-    inputs:
-      refdirectory:
-        type: Directory
-        label: Location in Arvados Keep of gVCFs to convert
+inputs:
+  refdirectory:
+    type: Directory
+    label: Location of gVCFs to  convert
 outputs:
-  out1: Directory[]
-  out2: string[]
+  out1
+    type: Directory[]
+    label: Array of directories
+  out2
+    type: string[]
+    label: List of filename directories
+
 requirements:
   InlineJavascriptRequirement: {}
 expression: |

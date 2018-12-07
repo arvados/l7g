@@ -5,11 +5,10 @@ cwlVersion: v1.0
 class: CommandLineTool
 requirements:
   - class: DockerRequirement
-    dockerPull: javatools
-  - class: InlineJavascriptRequirement
+    dockerPull: arvados/l7g
   - class: ResourceRequirement
-    ramMin: 10000 
-    coresMin: 2 
+    coresMin: 2
+    ramMin: 13000
 hints:
   arv:RuntimeConstraints:
     keep_cache: 1046
@@ -22,24 +21,25 @@ inputs:
     inputBinding:
       position: 1
   fjdir:
-    type: Directory 
+    type: Directory
     inputBinding:
       position: 2
-  cgft: 
-    type: File 
+  cgft:
+    type: [File,string]
+    default: "/usr/local/bin/cgft"
     inputBinding:
-      position: 3 
+      position: 3
   fjt:
-    type: File
+    type: [File,string]
+    default: "/usr/local/bin/fjt"
     inputBinding:
       position: 4
   cglf:
     type: Directory
     inputBinding:
-      position: 5 
-outputs:    
-  out1: 
-    type: File 
+      position: 5
+outputs:
+  out1:
+    type: File
     outputBinding:
       glob: "data/*.cgf"
-

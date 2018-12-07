@@ -5,25 +5,26 @@ cwlVersion: v1.0
 class: Workflow
 requirements:
   - class: DockerRequirement
-    dockerPull: javatoolsparallel
+    dockerPull: arvados/l7g
   - class: ScatterFeatureRequirement
-  - class: InlineJavascriptRequirement
-  - class: SubworkflowFeatureRequirement
-
 hints:
   cwltool:LoadListingRequirement:
     loadListing: shallow_listing
 inputs:
   refdirectory: Directory
   bashscript: File
-  cgft: File
-  fjt: File
-  cglf: Directory 
+  cgft:
+    type: [File,string]
+    default: "/usr/local/bin/cgft"
+  fjt:
+    type: [File,string]
+    default: "/usr/local/bin/fjt"
+  cglf: Directory
 
 outputs:
-  out1: 
+  out1:
     type: File[]
-    outputSource: step2/out1 
+    outputSource: step2/out1
 steps:
   step1:
     run: getdirs.cwl
@@ -39,5 +40,5 @@ steps:
       cgft: cgft
       fjt: fjt
       cglf: cglf
-    run: createcgf.cwl 
+    run: createcgf.cwl
     out: [out1]

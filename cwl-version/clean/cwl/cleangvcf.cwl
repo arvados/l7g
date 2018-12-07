@@ -22,7 +22,7 @@ inputs:
       position: 1
   gvcfDir:
     type: Directory
-    label: Directory with compressed gVCF files
+    label: Directory with gVCF files
     inputBinding:
       position: 2
   gvcfPrefix:

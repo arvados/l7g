@@ -20,16 +20,16 @@ inputs:
   refdirectory
     type: Directory
     label: Input Directory of FastJs
-  bashscript
+  bashscript:
     type: File
     label: Bash script to convert FastJ to CGF using SGLF library
-  cgft
+  cgft:
     type: File
     label: Compact Genome Format Tool, for manipulating and inspecting CGF files
-  fjt
+  fjt:
     type: File
     label: Tool to manipulate FastJ (text) files.
-  cglf
+  cglf:
     type: Directory
     label: Tile library location
 

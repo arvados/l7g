@@ -23,45 +23,45 @@ inputs:
   refdirectory
     type: Directory
     label: Input Directory
-  bashscript
+  bashscript:
     type: File
-    label: Master bash script that controls converting gVCFs to FastJ
-  ref
+    label: Master script that converts gVCFs to FastJ
+  ref:
     type: string
     label: Reference genome
-  reffa
+  reffa:
     type: File
     label: Reference genome in Fasta format
-  afn
+  afn:
     type: File
     label: Compressed assembly fixed width file
-  aidx
+  aidx:
     type: File
     label: Assembly index file
-  refM
+  refM:
     type: string
     label: Mitochondrial reference genome
-  reffaM
+  reffaM:
     type: File
     label: Reference mitochondrial genome in FASTA format
-  afnM
+  afnM:
     type: File
     label: Compressed mitochondrial assembly fixed width file
-  aidxM
+  aidxM:
     type: File
     label: Mitochondrial assembly index file
-  seqidM
+  seqidM:
     type: string
     label: Mitochondrial naming scheme for gVCF
-  tagdir
+  tagdir:
     type: File
     label: Compressed tagset in FASTA format
-  l7g
+  l7g:
     type: File
-    label: Underlying Go application
-  pasta
+    label: Lightning application
+  pasta:
     type: File
-    label: Go tool for steaming and converting variant call formats
+    label: Tool for steaming and converting variant call formats
   refstream
     type: File
     label: Wrapper around 'samtools faidx' to get a stream out of a FASTA file
@@ -73,6 +73,7 @@ outputs:
   out1:
     type: Directory[]
     outputSource: step2/out1
+    label: Location of gVCFs and an array of directories
   out2:
     type:
       type: array
@@ -80,6 +81,7 @@ outputs:
         type: array
         items: File
     outputSource: step2/out2
+    label: Output FastJ Files
 
 steps:
   step1:

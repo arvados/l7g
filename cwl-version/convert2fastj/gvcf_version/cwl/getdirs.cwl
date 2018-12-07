@@ -10,12 +10,12 @@ hints:
 inputs:
   refdirectory:
     type: Directory
-    label: Location of gVCFs to  convert
+    label: Location of gVCFs to convert
 outputs:
-  out1
+  out1:
     type: Directory[]
     label: Array of directories
-  out2
+  out2:
     type: string[]
     label: List of filename directories
 

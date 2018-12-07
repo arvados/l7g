@@ -5,7 +5,7 @@ cwlVersion: v1.0
 class: Workflow
 label: Filters gVCFs by some quality cutoff
 doc: |
-    This workflow takes in RAW gVCFs, and using the defined cutoff integer as
+    Takes in gVCFs, and using the defined cutoff integer as
     a quality cutoff, filters out variant calls that do not meet the cutoff
     specified.
 requirements:

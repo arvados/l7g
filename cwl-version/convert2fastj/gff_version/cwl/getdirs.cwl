@@ -6,7 +6,9 @@ inputs:
     type: Directory
     label: Location of gff to  convert
 outputs:
-  out1: File[]
+  out1:
+    type: File[]
+    label: Array of locations of gffs
 requirements:
   InlineJavascriptRequirement: {}
 expression: |

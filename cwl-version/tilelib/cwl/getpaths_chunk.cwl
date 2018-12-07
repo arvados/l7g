@@ -1,17 +1,22 @@
 class: ExpressionTool
 cwlVersion: v1.0
 inputs:
-  pathmin: string
-  label: Beginning tile library path [0]
-  pathmax: string
-  label: Last/Maximum tile library path
-  nchunks: string
-  label: Number of chunks to scatter
+  pathmin:
+    type: string
+    label: Beginning tile library path [0]
+  pathmax:
+    type: string
+    label: Last/Maximum tile library path
+  nchunks:
+    type:  string
+    label: Number of chunks to scatter
 outputs:
-  out1: string[]
-  label: Array of Minimums
-  out2: string[]
-  label: Array of Maximums
+  out1:
+    type: string[]
+    label: Array of Minimums
+  out2:
+    type: string[]
+    label: Array of Maximums
 requirements:
   InlineJavascriptRequirement: {}
 expression: |

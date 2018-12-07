@@ -22,10 +22,10 @@ inputs:
   refdirectory
     type: Directory
     label: Location in Arvados Keep of gVCFs to clean
-  bashscript
+  bashscript:
     type: File
     label: Master bash script to control cleaning
-  cleanvcf
+  cleanvcf:
     type: File
     label: Compiled code that cleans gVCFs
 

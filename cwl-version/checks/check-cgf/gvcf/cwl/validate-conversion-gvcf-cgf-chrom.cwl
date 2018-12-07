@@ -16,13 +16,13 @@ inputs:
 
   script:
     type: File
-    label: Bash script that runs the Workflow
+    label: Script that runs the Workflow
     inputBinding:
       position: 1
 
   cgfDir:
     type: Directory
-    label: Compact Genome Format Directory
+    label: Compact genome format (cgf) directory
     inputBinding:
       position: 2
     secondaryFiles:
@@ -30,7 +30,7 @@ inputs:
 
   sglfDir:
     type: Directory
-    label: Tile Library Directory
+    label: Tile library directory
     inputBinding:
       position: 3
     secondaryFiles:
@@ -53,7 +53,7 @@ inputs:
 
   tileassembly:
     type: File
-    label: The Tile Assembly
+    label: Tool to extract information from the tile assembly files
     inputBinding:
       position: 6
     secondaryFiles:
@@ -87,9 +87,7 @@ inputs:
     inputBinding:
       position: 10
 
-
 outputs:
-
   result:
     type: File
     outputBinding:

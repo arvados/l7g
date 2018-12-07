@@ -28,10 +28,10 @@ inputs:
         loadContents: true
 
 outputs:
-  fileprefix
+  fileprefix:
     type: string[]
     label: Array of directory names
-  collectiondir
+  collectiondir:
     type: Directory[]
     label: Array of directories containting gVCFs
 

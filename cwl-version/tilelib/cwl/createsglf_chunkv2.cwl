@@ -21,12 +21,12 @@ baseCommand: bash
 inputs:
   bashscript:
     type: File
-    label: Bash script that iterates over the FastJ to create paths
+    label: Script that iterates over the FastJ to create paths
     inputBinding:
       position: 1
   tilepathmin:
     type: string
-    label: Beginning tile library path [0]
+    label: Location to start at in the tile library
     inputBinding:
       position: 2
   tilepathmax:
@@ -36,17 +36,17 @@ inputs:
       position: 3
   fjcsv2sglf:
     type: File
-    label: Compiled C++ that creates 2bit sequence and tile ID and size
+    label: Script that converts FastJ to SGLF
     inputBinding:
       position: 4
   datadir:
     type: Directory
-    label: Directory in Keep for Data
+    label: Directory for Data
     inputBinding:
       position: 5
   fjt:
     type: File
-    label: fjt is a tool to manipulate FastJ (text) files
+    label: Tool to manipulate FastJ (text) files
     inputBinding:
       position: 6
   tagset:

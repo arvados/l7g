@@ -16,28 +16,28 @@ hints:
   cwltool:LoadListingRequirement:
     loadListing: shallow_listing
 inputs:
-  pathmin
+  pathmin:
     type: string
     label: First tile in tile library
-  pathmax
+  pathmax:
     type: string
     label: Last/Maximum tile in library
-  nchunks
+  nchunks:
     type: string
     label: Number of chunks to scatter
-  bashscript
+  bashscript:
     type: File
     label: Bash script that iterates over the FastJ to create
-  fjcsv2sglf
+  fjcsv2sglf:
     type: File
     label: Tool to create tile library
-  datadir
+  datadir:
     type: Directory
     label: Directory of FastJ files
-  fjt
+  fjt:
     type: File
     label: Tool to manipulate FastJ (text) files
-  tagset
+  tagset:
     type: File
     label: Compressed tagset in FASTA format
 outputs:

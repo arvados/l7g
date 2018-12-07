@@ -22,12 +22,12 @@ inputs:
       position: 1
   gffDir:
     type: Directory
-    label: Path with compressed gff files
+    label: Path with compressed gVCF files
     inputBinding:
       position: 2
   gffPrefix:
     type: string
-    label: Prefix of all gff files
+    label: Prefix of all gVCF files
     inputBinding:
       position: 3
   ref
@@ -82,12 +82,12 @@ inputs:
       position: 13
   l7g:
     type: File
-    label: Underlying Go application
+    label: Lightning application
     inputBinding:
       position: 14
   pasta:
     type: File
-    label: Go tool for steaming and converting varian call formats
+    label: Tool for steaming and converting variant call formats
     inputBinding:
       position: 15
   refstream:
@@ -97,7 +97,7 @@ inputs:
       position: 16
   tile_assembly:
     type: File
-    label: Compiled C++ to extract information from the Tile Assembly files
+    label: Tool to extract information from the tile assembly files
     inputBinding:
       position: 17
 outputs:

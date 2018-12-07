@@ -8,11 +8,13 @@ hints:
   cwltool:LoadListingRequirement:
     loadListing: shallow_listing
 inputs:
-  refdirectory: Directory
-  label: Directory of files to be analyzed
+  refdirectory:
+    type: Directory
+    label: Directory of files to be analyzed
 outputs:
-  out1: Directory[]
-  label: List of processed directories
+  out1:
+    type: Directory[]
+    label: List of processed directories
 requirements:
   InlineJavascriptRequirement: {}
 expression: |

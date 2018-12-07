@@ -9,36 +9,37 @@ requirements:
 inputs:
   script:
     type: File
-    label: Bash script that runs the Workflow
+    label: Script that runs the Workflow
   cgfDir:
     type: Directory
-    label: Compact Genome Format Directory
+    label: Compact genome format (cgf) directory
   sglfDir:
     type: Directory
-    label: Tile Library Directory
+    label: Tile library directory
   gvcfDir:
     type: Directory
-    label: gVCF Directory
+    label: gVCF directory
   chroms:
     type: string[]
-    label: Chromosomes to analyze
+    label: Arrray of chromosomes to analyze
   tileassembly:
     type: File
-    label: The Tile Assembly
+    label: Tool to extract information from the tile assembly files
   refFaFn:
     type: File
     label: Reference Fasta File
   gvcfPrefixes:
     type: string[]
-    label: Prefixes of gVCFs
+    label: Arrray of gVCF prefixes
   gvcfSuffixes:
     type: string[]
-    label: Suffixes of gVCFs
+    label: Arrray of gVCF suffixes
 
 outputs:
   result:
     type: Directory
     outputSource: gather/out
+    label: Directory of validated cgfs
 
 steps:
   cgf_gvcf_check:

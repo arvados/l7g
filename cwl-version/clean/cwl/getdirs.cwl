@@ -12,10 +12,10 @@ inputs:
     type: Directory
     label: Location of gVCFs to clean
 outputs:
-  out1
+  out1:
     type: Directory[]
     label: Array of directories
-  out2
+  out2:
     type: string[]
     label: List of filename directories
 

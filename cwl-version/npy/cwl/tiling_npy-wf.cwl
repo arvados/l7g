@@ -25,16 +25,16 @@ inputs:
     label: compact genome format tool
   cgfdirectory:
     type: Directory
-    label: Directory for compact genome format files
+    label: Directory for compact genome format (cgf) files
   band2matrix:
     type: File?
-    label: Compiled C++ band-to-matrix-npy convert band information into a Lightning tile numpy array
+    label: Tool tonvert band information into a Lightning tile numpy array
   cnvrt2hiq:
     type: File?
-    label: Compiled C++ npy-vec-to-hiq-1hot create flat numpy hiq tile vector arrays and its info file
+    label: Tool to create flat numpy hiq tile vector arrays and its info
   makelist:
     type: File?
-    label: used for saving the names of the datasets as a numpy array
+    label: Used for saving the names of the datasets as a numpy array
   nthreads:
     type: string?
     label: Number of threads to use
@@ -52,6 +52,7 @@ outputs:
   out1:
     type: Directory
     outputSource: step2/out1
+    label: Output consolidated numpy arrays
 
 steps:
   step1:

@@ -20,7 +20,7 @@ baseCommand: bash
 inputs:
   bashscript:
     type: File
-    label: Main bash script for converting FastJ to cgf
+    label: Script for converting FastJ to cgf
     inputBinding:
       position: 1
   fjdir:
@@ -30,7 +30,7 @@ inputs:
       position: 2
   cgft:
     type: File
-    label: Compact Genome Format Tool, a tool to manipulate and inspect cgf files
+    label: Tool to manipulate and inspect cgf files
     inputBinding:
       position: 3
   fjt:

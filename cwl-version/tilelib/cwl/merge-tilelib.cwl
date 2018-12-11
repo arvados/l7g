@@ -22,7 +22,7 @@ baseCommand: bash
 inputs:
   bashscriptmain:
     type: File
-    label: Script to merge cgf into tile library
+    label: Script to merge entries into tile library
     inputBinding:
       position: 1
   srcdir:

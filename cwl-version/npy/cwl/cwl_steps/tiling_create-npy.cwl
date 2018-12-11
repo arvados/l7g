@@ -3,7 +3,7 @@ $namespaces:
   cwltool: "http://commonwl.org/cwltool#"
 cwlVersion: v1.0
 class: CommandLineTool
-label: Create numpy vectors based on tile library paths
+label: Create NumPy vectors based on tile library paths
 requirements:
   - class: DockerRequirement
     dockerPull: arvados/l7g
@@ -37,7 +37,7 @@ inputs:
       position: 3
   band2matrix:
     type: File?
-    label: Cconvert band information into a Lightning tile numpy array.
+    label: Convert band information into a Lightning tile NumPy array.
     inputBinding:
       position: 4
     default:
@@ -45,7 +45,7 @@ inputs:
       location: ../../src/buildArvados/dest/band-to-matrix-npy
   cnvrt2hiq:
     type: File?
-    label: create flat numpy hiq tile vector arrays and its info file
+    label: create flat NumPy hiq tile vector arrays and its info file
     inputBinding:
       position: 5
     default:
@@ -53,7 +53,7 @@ inputs:
       location: ../../src/buildArvados/dest/npy-vec-to-hiq-1hot
   makelist:
     type: File?
-    label: used for saving the names of the datasets as a numpy array
+    label: used for saving the names of the datasets as a NumPy array
     inputBinding:
       position: 6
     default:

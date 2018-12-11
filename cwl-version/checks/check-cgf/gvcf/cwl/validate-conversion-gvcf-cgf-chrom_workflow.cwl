@@ -21,25 +21,25 @@ inputs:
     label: gVCF directory
   chroms:
     type: string[]
-    label: Arrray of chromosomes to analyze
+    label: Array of chromosomes to analyze
   tileassembly:
     type: File
     label: Tool to extract information from the tile assembly files
   refFaFn:
     type: File
-    label: Reference Fasta File
+    label: Reference FASTA File
   gvcfPrefixes:
     type: string[]
-    label: Arrray of gVCF prefixes
+    label: Array of gVCF prefixes
   gvcfSuffixes:
     type: string[]
-    label: Arrray of gVCF suffixes
+    label: Array of gVCF suffixes
 
 outputs:
   result:
     type: Directory
     outputSource: gather/out
-    label: Directory of validated cgfs
+    label: Directory of validated cgf files
 
 steps:
   cgf_gvcf_check:

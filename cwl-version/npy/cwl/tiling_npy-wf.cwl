@@ -3,9 +3,9 @@ $namespaces:
   cwltool: "http://commonwl.org/cwltool#"
 cwlVersion: v1.0
 class: Workflow
-label: Create numpy arrays from cgf, merge all numpy arrays into one array
+label: Create NumPy arrays from cgf, merge all NumPy arrays into one array
 doc: |
-    Merge individual Lightning numpy arrays broken out by tilepath into a single numpy matrix
+    Merge individual Lightning NumPy arrays broken out by tilepath into a single NumPy matrix
 requirements:
   - class: DockerRequirement
     dockerPull: arvados/l7g
@@ -16,10 +16,10 @@ requirements:
 inputs:
   bashscriptmain_create:
     type: File?
-    label: Master bash script for creating the numpy arrays
+    label: Master bash script for creating the NumPy arrays
   bashscriptmain_consol:
     type: File?
-    label: Bash script to Consolidate individual Lightning numpy arrays broken out by tilepath into a single numpy matrix
+    label: Bash script to Consolidate individual Lightning NumPy arrays broken out by tilepath into a single NumPy matrix
   cgft:
     type: ["null", "File", "string"]
     label: compact genome format tool
@@ -28,13 +28,13 @@ inputs:
     label: Directory for compact genome format (cgf) files
   band2matrix:
     type: File?
-    label: Tool tonvert band information into a Lightning tile numpy array
+    label: Tool to convert band information into a Lightning tile NumPy array
   cnvrt2hiq:
     type: File?
-    label: Tool to create flat numpy hiq tile vector arrays and its info
+    label: Tool to create flat NumPy hiq tile vector arrays and its info
   makelist:
     type: File?
-    label: Used for saving the names of the datasets as a numpy array
+    label: Used for saving the names of the datasets as a NumPy array
   nthreads:
     type: string?
     label: Number of threads to use
@@ -46,13 +46,13 @@ inputs:
     label: Prefix or path to prepend to output Directory
   npyconsolfile:
     type: File?
-    label: Name of consolidated numpy array
+    label: Name of consolidated NumPy array
 
 outputs:
   out1:
     type: Directory
     outputSource: step2/out1
-    label: Output consolidated numpy arrays
+    label: Output consolidated NumPy arrays
 
 steps:
   step1:
@@ -66,7 +66,7 @@ steps:
       makelist: makelist
       nthreads: nthreads
     out: [out1,out2]
-    label: Output numpy arrays
+    label: Output NumPy arrays
 
   step2:
     run: ../cwl/cwl_steps/tiling_consol-npy.cwl
@@ -77,4 +77,4 @@ steps:
       outprefix: outprefix
       npyconsolfile: npyconsolfile
     out: [out1]
-    label: Output consolidated numpy arrays
+    label: Output consolidated NumPy arrays

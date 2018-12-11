@@ -31,7 +31,7 @@ inputs:
     label: Reference genome
   reffa:
     type: File
-    label: Reference genome in Fasta format
+    label: Reference genome in FASTA format
   afn:
     type: File
     label: Compressed assembly fixed width file

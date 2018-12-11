@@ -58,7 +58,7 @@ l7g
   label: Underlying Go application
 pasta
   type: File
-  label: Go tool for steaming and converting varian call formats
+  label: Go tool for steaming and converting variant call formats
 refstream
   type: File
   label: Wrapper around 'samtools faidx' to get a stream out of a FASTA file

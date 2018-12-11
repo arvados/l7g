@@ -37,7 +37,7 @@ inputs:
       position: 4
   reffa:
     type: File
-    label: Reference genome in Fasta format
+    label: Reference genome in FASTA format
     inputBinding:
       position: 5
   afn:

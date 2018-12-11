@@ -4,7 +4,7 @@ label: Create list of gff directories to process
 inputs:
   refdirectory:
     type: Directory
-    label: Location of gff to  convert
+    label: Location of gff to convert
 outputs:
   out1:
     type: File[]

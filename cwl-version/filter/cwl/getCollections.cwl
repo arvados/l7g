@@ -33,7 +33,7 @@ outputs:
     label: Array of directory names
   collectiondir:
     type: Directory[]
-    label: Array of directories containting gVCFs
+    label: Array of directories containing gVCFs
 
 expression: |
    ${

@@ -62,7 +62,7 @@ inputs:
 
   refFaFn:
     type: File
-    label: Reference Fasta File
+    label: Reference FASTA File
     inputBinding:
       position: 7
     secondaryFiles:

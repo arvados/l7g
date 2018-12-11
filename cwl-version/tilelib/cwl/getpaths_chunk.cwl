@@ -3,7 +3,7 @@ cwlVersion: v1.0
 inputs:
   pathmin:
     type: string
-    label: Beginning tile library path [0]
+    label: Beginning tile library path entry
   pathmax:
     type: string
     label: Last/Maximum tile library path

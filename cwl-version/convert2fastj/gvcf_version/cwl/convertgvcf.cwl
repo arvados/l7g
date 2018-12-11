@@ -82,7 +82,7 @@ inputs:
       position: 13
   l7g:
     type: File
-    label: Lightning application
+    label: Lightning application for parsing and searching assembly files
     inputBinding:
       position: 14
   pasta:

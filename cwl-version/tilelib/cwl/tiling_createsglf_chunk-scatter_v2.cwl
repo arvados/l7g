@@ -3,7 +3,7 @@ $namespaces:
   cwltool: "http://commonwl.org/cwltool#"
 cwlVersion: v1.0
 class: Workflow
-label: Create a tile library (SGLF) for a given set of FASTJ files
+label: Create a tile library (SGLF) for a given set of FastJ files
 requirements:
   - class: DockerRequirement
     dockerPull: javatools
@@ -18,7 +18,7 @@ hints:
 inputs:
   pathmin:
     type: string
-    label: First tile in tile library
+    label: Location to start at in the tile library
   pathmax:
     type: string
     label: Last/Maximum tile in library
@@ -47,7 +47,7 @@ outputs:
       items:
         type: array
         items: File
-    label: Output tile library 
+    label: Output tile library
     outputSource: step2/out1
 
 steps:

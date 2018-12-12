@@ -5,9 +5,7 @@ cwlVersion: v1.0
 class: Workflow
 label: Filters gVCFs by some quality cutoff
 doc: |
-    Takes in gVCFs, and using the defined cutoff integer as
-    a quality cutoff, filters out variant calls that do not meet the cutoff
-    specified.
+    Takes in gVCFs, and using the defined cutoff integer as a quality cutoff, filters out variant calls that do not meet the cutoff specified.
 requirements:
   - class: DockerRequirement
     dockerPull: javatools
@@ -52,6 +50,7 @@ steps:
       datafilenames: datafilenames
       datafilepdh: datafilepdh
     out: [fileprefix,collectiondir]
+    label: Return Array of directory names and Array of directories containing gVCFs
 
   step2:
     scatter: [gffPrefix,gffDir]

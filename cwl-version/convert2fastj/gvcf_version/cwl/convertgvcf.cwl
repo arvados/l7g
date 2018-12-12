@@ -87,7 +87,7 @@ inputs:
       position: 14
   pasta:
     type: File
-    label: Tool for steaming and converting variant call formats
+    label: Tool for streaming and converting variant call formats
     inputBinding:
       position: 15
   refstream:

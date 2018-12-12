@@ -42,7 +42,7 @@ inputs:
       position: 4
   mergetilelib:
     type: File
-    label: Tool that takes an SGLF line and stores the tilepath, tile library version, tilestep and tile span
+    label: Tool that takes an SGLF line and stores the tile path, tile library version, tile step and tile span
     inputBinding:
       position: 5
 

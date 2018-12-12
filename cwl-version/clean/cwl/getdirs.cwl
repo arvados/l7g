@@ -14,10 +14,10 @@ inputs:
 outputs:
   out1:
     type: Directory[]
-    label: Array of directories
+    label: Array of directories containing gVCFs
   out2:
     type: string[]
-    label: List of filename directories
+    label: Array of directory names
 
 requirements:
   InlineJavascriptRequirement: {}

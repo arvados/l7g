@@ -13,7 +13,6 @@ requirements:
 baseCommand: bash
 
 inputs:
-
   script:
     type: File
     label: Script that runs the Workflow

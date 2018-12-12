@@ -19,10 +19,10 @@ inputs:
     type: File
     inputBinding:
       position: 1
-    label: Bash master workflow directory
+    label: Bash master workflow
   sglfDir:
     type: Directory
-    label: Tile Library Directory
+    label: Tile library directory
     inputBinding:
       position: 2
   outFileName:

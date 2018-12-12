@@ -14,7 +14,7 @@ inputs:
 outputs:
   out1:
     type: Directory[]
-    label: List of processed directories
+    label: Array of directories
 requirements:
   InlineJavascriptRequirement: {}
 expression: |

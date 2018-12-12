@@ -9,7 +9,7 @@ requirements:
 inputs:
   script:
     type: File
-    label: Script that runs the Workflow
+    label: Script that runs the workflow
   cgfDir:
     type: Directory
     label: Compact genome format (cgf) directory

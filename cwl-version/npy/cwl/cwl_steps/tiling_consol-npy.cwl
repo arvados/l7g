@@ -3,7 +3,7 @@ $namespaces:
   cwltool: "http://commonwl.org/cwltool#"
 cwlVersion: v1.0
 class: CommandLineTool
-label: Consolidate tiles into one numpy array
+label: Consolidate tiles into one NumPy array
 requirements:
   - class: DockerRequirement
     dockerPull: arvados/l7g
@@ -18,7 +18,7 @@ baseCommand: bash
 inputs:
   bashscriptmain:
     type: File?
-    label: Bash script to Consolidate individual Lightning numpy arrays broken out by tilepath into a single numpy matrix
+    label: Bash script to Consolidate individual Lightning NumPy arrays broken out by tilepath into a single NumPy matrix
     inputBinding:
       position: 1
     default:
@@ -42,7 +42,7 @@ inputs:
     default: "all"
   npyconsolfile:
     type: File?
-    label: Name of consolidated numpy array
+    label: Name of consolidated NumPy array
     inputBinding:
       position: 5
     default:

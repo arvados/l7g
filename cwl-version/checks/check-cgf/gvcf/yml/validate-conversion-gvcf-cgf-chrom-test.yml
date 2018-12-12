@@ -1,0 +1,22 @@
+script:
+  class: File
+  path: ../src/verify-conversion-batch-gvcf-cgf_skip-empty-and-zero-tilepaths.sh
+cgfDir:
+  class: Directory
+  path: keep:29a3a536b401a954000d224e437d5269+646
+sglfDir:
+  class: Directory
+  path: keep:c5583087a866b1ef2cce5d1f477f2c99+34173
+gvcfDir:
+  class: Directory
+  path: keep:daec9aa484ef432c46ba9d04dcb45ba9+43107
+chrom: "chr1"
+tileassembly:
+  class: File
+  path: keep:ee01813e404906d36527b402e124e537+241/assembly.00.hg38.fw.gz
+refFaFn:
+  class: File
+  path: keep:5fb82d9a1d2c5d5c64ceca29a90a9c8e+763/hg38.fa.gz
+gvcfPrefix: "filtered_"
+gvcfSuffix: ".raw_variants.chr1.gvcf.gz"
+outfileName: "chr1-output.log"

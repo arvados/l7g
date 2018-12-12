@@ -2,7 +2,6 @@ class: ExpressionTool
 cwlVersion: v1.0
 requirements:
   InlineJavascriptRequirement: {}
-
 inputs:
   infiles: File[]
 outputs:
@@ -24,4 +23,3 @@ expression: |
     //var x = JSON.stringify(gathered_dirs);
     return { "out": gathered_dirs };
   }
-

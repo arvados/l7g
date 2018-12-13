@@ -17,7 +17,7 @@ baseCommand: bash
 inputs:
   bashscript:
     type: File
-    label: Master bash script to control cleaning
+    label: Master script to control cleaning
     inputBinding:
       position: 1
   gvcfDir:

@@ -27,7 +27,7 @@ inputs:
       position: 1
   srcdir:
     type: Directory
-    label: Directory of cgf files
+    label: Directory of SGLF files
     inputBinding:
       position: 2
   nppdir:

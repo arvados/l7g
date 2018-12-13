@@ -18,7 +18,7 @@ baseCommand: bash
 inputs:
   bashscriptmain:
     type: File?
-    label: Main bash workflow
+    label: Main workflow script
     inputBinding:
       position: 1
     default:

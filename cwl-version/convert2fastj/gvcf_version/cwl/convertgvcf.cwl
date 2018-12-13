@@ -17,7 +17,7 @@ baseCommand: bash
 inputs:
   bashscript:
     type: File
-    label: Master bash script that controls converting FastJ to gVCFs
+    label: Master script that controls converting FastJ to gVCFs
     inputBinding:
       position: 1
   gffDir:

@@ -24,7 +24,7 @@ inputs:
     label: Location in Arvados Keep of gVCFs to clean
   bashscript:
     type: File
-    label: Master bash script to control cleaning
+    label: Master script to control cleaning
   cleanvcf:
     type: File
     label: Compiled code that cleans gVCFs

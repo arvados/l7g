@@ -18,7 +18,7 @@ baseCommand: bash
 inputs:
   bashscriptmain:
     type: File?
-    label: Bash script to Consolidate individual Lightning NumPy arrays broken out by tilepath into a single NumPy matrix
+    label: Script to consolidate individual Lightning NumPy arrays broken out by tile path into a single NumPy matrix
     inputBinding:
       position: 1
     default:
@@ -42,7 +42,7 @@ inputs:
     default: "all"
   npyconsolfile:
     type: File?
-    label: Name of consolidated NumPy array
+    label: Program to consolidated NumPy arrays
     inputBinding:
       position: 5
     default:

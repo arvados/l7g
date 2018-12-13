@@ -16,13 +16,13 @@ requirements:
 inputs:
   bashscriptmain_create:
     type: File?
-    label: Master bash script for creating the NumPy arrays
+    label: Master script for creating the NumPy arrays
   bashscriptmain_consol:
     type: File?
-    label: Bash script to consolidate individual Lightning NumPy arrays broken out by tilepath into a single NumPy matrix
+    label: Script to consolidate individual Lightning NumPy arrays broken out by tilepath into a single NumPy matrix
   cgft:
     type: ["null", "File", "string"]
-    label: compact genome format tool
+    label: Compact genome format tool
   cgfdirectory:
     type: Directory
     label: Directory for compact genome format (cgf) files
@@ -46,7 +46,7 @@ inputs:
     label: Prefix or path to prepend to output Directory
   npyconsolfile:
     type: File?
-    label: Name of consolidated NumPy array
+    label: Program to consolidated NumPy arrays
 
 outputs:
   out1:

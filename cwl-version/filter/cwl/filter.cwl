@@ -17,7 +17,7 @@ baseCommand: bash
 inputs:
   bashscript:
     type: File
-    label: Master bash script to control filtering
+    label: Master script to control filtering
     inputBinding:
       position: 1
   gffDir:

@@ -3,9 +3,7 @@ $namespaces:
   cwltool: "http://commonwl.org/cwltool#"
 cwlVersion: v1.0
 class: Workflow
-label: Filters gVCFs by some quality cutoff
-doc: |
-    Takes in gVCFs, and using the defined cutoff integer as a quality cutoff, filters out variant calls that do not meet the cutoff specified.
+label: Filters gVCFs by a specified quality cutoff
 requirements:
   - class: DockerRequirement
     dockerPull: javatools
@@ -30,7 +28,7 @@ inputs:
     label: List of portable data hashes (pdh) in Arvados
   bashscript:
     type: File
-    label: Master bash script to control filtering
+    label: Master script to control filtering
   filter_gvcf:
     type: File
     label: Compiled code that filters gVCFs

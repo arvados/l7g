@@ -27,7 +27,7 @@ inputs:
     label: Number of chunks to scatter
   bashscript:
     type: File
-    label: Bash script that iterates over the FastJ to create
+    label: Script that iterates over the FastJ to create
   fjcsv2sglf:
     type: File
     label: Tool to create tile library

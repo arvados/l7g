@@ -22,7 +22,7 @@ inputs:
     label: Input directory of FastJs
   bashscript:
     type: File
-    label: Bash script to convert FastJ to cgf using SGLF library
+    label: Script to convert FastJ to cgf using SGLF library
   cgft:
     type: File
     label: Compact genome format tool, for manipulating and inspecting cgf files

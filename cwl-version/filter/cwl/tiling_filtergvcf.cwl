@@ -22,16 +22,16 @@ hints:
 inputs:
   datafilenames:
     type: File[]
-    label: Directories of gVCF chromosome files
+    label: Array of gVCF chromosome files
   datafilepdh:
     type: File[]
-    label: List of portable data hashes (pdh) in Arvados
+    label: Array of portable data hashes (pdh) in Arvados
   bashscript:
     type: File
     label: Master script to control filtering
   filter_gvcf:
     type: File
-    label: Compiled code that filters gVCFs
+    label: Code that filters gVCFs
   cutoff:
     type: string
     label: Filtering cutoff threshold

@@ -5,7 +5,7 @@ cwlVersion: v1.0
 class: Workflow
 label: Create NumPy arrays from cgf, merge all NumPy arrays into one array
 doc: |
-    Merge individual Lightning NumPy arrays broken out by tilepath into a single NumPy matrix
+    Merge individual Lightning NumPy arrays broken out by tile path into a single NumPy matrix
 requirements:
   - class: DockerRequirement
     dockerPull: arvados/l7g
@@ -19,7 +19,7 @@ inputs:
     label: Master script for creating the NumPy arrays
   bashscriptmain_consol:
     type: File?
-    label: Script to consolidate individual Lightning NumPy arrays broken out by tilepath into a single NumPy matrix
+    label: Script to consolidate individual Lightning NumPy arrays broken out by tile path into a single NumPy matrix
   cgft:
     type: ["null", "File", "string"]
     label: Compact genome format tool

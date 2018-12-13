@@ -4,8 +4,6 @@ $namespaces:
 cwlVersion: v1.0
 class: CommandLineTool
 label: Merge all of the tile libraries (SGLFs)
-doc: |
-    Merge the compressed genome format files into a tile library (SGLF format)
 requirements:
   - class: DockerRequirement
     dockerPull: javatools-parallel

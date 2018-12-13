@@ -15,7 +15,7 @@ baseCommand: bash
 inputs:
   script:
     type: File
-    label: Script that runs the Workflow
+    label: Script that runs the workflow
     inputBinding:
       position: 1
 

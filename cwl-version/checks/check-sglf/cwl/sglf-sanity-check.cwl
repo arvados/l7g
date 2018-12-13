@@ -19,7 +19,7 @@ inputs:
     type: File
     inputBinding:
       position: 1
-    label: Bash master workflow
+    label: Master workflow script
   sglfDir:
     type: Directory
     label: Tile library directory

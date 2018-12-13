@@ -4,8 +4,6 @@ $namespaces:
 cwlVersion: v1.0
 class: Workflow
 label: Resolve duplicate/overlapping calls in gVCFs
-doc: |
-   Parses all gVCFs and cleans them returning a clean set
 requirements:
   - class: DockerRequirement
     dockerPull: javatools
@@ -21,13 +19,13 @@ hints:
 inputs:
   refdirectory:
     type: Directory
-    label: Location in Arvados Keep of gVCFs to clean
+    label: Location of gVCFs to clean
   bashscript:
     type: File
     label: Master script to control cleaning
   cleanvcf:
     type: File
-    label: Compiled code that cleans gVCFs
+    label: Code that cleans gVCFs
 
 outputs:
   out1:

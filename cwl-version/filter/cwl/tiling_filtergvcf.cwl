@@ -25,7 +25,7 @@ inputs:
     label: Array of gVCF chromosome files
   datafilepdh:
     type: File[]
-    label: Array of portable data hashes (pdh) in Arvados
+    label: Array of portable data hashes (pdh)
   bashscript:
     type: File
     label: Master script to control filtering
@@ -39,7 +39,7 @@ outputs:
   out1:
     type: Directory[]
     outputSource: step2/out1
-    label: Output directory of filtered gVCFs
+    label: Filtered gVCF output directory
 
 steps:
   step1:
@@ -48,7 +48,7 @@ steps:
       datafilenames: datafilenames
       datafilepdh: datafilepdh
     out: [fileprefix,collectiondir]
-    label: Return Array of directory names and Array of directories containing gVCFs
+    label: Return Arrays of directory names and directories containing gVCFs
 
   step2:
     scatter: [gffPrefix,gffDir]

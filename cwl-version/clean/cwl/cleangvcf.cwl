@@ -38,6 +38,6 @@ inputs:
 outputs:
   out1:
     type: Directory
-    label: Output of directory clean gVCFs
+    label: Directory of clean gVCFs
     outputBinding:
       glob: "cleaned/*"

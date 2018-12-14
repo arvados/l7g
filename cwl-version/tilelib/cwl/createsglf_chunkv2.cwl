@@ -21,7 +21,7 @@ baseCommand: bash
 inputs:
   bashscript:
     type: File
-    label: Script that iterates over the FastJ to create paths
+    label: Script to iterates over the FastJ to create paths
     inputBinding:
       position: 1
   tilepathmin:

@@ -1,4 +1,4 @@
-l $namespaces:
+w $namespaces:
   arv: "http://arvados.org/cwl#"
   cwltool: "http://commonwl.org/cwltool#"
 cwlVersion: v1.0
@@ -19,7 +19,7 @@ inputs:
     label: Master script for creating the NumPy arrays
   bashscriptmain_consol:
     type: File?
-    label: Script to consolidate individual Lightning NumPy arrays broken out by tile path into a single NumPy matrix
+    label: Script to consolidate Lightning NumPy arrays by tile path into a single NumPy matrix
   cgft:
     type: ["null", "File", "string"]
     label: Compact genome format tool

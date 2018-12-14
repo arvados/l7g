@@ -25,7 +25,7 @@ inputs:
     label: Input directory
   bashscript:
     type: File
-    label: Master script that converts gVCFs to FastJ
+    label: Master script to convert FastJ to gVCFs
   ref:
     type: string
     label: Reference genome
@@ -61,7 +61,7 @@ inputs:
     label: Lightning application
   pasta:
     type: File
-    label: Tool for steaming and converting variant call formats
+    label: Tool for streaming and converting variant call formats
   refstream:
     type: File
     label: Wrapper around 'samtools faidx' to get a stream out of a FASTA file

@@ -25,7 +25,7 @@ inputs:
     label: Input directory
   bashscript:
     type: File
-    label: Master script to convert FastJ to gVCFs
+    label: Master script to create a FastJ for each gVCF
   ref:
     type: string
     label: Reference genome
@@ -64,7 +64,7 @@ inputs:
     label: Tool for streaming and converting variant call formats
   refstream:
     type: File
-    label: Wrapper around 'samtools faidx' to get a stream out of a FASTA file
+    label: Tool to steam from FASTA file
   tile_assembly:
     type: File
     label: Tool to extract information from the tile assembly files
@@ -73,7 +73,7 @@ outputs:
   out1:
     type: Directory[]
     outputSource: step2/out1
-    label: Location of gVCFs and an array of directories
+    label: Output where FastJ are deposited
   out2:
     type:
       type: array
@@ -81,7 +81,7 @@ outputs:
         type: array
         items: File
     outputSource: step2/out2
-    label: Output FastJ Files
+    label: Output where compressed gVCF are deposited
 
 steps:
   step1:

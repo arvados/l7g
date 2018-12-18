@@ -17,7 +17,7 @@ baseCommand: bash
 inputs:
   bashscript:
     type: File
-    label: Master script to convert FastJ to gVCFs
+    label: Master script to create a FastJ for each gVCF
     inputBinding:
       position: 1
   gffDir:
@@ -92,7 +92,7 @@ inputs:
       position: 15
   refstream:
     type: File
-    label: Wrapper around 'samtools faidx' to get a stream out of a FASTA file
+    label: Tool to steam from FASTA file
     inputBinding:
       position: 16
   tile_assembly:
@@ -103,9 +103,11 @@ inputs:
 outputs:
   out1:
     type: Directory
+    label: Output where FastJ are deposited        
     outputBinding:
       glob: "stage/*"
   out2:
     type: File[]
+    label: Output where compressed gVCF are deposited
     outputBinding:
       glob: "indexed/*.gz*"

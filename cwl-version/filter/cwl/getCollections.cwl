@@ -3,7 +3,7 @@ $namespaces:
   cwltool: "http://commonwl.org/cwltool#"
 cwlVersion: v1.0
 class: ExpressionTool
-label: Create list of gVCF to be handled
+label: Create list of gVCF to be filtered
 requirements:
   - class: InlineJavascriptRequirement
 

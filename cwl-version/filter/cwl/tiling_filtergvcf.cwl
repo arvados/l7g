@@ -22,10 +22,10 @@ hints:
 inputs:
   datafilenames:
     type: File[]
-    label: Array of gVCF chromosome files
+    label: Files containing array of input gVCF files
   datafilepdh:
     type: File[]
-    label: Array of portable data hashes (pdh)
+    label: Files containing array of portable data hashes (pdh)
   bashscript:
     type: File
     label: Master script to control filtering
@@ -48,7 +48,6 @@ steps:
       datafilenames: datafilenames
       datafilepdh: datafilepdh
     out: [fileprefix,collectiondir]
-    label: Return Arrays of directory names and directories containing gVCFs
 
   step2:
     scatter: [gffPrefix,gffDir]

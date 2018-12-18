@@ -18,7 +18,7 @@ baseCommand: bash
 inputs:
   bashscriptmain:
     type: File?
-    label: Main workflow script
+    label: Master script for creating the NumPy arrays
     inputBinding:
       position: 1
     default:

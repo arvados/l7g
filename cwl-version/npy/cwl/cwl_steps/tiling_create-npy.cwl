@@ -45,7 +45,7 @@ inputs:
       location: ../../src/buildArvados/dest/band-to-matrix-npy
   cnvrt2hiq:
     type: File?
-    label: Create flat NumPy hiq tile vector arrays and its info file
+    label: Tool to create numpy files for high quality tiles
     inputBinding:
       position: 5
     default:
@@ -73,6 +73,6 @@ outputs:
       glob: "npy"
   out2:
     type: Directory
-    label: Directory for hiq NumPy arrays
+    label: Directory for high quality NumPy arrays
     outputBinding:
       glob: "npy-hiq"

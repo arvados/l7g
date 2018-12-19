@@ -1,6 +1,6 @@
 cwlVersion: v1.0
 class: CommandLineTool
-label: Validate the conversion of the gVCF to cgf against the SGLF (Tile Library)
+label: Validate the conversion of the gVCF to cgf with the tile library
 requirements:
   - class: DockerRequirement
     dockerPull: arvados/l7g
@@ -52,7 +52,7 @@ inputs:
 
   tileassembly:
     type: File
-    label: Tool to extract information from the tile assembly files
+    label: Location of tile assembly files
     inputBinding:
       position: 6
     secondaryFiles:
@@ -82,12 +82,13 @@ inputs:
 
   outfileName:
     type: string
-    label: Name of output file, often includes chrom number
+    label: Name of output file
     inputBinding:
       position: 10
 
 outputs:
   result:
     type: File
+    label: Run log
     outputBinding:
       glob: "*output.log"

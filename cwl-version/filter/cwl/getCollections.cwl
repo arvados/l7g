@@ -13,14 +13,14 @@ hints:
 
 inputs:
   datafilenames:
-    label: Array of gVCF chromosome files
+    label: Files containing array of input gVCF files
     type:
       type: array
       items: File
       inputBinding:
         loadContents: true
   datafilepdh:
-    label: Array of portable data hashes (pdh) in Arvados
+    label: Files containing array of portable data hashes (pdh)
     type:
       type: array
       items: File

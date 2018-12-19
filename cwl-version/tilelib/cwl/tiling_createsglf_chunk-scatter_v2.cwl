@@ -18,7 +18,7 @@ hints:
 inputs:
   pathmin:
     type: string
-    label: Location to start at in the tile library
+    label: Path to start at in the tile library
   pathmax:
     type: string
     label: Last/Maximum tile in library
@@ -27,7 +27,7 @@ inputs:
     label: Number of chunks to scatter
   bashscript:
     type: File
-    label: Script that iterates over the FastJ to create
+    label: Script that iterates over the FastJ to create paths
   fjcsv2sglf:
     type: File
     label: Tool to create tile library

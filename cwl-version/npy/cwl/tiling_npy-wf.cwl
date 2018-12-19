@@ -3,9 +3,7 @@ w $namespaces:
   cwltool: "http://commonwl.org/cwltool#"
 cwlVersion: v1.0
 class: Workflow
-label: Create NumPy arrays from cgf, merge all NumPy arrays into one array
-doc: |
-    Merge individual Lightning NumPy arrays broken out by tile path into a single NumPy matrix
+label: Create NumPy arrays from cgf, merge all NumPy arrays into one array by tile path
 requirements:
   - class: DockerRequirement
     dockerPull: arvados/l7g
@@ -19,7 +17,7 @@ inputs:
     label: Master script for creating the NumPy arrays
   bashscriptmain_consol:
     type: File?
-    label: Script to consolidate Lightning NumPy arrays by tile path into a single NumPy matrix
+    label: Script to consolidate tile path NumPy arrays into a single NumPy matrix
   cgft:
     type: ["null", "File", "string"]
     label: Compact genome format tool
@@ -31,7 +29,7 @@ inputs:
     label: Tool to convert band information into a Lightning tile NumPy array
   cnvrt2hiq:
     type: File?
-    label: Tool to create flat NumPy hiq tile vector arrays and its info
+    label: Tool to create numpy files for high quality tiles
   makelist:
     type: File?
     label: Used for saving the names of the datasets as a NumPy array
@@ -43,7 +41,7 @@ inputs:
     label: Name of output directory
   outprefix:
     type: string?
-    label: Prefix or path to prepend to output Directory
+    label: Prefix to prepend to consolidated NumPy arrays
   npyconsolfile:
     type: File?
     label: Program to consolidated NumPy arrays
@@ -66,7 +64,6 @@ steps:
       makelist: makelist
       nthreads: nthreads
     out: [out1,out2]
-    label: Output NumPy arrays
 
   step2:
     run: ../cwl/cwl_steps/tiling_consol-npy.cwl
@@ -77,4 +74,3 @@ steps:
       outprefix: outprefix
       npyconsolfile: npyconsolfile
     out: [out1]
-    label: Output consolidated NumPy arrays

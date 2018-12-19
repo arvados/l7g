@@ -27,12 +27,13 @@ inputs:
       position: 2
   outFileName:
     type: string
-    label: Name of output file, often includes chrom number
+    label: Name of output file
     inputBinding:
       position: 3
 
 outputs:
   result:
     type: Directory
+    label: Output correctly formatted tile library
     outputBinding:
       glob: "."

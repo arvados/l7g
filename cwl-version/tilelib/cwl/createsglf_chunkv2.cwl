@@ -21,12 +21,12 @@ baseCommand: bash
 inputs:
   bashscript:
     type: File
-    label: Script to iterates over the FastJ to create paths
+    label: Master script to create tile library (sglf)
     inputBinding:
       position: 1
   tilepathmin:
     type: string
-    label: Location to start at in the tile library
+    label: Path to start at in the tile library
     inputBinding:
       position: 2
   tilepathmax:
@@ -36,12 +36,12 @@ inputs:
       position: 3
   fjcsv2sglf:
     type: File
-    label: Script that converts FastJ to SGLF
+    label: Tool to create tile library
     inputBinding:
       position: 4
   datadir:
     type: Directory
-    label: Directory for Data
+    label: Directory of FastJ files
     inputBinding:
       position: 5
   fjt:

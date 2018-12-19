@@ -73,7 +73,7 @@ outputs:
   out1:
     type: Directory[]
     outputSource: step2/out1
-    label: Output where FastJ are deposited
+    label: Directories of Fastjs
   out2:
     type:
       type: array
@@ -81,7 +81,7 @@ outputs:
         type: array
         items: File
     outputSource: step2/out2
-    label: Output where compressed gVCF are deposited
+    label: Indexed and zipped gVCFs
 
 steps:
   step1:

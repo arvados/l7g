@@ -89,6 +89,6 @@ inputs:
 outputs:
   result:
     type: File
-    label: Run log
+    label: Results of checks
     outputBinding:
       glob: "*output.log"

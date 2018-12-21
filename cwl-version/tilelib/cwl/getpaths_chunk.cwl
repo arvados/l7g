@@ -13,10 +13,10 @@ inputs:
 outputs:
   out1:
     type: string[]
-    label: Array of Minimums
+    label: Array of path minimums
   out2:
     type: string[]
-    label: Array of Maximums
+    label: Array of path maximums
 requirements:
   InlineJavascriptRequirement: {}
 expression: |

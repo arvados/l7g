@@ -25,7 +25,7 @@ inputs:
     label: Master script to control cleaning
   cleanvcf:
     type: File
-    label: Code that cleans gVCFs
+    label: Tool to do gVCF cleaning
 
 outputs:
   out1:

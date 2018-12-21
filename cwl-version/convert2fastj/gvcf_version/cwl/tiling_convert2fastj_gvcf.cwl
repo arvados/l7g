@@ -58,13 +58,13 @@ inputs:
     label: Compressed tagset in FASTA format
   l7g:
     type: File
-    label: Lightning application
+    label: Lightning application for parsing and searching assembly files
   pasta:
     type: File
     label: Tool for streaming and converting variant call formats
   refstream:
     type: File
-    label: Tool to steam from FASTA file
+    label: Tool to stream from FASTA file
   tile_assembly:
     type: File
     label: Tool to extract information from the tile assembly files

@@ -1,6 +1,6 @@
 cwlVersion: v1.0
 class: Workflow
-label:
+label: Workflow to Validate the the gVCF to cgf iconversion with the tile library
 requirements:
   ScatterFeatureRequirement: {}
   InlineJavascriptRequirement: {}
@@ -21,19 +21,19 @@ inputs:
     label: gVCF directory
   chroms:
     type: string[]
-    label: Array of chromosomes to analyze
+    label: Chromosomes to analyze
   tileassembly:
     type: File
-    label: Tool to extract information from the tile assembly files
+    label: Location of tile assembly file
   refFaFn:
     type: File
     label: Reference FASTA File
   gvcfPrefixes:
     type: string[]
-    label: Array of gVCF prefixes
+    label: Prefixes of gVCFs
   gvcfSuffixes:
     type: string[]
-    label: Array of gVCF suffixes
+    label: Suffixes of gVCFs
 
 outputs:
   result:

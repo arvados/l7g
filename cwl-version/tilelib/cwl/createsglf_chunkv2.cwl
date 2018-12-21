@@ -3,6 +3,7 @@ $namespaces:
   cwltool: "http://commonwl.org/cwltool#"
 cwlVersion: v1.0
 class: CommandLineTool
+label: Create SGLF (library) files
 requirements:
   - class: DockerRequirement
     dockerPull: javatools
@@ -21,7 +22,7 @@ baseCommand: bash
 inputs:
   bashscript:
     type: File
-    label: Master script to create tile library (sglf)
+    label: Master script to create tile library (SGLF)
     inputBinding:
       position: 1
   tilepathmin:
@@ -58,5 +59,6 @@ inputs:
 outputs:
   out1:
     type: File[]
+    label: Output for inclusion in tile library (SGLF)
     outputBinding:
       glob: "lib/*sglf.gz*"

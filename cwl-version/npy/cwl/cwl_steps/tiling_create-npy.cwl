@@ -32,12 +32,12 @@ inputs:
     default: "usr/bin/cgft"
   cgfdirectory:
     type: Directory
-    label: Directory for compact genome format files
+    label: Directory for compact genome format (cgf) files
     inputBinding:
       position: 3
   band2matrix:
     type: File?
-    label: Convert band information into a Lightning tile NumPy array.
+    label: Tool to convert band information into a Lightning tile NumPy array
     inputBinding:
       position: 4
     default:
@@ -53,7 +53,7 @@ inputs:
       location: ../../src/buildArvados/dest/npy-vec-to-hiq-1hot
   makelist:
     type: File?
-    label: Save the names of the datasets as a NumPy array
+    label: Tool for saving dataset names
     inputBinding:
       position: 6
     default:

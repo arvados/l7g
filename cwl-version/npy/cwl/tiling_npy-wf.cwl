@@ -17,7 +17,7 @@ inputs:
     label: Master script for creating the NumPy arrays
   bashscriptmain_consol:
     type: File?
-    label: Script to consolidate tile path NumPy arrays into a single NumPy matrix
+    label: Script to consolidate tile path arrays into a single NumPy matrix
   cgft:
     type: ["null", "File", "string"]
     label: Compact genome format tool
@@ -32,7 +32,7 @@ inputs:
     label: Tool to create numpy files for high quality tiles
   makelist:
     type: File?
-    label: Used for saving the names of the datasets as a NumPy array
+    label: Tool for saving dataset names
   nthreads:
     type: string?
     label: Number of threads to use

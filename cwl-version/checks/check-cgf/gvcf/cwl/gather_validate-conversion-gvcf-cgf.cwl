@@ -1,15 +1,15 @@
 class: ExpressionTool
 cwlVersion: v1.0
-label: Collect list of validated cgf, files return JSON bundle
+label: Collect list cgf to be validated with tile library
 requirements:
   InlineJavascriptRequirement: {}
 
 inputs:
   infiles: File[]
-  label: List of input files to be processed
+  label: List of cgf files to be validated
 outputs:
   out: Directory
-  label: Output Directory
+  label: Directory of validated cgf files
 expression: |
   ${
     var gathered_dirs = { "class" : "Directory", "basename": "output", "listing" : [] };

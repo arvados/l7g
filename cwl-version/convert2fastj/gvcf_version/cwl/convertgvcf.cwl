@@ -92,7 +92,7 @@ inputs:
       position: 15
   refstream:
     type: File
-    label: Tool to steam from FASTA file
+    label: Tool to stream from FASTA file
     inputBinding:
       position: 16
   tile_assembly:
@@ -103,11 +103,11 @@ inputs:
 outputs:
   out1:
     type: Directory
-    label: Output where FastJ are deposited        
+    label: Directories of Fastjs
     outputBinding:
       glob: "stage/*"
   out2:
     type: File[]
-    label: Output where compressed gVCF are deposited
+    label: Indexed and zipped gVCFs
     outputBinding:
       glob: "indexed/*.gz*"

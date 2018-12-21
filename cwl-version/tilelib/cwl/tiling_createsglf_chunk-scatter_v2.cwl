@@ -27,7 +27,7 @@ inputs:
     label: Number of chunks to scatter
   bashscript:
     type: File
-    label: Script that iterates over the FastJ to create paths
+    label: Master script to create tile library (SGLF)
   fjcsv2sglf:
     type: File
     label: Tool to create tile library

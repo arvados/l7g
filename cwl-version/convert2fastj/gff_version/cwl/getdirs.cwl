@@ -8,7 +8,7 @@ inputs:
 outputs:
   out1:
     type: File[]
-    label: Array of locations of gffs
+    label: Array of gffs
 requirements:
   InlineJavascriptRequirement: {}
 expression: |

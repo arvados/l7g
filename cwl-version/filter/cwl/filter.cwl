@@ -3,6 +3,7 @@ $namespaces:
   cwltool: "http://commonwl.org/cwltool#"
 cwlVersion: v1.0
 class: CommandLineTool
+label: Filters gVCFs by a specified quality cutoff
 requirements:
   - class: DockerRequirement
     dockerPull: javatools

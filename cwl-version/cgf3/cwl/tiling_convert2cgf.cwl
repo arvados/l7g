@@ -25,7 +25,7 @@ inputs:
     label: Script to convert FastJ to cgf using SGLF library
   cgft:
     type: File
-    label: Compact genome format tool, for manipulating and inspecting cgf files
+    label: Tool to manipulate and inspect cgf files
   fjt:
     type: File
     label: Tool to manipulate FastJ (text) files.

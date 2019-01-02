@@ -1,6 +1,6 @@
 class: ExpressionTool
 cwlVersion: v1.0
-label: Collect list cgf to be validated with tile library
+label: Create list of cgf to be validated with tile library
 requirements:
   InlineJavascriptRequirement: {}
 

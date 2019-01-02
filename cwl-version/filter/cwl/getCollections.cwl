@@ -20,7 +20,7 @@ inputs:
       inputBinding:
         loadContents: true
   datafilepdh:
-    label: Files containing list portable data hashes (pdh)
+    label: Files containing list of portable data hashes (pdh)
     type:
       type: array
       items: File

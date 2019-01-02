@@ -52,7 +52,7 @@ inputs:
 
   tileassembly:
     type: File
-    label: Location of tile assembly files
+    label: Location of tile assembly file
     inputBinding:
       position: 6
     secondaryFiles:

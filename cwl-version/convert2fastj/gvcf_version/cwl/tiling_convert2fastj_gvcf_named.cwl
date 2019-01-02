@@ -22,7 +22,7 @@ refdirectory
   label: Input Directory
 bashscript
   type: File
-  label: Master bash script that controls converting FASTJ to gVCFs
+  label: Master script to create a FastJ for each gVCF
 ref
   type: string
   label: Reference genome
@@ -55,16 +55,16 @@ tagdir
   label: Compressed tagset in FASTA format
 l7g
   type: File
-  label: Underlying Go application
+  label: Lightning application for parsing and searching assembly files
 pasta
   type: File
-  label: Go tool for steaming and converting variant call formats
+  label: Tool for streaming and converting variant call formats 
 refstream
   type: File
-  label: Wrapper around 'samtools faidx' to get a stream out of a FASTA file
+  label: Tool to stream from FASTA file
 tile_assembly
   type: File
-  label: Compiled C++ to extract information from the Tile Assembly files
+  label: Tool to extract information from the tile assembly files
 
 outputs:
   out1:

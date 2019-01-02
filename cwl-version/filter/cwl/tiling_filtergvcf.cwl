@@ -22,10 +22,10 @@ hints:
 inputs:
   datafilenames:
     type: File[]
-    label: Files containing array of input gVCF files
+    label: Files containing list of input gVCF files 
   datafilepdh:
     type: File[]
-    label: Files containing array of portable data hashes (pdh)
+    label: Files containing list of portable data hashes (pdh)
   bashscript:
     type: File
     label: Master script to control filtering

@@ -21,7 +21,7 @@ inputs:
     label: Path to start at in the tile library
   pathmax:
     type: string
-    label: Last/Maximum tile in library
+    label: Last/Maximum tile in library path
   nchunks:
     type: string
     label: Number of chunks to scatter

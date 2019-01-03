@@ -6,7 +6,6 @@ class: CommandLineTool
 requirements:
   - class: DockerRequirement
     dockerPull: arvados/l7g 
-  - class: InlineJavascriptRequirement
   - class: ResourceRequirement
     ramMin: 100000 
     coresMin: 16
@@ -16,47 +15,43 @@ hints:
 baseCommand: bash
 inputs:
   bashscriptmain:
-    type: File?
-    inputBinding:
-      position: 1
+    type: File
     default:
       class: File
       location: ../../src/create-npyCWL.sh
+    inputBinding:
+      position: 1
   cgft:
-    type: ["null",File,string]
+    type: [File,string]
+    default: "/usr/local/bin/cgft"
     inputBinding:
       position: 2
-    default: "usr/bin/cgft"
   cgfdirectory:
     type: Directory
     inputBinding:
       position: 3
   band2matrix:
-    type: File?
+    type: [File,string]
+    default: "/usr/local/bin/band-to-matrix-npy"
     inputBinding:
-      position: 4 
-    default:
-      class: File
-      location: ../../src/buildArvados/dest/band-to-matrix-npy
+      position: 4
   cnvrt2hiq:
-    type: File?
+    type: [File,string]
+    default: "/usr/local/bin/npy-vec-to-hiq-1hot"
     inputBinding:
       position: 5
-    default:
-      class: File
-      location: ../../src/buildArvados/dest/npy-vec-to-hiq-1hot
   makelist:
-    type: File?
-    inputBinding:
-      position: 6
+    type: File
     default: 
       class: File
       location: ../../src/create-list
+    inputBinding:
+      position: 6
   nthreads:
-    type: string?
+    type: string
+    default: "16"
     inputBinding:
       position: 7
-    default: "16"
 outputs:
   out1:
     type: Directory

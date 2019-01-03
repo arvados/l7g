@@ -6,7 +6,6 @@ class: CommandLineTool
 requirements:
   - class: DockerRequirement
     dockerPull: arvados/l7g
-  - class: InlineJavascriptRequirement
   - class: ResourceRequirement
     ramMin: 100000
     coresMin: 16
@@ -16,33 +15,31 @@ hints:
 baseCommand: bash
 inputs:
   bashscriptmain:
-    type: File?
-    inputBinding:
-      position: 1
+    type: File
     default:
       class: File
-      location: ../../src/allconsolCWL.sh 
+      location: ../../src/allconsolCWL.sh
+    inputBinding:
+      position: 1
   indir:
-    type: Directory 
+    type: Directory
     inputBinding:
       position: 2
   outdir:
-    type: string? 
+    type: string
+    default: "outdir"
     inputBinding:
       position: 3
-    default: "outdir"
   outprefix:
-    type: string? 
+    type: string
+    default: "all"
     inputBinding:
       position: 4
-    default: "all" 
   npyconsolfile:
-    type: File?
+    type: [File,string]
+    default: "/usr/local/bin/npy-consolidate"
     inputBinding:
       position: 5
-    default:
-      class: File
-      location: ../../src/buildArvados/dest/npy-consolidate
 outputs:
   out1:
     type: Directory

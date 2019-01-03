@@ -10,7 +10,7 @@ hints:
 inputs:
   refdirectory:
     type: Directory
-    label: Location of gVCFs to clean
+    label: Input directory of gVCFs
 outputs:
   out1:
     type: Directory[]

@@ -13,14 +13,14 @@ hints:
 
 inputs:
   datafilenames:
-    label: Files containing list of input gVCF files
+    label: Files listing input gVCFs
     type:
       type: array
       items: File
       inputBinding:
         loadContents: true
   datafilepdh:
-    label: Files containing list of portable data hashes (pdh)
+    label: Files listing input portable data hashes
     type:
       type: array
       items: File

@@ -10,14 +10,14 @@ hints:
 inputs:
   refdirectory:
     type: Directory
-    label: Path with compressed gVCF files
+    label: Directory of Input gVCFs
 outputs:
   out1:
     type: Directory[]
     label: Array of gVCF directories
   out2:
     type: string[]
-    label: List of gVCF directories 
+    label: Array of Basenames for gVCF Directories 
 
 requirements:
   InlineJavascriptRequirement: {}

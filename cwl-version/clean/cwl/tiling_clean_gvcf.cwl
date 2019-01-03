@@ -19,13 +19,13 @@ hints:
 inputs:
   refdirectory:
     type: Directory
-    label: Location of gVCFs to clean
+    label: Input directory of gVCFs
   bashscript:
     type: File
     label: Master script to control cleaning
   cleanvcf:
     type: File
-    label: Tool to do gVCF cleaning
+    label: Tool to clean gVCFs
 
 outputs:
   out1:

@@ -22,10 +22,10 @@ hints:
 inputs:
   datafilenames:
     type: File[]
-    label: Files containing list of input gVCF files 
+    label: Files listing input gVCFs
   datafilepdh:
     type: File[]
-    label: Files containing list of portable data hashes (pdh)
+    label: Files listing input portable data hashes
   bashscript:
     type: File
     label: Master script to control filtering
@@ -39,7 +39,7 @@ outputs:
   out1:
     type: Directory[]
     outputSource: step2/out1
-    label: Filtered gVCF output directory
+    label: Directory of Filtered gVCFs
 
 steps:
   step1:

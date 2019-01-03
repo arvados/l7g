@@ -32,7 +32,7 @@ inputs:
       position: 3
   cleanvcf:
     type: File
-    label: Tool to do gVCF cleaning
+    label: Tool to clean gVCFs
     inputBinding:
       position: 4
 outputs:

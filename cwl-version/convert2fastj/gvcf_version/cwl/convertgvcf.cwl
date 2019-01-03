@@ -22,7 +22,7 @@ inputs:
       position: 1
   gffDir:
     type: Directory
-    label: Path with compressed gVCF files
+    label: Directory of Input gVCFs
     inputBinding:
       position: 2
   gffPrefix:
@@ -103,7 +103,7 @@ inputs:
 outputs:
   out1:
     type: Directory
-    label: Directories of Fastjs
+    label: Directories of FastJs
     outputBinding:
       glob: "stage/*"
   out2:

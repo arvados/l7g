@@ -27,12 +27,12 @@ inputs:
       position: 1
   tilepathmin:
     type: string
-    label: Path to start at in the tile library
+    label: Starting Path in the Tile Library
     inputBinding:
       position: 2
   tilepathmax:
     type: string
-    label: Last/Maximum tile in the library path
+    label: Last/Maximum Path in the Tile Library
     inputBinding:
       position: 3
   fjcsv2sglf:
@@ -47,7 +47,7 @@ inputs:
       position: 5
   fjt:
     type: File
-    label: Tool to manipulate FastJ (text) files
+    label: Tool to manipulate FastJ files
     inputBinding:
       position: 6
   tagset:
@@ -59,6 +59,6 @@ inputs:
 outputs:
   out1:
     type: File[]
-    label: Output for inclusion in tile library (SGLF)
+    label: Output SGLF files
     outputBinding:
       glob: "lib/*sglf.gz*"

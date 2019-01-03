@@ -18,10 +18,10 @@ hints:
 inputs:
   pathmin:
     type: string
-    label: Path to start at in the tile library
+    label: Starting Path in the Tile Library
   pathmax:
     type: string
-    label: Last/Maximum tile in the library path
+    label: Last/Maximum Path in the Tile Library
   nchunks:
     type: string
     label: Number of chunks to scatter
@@ -36,7 +36,7 @@ inputs:
     label: Directory of FastJ files
   fjt:
     type: File
-    label: Tool to manipulate FastJ (text) files
+    label: Tool to manipulate FastJ files
   tagset:
     type: File
     label: Compressed tagset in FASTA format

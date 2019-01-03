@@ -22,7 +22,7 @@ hints:
 inputs:
   refdirectory:
     type: Directory
-    label: Path with compressed gVCF files
+    label: Directory of Input gVCFs
   bashscript:
     type: File
     label: Master script to create a FastJ for each gVCF
@@ -73,7 +73,7 @@ outputs:
   out1:
     type: Directory[]
     outputSource: step2/out1
-    label: Directories of Fastjs
+    label: Directories of FastJs
   out2:
     type:
       type: array

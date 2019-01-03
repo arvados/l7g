@@ -28,7 +28,7 @@ inputs:
       position: 2
   gffPrefix:
     type: string
-    label: Prefix of all gVCF files
+    label: Prefix for gVCF files
     inputBinding:
       position: 3
   filter_gvcf:
@@ -44,6 +44,6 @@ inputs:
 outputs:
   out1:
     type: Directory
-    label: Filtered gVCF output directory
+    label: Directory of Filtered gVCFs
     outputBinding:
       glob: "filtered/*"

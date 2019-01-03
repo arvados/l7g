@@ -3,10 +3,10 @@ cwlVersion: v1.0
 inputs:
   pathmin:
     type: string
-    label: Path to start at in the tile library
+    label: Starting Path in the Tile Library
   pathmax:
     type: string
-    label: Last/Maximum tile in the library path
+    label: Last/Maximum Path in the Tile Library
   nchunks:
     type:  string
     label: Number of chunks to scatter

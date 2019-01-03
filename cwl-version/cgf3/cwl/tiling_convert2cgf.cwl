@@ -5,7 +5,7 @@ cwlVersion: v1.0
 class: Workflow
 label: Creates a cgf for each FastJ file
 doc: |
-    Takes in FastJ files and creates compact genome representations of them for the tile library.
+    Takes in FastJ files and creates compact genome representations of them for the tile library
 requirements:
   - class: DockerRequirement
     dockerPull: javatoolsparallel
@@ -28,7 +28,7 @@ inputs:
     label: Tool to manipulate and inspect cgf files
   fjt:
     type: File
-    label: Tool to manipulate FastJ (text) files.
+    label: Tool to manipulate FastJ (text) files
   cglf:
     type: Directory
     label: Tile library location

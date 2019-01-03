@@ -18,7 +18,7 @@ baseCommand: bash
 inputs:
   bashscriptmain:
     type: File?
-    label: Script to consolidate tile path NumPy arrays into a single NumPy matrix
+    label: Script to consolidate tile path arrays into a single NumPy matrix
     inputBinding:
       position: 1
     default:

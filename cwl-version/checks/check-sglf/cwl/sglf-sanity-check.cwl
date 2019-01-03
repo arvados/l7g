@@ -17,9 +17,9 @@ baseCommand: bash
 inputs:
   script:
     type: File
+    label: Master workflow script
     inputBinding:
       position: 1
-    label: Master workflow script
   sglfDir:
     type: Directory
     label: Tile library directory

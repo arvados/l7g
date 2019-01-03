@@ -10,7 +10,7 @@ hints:
 inputs:
   refdirectory:
     type: Directory
-    label: Location of gVCFs to convert
+    label: Path with compressed gVCF files
 outputs:
   out1:
     type: Directory[]

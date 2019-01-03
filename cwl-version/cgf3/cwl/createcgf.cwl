@@ -3,7 +3,7 @@ $namespaces:
   cwltool: "http://commonwl.org/cwltool#"
 cwlVersion: v1.0
 class: CommandLineTool
-label: Process and create cgf files from FastJ files.
+label: Process and create cgf files from FastJ files
 requirements:
   - class: DockerRequirement
     dockerPull: javatools
@@ -25,7 +25,7 @@ inputs:
       position: 1
   fjdir:
     type: Directory
-    label: FastJ directory
+    label: Input directory of FastJs
     inputBinding:
       position: 2
   cgft:
@@ -35,7 +35,7 @@ inputs:
       position: 3
   fjt:
     type: File
-    label: Tool to manipulate FastJ (text) files.
+    label: Tool to manipulate FastJ (text) files
     inputBinding:
       position: 4
   cglf:
@@ -46,5 +46,6 @@ inputs:
 outputs:
   out1:
     type: File
+    label: cgf created from FastJ
     outputBinding:
       glob: "data/*.cgf"

@@ -10,7 +10,7 @@ hints:
 inputs:
   refdirectory:
     type: Directory
-    label: Directory of files to be analyzed
+    label: Input directory of FastJs
 outputs:
   out1:
     type: Directory[]

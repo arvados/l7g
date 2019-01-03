@@ -22,7 +22,7 @@ hints:
 inputs:
   refdirectory:
     type: Directory
-    label: Input directory
+    label: Path with compressed gVCF files
   bashscript:
     type: File
     label: Master script to create a FastJ for each gVCF

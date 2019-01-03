@@ -32,7 +32,7 @@ inputs:
       position: 2
   tilepathmax:
     type: string
-    label: Last/Maximum tile library path
+    label: Last/Maximum tile in the library path
     inputBinding:
       position: 3
   fjcsv2sglf:

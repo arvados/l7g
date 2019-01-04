@@ -27,12 +27,12 @@ inputs:
       position: 1
   tilepathmin:
     type: string
-    label: Starting Path in the Tile Library
+    label: Starting path in the tile library
     inputBinding:
       position: 2
   tilepathmax:
     type: string
-    label: Last/Maximum Path in the Tile Library
+    label: Last/Maximum path in the tile library
     inputBinding:
       position: 3
   fjcsv2sglf:

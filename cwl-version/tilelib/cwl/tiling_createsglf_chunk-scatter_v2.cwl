@@ -18,10 +18,10 @@ hints:
 inputs:
   pathmin:
     type: string
-    label: Starting Path in the Tile Library
+    label: Starting path in the tile library
   pathmax:
     type: string
-    label: Last/Maximum Path in the Tile Library
+    label: Last/Maximum path in the tile library
   nchunks:
     type: string
     label: Number of chunks to scatter

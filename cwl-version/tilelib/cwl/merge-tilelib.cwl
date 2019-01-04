@@ -3,7 +3,7 @@ $namespaces:
   cwltool: "http://commonwl.org/cwltool#"
 cwlVersion: v1.0
 class: CommandLineTool
-label: Merge all of the tile libraries (SGLFs)
+label: Merges new tile library into existing tile library
 requirements:
   - class: DockerRequirement
     dockerPull: javatools-parallel
@@ -30,7 +30,7 @@ inputs:
       position: 2
   nppdir:
     type: Directory
-    label: Directory of new SGLF files for addition to tile library
+    label: Directory of new SGLF files
     inputBinding:
       position: 3
   nthreads:
@@ -47,6 +47,6 @@ inputs:
 outputs:
   out1:
     type: Directory
-    label: Directory of merged compressed tile library
+    label: Directory of merged tile library
     outputBinding:
       glob: "*merge*"

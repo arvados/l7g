@@ -44,6 +44,6 @@ inputs:
 outputs:
   out1:
     type: Directory
-    label: Directory of Filtered gVCFs
+    label: Directory of filtered gVCFs
     outputBinding:
       glob: "filtered/*"

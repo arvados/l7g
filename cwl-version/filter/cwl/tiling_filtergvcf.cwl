@@ -39,7 +39,7 @@ outputs:
   out1:
     type: Directory[]
     outputSource: step2/out1
-    label: Directory of Filtered gVCFs
+    label: Directory of filtered gVCFs
 
 steps:
   step1:

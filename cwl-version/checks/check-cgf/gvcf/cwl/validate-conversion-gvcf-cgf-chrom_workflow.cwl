@@ -1,6 +1,6 @@
 cwlVersion: v1.0
 class: Workflow
-label: Workflow to Validate the the gVCF to cgf iconversion with the tile library
+label: Workflow to Validate the the gVCF to cgf conversion with the tile library
 requirements:
   ScatterFeatureRequirement: {}
   InlineJavascriptRequirement: {}

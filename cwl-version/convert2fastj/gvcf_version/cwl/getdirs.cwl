@@ -17,7 +17,7 @@ outputs:
     label: Array of gVCF directories
   out2:
     type: string[]
-    label: Array of Basenames for gVCF Directories 
+    label: Array of basenames for gVCF directories 
 
 requirements:
   InlineJavascriptRequirement: {}

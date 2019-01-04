@@ -22,7 +22,7 @@ inputs:
       position: 1
   gffDir:
     type: Directory
-    label: Directory of Input gVCFs
+    label: Directory of input gVCFs
     inputBinding:
       position: 2
   gffPrefix:

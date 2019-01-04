@@ -22,7 +22,7 @@ hints:
 inputs:
   refdirectory:
     type: Directory
-    label: Directory of Input gVCFs
+    label: Directory of input gVCFs
   bashscript:
     type: File
     label: Master script to create a FastJ for each gVCF

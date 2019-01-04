@@ -3,7 +3,7 @@ w $namespaces:
   cwltool: "http://commonwl.org/cwltool#"
 cwlVersion: v1.0
 class: Workflow
-label: Create NumPy arrays from cgf, merge all NumPy arrays into one array by tile path
+label: Create NumPy arrays by tile path from cgfs, merge all NumPy arrays into single array
 requirements:
   - class: DockerRequirement
     dockerPull: arvados/l7g
@@ -23,13 +23,13 @@ inputs:
     label: Compact genome format tool
   cgfdirectory:
     type: Directory
-    label: Directory for compact genome format (cgf) files
+    label: Directory of compact genome format files
   band2matrix:
     type: File?
-    label: Tool to convert band information into a Lightning tile NumPy array
+    label: Tool to convert band (path) information into NumPy array
   cnvrt2hiq:
     type: File?
-    label: Tool to create numpy files for high quality tiles
+    label: Tool to create NumPy files for high quality arrays
   makelist:
     type: File?
     label: Tool for saving dataset names
@@ -41,7 +41,7 @@ inputs:
     label: Name of output directory
   outprefix:
     type: string?
-    label: Prefix to prepend to consolidated NumPy arrays
+    label: Prefix for consolidated arrays
   npyconsolfile:
     type: File?
     label: Program to consolidated NumPy arrays

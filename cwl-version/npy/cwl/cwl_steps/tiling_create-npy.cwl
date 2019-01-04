@@ -3,7 +3,7 @@ $namespaces:
   cwltool: "http://commonwl.org/cwltool#"
 cwlVersion: v1.0
 class: CommandLineTool
-label: Create NumPy vectors based on tile library paths
+label: Create NumPy vectors from cgfs by tile path
 requirements:
   - class: DockerRequirement
     dockerPull: arvados/l7g
@@ -32,12 +32,12 @@ inputs:
     default: "usr/bin/cgft"
   cgfdirectory:
     type: Directory
-    label: Directory for compact genome format (cgf) files
+    label: Directory of compact genome format files
     inputBinding:
       position: 3
   band2matrix:
     type: File?
-    label: Tool to convert band information into a Lightning tile NumPy array
+    label: Tool to convert band (path) information into NumPy array
     inputBinding:
       position: 4
     default:
@@ -45,7 +45,7 @@ inputs:
       location: ../../src/buildArvados/dest/band-to-matrix-npy
   cnvrt2hiq:
     type: File?
-    label: Tool to create numpy files for high quality tiles
+    label: Tool to create NumPy files for high quality arrays
     inputBinding:
       position: 5
     default:
@@ -68,11 +68,11 @@ inputs:
 outputs:
   out1:
     type: Directory
-    label: Directory for NumPy arrays
+    label: Directory of NumPy arrays
     outputBinding:
       glob: "npy"
   out2:
     type: Directory
-    label: Directory for high quality NumPy arrays
+    label: Directory of high quality NumPy arrays
     outputBinding:
       glob: "npy-hiq"

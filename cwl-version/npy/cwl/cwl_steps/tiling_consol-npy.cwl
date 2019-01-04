@@ -3,7 +3,7 @@ $namespaces:
   cwltool: "http://commonwl.org/cwltool#"
 cwlVersion: v1.0
 class: CommandLineTool
-label: Consolidate multiple NumPy arrays into one large array
+label: Consolidates multiple NumPy arrays into one large array
 requirements:
   - class: DockerRequirement
     dockerPull: arvados/l7g
@@ -18,7 +18,7 @@ baseCommand: bash
 inputs:
   bashscriptmain:
     type: File?
-    label: Script to consolidate tile path arrays into a single NumPy matrix
+    label: Master script to consolidate tile path NumPy arrays
     inputBinding:
       position: 1
     default:
@@ -37,7 +37,7 @@ inputs:
     default: "outdir"
   outprefix:
     type: string?
-    label: Prefix to prepend to consolidated NumPy arrays
+    label: Prefix for consolidated arrays
     inputBinding:
       position: 4
     default: "all"
@@ -52,6 +52,6 @@ inputs:
 outputs:
   out1:
     type: Directory
-    label: Output consolidated NumPy arrays
+    label: Consolidated NumPy arrays
     outputBinding:
       glob: $(inputs.outdir)

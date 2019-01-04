@@ -1,6 +1,6 @@
 cwlVersion: v1.0
 class: CommandLineTool
-label: Check tile library (SGLFs) for correct formatting and spurious characters
+label: Check tile library for correct formatting and spurious characters
 $namespaces:
   arv: "http://arvados.org/cwl#"
 requirements:
@@ -17,7 +17,7 @@ baseCommand: bash
 inputs:
   script:
     type: File
-    label: Master workflow script
+    label: Master script to run validation
     inputBinding:
       position: 1
   sglfDir:
@@ -34,6 +34,6 @@ inputs:
 outputs:
   result:
     type: Directory
-    label: Output correctly formatted tile library
+    label: Directory of sglf validation logs
     outputBinding:
       glob: "."

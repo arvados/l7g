@@ -15,13 +15,13 @@ baseCommand: bash
 inputs:
   script:
     type: File
-    label: Script that runs the workflow
+    label: Master script to run validation
     inputBinding:
       position: 1
 
   cgfDir:
     type: Directory
-    label: Compact genome format (cgf) directory
+    label: Compact genome format directory
     inputBinding:
       position: 2
     secondaryFiles:
@@ -89,6 +89,6 @@ inputs:
 outputs:
   result:
     type: File
-    label: Results of checks
+    label: Validation logs
     outputBinding:
       glob: "*output.log"

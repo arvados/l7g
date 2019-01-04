@@ -1,6 +1,6 @@
 cwlVersion: v1.0
 class: Workflow
-label: Workflow to Validate the the gVCF to cgf conversion with the tile library
+label: Workflow to validate the the gVCF to cgf conversion with the tile library
 requirements:
   ScatterFeatureRequirement: {}
   InlineJavascriptRequirement: {}
@@ -9,10 +9,10 @@ requirements:
 inputs:
   script:
     type: File
-    label: Script that runs the workflow
+    label: Master script to run validation
   cgfDir:
     type: Directory
-    label: Compact genome format (cgf) directory
+    label: Compact genome format directory
   sglfDir:
     type: Directory
     label: Tile library directory
@@ -39,7 +39,7 @@ outputs:
   result:
     type: Directory
     outputSource: gather/out
-    label: Directory of validated cgf files
+    label: Directory of cgf validation logs
 
 steps:
   cgf_gvcf_check:

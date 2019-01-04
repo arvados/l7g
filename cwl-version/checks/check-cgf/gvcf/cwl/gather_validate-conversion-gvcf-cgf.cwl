@@ -1,15 +1,15 @@
 class: ExpressionTool
 cwlVersion: v1.0
-label: Create list of cgf to be validated with tile library
+label: Collect all output logs from validate step in one directory
 requirements:
   InlineJavascriptRequirement: {}
 
 inputs:
   infiles: File[]
-  label: List of cgf files to be validated
+  label: Output logs from the cgf validate step
 outputs:
   out: Directory
-  label: Directory of validated cgf files
+  label: Directory of cgf validation logs
 expression: |
   ${
     var gathered_dirs = { "class" : "Directory", "basename": "output", "listing" : [] };

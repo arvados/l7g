@@ -20,7 +20,7 @@ baseCommand: bash
 inputs:
   bashscript:
     type: File
-    label: Script to convert FastJ to cgf using SGLF library
+    label: Master script to convert FastJs to cgfs
     inputBinding:
       position: 1
   fjdir:
@@ -35,7 +35,7 @@ inputs:
       position: 3
   fjt:
     type: File
-    label: Tool to manipulate FastJ (text) files
+    label: Tool to manipulate FastJ files
     inputBinding:
       position: 4
   cglf:
@@ -46,6 +46,6 @@ inputs:
 outputs:
   out1:
     type: File
-    label: cgf created from FastJ
+    label: Output cgfs
     outputBinding:
       glob: "data/*.cgf"

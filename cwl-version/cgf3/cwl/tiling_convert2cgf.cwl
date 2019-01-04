@@ -4,8 +4,6 @@ $namespaces:
 cwlVersion: v1.0
 class: Workflow
 label: Creates a cgf for each FastJ file
-doc: |
-    Takes in FastJ files and creates compact genome representations of them for the tile library
 requirements:
   - class: DockerRequirement
     dockerPull: javatoolsparallel
@@ -22,13 +20,13 @@ inputs:
     label: Input directory of FastJs
   bashscript:
     type: File
-    label: Script to convert FastJ to cgf using SGLF library
+    label: Master script to convert FastJs to cgfs
   cgft:
     type: File
     label: Tool to manipulate and inspect cgf files
   fjt:
     type: File
-    label: Tool to manipulate FastJ (text) files
+    label: Tool to manipulate FastJ files
   cglf:
     type: Directory
     label: Tile library location
@@ -37,7 +35,7 @@ outputs:
   out1:
     type: File[]
     outputSource: step2/out1
-    label: cgf created from FastJ
+    label: Output cgfs
 steps:
   step1:
     run: getdirs.cwl

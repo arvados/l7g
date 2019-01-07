@@ -17,7 +17,7 @@ baseCommand: bash
 inputs:
   script:
     type: File
-    label: Master script to run validation
+    label: Master script to run tile library check
     inputBinding:
       position: 1
   sglfDir:
@@ -34,6 +34,6 @@ inputs:
 outputs:
   result:
     type: Directory
-    label: Directory of sglf validation logs
+    label: Directory of check logs
     outputBinding:
       glob: "."

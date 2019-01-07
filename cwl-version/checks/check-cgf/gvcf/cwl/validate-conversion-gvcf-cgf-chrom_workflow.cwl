@@ -1,6 +1,6 @@
 cwlVersion: v1.0
 class: Workflow
-label: Workflow to validate the the gVCF to cgf conversion with the tile library
+label: Workflow to validate the the gVCF to cgf conversion
 requirements:
   ScatterFeatureRequirement: {}
   InlineJavascriptRequirement: {}
@@ -24,10 +24,10 @@ inputs:
     label: Chromosomes to analyze
   tileassembly:
     type: File
-    label: Location of tile assembly file
+    label: Reference tile assembly file
   refFaFn:
     type: File
-    label: Reference FASTA File
+    label: Reference FASTA file
   gvcfPrefixes:
     type: string[]
     label: Prefixes of gVCFs

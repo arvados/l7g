@@ -1,6 +1,6 @@
 cwlVersion: v1.0
 class: CommandLineTool
-label: Validate the conversion of the gVCF to cgf with the tile library
+label: Validate the conversion of the gVCF to cgf
 requirements:
   - class: DockerRequirement
     dockerPull: arvados/l7g
@@ -52,7 +52,7 @@ inputs:
 
   tileassembly:
     type: File
-    label: Location of tile assembly file
+    label: Reference tile assembly file
     inputBinding:
       position: 6
     secondaryFiles:
@@ -61,7 +61,7 @@ inputs:
 
   refFaFn:
     type: File
-    label: Reference FASTA File
+    label: Reference FASTA file
     inputBinding:
       position: 7
     secondaryFiles:

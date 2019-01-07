@@ -19,7 +19,6 @@ hints:
 inputs:
   refdirectory: Directory
   datafilenames: File
-  bashscript: File
   ref: string 
   reffa: File
   afn: File
@@ -30,18 +29,6 @@ inputs:
   aidxM: File
   seqidM: string
   tagdir: File
-  l7g:
-    type: [File,string]
-    default: "/usr/local/bin/l7g"
-  pasta:
-    type: [File,string]
-    default: "/usr/local/bin/pasta"
-  refstream:
-    type: [File,string]
-    default: "/usr/local/bin/refstream"
-  tile_assembly:
-    type: [File,string]
-    default: "/usr/local/bin/tile-assembly"
 
 outputs:
   out1:
@@ -60,14 +47,13 @@ steps:
     run: getdirs_testset.cwl
     in: 
       datafilenames: datafilenames
-      refdirectory: refdirectory 
+      refdirectory: refdirectory
     out: [out1,out2]
 
   step2:
-    scatter: [gffDir,gffPrefix] 
+    scatter: [gffDir,gffPrefix]
     scatterMethod: dotproduct
-    in: 
-      bashscript: bashscript
+    in:
       gffDir: step1/out1
       gffPrefix: step1/out2
       ref: ref
@@ -80,9 +66,5 @@ steps:
       aidxM: aidxM
       seqidM: seqidM
       tagdir: tagdir
-      l7g: l7g
-      pasta: pasta
-      refstream: refstream 
-      tile_assembly: tile_assembly
     run: convertgvcf.cwl
     out: [out1,out2]

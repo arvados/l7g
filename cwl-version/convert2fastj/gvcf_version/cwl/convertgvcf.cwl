@@ -7,8 +7,8 @@ requirements:
   - class: DockerRequirement
     dockerPull: arvados/l7g
   - class: ResourceRequirement
-    coresMin: 2 
-    coresMax: 2 
+    coresMin: 2
+    coresMax: 2
     ramMin: 13000
 hints:
   arv:RuntimeConstraints:
@@ -17,6 +17,9 @@ baseCommand: bash
 inputs:
   bashscript:
     type: File
+    default:
+      class: File
+      location: ../src/convert2fastjCWL
     inputBinding:
       position: 1
   gffDir: 
@@ -68,22 +71,22 @@ inputs:
     inputBinding:
       position: 13
   l7g:
-    type: [File,string]
+    type: string
     default: "/usr/local/bin/l7g"
     inputBinding:
       position: 14
   pasta:
-    type: [File,string]
+    type: string
     default: "/usr/local/bin/pasta"
     inputBinding:
       position: 15
   refstream:
-    type: [File,string]
+    type: string
     default: "/usr/local/bin/refstream"
     inputBinding:
       position: 16
   tile_assembly:
-    type: [File,string]
+    type: string
     default: "/usr/local/bin/tile-assembly"
     inputBinding:
       position: 17

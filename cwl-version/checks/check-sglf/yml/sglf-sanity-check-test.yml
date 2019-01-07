@@ -1,7 +1,3 @@
-script:
-  class: File
-  path: ../src/sglf-sanity-check 
-
 sglfDir:
   class: Directory
   path: keep:c5583087a866b1ef2cce5d1f477f2c99+34173

@@ -35,8 +35,7 @@ expression: |
               samples.push(name);
               samplenames.push(basename);
       }
-     } 
+     }
     }
     return {"out1": samples,"out2": samplenames};
   }
-

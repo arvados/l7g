@@ -17,6 +17,9 @@ baseCommand: bash
 inputs:
   bashscript:
     type: File
+    default:
+      class: File
+      location: ../src/cleanCWL.sh
     inputBinding:
       position: 1
   gvcfDir:
@@ -28,7 +31,7 @@ inputs:
     inputBinding:
       position: 3
   cleanvcf:
-    type: [File,string]
+    type: string
     default: "/usr/local/bin/cleanvcf"
     inputBinding:
       position: 4

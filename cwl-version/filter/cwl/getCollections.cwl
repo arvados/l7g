@@ -41,7 +41,7 @@ expression: |
       var nblines1=names.length;
       for (var j = 0; j < nblines1-1; j++) {
        var nn=names[j];
-       fileprefix.push(nn);  
+       fileprefix.push(nn);
        }
       }
 

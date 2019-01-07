@@ -14,6 +14,9 @@ baseCommand: bash
 inputs:
   script:
     type: File
+    default:
+      class: File
+      location: ../src/sglf-sanity-check
     inputBinding:
       position: 1
   sglfDir:

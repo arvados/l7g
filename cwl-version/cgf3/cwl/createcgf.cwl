@@ -18,6 +18,9 @@ baseCommand: bash
 inputs:
   bashscript:
     type: File
+    default:
+      class: File
+      location: ../src/convertcgfCWL-empty-problem-tilepaths3.sh
     inputBinding:
       position: 1
   fjdir:
@@ -25,12 +28,12 @@ inputs:
     inputBinding:
       position: 2
   cgft:
-    type: [File,string]
+    type: string
     default: "/usr/local/bin/cgft"
     inputBinding:
       position: 3
   fjt:
-    type: [File,string]
+    type: string
     default: "/usr/local/bin/fjt"
     inputBinding:
       position: 4

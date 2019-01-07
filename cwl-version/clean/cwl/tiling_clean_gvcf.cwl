@@ -18,10 +18,6 @@ hints:
 
 inputs:
   refdirectory: Directory
-  bashscript: File
-  cleanvcf:
-    type: [File,string]
-    default: "/usr/local/bin/cleanvcf"
 
 outputs:
   out1:
@@ -39,9 +35,7 @@ steps:
     scatter: [gvcfDir,gvcfPrefix]
     scatterMethod: dotproduct
     in:
-      bashscript: bashscript
       gvcfDir: step1/out1
       gvcfPrefix: step1/out2
-      cleanvcf: cleanvcf
     run: cleangvcf.cwl
     out: [out1]

@@ -18,6 +18,9 @@ baseCommand: bash
 inputs:
   bashscriptmain:
     type: File
+    default:
+      class: File
+      location: ../src/merge-tilelibCWL.sh
     inputBinding:
       position: 1
   srcdir:
@@ -33,7 +36,7 @@ inputs:
     inputBinding:
       position: 4
   mergetilelib:
-    type: [File,string]
+    type: string
     default: "/usr/local/bin/merge-sglf"
     inputBinding:
       position: 5

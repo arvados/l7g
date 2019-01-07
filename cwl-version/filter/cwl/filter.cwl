@@ -17,6 +17,9 @@ baseCommand: bash
 inputs:
   bashscript:
     type: File
+    default:
+      class: File
+      location: ../src/filterCWL.sh
     inputBinding:
       position: 1
   gffDir:
@@ -29,6 +32,9 @@ inputs:
       position: 3
   filter_gvcf: 
     type: File
+    default:
+      class: File
+      location: ../src/filter-gvcf
     inputBinding:
       position: 4
   cutoff:

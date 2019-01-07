@@ -18,30 +18,46 @@ inputs:
     type: File
     default:
       class: File
-      location: ../../src/allconsolCWL.sh
+      location: ../src/create-npyCWL.sh
     inputBinding:
       position: 1
-  indir:
-    type: Directory
+  cgft:
+    type: string
+    default: "/usr/local/bin/cgft"
     inputBinding:
       position: 2
-  outdir:
-    type: string
-    default: "outdir"
+  cgfdirectory:
+    type: Directory
     inputBinding:
       position: 3
-  outprefix:
+  band2matrix:
     type: string
-    default: "all"
+    default: "/usr/local/bin/band-to-matrix-npy"
     inputBinding:
       position: 4
-  npyconsolfile:
-    type: [File,string]
-    default: "/usr/local/bin/npy-consolidate"
+  cnvrt2hiq:
+    type: string
+    default: "/usr/local/bin/npy-vec-to-hiq-1hot"
     inputBinding:
       position: 5
+  makelist:
+    type: File
+    default:
+      class: File
+      location: ../src/create-list
+    inputBinding:
+      position: 6
+  nthreads:
+    type: string
+    default: "16"
+    inputBinding:
+      position: 7
 outputs:
   out1:
     type: Directory
     outputBinding:
-      glob: $(inputs.outdir)
+      glob: "npy"
+  out2:
+    type: Directory
+    outputBinding:
+      glob: "npy-hiq"

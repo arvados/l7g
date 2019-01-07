@@ -19,12 +19,12 @@ expression: |
     var samplenames = [];
     var n = 0
     var i = 0
-   
+
     do {
       var name = inputs.refdirectory.listing[i];
       var type = name.class;
-      var basename = name.basename; 
-      i +=1; 
+      var basename = name.basename;
+      i +=1;
         if (type === 'Directory') {
               n += 1;
               samples.push(name);
@@ -32,4 +32,4 @@ expression: |
             }
       } while (n < 20);
     return {"out1": samples,"out2": samplenames};
-  } 
+  }

@@ -12,13 +12,6 @@ hints:
     loadListing: shallow_listing
 inputs:
   refdirectory: Directory
-  bashscript: File
-  cgft:
-    type: [File,string]
-    default: "/usr/local/bin/cgft"
-  fjt:
-    type: [File,string]
-    default: "/usr/local/bin/fjt"
   cglf: Directory
 
 outputs:
@@ -33,12 +26,8 @@ steps:
     out: [out1]
   step2:
     scatter: fjdir
-    scatterMethod: dotproduct
     in:
       fjdir: step1/out1
-      bashscript: bashscript
-      cgft: cgft
-      fjt: fjt
       cglf: cglf
     run: createcgf.cwl
     out: [out1]

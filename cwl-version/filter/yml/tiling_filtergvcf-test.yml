@@ -10,12 +10,4 @@ datafilepdh:
   - class: File
     path: keep:9d48795723f1f64f8a063dc3f880d64b+184/pdhs01
 
-bashscript:
-   class: File
-   path: ../src/filterCWL.sh
-
-filter_gvcf:
-   class: File 
-   path: ../src/filter-gvcf
-
 cutoff: "20"

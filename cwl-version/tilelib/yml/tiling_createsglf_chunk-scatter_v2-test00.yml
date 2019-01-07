@@ -4,14 +4,10 @@ pathmax: '862'
 
 nchunks: '5'
 
-bashscript:
-   class: File
-   path: ../src/tilelib_chunk_v2CWL.sh
-
 datadir:
-   class: Directory
-   path: keep:410d50b9b8e3562e16d81af797e90628+183668
+  class: Directory
+  path: keep:410d50b9b8e3562e16d81af797e90628+183668
 
 tagset:
-   class: File
-   path: keep:6f0b48919ea97da91e3749f65969f03f+627/tagset.fa.gz
+  class: File
+  path: keep:6f0b48919ea97da91e3749f65969f03f+627/tagset.fa.gz

@@ -7,51 +7,41 @@ requirements:
   - class: DockerRequirement
     dockerPull: arvados/l7g
   - class: ResourceRequirement
-    coresMin: 16
-    coresMax: 16
     ramMin: 100000
+    coresMin: 16
 hints:
   arv:RuntimeConstraints:
     keep_cache: 4096
-  cwltool:LoadListingRequirement:
-    loadListing: shallow_listing
 baseCommand: bash
 inputs:
-  bashscript:
+  bashscriptmain:
     type: File
     default:
       class: File
-      location: ../src/tilelib_chunk_v2CWL.sh
+      location: ../src/allconsolCWL.sh
     inputBinding:
       position: 1
-  tilepathmin:
-    type: string
-    inputBinding:
-      position: 2
-  tilepathmax:
-    type: string
-    inputBinding:
-      position: 3
-  fjcsv2sglf:
-    type: string
-    default: "/usr/local/bin/fjcsv2sglf"
-    inputBinding:
-      position: 4
-  datadir:
+  indir:
     type: Directory
     inputBinding:
-      position: 5
-  fjt:
+      position: 2
+  outdir:
     type: string
-    default: "/usr/local/bin/fjt"
+    default: "outdir"
     inputBinding:
-      position: 6
-  tagset:
-    type: File
+      position: 3
+  outprefix:
+    type: string
+    default: "all"
     inputBinding:
-      position: 7
+      position: 4
+  npyconsolfile:
+    type: string
+    default: "/usr/local/bin/npy-consolidate"
+    inputBinding:
+      position: 5
 outputs:
   out1:
-    type: File[]
+    type: Directory
     outputBinding:
-      glob: "lib/*sglf.gz*"
+      glob: $(inputs.outdir)

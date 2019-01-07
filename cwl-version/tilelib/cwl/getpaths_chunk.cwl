@@ -15,12 +15,12 @@ expression: |
     var imax = parseInt(inputs.pathmax);
     var imin = parseInt(inputs.pathmin);
     var chunk_size = parseInt(inputs.nchunks);
-   
+
     var index = 0;
     var myArray = [];
     var tempArray = [];
-    var maxArray = []; 
-    var minArray = []; 
+    var maxArray = [];
+    var minArray = [];
 
     for (var ival = imin; ival <= imax; ival++) {
       var value = ival;
@@ -36,8 +36,8 @@ expression: |
        var maxval = myChunk[myChunk.length-1];
        var maxvalstr = maxval.toString();
        maxArray.push(maxvalstr);
-       minArray.push(minvalstr);     
+       minArray.push(minvalstr);
     }
 
     return {"out1": minArray, "out2": maxArray};
-  } 
+  }

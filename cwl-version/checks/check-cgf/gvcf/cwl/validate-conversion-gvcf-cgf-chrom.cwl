@@ -11,6 +11,9 @@ baseCommand: bash
 inputs:
   script:
     type: File
+    default:
+      class: File
+      location: ../src/verify-conversion-batch-gvcf-cgf_skip-empty-and-zero-tilepaths.sh
     inputBinding:
       position: 1
   cgfDir:

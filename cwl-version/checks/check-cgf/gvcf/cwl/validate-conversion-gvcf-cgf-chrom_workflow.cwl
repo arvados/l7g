@@ -5,7 +5,6 @@ requirements:
   StepInputExpressionRequirement: {}
 
 inputs:
-  script: File
   cgfDir: Directory
   sglfDir: Directory
   gvcfDir: Directory
@@ -26,7 +25,6 @@ steps:
     scatter: [chrom,gvcfSuffix]
     scatterMethod: dotproduct
     in:
-      script: script
       cgfDir: cgfDir
       sglfDir: sglfDir
       gvcfDir: gvcfDir

@@ -29,7 +29,7 @@ inputs:
     label: Tool to manipulate FastJ files
   cglf:
     type: Directory
-    label: Tile library location
+    label: Tile library directory
 
 outputs:
   out1:

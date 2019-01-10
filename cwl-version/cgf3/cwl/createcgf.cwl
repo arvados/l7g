@@ -40,7 +40,7 @@ inputs:
       position: 4
   cglf:
     type: Directory
-    label: Tile library location
+    label: Tile library directory
     inputBinding:
       position: 5
 outputs:

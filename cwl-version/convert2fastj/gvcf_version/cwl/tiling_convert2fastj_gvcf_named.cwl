@@ -17,54 +17,54 @@ hints:
   arv:RuntimeConstraints:
     keep_cache: 4096
 inputs:
-refdirectory
-  type: Directory
-  label: Input Directory
-bashscript
-  type: File
-  label: Master script to create a FastJ for each gVCF
-ref
-  type: string
-  label: Reference genome
-reffa
-  type: File
-  label: Reference genome in FASTA format
-afn
-  type: File
-  label: Compressed assembly fixed width file
-aidx
-  type: File
-  label: Assembly index file
-refM
-  type: string
-  label: Mitochondrial reference genome
-reffaM
-  type: File
-  label: Reference mitochondrial genome in FASTA format
-afnM
-  type: File
-  label: Compressed mitochondrial assembly fixed width file
-aidxM
-  type: File
-  label: Mitochondrial assembly index file
-seqidM
-  type: string
-  label: Mitochondrial naming scheme for gVCF
-tagdir
-  type: File
-  label: Compressed tagset in FASTA format
-l7g
-  type: File
-  label: Lightning application for parsing and searching assembly files
-pasta
-  type: File
-  label: Tool for streaming and converting variant call formats 
-refstream
-  type: File
-  label: Tool to stream from FASTA file
-tile_assembly
-  type: File
-  label: Tool to extract information from the tile assembly files
+  refdirectory:
+    type: Directory
+    label: Input Directory
+  bashscript:
+    type: File
+    label: Master script to create a FastJ for each gVCF
+  ref:
+    type: string
+    label: Reference genome
+  reffa:
+    type: File
+    label: Reference genome in FASTA format
+  afn:
+    type: File
+    label: Compressed assembly fixed width file
+  aidx:
+    type: File
+    label: Assembly index file
+  refM:
+    type: string
+    label: Mitochondrial reference genome
+  reffaM:
+    type: File
+    label: Reference mitochondrial genome in FASTA format
+  afnM:
+    type: File
+    label: Compressed mitochondrial assembly fixed width file
+  aidxM:
+    type: File
+    label: Mitochondrial assembly index file
+  seqidM:
+    type: string
+    label: Mitochondrial naming scheme for gVCF
+  tagdir:
+    type: File
+    label: Compressed tagset in FASTA format
+  l7g:
+    type: File
+    label: Lightning application for parsing and searching assembly files
+  pasta:
+    type: File
+    label: Tool for streaming and converting variant call formats
+  refstream:
+    type: File
+    label: Tool to stream from FASTA file
+  tile_assembly:
+    type: File
+    label: Tool to extract information from the tile assembly files
 
 outputs:
   out1:

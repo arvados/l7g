@@ -70,13 +70,13 @@ inputs:
 
   gvcfPrefix:
     type: string
-    label: Prefixes of gVCFs
+    label: Prefix for gVCF files
     inputBinding:
       position: 8
 
   gvcfSuffix:
     type: string
-    label: Suffixes of gVCFs
+    label: Suffix for gVCF files
     inputBinding:
       position: 9
 

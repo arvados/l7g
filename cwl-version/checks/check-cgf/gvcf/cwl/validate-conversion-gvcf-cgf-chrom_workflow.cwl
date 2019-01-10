@@ -30,10 +30,10 @@ inputs:
     label: Reference FASTA file
   gvcfPrefixes:
     type: string[]
-    label: Prefixes of gVCFs
+    label: Prefix for gVCF files
   gvcfSuffixes:
     type: string[]
-    label: Suffixes of gVCFs
+    label: Suffix for gVCF files
 
 outputs:
   result:

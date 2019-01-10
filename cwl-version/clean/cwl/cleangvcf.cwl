@@ -27,7 +27,7 @@ inputs:
       position: 2
   gvcfPrefix:
     type: string
-    label: Prefix of all gVCF files
+    label: Prefix of gVCF files
     inputBinding:
       position: 3
   cleanvcf:

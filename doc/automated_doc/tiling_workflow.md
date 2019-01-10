@@ -140,7 +140,7 @@ Output: Filtered gVCFs (all in 1 collection, per run)
   - `getdirs.cwl`
   - `convertgvcf.cwl`
 
-## Step4: Create the SGLF files
+## Step4: Create the SGLF files (tilelib)
 `tiling_createsglf_chunk-scatter_v2.cwl`
   - `getpaths_chunk.cwl`
   - `createsglf_chunkv2.cwl`
@@ -151,7 +151,7 @@ Output: Filtered gVCFs (all in 1 collection, per run)
 ## Step5: Merge the SGLF files (Tile Library Merging)
 `merge-tilelib.cwl`
 
-## Step6a: Create the CGF files
+## Step7a: Create the CGF files (cgf3)
 `tiling_convert2cgf.cwl`
   - `getdirs.cwl`
   - `createcgf.cwl`

@@ -25,12 +25,12 @@ inputs:
       position: 1
   srcdir:
     type: Directory
-    label: Directory of existing SGLF files
+    label: Existing tile library directory
     inputBinding:
       position: 2
   nppdir:
     type: Directory
-    label: Directory of new SGLF files
+    label: Directory of new tile library additions
     inputBinding:
       position: 3
   nthreads:

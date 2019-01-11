@@ -20,6 +20,9 @@ inputs:
   refdirectory:
     type: Directory
     label: Input Directory
+  datafilenames:
+    type: File
+    label: gVCFs to create FastJ for
   bashscript:
     type: File
     label: Master script to create a FastJ for each gVCF

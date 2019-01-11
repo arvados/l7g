@@ -3,6 +3,7 @@ $namespaces:
   cwltool: "http://commonwl.org/cwltool#"
 cwlVersion: v1.0
 class: CommandLineTool
+label: Create SGLF (library) files
 requirements:
   - class: DockerRequirement
     dockerPull: javatools
@@ -21,36 +22,43 @@ baseCommand: bash
 inputs:
   bashscript:
     type: File
+    label: Master script to create tile library (SGLF)
     inputBinding:
       position: 1
   tilepathmin:
     type: string
+    label: Starting path in the tile library
     inputBinding:
       position: 2
   tilepathmax:
     type: string
+    label: Last/Maximum path in the tile library
     inputBinding:
       position: 3
-  fjcsv2sglf: 
-    type: File 
+  fjcsv2sglf:
+    type: File
+    label: Tool to create tile library
     inputBinding:
       position: 4
-  datadir: 
-    type: Directory 
+  datadir:
+    type: Directory
+    label: Directory of FastJ files
     inputBinding:
-      position: 5 
+      position: 5
   fjt:
     type: File
+    label: Tool to manipulate FastJ files
     inputBinding:
-      position: 6 
+      position: 6
   tagset:
     type: File
+    label: Compressed tagset in FASTA format
     inputBinding:
-      position: 7 
+      position: 7
 
 outputs:
   out1:
     type: File[]
+    label: Output SGLF files
     outputBinding:
       glob: "lib/*sglf.gz*"
-

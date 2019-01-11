@@ -8,8 +8,8 @@ requirements:
     dockerPull: javatools
   - class: InlineJavascriptRequirement
   - class: ResourceRequirement
-    coresMin: 1 
-    coresMax: 1 
+    coresMin: 1
+    coresMax: 1
 hints:
   arv:RuntimeConstraints:
     keep_cache: 4096
@@ -17,22 +17,27 @@ baseCommand: bash
 inputs:
   bashscript:
     type: File
+    label: Master script to control cleaning
     inputBinding:
       position: 1
-  gvcfDir: 
+  gvcfDir:
     type: Directory
+    label: Directory with gVCF files
     inputBinding:
       position: 2
   gvcfPrefix:
     type: string
+    label: Prefix of gVCF files
     inputBinding:
       position: 3
   cleanvcf:
     type: File
+    label: Tool to clean gVCFs
     inputBinding:
-      position: 4 
+      position: 4
 outputs:
   out1:
-    type: Directory 
+    type: Directory
+    label: Directory of clean gVCFs
     outputBinding:
       glob: "cleaned/*"

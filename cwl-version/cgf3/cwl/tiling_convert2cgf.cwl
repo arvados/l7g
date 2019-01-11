@@ -3,6 +3,7 @@ $namespaces:
   cwltool: "http://commonwl.org/cwltool#"
 cwlVersion: v1.0
 class: Workflow
+label: Creates a cgf for each FastJ file
 requirements:
   - class: DockerRequirement
     dockerPull: javatoolsparallel
@@ -14,16 +15,27 @@ hints:
   cwltool:LoadListingRequirement:
     loadListing: shallow_listing
 inputs:
-  refdirectory: Directory
-  bashscript: File
-  cgft: File
-  fjt: File
-  cglf: Directory 
+  refdirectory:
+    type: Directory
+    label: Input directory of FastJs
+  bashscript:
+    type: File
+    label: Master script to convert FastJs to cgfs
+  cgft:
+    type: File
+    label: Tool to manipulate and inspect cgf files
+  fjt:
+    type: File
+    label: Tool to manipulate FastJ files
+  cglf:
+    type: Directory
+    label: Tile library directory
 
 outputs:
-  out1: 
+  out1:
     type: File[]
-    outputSource: step2/out1 
+    outputSource: step2/out1
+    label: Output cgfs
 steps:
   step1:
     run: getdirs.cwl
@@ -39,5 +51,5 @@ steps:
       cgft: cgft
       fjt: fjt
       cglf: cglf
-    run: createcgf.cwl 
+    run: createcgf.cwl
     out: [out1]

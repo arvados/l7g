@@ -1,5 +1,6 @@
 cwlVersion: v1.0
 class: Workflow
+label: Workflow to create a FASTA file for the tagset
 requirements:
   - class: DockerRequirement
     dockerPull: arvados/l7g
@@ -9,10 +10,14 @@ requirements:
   - class: SubworkflowFeatureRequirement
 
 inputs:
-  cytobandFn: File
-  bigwigFn: File
-  refFaFn : File
-  script: File
+  cytobandFn:
+    type: File
+  bigwigFn:
+    type: File
+  refFaFn:
+    type: File
+  script:
+    type: File
 
 outputs:
   result:
@@ -28,4 +33,3 @@ steps:
       refFaFn: refFaFn
       script: script
     out: [result]
-

@@ -3,6 +3,7 @@ $namespaces:
   cwltool: "http://commonwl.org/cwltool#"
 cwlVersion: v1.0
 class: Workflow
+label: Filters gVCFs by a specified quality cutoff
 requirements:
   - class: DockerRequirement
     dockerPull: javatools
@@ -19,30 +20,42 @@ hints:
     loadListing: shallow_listing
 
 inputs:
-  datafilenames: File[]
-  datafilepdh: File[]
-  bashscript: File
-  filter_gvcf: File
-  cutoff: string
+  datafilenames:
+    type: File[]
+    label: Files listing input gVCFs
+  datafilepdh:
+    type: File[]
+    label: Files listing input portable data hashes
+  bashscript:
+    type: File
+    label: Master script to control filtering
+  filter_gvcf:
+    type: File
+    label: Code that filters gVCFs
+  cutoff:
+    type: string
+    label: Filtering cutoff threshold
 outputs:
   out1:
     type: Directory[]
     outputSource: step2/out1
+    label: Directory of filtered gVCFs
+
 steps:
   step1:
     run: getCollections.cwl
-    in: 
+    in:
       datafilenames: datafilenames
       datafilepdh: datafilepdh
     out: [fileprefix,collectiondir]
 
   step2:
-    scatter: [gffPrefix,gffDir] 
+    scatter: [gffPrefix,gffDir]
     scatterMethod: dotproduct
-    in: 
+    in:
       bashscript: bashscript
       gffDir: step1/collectiondir
-      gffPrefix: step1/fileprefix 
+      gffPrefix: step1/fileprefix
       filter_gvcf: filter_gvcf
       cutoff: cutoff
     run: filter.cwl

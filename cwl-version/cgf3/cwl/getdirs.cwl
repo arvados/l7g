@@ -3,13 +3,18 @@ $namespaces:
   cwltool: "http://commonwl.org/cwltool#"
 class: ExpressionTool
 cwlVersion: v1.0
+label: Create list of directories to process
 hints:
   cwltool:LoadListingRequirement:
     loadListing: shallow_listing
 inputs:
-  refdirectory: Directory
+  refdirectory:
+    type: Directory
+    label: Input directory of FastJs
 outputs:
-  out1: Directory[] 
+  out1:
+    type: Directory[]
+    label: Array of directories
 requirements:
   InlineJavascriptRequirement: {}
 expression: |
@@ -23,4 +28,4 @@ expression: |
           }
     }
     return {"out1": samples};
-  } 
+  }

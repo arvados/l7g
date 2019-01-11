@@ -1,5 +1,6 @@
 cwlVersion: v1.0
 class: CommandLineTool
+label: Check tile library for correct formatting and spurious characters
 $namespaces:
   arv: "http://arvados.org/cwl#"
 requirements:
@@ -16,20 +17,23 @@ baseCommand: bash
 inputs:
   script:
     type: File
+    label: Master script to run tile library check
     inputBinding:
       position: 1
   sglfDir:
     type: Directory
+    label: Tile library directory
     inputBinding:
       position: 2
   outFileName:
     type: string
+    label: Name of output file
     inputBinding:
       position: 3
 
 outputs:
   result:
     type: Directory
+    label: Directory of check logs
     outputBinding:
       glob: "."
-

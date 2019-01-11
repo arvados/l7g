@@ -3,6 +3,7 @@ $namespaces:
   cwltool: "http://commonwl.org/cwltool#"
 cwlVersion: v1.0
 class: Workflow
+label: Creates a FASTJ file per path for each named GVCF
 requirements:
   - class: DockerRequirement
     dockerPull: javatools
@@ -16,23 +17,57 @@ hints:
   arv:RuntimeConstraints:
     keep_cache: 4096
 inputs:
-  refdirectory: Directory
-  datafilenames: File
-  bashscript: File
-  ref: string 
-  reffa: File
-  afn: File
-  aidx: File
-  refM: string
-  reffaM: File
-  afnM: File
-  aidxM: File
-  seqidM: string
-  tagdir: File
-  l7g: File
-  pasta: File
-  refstream: File
-  tile_assembly: File
+  refdirectory:
+    type: Directory
+    label: Input Directory
+  datafilenames:
+    type: File
+    label: gVCFs to create FastJ for
+  bashscript:
+    type: File
+    label: Master script to create a FastJ for each gVCF
+  ref:
+    type: string
+    label: Reference genome
+  reffa:
+    type: File
+    label: Reference genome in FASTA format
+  afn:
+    type: File
+    label: Compressed assembly fixed width file
+  aidx:
+    type: File
+    label: Assembly index file
+  refM:
+    type: string
+    label: Mitochondrial reference genome
+  reffaM:
+    type: File
+    label: Reference mitochondrial genome in FASTA format
+  afnM:
+    type: File
+    label: Compressed mitochondrial assembly fixed width file
+  aidxM:
+    type: File
+    label: Mitochondrial assembly index file
+  seqidM:
+    type: string
+    label: Mitochondrial naming scheme for gVCF
+  tagdir:
+    type: File
+    label: Compressed tagset in FASTA format
+  l7g:
+    type: File
+    label: Lightning application for parsing and searching assembly files
+  pasta:
+    type: File
+    label: Tool for streaming and converting variant call formats
+  refstream:
+    type: File
+    label: Tool to stream from FASTA file
+  tile_assembly:
+    type: File
+    label: Tool to extract information from the tile assembly files
 
 outputs:
   out1:
@@ -49,15 +84,15 @@ outputs:
 steps:
   step1:
     run: getdirs_testset.cwl
-    in: 
+    in:
       datafilenames: datafilenames
-      refdirectory: refdirectory 
+      refdirectory: refdirectory
     out: [out1,out2]
 
   step2:
-    scatter: [gffDir,gffPrefix] 
+    scatter: [gffDir,gffPrefix]
     scatterMethod: dotproduct
-    in: 
+    in:
       bashscript: bashscript
       gffDir: step1/out1
       gffPrefix: step1/out2
@@ -73,7 +108,7 @@ steps:
       tagdir: tagdir
       l7g: l7g
       pasta: pasta
-      refstream: refstream 
+      refstream: refstream
       tile_assembly: tile_assembly
     run: convertgvcf.cwl
     out: [out1,out2]

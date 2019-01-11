@@ -3,7 +3,7 @@ $namespaces:
   cwltool: "http://commonwl.org/cwltool#"
 cwlVersion: v1.0
 class: ExpressionTool
-
+label: Create list of gVCF to be filtered
 requirements:
   - class: InlineJavascriptRequirement
 
@@ -13,12 +13,14 @@ hints:
 
 inputs:
   datafilenames:
-   type:
-     type: array
-     items: File 
-     inputBinding:
-       loadContents: true
+    label: Files listing input gVCFs
+    type:
+      type: array
+      items: File
+      inputBinding:
+        loadContents: true
   datafilepdh:
+    label: Files listing input portable data hashes
     type:
       type: array
       items: File
@@ -26,22 +28,24 @@ inputs:
         loadContents: true
 
 outputs:
-  fileprefix: string[]
-  collectiondir: Directory[]
+  fileprefix:
+    type: string[]
+    label: Array of directory names
+  collectiondir:
+    type: Directory[]
+    label: Array of directories containing gVCFs
 
 expression: |
    ${
      var fileprefix=[];
      var collectiondir=[];
      var ssdir=[];
-
-
      for (var jj = 0; jj < inputs.datafilenames.length; jj++) {
       var names=inputs.datafilenames[jj].contents.split('\n');
       var nblines1=names.length;
       for (var j = 0; j < nblines1-1; j++) {
        var nn=names[j];
-       fileprefix.push(nn);  
+       fileprefix.push(nn);
        }
       }
 

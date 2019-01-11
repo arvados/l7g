@@ -1,12 +1,15 @@
 class: ExpressionTool
 cwlVersion: v1.0
+label: Collect all output logs from validation step into one directory
 requirements:
   InlineJavascriptRequirement: {}
 
 inputs:
   infiles: File[]
+  label: Output logs from the cgf validation step
 outputs:
   out: Directory
+  label: Directory of validation logs
 expression: |
   ${
     var gathered_dirs = { "class" : "Directory", "basename": "output", "listing" : [] };
@@ -24,4 +27,3 @@ expression: |
     //var x = JSON.stringify(gathered_dirs);
     return { "out": gathered_dirs };
   }
-

@@ -27,3 +27,6 @@ _testmain.go
 
 # Mac OS specific
 .DS_Store
+
+#VIM swap files
+*.swp

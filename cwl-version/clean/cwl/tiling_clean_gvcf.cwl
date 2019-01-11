@@ -3,6 +3,7 @@ $namespaces:
   cwltool: "http://commonwl.org/cwltool#"
 cwlVersion: v1.0
 class: Workflow
+label: Resolve duplicate/overlapping calls in gVCFs
 requirements:
   - class: DockerRequirement
     dockerPull: javatools
@@ -16,26 +17,33 @@ hints:
   arv:RuntimeConstraints:
     keep_cache: 4096
 inputs:
-  refdirectory: Directory
-  bashscript: File
-  cleanvcf: File
+  refdirectory:
+    type: Directory
+    label: Input directory of gVCFs
+  bashscript:
+    type: File
+    label: Master script to control cleaning
+  cleanvcf:
+    type: File
+    label: Tool to clean gVCFs
 
 outputs:
   out1:
     type: Directory[]
     outputSource: step2/out1
+    label: Directory of clean gVCFs
 
 steps:
   step1:
     run: getdirs.cwl
-    in: 
-      refdirectory: refdirectory 
+    in:
+      refdirectory: refdirectory
     out: [out1,out2]
 
   step2:
-    scatter: [gvcfDir,gvcfPrefix] 
+    scatter: [gvcfDir,gvcfPrefix]
     scatterMethod: dotproduct
-    in: 
+    in:
       bashscript: bashscript
       gvcfDir: step1/out1
       gvcfPrefix: step1/out2

@@ -61,3 +61,7 @@ outputs:
     type: Directory
     outputBinding:
       glob: "npy-hiq"
+  names:
+    type: File
+    outputBinding:
+      glob: "npy/names"

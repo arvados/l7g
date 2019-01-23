@@ -23,6 +23,9 @@ outputs:
   out1:
     type: Directory
     outputSource: step2/out1
+  names:
+    type: File
+    outputSource: step1/names
 
 steps:
   step1:
@@ -30,7 +33,7 @@ steps:
     in:
       cgfdirectory: cgfdirectory
       nthreads: nthreads
-    out: [out1,out2]
+    out: [out1,out2,names]
 
   step2:
     run: tiling_consol-npy.cwl

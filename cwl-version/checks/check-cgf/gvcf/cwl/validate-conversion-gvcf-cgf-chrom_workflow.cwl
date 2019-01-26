@@ -1,23 +1,41 @@
 cwlVersion: v1.0
 class: Workflow
+label: Workflow to validate the the gVCF to cgf conversion
 requirements:
   ScatterFeatureRequirement: {}
   StepInputExpressionRequirement: {}
 
 inputs:
-  cgfDir: Directory
-  sglfDir: Directory
-  gvcfDir: Directory
-  chroms: string[]
-  tileassembly: File
-  refFaFn: File
-  gvcfPrefix: string
-  gvcfSuffixes: string[]
+  cgfDir:
+    type: Directory
+    label: Compact genome format directory
+  sglfDir:
+    type: Directory
+    label: Tile library directory
+  gvcfDir:
+    type: Directory
+    label: gVCF directory
+  chroms:
+    type: string[]
+    label: Chromosomes to analyze
+  tileassembly:
+    type: File
+    label: Reference tile assembly file
+  refFaFn:
+    type: File
+    label: Reference FASTA file
+  gvcfPrefix:
+    type: string
+    label: Prefix for gVCF files
+  gvcfSuffixes:
+    type: string[]
+    label: Suffixes for gVCF files
 
 outputs:
   result:
     type: Directory
     outputSource: gather/out
+    label: Directory of cgf validation logs
 
 steps:
   cgf_gvcf_check:

@@ -3,6 +3,7 @@ $namespaces:
   cwltool: "http://commonwl.org/cwltool#"
 cwlVersion: v1.0
 class: Workflow
+label: Creates a FastJ file for each gVCF by path
 requirements:
   - class: DockerRequirement
     dockerPull: arvados/l7g
@@ -17,21 +18,44 @@ hints:
     loadListing: shallow_listing
 
 inputs:
-  refdirectory: Directory
-  ref: string
-  reffa: File
-  afn: File
-  aidx: File
-  refM: string
-  reffaM: File
-  afnM: File
-  aidxM: File
-  seqidM: string
-  tagdir: File
+  refdirectory:
+    type: Directory
+    label: Directory of input gVCFs
+  ref:
+    type: string
+    label: Reference genome
+  reffa:
+    type: File
+    label: Reference genome in FASTA format
+  afn:
+    type: File
+    label: Compressed assembly fixed width file
+  aidx:
+    type: File
+    label: Assembly index file
+  refM:
+    type: string
+    label: Mitochondrial reference genome
+  reffaM:
+    type: File
+    label: Reference mitochondrial genome in FASTA format
+  afnM:
+    type: File
+    label: Compressed mitochondrial assembly fixed width file
+  aidxM:
+    type: File
+    label: Mitochondrial assembly index file
+  seqidM:
+    type: string
+    label: Mitochondrial naming scheme for gVCF
+  tagdir:
+    type: File
+    label: Compressed tagset in FASTA format
 
 outputs:
   out1:
     type: Directory[]
+    label: Directories of FastJs
     outputSource: step2/out1
   out2:
     type:
@@ -39,12 +63,13 @@ outputs:
       items:
         type: array
         items: File
+    label: Indexed and zipped gVCFs
     outputSource: step2/out2
 
 steps:
   step1:
     run: getdirs.cwl
-    in: 
+    in:
       refdirectory: refdirectory
     out: [out1,out2]
 

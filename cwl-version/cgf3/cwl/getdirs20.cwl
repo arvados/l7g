@@ -3,6 +3,7 @@ $namespaces:
   cwltool: "http://commonwl.org/cwltool#"
 class: ExpressionTool
 cwlVersion: v1.0
+label: Create list of directories to process
 hints:
   cwltool:LoadListingRequirement:
     loadListing: shallow_listing

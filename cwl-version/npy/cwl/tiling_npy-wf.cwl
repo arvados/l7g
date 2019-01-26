@@ -3,28 +3,24 @@ $namespaces:
   cwltool: "http://commonwl.org/cwltool#"
 cwlVersion: v1.0
 class: Workflow
+label: Create NumPy arrays by tile path from cgfs, merge all NumPy arrays into single array
 requirements:
   - class: DockerRequirement
     dockerPull: arvados/l7g 
 
 inputs:
-  cgfdirectory: Directory
-  nthreads:
-    type: string
-    default: "16"
-  outdir:
-    type: string
-    default: "outdir"
-  outprefix:
-    type: string
-    default: "all"
+  cgfdirectory:
+    type: Directory
+    label: Directory of compact genome format files
 
 outputs:
   out1:
     type: Directory
+    label: Output consolidated NumPy arrays
     outputSource: step2/out1
   names:
     type: File
+    label: File listing sample names
     outputSource: step1/names
 
 steps:
@@ -32,13 +28,10 @@ steps:
     run: tiling_create-npy.cwl
     in:
       cgfdirectory: cgfdirectory
-      nthreads: nthreads
     out: [out1,out2,names]
 
   step2:
     run: tiling_consol-npy.cwl
     in: 
       indir: step1/out1
-      outdir: outdir
-      outprefix: outprefix
     out: [out1]

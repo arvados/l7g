@@ -3,6 +3,7 @@ $namespaces:
   cwltool: "http://commonwl.org/cwltool#"
 cwlVersion: v1.0
 class: Workflow
+label: Resolve duplicate/overlapping calls in gVCFs
 requirements:
   - class: DockerRequirement
     dockerPull: arvados/l7g
@@ -17,17 +18,20 @@ hints:
     loadListing: shallow_listing
 
 inputs:
-  refdirectory: Directory
+  refdirectory:
+    type: Directory
+    label: Input directory of gVCFs
 
 outputs:
   out1:
     type: Directory[]
+    label: Directory of clean gVCFs
     outputSource: step2/out1
 
 steps:
   step1:
     run: getdirs.cwl
-    in: 
+    in:
       refdirectory: refdirectory
     out: [out1,out2]
 

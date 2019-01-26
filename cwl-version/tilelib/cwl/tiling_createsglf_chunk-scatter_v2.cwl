@@ -2,22 +2,34 @@ $namespaces:
   arv: "http://arvados.org/cwl#"
   cwltool: "http://commonwl.org/cwltool#"
 cwlVersion: v1.0
-class: Workflow 
+class: Workflow
+label: Create a tile library (SGLF) for a given set of FastJ files
 requirements:
   - class: DockerRequirement
     dockerPull: arvados/l7g
   - class: ScatterFeatureRequirement
 hints:
   arv:RuntimeConstraints:
-    keep_cache: 16384 
+    keep_cache: 16384
   cwltool:LoadListingRequirement:
     loadListing: shallow_listing
+
 inputs:
-  pathmin: string
-  pathmax: string
-  nchunks: string
-  datadir: Directory
-  tagset: File
+  pathmin:
+    type: string
+    label: Starting path in the tile library
+  pathmax:
+    type: string
+    label: Last/Maximum path in the tile library
+  nchunks:
+    type: string
+    label: Number of chunks to scatter
+  datadir:
+    type: Directory
+    label: Directory of FastJ files
+  tagset:
+    type: File
+    label: Compressed tagset in FASTA format
 
 outputs:
   out1:
@@ -26,6 +38,7 @@ outputs:
       items:
         type: array
         items: File
+    label: Output tile library
     outputSource: step2/out1
 
 steps:

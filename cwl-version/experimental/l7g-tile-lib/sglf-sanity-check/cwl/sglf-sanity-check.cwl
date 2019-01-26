@@ -18,18 +18,20 @@ inputs:
     type: File
     inputBinding:
       position: 1
+    label: Bash script that checks for span and formatting errors in tile library
   sglfDir:
     type: Directory
     inputBinding:
       position: 2
+    label: The directory conating tile library
   outFileName:
     type: string
     inputBinding:
       position: 3
+    label: Name of output of the tile library sanity formatting checks
 
 outputs:
   result:
     type: Directory
     outputBinding:
       glob: "."
-

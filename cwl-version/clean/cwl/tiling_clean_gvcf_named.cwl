@@ -3,6 +3,7 @@ $namespaces:
   cwltool: "http://commonwl.org/cwltool#"
 cwlVersion: v1.0
 class: Workflow
+label: Resolve duplicate/overlapping calls in the gVCFs in a named list
 requirements:
   - class: DockerRequirement
     dockerPull: arvados/l7g

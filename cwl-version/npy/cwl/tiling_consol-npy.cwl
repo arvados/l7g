@@ -7,7 +7,6 @@ label: Consolidates multiple NumPy arrays into one large array
 requirements:
   - class: DockerRequirement
     dockerPull: arvados/l7g
-  - class: InlineJavascriptRequirement
   - class: ResourceRequirement
     ramMin: 100000
     coresMin: 16
@@ -17,38 +16,36 @@ hints:
 baseCommand: bash
 inputs:
   bashscriptmain:
-    type: File?
+    type: File
     label: Master script to consolidate tile path NumPy arrays
-    inputBinding:
-      position: 1
     default:
       class: File
-      location: ../../src/allconsolCWL.sh
+      location: ../src/allconsolCWL.sh
+    inputBinding:
+      position: 1
   indir:
     type: Directory
-    label: Name of input directory
+    label: Input directory
     inputBinding:
       position: 2
   outdir:
-    type: string?
+    type: string
     label: Name of output directory
+    default: "outdir"
     inputBinding:
       position: 3
-    default: "outdir"
   outprefix:
-    type: string?
+    type: string
     label: Prefix for consolidated arrays
+    default: "all"
     inputBinding:
       position: 4
-    default: "all"
   npyconsolfile:
-    type: File?
+    type: string
     label: Program to consolidated NumPy arrays
+    default: "/usr/local/bin/npy-consolidate"
     inputBinding:
       position: 5
-    default:
-      class: File
-      location: ../../src/buildArvados/dest/npy-consolidate
 outputs:
   out1:
     type: Directory

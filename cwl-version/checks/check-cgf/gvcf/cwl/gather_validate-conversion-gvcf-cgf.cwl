@@ -3,7 +3,6 @@ cwlVersion: v1.0
 label: Collect all output logs from validation step into one directory
 requirements:
   InlineJavascriptRequirement: {}
-
 inputs:
   infiles: File[]
   label: Output logs from the cgf validation step

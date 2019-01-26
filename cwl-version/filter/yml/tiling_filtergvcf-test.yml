@@ -1,0 +1,13 @@
+datafilenames:
+  - class: File
+    path: keep:9d48795723f1f64f8a063dc3f880d64b+184/collectnames00
+  - class: File
+    path: keep:9d48795723f1f64f8a063dc3f880d64b+184/collectnames01
+
+datafilepdh:
+  - class: File
+    path: keep:9d48795723f1f64f8a063dc3f880d64b+184/pdhs00
+  - class: File
+    path: keep:9d48795723f1f64f8a063dc3f880d64b+184/pdhs01
+
+cutoff: "20"

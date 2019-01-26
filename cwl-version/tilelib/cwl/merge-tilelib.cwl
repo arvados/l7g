@@ -6,11 +6,10 @@ class: CommandLineTool
 label: Merges new tile library into existing tile library
 requirements:
   - class: DockerRequirement
-    dockerPull: javatools-parallel
-  - class: InlineJavascriptRequirement
+    dockerPull: arvados/l7g
   - class: ResourceRequirement
-    ramMin: 120000
     coresMin: 16
+    ramMin: 120000
 hints:
   arv:RuntimeConstraints:
     keep_cache: 4096
@@ -21,6 +20,9 @@ inputs:
   bashscriptmain:
     type: File
     label: Master script to merge tile libraries
+    default:
+      class: File
+      location: ../src/merge-tilelibCWL.sh
     inputBinding:
       position: 1
   srcdir:
@@ -39,8 +41,9 @@ inputs:
     inputBinding:
       position: 4
   mergetilelib:
-    type: File
+    type: string
     label: Code that merges SGLF libraries
+    default: "/usr/local/bin/merge-sglf"
     inputBinding:
       position: 5
 

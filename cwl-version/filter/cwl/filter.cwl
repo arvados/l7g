@@ -6,11 +6,11 @@ class: CommandLineTool
 label: Filters gVCFs by a specified quality cutoff
 requirements:
   - class: DockerRequirement
-    dockerPull: javatools
-  - class: InlineJavascriptRequirement
+    dockerPull: arvados/l7g
   - class: ResourceRequirement
     coresMin: 2
     coresMax: 2
+    ramMin: 13000
 hints:
   arv:RuntimeConstraints:
     keep_cache: 4096
@@ -19,6 +19,9 @@ inputs:
   bashscript:
     type: File
     label: Master script to control filtering
+    default:
+      class: File
+      location: ../src/filterCWL.sh
     inputBinding:
       position: 1
   gffDir:
@@ -34,6 +37,9 @@ inputs:
   filter_gvcf:
     type: File
     label: Code that filters gVCFs
+    default:
+      class: File
+      location: ../src/filter-gvcf
     inputBinding:
       position: 4
   cutoff:

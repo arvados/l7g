@@ -7,7 +7,6 @@ label: Create NumPy vectors from cgfs by tile path
 requirements:
   - class: DockerRequirement
     dockerPull: arvados/l7g
-  - class: InlineJavascriptRequirement
   - class: ResourceRequirement
     ramMin: 100000
     coresMin: 16
@@ -17,54 +16,50 @@ hints:
 baseCommand: bash
 inputs:
   bashscriptmain:
-    type: File?
+    type: File
     label: Master script for creating the NumPy arrays
-    inputBinding:
-      position: 1
     default:
       class: File
-      location: ../../src/create-npyCWL.sh
+      location: ../src/create-npyCWL.sh
+    inputBinding:
+      position: 1
   cgft:
-    type: ["null",File,string]
+    type: string
     label: Compact genome format tool
+    default: "/usr/local/bin/cgft"
     inputBinding:
       position: 2
-    default: "usr/bin/cgft"
   cgfdirectory:
     type: Directory
     label: Directory of compact genome format files
     inputBinding:
       position: 3
   band2matrix:
-    type: File?
+    type: string
     label: Tool to convert band (path) information into NumPy array
+    default: "/usr/local/bin/band-to-matrix-npy"
     inputBinding:
       position: 4
-    default:
-      class: File
-      location: ../../src/buildArvados/dest/band-to-matrix-npy
   cnvrt2hiq:
-    type: File?
+    type: string
     label: Tool to create NumPy files for high quality arrays
+    default: "/usr/local/bin/npy-vec-to-hiq-1hot"
     inputBinding:
       position: 5
+  makelist:
+    type: File
+    label: Tool for saving dataset names
     default:
       class: File
-      location: ../../src/buildArvados/dest/npy-vec-to-hiq-1hot
-  makelist:
-    type: File?
-    label: Tool for saving dataset names
+      location: ../src/create-list
     inputBinding:
       position: 6
-    default:
-      class: File
-      location: ../../src/create-list
   nthreads:
-    type: string?
+    type: string
     label: Number of threads to use
+    default: "16"
     inputBinding:
       position: 7
-    default: "16"
 outputs:
   out1:
     type: Directory
@@ -76,3 +71,8 @@ outputs:
     label: Directory of high quality NumPy arrays
     outputBinding:
       glob: "npy-hiq"
+  names:
+    type: File
+    label: File listing sample names
+    outputBinding:
+      glob: "npy/names"

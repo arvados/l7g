@@ -6,23 +6,24 @@ class: CommandLineTool
 label: Create SGLF (library) files
 requirements:
   - class: DockerRequirement
-    dockerPull: javatools
-  - class: InlineJavascriptRequirement
+    dockerPull: arvados/l7g
   - class: ResourceRequirement
-    ramMin: 100000
     coresMin: 16
     coresMax: 16
+    ramMin: 100000
 hints:
   arv:RuntimeConstraints:
     keep_cache: 4096
   cwltool:LoadListingRequirement:
     loadListing: shallow_listing
-
 baseCommand: bash
 inputs:
   bashscript:
     type: File
     label: Master script to create tile library (SGLF)
+    default:
+      class: File
+      location: ../src/tilelib_chunk_v2CWL.sh
     inputBinding:
       position: 1
   tilepathmin:
@@ -36,8 +37,9 @@ inputs:
     inputBinding:
       position: 3
   fjcsv2sglf:
-    type: File
+    type: string
     label: Tool to create tile library
+    default: "/usr/local/bin/fjcsv2sglf"
     inputBinding:
       position: 4
   datadir:
@@ -46,8 +48,9 @@ inputs:
     inputBinding:
       position: 5
   fjt:
-    type: File
+    type: string
     label: Tool to manipulate FastJ files
+    default: "/usr/local/bin/fjt"
     inputBinding:
       position: 6
   tagset:
@@ -55,7 +58,6 @@ inputs:
     label: Compressed tagset in FASTA format
     inputBinding:
       position: 7
-
 outputs:
   out1:
     type: File[]

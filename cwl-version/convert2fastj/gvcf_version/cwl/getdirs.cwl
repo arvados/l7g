@@ -17,7 +17,7 @@ outputs:
     label: Array of gVCF directories
   out2:
     type: string[]
-    label: Array of basenames for gVCF directories 
+    label: Array of basenames for gVCF directories
 
 requirements:
   InlineJavascriptRequirement: {}
@@ -32,7 +32,6 @@ expression: |
        if (type === 'Directory') {
               samples.push(name);
               samplenames.push(basename);
-
             }
     }
     return {"out1": samples,"out2": samplenames};

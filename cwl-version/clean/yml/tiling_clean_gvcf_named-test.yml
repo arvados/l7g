@@ -1,0 +1,7 @@
+refdirectory:
+  class: Directory
+  path: keep:737d98bc10c9182474d6d708f47b62aa+43103
+
+datafilenames:
+  class: File
+  path: keep:9d48795723f1f64f8a063dc3f880d64b+184/collectnames00

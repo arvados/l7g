@@ -1,0 +1,13 @@
+pathmin: '0'
+
+pathmax: '862'
+
+nchunks: '5'
+
+datadir:
+  class: Directory
+  path: keep:8855966fec04d8acf527874c2e5906d7+363535
+
+tagset:
+  class: File
+  path: keep:6f0b48919ea97da91e3749f65969f03f+627/tagset.fa.gz

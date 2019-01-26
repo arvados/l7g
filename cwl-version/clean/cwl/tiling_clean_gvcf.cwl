@@ -6,32 +6,27 @@ class: Workflow
 label: Resolve duplicate/overlapping calls in gVCFs
 requirements:
   - class: DockerRequirement
-    dockerPull: javatools
+    dockerPull: arvados/l7g
   - class: ResourceRequirement
     coresMin: 2
     coresMax: 2
   - class: ScatterFeatureRequirement
-  - class: InlineJavascriptRequirement
-  - class: SubworkflowFeatureRequirement
 hints:
   arv:RuntimeConstraints:
     keep_cache: 4096
+  cwltool:LoadListingRequirement:
+    loadListing: shallow_listing
+
 inputs:
   refdirectory:
     type: Directory
     label: Input directory of gVCFs
-  bashscript:
-    type: File
-    label: Master script to control cleaning
-  cleanvcf:
-    type: File
-    label: Tool to clean gVCFs
 
 outputs:
   out1:
     type: Directory[]
-    outputSource: step2/out1
     label: Directory of clean gVCFs
+    outputSource: step2/out1
 
 steps:
   step1:
@@ -44,9 +39,7 @@ steps:
     scatter: [gvcfDir,gvcfPrefix]
     scatterMethod: dotproduct
     in:
-      bashscript: bashscript
       gvcfDir: step1/out1
       gvcfPrefix: step1/out2
-      cleanvcf: cleanvcf
     run: cleangvcf.cwl
     out: [out1]

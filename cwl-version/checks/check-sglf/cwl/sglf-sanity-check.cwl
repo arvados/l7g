@@ -8,16 +8,17 @@ requirements:
     dockerPull: arvados/l7g
   - class: ResourceRequirement
     coresMin: 1
-  - class: InlineJavascriptRequirement
-  - class: arv:RuntimeConstraints
+hints:
+  arv:RuntimeConstraints:
     keep_cache: 10000
-
 baseCommand: bash
-
 inputs:
   script:
     type: File
     label: Master script to run tile library check
+    default:
+      class: File
+      location: ../src/sglf-sanity-check
     inputBinding:
       position: 1
   sglfDir:
@@ -30,7 +31,6 @@ inputs:
     label: Name of output file
     inputBinding:
       position: 3
-
 outputs:
   result:
     type: Directory

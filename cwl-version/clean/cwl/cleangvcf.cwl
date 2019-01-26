@@ -5,8 +5,7 @@ cwlVersion: v1.0
 class: CommandLineTool
 requirements:
   - class: DockerRequirement
-    dockerPull: javatools
-  - class: InlineJavascriptRequirement
+    dockerPull: arvados/l7g
   - class: ResourceRequirement
     coresMin: 1
     coresMax: 1
@@ -18,6 +17,9 @@ inputs:
   bashscript:
     type: File
     label: Master script to control cleaning
+    default:
+      class: File
+      location: ../src/cleanCWL.sh
     inputBinding:
       position: 1
   gvcfDir:
@@ -31,8 +33,9 @@ inputs:
     inputBinding:
       position: 3
   cleanvcf:
-    type: File
+    type: string
     label: Tool to clean gVCFs
+    default: "/usr/local/bin/cleanvcf"
     inputBinding:
       position: 4
 outputs:

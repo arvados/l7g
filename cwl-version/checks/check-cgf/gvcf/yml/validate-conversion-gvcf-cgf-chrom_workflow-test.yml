@@ -1,0 +1,18 @@
+cgfDir:
+  class: Directory
+  path: keep:29a3a536b401a954000d224e437d5269+646
+sglfDir:
+  class: Directory
+  path: keep:c5583087a866b1ef2cce5d1f477f2c99+34173
+gvcfDir:
+  class: Directory
+  path: keep:daec9aa484ef432c46ba9d04dcb45ba9+43107
+chroms: ["chr1", "chr2", "chr3", "chr4", "chr5", "chr6", "chr7", "chr8", "chr9", "chr10", "chr11", "chr12", "chr13", "chr14", "chr15", "chr16", "chr17", "chr18", "chr19", "chr20", "chr21", "chr22", "chrX", "chrY", "chrM"]
+tileassembly:
+  class: File
+  path: keep:ee01813e404906d36527b402e124e537+241/assembly.00.hg38.fw.gz
+refFaFn:
+  class: File
+  path: keep:5fb82d9a1d2c5d5c64ceca29a90a9c8e+763/hg38.fa.gz
+gvcfPrefix: "filtered_"
+gvcfSuffixes: [".raw_variants.chr1.gvcf.gz", ".raw_variants.chr2.gvcf.gz", ".raw_variants.chr3.gvcf.gz", ".raw_variants.chr4.gvcf.gz", ".raw_variants.chr5.gvcf.gz", ".raw_variants.chr6.gvcf.gz", ".raw_variants.chr7.gvcf.gz", ".raw_variants.chr8.gvcf.gz", ".raw_variants.chr9.gvcf.gz", ".raw_variants.chr10.gvcf.gz", ".raw_variants.chr11.gvcf.gz", ".raw_variants.chr12.gvcf.gz", ".raw_variants.chr13.gvcf.gz", ".raw_variants.chr14.gvcf.gz", ".raw_variants.chr15.gvcf.gz", ".raw_variants.chr16.gvcf.gz", ".raw_variants.chr17.gvcf.gz", ".raw_variants.chr18.gvcf.gz", ".raw_variants.chr19.gvcf.gz", ".raw_variants.chr20.gvcf.gz", ".raw_variants.chr21.gvcf.gz", ".raw_variants.chr22.gvcf.gz", ".raw_variants.chrX.gvcf.gz", ".raw_variants.chrY.gvcf.gz", ".raw_variants.chrM.gvcf.gz"]

@@ -6,26 +6,24 @@ class: Workflow
 label: Creates a FASTJ file per path for each named GVCF
 requirements:
   - class: DockerRequirement
-    dockerPull: javatools
+    dockerPull: arvados/l7g
   - class: ResourceRequirement
     coresMin: 2
     coresMax: 2
   - class: ScatterFeatureRequirement
-  - class: InlineJavascriptRequirement
-  - class: SubworkflowFeatureRequirement
 hints:
   arv:RuntimeConstraints:
     keep_cache: 4096
+  cwltool:LoadListingRequirement:
+    loadListing: shallow_listing
+
 inputs:
   refdirectory:
     type: Directory
     label: Input Directory
   datafilenames:
     type: File
-    label: gVCFs to create FastJ for
-  bashscript:
-    type: File
-    label: Master script to create a FastJ for each gVCF
+    label: Files listing input gVCFs
   ref:
     type: string
     label: Reference genome
@@ -56,18 +54,6 @@ inputs:
   tagdir:
     type: File
     label: Compressed tagset in FASTA format
-  l7g:
-    type: File
-    label: Lightning application for parsing and searching assembly files
-  pasta:
-    type: File
-    label: Tool for streaming and converting variant call formats
-  refstream:
-    type: File
-    label: Tool to stream from FASTA file
-  tile_assembly:
-    type: File
-    label: Tool to extract information from the tile assembly files
 
 outputs:
   out1:
@@ -93,7 +79,6 @@ steps:
     scatter: [gffDir,gffPrefix]
     scatterMethod: dotproduct
     in:
-      bashscript: bashscript
       gffDir: step1/out1
       gffPrefix: step1/out2
       ref: ref
@@ -106,9 +91,5 @@ steps:
       aidxM: aidxM
       seqidM: seqidM
       tagdir: tagdir
-      l7g: l7g
-      pasta: pasta
-      refstream: refstream
-      tile_assembly: tile_assembly
     run: convertgvcf.cwl
     out: [out1,out2]

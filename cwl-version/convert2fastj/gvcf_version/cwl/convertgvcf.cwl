@@ -5,8 +5,7 @@ cwlVersion: v1.0
 class: CommandLineTool
 requirements:
   - class: DockerRequirement
-    dockerPull: javatools
-  - class: InlineJavascriptRequirement
+    dockerPull: arvados/l7g
   - class: ResourceRequirement
     coresMin: 2
     coresMax: 2
@@ -18,6 +17,9 @@ inputs:
   bashscript:
     type: File
     label: Master script to create a FastJ for each gVCF
+    default:
+      class: File
+      location: ../src/convert2fastjCWL
     inputBinding:
       position: 1
   gffDir:
@@ -81,23 +83,27 @@ inputs:
     inputBinding:
       position: 13
   l7g:
-    type: File
+    type: string
     label: Lightning application for parsing and searching assembly files
+    default: "/usr/local/bin/l7g"
     inputBinding:
       position: 14
   pasta:
-    type: File
+    type: string
     label: Tool for streaming and converting variant call formats
+    default: "/usr/local/bin/pasta"
     inputBinding:
       position: 15
   refstream:
-    type: File
-    label: Tool to stream from FASTA file
+    type: string
+    label: Tool for streaming and converting variant call formats
+    default: "/usr/local/bin/refstream"
     inputBinding:
       position: 16
   tile_assembly:
-    type: File
+    type: string
     label: Tool to extract information from the tile assembly files
+    default: "/usr/local/bin/tile-assembly"
     inputBinding:
       position: 17
 outputs:

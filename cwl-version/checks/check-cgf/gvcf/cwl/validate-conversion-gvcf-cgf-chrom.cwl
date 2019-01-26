@@ -8,17 +8,16 @@ requirements:
     coresMin: 1
     ramMin: 65536
     ramMax: 131072
-  - class: InlineJavascriptRequirement
-
 baseCommand: bash
-
 inputs:
   script:
     type: File
     label: Master script to run validation
+    default:
+      class: File
+      location: ../src/verify-conversion-batch-gvcf-cgf_skip-empty-and-zero-tilepaths.sh
     inputBinding:
       position: 1
-
   cgfDir:
     type: Directory
     label: Compact genome format directory
@@ -26,7 +25,6 @@ inputs:
       position: 2
     secondaryFiles:
       - .cgf
-
   sglfDir:
     type: Directory
     label: Tile library directory
@@ -34,7 +32,6 @@ inputs:
       position: 3
     secondaryFiles:
       - .gz
-
   gvcfDir:
     type: Directory
     label: gVCF Directory
@@ -43,13 +40,11 @@ inputs:
     secondaryFiles:
       - .gz
       - .tbi
-
   chrom:
     type: string
     label: Chromosomes to analyze
     inputBinding:
       position: 5
-
   tileassembly:
     type: File
     label: Reference tile assembly file
@@ -58,7 +53,6 @@ inputs:
     secondaryFiles:
       - .fwi
       - .gzi
-
   refFaFn:
     type: File
     label: Reference FASTA file
@@ -67,25 +61,21 @@ inputs:
     secondaryFiles:
       - .fai
       - .gzi
-
   gvcfPrefix:
     type: string
     label: Prefix for gVCF files
     inputBinding:
       position: 8
-
   gvcfSuffix:
     type: string
     label: Suffix for gVCF files
     inputBinding:
       position: 9
-
   outfileName:
     type: string
     label: Name of output file
     inputBinding:
       position: 10
-
 outputs:
   result:
     type: File

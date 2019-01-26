@@ -3,13 +3,9 @@ class: Workflow
 label: Workflow to validate the the gVCF to cgf conversion
 requirements:
   ScatterFeatureRequirement: {}
-  InlineJavascriptRequirement: {}
   StepInputExpressionRequirement: {}
 
 inputs:
-  script:
-    type: File
-    label: Master script to run validation
   cgfDir:
     type: Directory
     label: Compact genome format directory
@@ -28,12 +24,12 @@ inputs:
   refFaFn:
     type: File
     label: Reference FASTA file
-  gvcfPrefixes:
-    type: string[]
+  gvcfPrefix:
+    type: string
     label: Prefix for gVCF files
   gvcfSuffixes:
     type: string[]
-    label: Suffix for gVCF files
+    label: Suffixes for gVCF files
 
 outputs:
   result:
@@ -44,20 +40,19 @@ outputs:
 steps:
   cgf_gvcf_check:
     run: validate-conversion-gvcf-cgf-chrom.cwl
-    scatter: [ chrom, gvcfPrefix, gvcfSuffix ]
+    scatter: [chrom,gvcfSuffix]
     scatterMethod: dotproduct
     in:
-      script: script
       cgfDir: cgfDir
       sglfDir: sglfDir
       gvcfDir: gvcfDir
       chrom: chroms
       refFaFn: refFaFn
       tileassembly: tileassembly
-      gvcfPrefix: gvcfPrefixes
+      gvcfPrefix: gvcfPrefix
       gvcfSuffix: gvcfSuffixes
       outfileName:
-        valueFrom: $(inputs.chrom + "-output.log")
+        valueFrom: $(inputs.chrom)-output.log
     out: [result]
   gather:
     run: gather_validate-conversion-gvcf-cgf.cwl

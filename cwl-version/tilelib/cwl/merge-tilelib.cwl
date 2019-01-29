@@ -26,14 +26,16 @@ inputs:
     inputBinding:
       position: 1
   srcdir:
-    type: Directory
+    type: Directory?
     label: Existing tile library directory
     inputBinding:
+      prefix: -s
       position: 2
-  nppdir:
+  newdir:
     type: Directory
     label: Directory of new tile library additions
     inputBinding:
+      prefix: -n
       position: 3
   nthreads:
     type: string

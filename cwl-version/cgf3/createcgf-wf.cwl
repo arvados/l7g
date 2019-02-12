@@ -5,38 +5,38 @@ cwlVersion: v1.0
 class: Workflow
 label: Creates a cgf for each FastJ file
 requirements:
-  - class: DockerRequirement
+  DockerRequirement:
     dockerPull: arvados/l7g
-  - class: ScatterFeatureRequirement
+  ScatterFeatureRequirement: {}
 hints:
   cwltool:LoadListingRequirement:
     loadListing: shallow_listing
 
 inputs:
-  refdirectory:
+  fjdir:
     type: Directory
     label: Input directory of FastJs
-  cglf:
+  lib:
     type: Directory
     label: Tile library directory
 
 outputs:
-  out1:
+  cgfs:
     type: File[]
     label: Output cgfs
-    outputSource: step2/out1
+    outputSource: createcgf/cgf
 
 steps:
-  step1:
+  getdirs:
     run: getdirs.cwl
     in:
-      refdirectory: refdirectory
-    out: [out1]
+      fjdir: fjdir
+    out: [fjdirs]
 
-  step2:
+  createcgf:
+    run: createcgf.cwl
     scatter: fjdir
     in:
-      fjdir: step1/out1
-      cglf: cglf
-    run: createcgf.cwl
-    out: [out1]
+      fjdir: getdirs/fjdirs
+      lib: lib
+    out: [cgf]

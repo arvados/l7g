@@ -1,5 +1,7 @@
 class: ExpressionTool
 cwlVersion: v1.0
+requirements:
+  InlineJavascriptRequirement: {}
 inputs:
   pathmin:
     type: string
@@ -11,14 +13,12 @@ inputs:
     type:  string
     label: Number of chunks to scatter
 outputs:
-  out1:
+  minpaths:
     type: string[]
     label: Array of path minimums
-  out2:
+  maxpaths:
     type: string[]
     label: Array of path maximums
-requirements:
-  InlineJavascriptRequirement: {}
 expression: |
   ${
 
@@ -34,7 +34,7 @@ expression: |
 
     for (var ival = imin; ival <= imax; ival++) {
       var value = ival;
-      myArray.push(value)
+      myArray.push(value);
     }
 
     var arrayLength = myArray.length;
@@ -49,5 +49,5 @@ expression: |
        minArray.push(minvalstr);
     }
 
-    return {"out1": minArray, "out2": maxArray};
+    return {"minpaths": minArray, "maxpaths": maxArray};
   }

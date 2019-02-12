@@ -5,9 +5,9 @@ cwlVersion: v1.0
 class: CommandLineTool
 label: Merges new tile library into existing tile library
 requirements:
-  - class: DockerRequirement
+  DockerRequirement:
     dockerPull: arvados/l7g
-  - class: ResourceRequirement
+  ResourceRequirement:
     coresMin: 16
     ramMin: 120000
 hints:
@@ -17,29 +17,30 @@ hints:
     loadListing: shallow_listing
 baseCommand: bash
 inputs:
-  bashscriptmain:
+  bashscript:
     type: File
     label: Master script to merge tile libraries
     default:
       class: File
-      location: ../src/merge-tilelibCWL.sh
+      location: src/merge-tilelibCWL.sh
     inputBinding:
       position: 1
-  srcdir:
+  srclib:
     type: Directory?
     label: Existing tile library directory
     inputBinding:
       prefix: -s
       position: 2
-  newdir:
+  newlib:
     type: Directory
-    label: Directory of new tile library additions
+    label: New tile library directory to be added
     inputBinding:
       prefix: -n
       position: 3
   nthreads:
     type: string
     label: Number of threads to use
+    default: "6"
     inputBinding:
       position: 4
   mergetilelib:
@@ -48,9 +49,8 @@ inputs:
     default: "/usr/local/bin/merge-sglf"
     inputBinding:
       position: 5
-
 outputs:
-  out1:
+  mergedlib:
     type: Directory
     label: Directory of merged tile library
     outputBinding:

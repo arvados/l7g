@@ -5,9 +5,9 @@ cwlVersion: v1.0
 class: CommandLineTool
 label: Consolidates multiple NumPy arrays into one large array
 requirements:
-  - class: DockerRequirement
+  DockerRequirement:
     dockerPull: arvados/l7g
-  - class: ResourceRequirement
+  ResourceRequirement:
     ramMin: 100000
     coresMin: 16
 hints:
@@ -15,15 +15,15 @@ hints:
     keep_cache: 4096
 baseCommand: bash
 inputs:
-  bashscriptmain:
+  bashscript:
     type: File
     label: Master script to consolidate tile path NumPy arrays
     default:
       class: File
-      location: ../src/allconsolCWL.sh
+      location: src/allconsolCWL.sh
     inputBinding:
       position: 1
-  indir:
+  npydir:
     type: Directory
     label: Input directory
     inputBinding:
@@ -47,7 +47,7 @@ inputs:
     inputBinding:
       position: 5
 outputs:
-  out1:
+  consolnpydir:
     type: Directory
     label: Consolidated NumPy arrays
     outputBinding:

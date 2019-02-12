@@ -5,9 +5,9 @@ cwlVersion: v1.0
 class: CommandLineTool
 label: Create NumPy vectors from cgfs by tile path
 requirements:
-  - class: DockerRequirement
+  DockerRequirement:
     dockerPull: arvados/l7g
-  - class: ResourceRequirement
+  ResourceRequirement:
     ramMin: 100000
     coresMin: 16
 hints:
@@ -15,12 +15,12 @@ hints:
     keep_cache: 4096
 baseCommand: bash
 inputs:
-  bashscriptmain:
+  bashscript:
     type: File
     label: Master script for creating the NumPy arrays
     default:
       class: File
-      location: ../src/create-npyCWL.sh
+      location: src/create-npyCWL.sh
     inputBinding:
       position: 1
   cgft:
@@ -29,7 +29,7 @@ inputs:
     default: "/usr/local/bin/cgft"
     inputBinding:
       position: 2
-  cgfdirectory:
+  cgfdir:
     type: Directory
     label: Directory of compact genome format files
     inputBinding:
@@ -51,7 +51,7 @@ inputs:
     label: Tool for saving dataset names
     default:
       class: File
-      location: ../src/create-list
+      location: src/create-list
     inputBinding:
       position: 6
   nthreads:
@@ -61,12 +61,12 @@ inputs:
     inputBinding:
       position: 7
 outputs:
-  out1:
+  npydir:
     type: Directory
     label: Directory of NumPy arrays
     outputBinding:
       glob: "npy"
-  out2:
+  npyhiqdir:
     type: Directory
     label: Directory of high quality NumPy arrays
     outputBinding:

@@ -5,9 +5,9 @@ cwlVersion: v1.0
 class: Workflow
 label: Create a tile library (SGLF) for a given set of FastJ files
 requirements:
-  - class: DockerRequirement
+  DockerRequirement:
     dockerPull: arvados/l7g
-  - class: ScatterFeatureRequirement
+  ScatterFeatureRequirement: {}
 hints:
   arv:RuntimeConstraints:
     keep_cache: 16384
@@ -24,7 +24,7 @@ inputs:
   nchunks:
     type: string
     label: Number of chunks to scatter
-  datadir:
+  fjdir:
     type: Directory
     label: Directory of FastJ files
   tagset:
@@ -32,31 +32,31 @@ inputs:
     label: Compressed tagset in FASTA format
 
 outputs:
-  out1:
+  sglfs:
     type:
       type: array
       items:
         type: array
         items: File
     label: Output tile library
-    outputSource: step2/out1
+    outputSource: createsglf/chunksglfs
 
 steps:
-  step1:
-    run: getpaths_chunk.cwl
+  getpaths:
+    run: getpaths.cwl
     in:
       pathmin: pathmin
       pathmax: pathmax
       nchunks: nchunks
-    out: [out1,out2]
+    out: [minpaths, maxpaths]
 
-  step2:
-     scatter: [tilepathmin,tilepathmax]
+  createsglf:
+     run: createsglf.cwl
+     scatter: [tilepathmin, tilepathmax]
      scatterMethod: dotproduct
      in:
-       tilepathmin: step1/out1
-       tilepathmax: step1/out2
-       datadir: datadir
+       tilepathmin: getpaths/minpaths
+       tilepathmax: getpaths/maxpaths
+       fjdir: fjdir
        tagset: tagset
-     run: createsglf_chunkv2.cwl
-     out: [out1]
+     out: [chunksglfs]

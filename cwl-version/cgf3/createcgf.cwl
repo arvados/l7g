@@ -5,9 +5,9 @@ cwlVersion: v1.0
 class: CommandLineTool
 label: Process and create cgf files from FastJ files
 requirements:
-  - class: DockerRequirement
+  DockerRequirement:
     dockerPull: arvados/l7g
-  - class: ResourceRequirement
+  ResourceRequirement:
     coresMin: 2
     ramMin: 13000
 hints:
@@ -22,7 +22,7 @@ inputs:
     label: Master script to convert FastJs to cgfs
     default:
       class: File
-      location: ../src/convertcgfCWL-empty-problem-tilepaths3.sh
+      location: src/convertcgfCWL-empty-problem-tilepaths3.sh
     inputBinding:
       position: 1
   fjdir:
@@ -42,14 +42,14 @@ inputs:
     default: "/usr/local/bin/fjt"
     inputBinding:
       position: 4
-  cglf:
+  lib:
     type: Directory
     label: Tile library directory
     inputBinding:
       position: 5
 outputs:
-  out1:
+  cgf:
     type: File
-    label: Output cgfs
+    label: Output cgf
     outputBinding:
       glob: "data/*.cgf"

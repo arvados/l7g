@@ -1,0 +1,11 @@
+vcfsdir:
+  class: Directory
+  path: keep:a216d5da3c7ad73b0242e57678f48f56+58474
+
+refFaFn:
+  class: File
+  path: keep:320d7a6717aa7b555a09e52976ba4a02+18534/human_g1k_v37.fasta.gz 
+
+script:
+  class: File
+  path: ../src/convert-vcf-bed-to-gvcf

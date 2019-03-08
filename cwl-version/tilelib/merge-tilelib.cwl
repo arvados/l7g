@@ -15,7 +15,6 @@ hints:
     keep_cache: 4096
   cwltool:LoadListingRequirement:
     loadListing: shallow_listing
-baseCommand: bash
 inputs:
   bashscript:
     type: File
@@ -23,32 +22,25 @@ inputs:
     default:
       class: File
       location: src/merge-tilelibCWL.sh
-    inputBinding:
-      position: 1
   srclib:
     type: Directory?
     label: Existing tile library directory
-    inputBinding:
-      prefix: -s
-      position: 2
   newlib:
     type: Directory
     label: New tile library directory to be added
-    inputBinding:
-      prefix: -n
-      position: 3
-  nthreads:
-    type: string
-    label: Number of threads to use
-    default: "6"
-    inputBinding:
-      position: 4
   mergetilelib:
     type: string
     label: Code that merges SGLF libraries
     default: "/usr/local/bin/merge-sglf"
-    inputBinding:
-      position: 5
+baseCommand: bash
+arguments:
+  - $(inputs.bashscript)
+  - prefix: "-s"
+    valueFrom: $(inputs.srclib)
+  - prefix: "-n"
+    valueFrom: $(inputs.newlib)
+  - $(runtime.cores)
+  - $(inputs.mergetilelib)
 outputs:
   mergedlib:
     type: Directory

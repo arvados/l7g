@@ -15,7 +15,6 @@ hints:
     keep_cache: 1046
   cwltool:LoadListingRequirement:
     loadListing: shallow_listing
-baseCommand: bash
 inputs:
   bashscript:
     type: File
@@ -23,30 +22,27 @@ inputs:
     default:
       class: File
       location: src/convertcgfCWL-empty-problem-tilepaths3.sh
-    inputBinding:
-      position: 1
   fjdir:
     type: Directory
     label: Input directory of FastJs
-    inputBinding:
-      position: 2
   cgft:
     type: string
     label: Tool to manipulate and inspect cgf files
     default: "/usr/local/bin/cgft"
-    inputBinding:
-      position: 3
   fjt:
     type: string
     label: Tool to manipulate FastJ files
     default: "/usr/local/bin/fjt"
-    inputBinding:
-      position: 4
   lib:
     type: Directory
     label: Tile library directory
-    inputBinding:
-      position: 5
+baseCommand: bash
+arguments:
+  - $(inputs.bashscript)
+  - $(inputs.fjdir)
+  - $(inputs.cgft)
+  - $(inputs.fjt)
+  - $(inputs.lib)
 outputs:
   cgf:
     type: File

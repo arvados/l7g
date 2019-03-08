@@ -13,7 +13,6 @@ requirements:
 hints:
   arv:RuntimeConstraints:
     keep_cache: 4096
-baseCommand: bash
 inputs:
   bashscript:
     type: File
@@ -21,45 +20,36 @@ inputs:
     default:
       class: File
       location: src/create-npyCWL.sh
-    inputBinding:
-      position: 1
   cgft:
     type: string
     label: Compact genome format tool
     default: "/usr/local/bin/cgft"
-    inputBinding:
-      position: 2
   cgfdir:
     type: Directory
     label: Directory of compact genome format files
-    inputBinding:
-      position: 3
   band2matrix:
     type: string
     label: Tool to convert band (path) information into NumPy array
     default: "/usr/local/bin/band-to-matrix-npy"
-    inputBinding:
-      position: 4
   cnvrt2hiq:
     type: string
     label: Tool to create NumPy files for high quality arrays
     default: "/usr/local/bin/npy-vec-to-hiq-1hot"
-    inputBinding:
-      position: 5
   makelist:
     type: File
     label: Tool for saving dataset names
     default:
       class: File
       location: src/create-list
-    inputBinding:
-      position: 6
-  nthreads:
-    type: string
-    label: Number of threads to use
-    default: "16"
-    inputBinding:
-      position: 7
+baseCommand: bash
+arguments:
+  - $(inputs.bashscript)
+  - $(inputs.cgft)
+  - $(inputs.cgfdir)
+  - $(inputs.band2matrix)
+  - $(inputs.cnvrt2hiq)
+  - $(inputs.makelist)
+  - $(runtime.cores)
 outputs:
   npydir:
     type: Directory

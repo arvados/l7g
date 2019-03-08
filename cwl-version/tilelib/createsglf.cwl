@@ -16,7 +16,6 @@ hints:
     keep_cache: 4096
   cwltool:LoadListingRequirement:
     loadListing: shallow_listing
-baseCommand: bash
 inputs:
   bashscript:
     type: File
@@ -24,40 +23,35 @@ inputs:
     default:
       class: File
       location: src/tilelib_chunk_v2CWL.sh
-    inputBinding:
-      position: 1
   tilepathmin:
     type: string
     label: Starting path in the tile library
-    inputBinding:
-      position: 2
   tilepathmax:
     type: string
     label: Last/Maximum path in the tile library
-    inputBinding:
-      position: 3
   fjcsv2sglf:
     type: string
     label: Tool to create tile library
     default: "/usr/local/bin/fjcsv2sglf"
-    inputBinding:
-      position: 4
   fjdir:
     type: Directory
     label: Directory of FastJ files
-    inputBinding:
-      position: 5
   fjt:
     type: string
     label: Tool to manipulate FastJ files
     default: "/usr/local/bin/fjt"
-    inputBinding:
-      position: 6
   tagset:
     type: File
     label: Compressed tagset in FASTA format
-    inputBinding:
-      position: 7
+baseCommand: bash
+arguments:
+  - $(inputs.bashscript)
+  - $(inputs.tilepathmin)
+  - $(inputs.tilepathmax)
+  - $(inputs.fjcsv2sglf)
+  - $(inputs.fjdir)
+  - $(inputs.fjt)
+  - $(inputs.tagset)
 outputs:
   chunksglfs:
     type: File[]

@@ -13,7 +13,6 @@ requirements:
 hints:
   arv:RuntimeConstraints:
     keep_cache: 4096
-baseCommand: bash
 inputs:
   bashscript:
     type: File
@@ -21,31 +20,28 @@ inputs:
     default:
       class: File
       location: src/allconsolCWL.sh
-    inputBinding:
-      position: 1
   npydir:
     type: Directory
     label: Input directory
-    inputBinding:
-      position: 2
   outdir:
     type: string
     label: Name of output directory
     default: "outdir"
-    inputBinding:
-      position: 3
   outprefix:
     type: string
     label: Prefix for consolidated arrays
     default: "all"
-    inputBinding:
-      position: 4
   npyconsolfile:
     type: string
     label: Program to consolidated NumPy arrays
     default: "/usr/local/bin/npy-consolidate"
-    inputBinding:
-      position: 5
+baseCommand: bash
+arguments:
+  - $(inputs.bashscript)
+  - $(inputs.npydir)
+  - $(inputs.outdir)
+  - $(inputs.outprefix)
+  - $(inputs.npyconsolfile)
 outputs:
   consolnpydir:
     type: Directory

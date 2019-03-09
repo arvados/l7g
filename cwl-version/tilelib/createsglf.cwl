@@ -9,7 +9,6 @@ requirements:
     dockerPull: arvados/l7g
   ResourceRequirement:
     coresMin: 16
-    coresMax: 16
     ramMin: 100000
 hints:
   arv:RuntimeConstraints:
@@ -43,6 +42,12 @@ inputs:
   tagset:
     type: File
     label: Compressed tagset in FASTA format
+outputs:
+  chunksglfs:
+    type: File[]
+    label: Output SGLF files
+    outputBinding:
+      glob: "lib/*sglf.gz*"
 baseCommand: bash
 arguments:
   - $(inputs.bashscript)
@@ -52,9 +57,3 @@ arguments:
   - $(inputs.fjdir)
   - $(inputs.fjt)
   - $(inputs.tagset)
-outputs:
-  chunksglfs:
-    type: File[]
-    label: Output SGLF files
-    outputBinding:
-      glob: "lib/*sglf.gz*"

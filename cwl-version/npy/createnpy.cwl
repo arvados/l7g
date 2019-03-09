@@ -8,8 +8,8 @@ requirements:
   DockerRequirement:
     dockerPull: arvados/l7g
   ResourceRequirement:
-    ramMin: 100000
     coresMin: 16
+    ramMin: 100000
 hints:
   arv:RuntimeConstraints:
     keep_cache: 4096
@@ -41,15 +41,6 @@ inputs:
     default:
       class: File
       location: src/create-list
-baseCommand: bash
-arguments:
-  - $(inputs.bashscript)
-  - $(inputs.cgft)
-  - $(inputs.cgfdir)
-  - $(inputs.band2matrix)
-  - $(inputs.cnvrt2hiq)
-  - $(inputs.makelist)
-  - $(runtime.cores)
 outputs:
   npydir:
     type: Directory
@@ -66,3 +57,12 @@ outputs:
     label: File listing sample names
     outputBinding:
       glob: "npy/names"
+baseCommand: bash
+arguments:
+  - $(inputs.bashscript)
+  - $(inputs.cgft)
+  - $(inputs.cgfdir)
+  - $(inputs.band2matrix)
+  - $(inputs.cnvrt2hiq)
+  - $(inputs.makelist)
+  - $(runtime.cores)

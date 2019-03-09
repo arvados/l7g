@@ -8,8 +8,8 @@ requirements:
   DockerRequirement:
     dockerPull: arvados/l7g
   ResourceRequirement:
-    ramMin: 100000
     coresMin: 16
+    ramMin: 100000
 hints:
   arv:RuntimeConstraints:
     keep_cache: 4096
@@ -35,6 +35,12 @@ inputs:
     type: string
     label: Program to consolidated NumPy arrays
     default: "/usr/local/bin/npy-consolidate"
+outputs:
+  consolnpydir:
+    type: Directory
+    label: Consolidated NumPy arrays
+    outputBinding:
+      glob: $(inputs.outdir)
 baseCommand: bash
 arguments:
   - $(inputs.bashscript)
@@ -42,9 +48,3 @@ arguments:
   - $(inputs.outdir)
   - $(inputs.outprefix)
   - $(inputs.npyconsolfile)
-outputs:
-  consolnpydir:
-    type: Directory
-    label: Consolidated NumPy arrays
-    outputBinding:
-      glob: $(inputs.outdir)

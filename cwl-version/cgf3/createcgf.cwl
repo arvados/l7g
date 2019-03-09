@@ -36,6 +36,12 @@ inputs:
   lib:
     type: Directory
     label: Tile library directory
+outputs:
+  cgf:
+    type: File
+    label: Output cgf
+    outputBinding:
+      glob: "data/*.cgf"
 baseCommand: bash
 arguments:
   - $(inputs.bashscript)
@@ -43,9 +49,3 @@ arguments:
   - $(inputs.cgft)
   - $(inputs.fjt)
   - $(inputs.lib)
-outputs:
-  cgf:
-    type: File
-    label: Output cgf
-    outputBinding:
-      glob: "data/*.cgf"

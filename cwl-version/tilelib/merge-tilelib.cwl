@@ -32,6 +32,12 @@ inputs:
     type: string
     label: Code that merges SGLF libraries
     default: "/usr/local/bin/merge-sglf"
+outputs:
+  mergedlib:
+    type: Directory
+    label: Directory of merged tile library
+    outputBinding:
+      glob: "*merge*"
 baseCommand: bash
 arguments:
   - $(inputs.bashscript)
@@ -41,9 +47,3 @@ arguments:
     valueFrom: $(inputs.newlib)
   - $(runtime.cores)
   - $(inputs.mergetilelib)
-outputs:
-  mergedlib:
-    type: Directory
-    label: Directory of merged tile library
-    outputBinding:
-      glob: "*merge*"

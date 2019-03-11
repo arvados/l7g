@@ -1,0 +1,27 @@
+gffdir:
+  class: Directory
+  location: keep:5341cd1bd4a17a95f709a382715a3d48+307
+ref: "hg19"
+reffa:
+  class: File
+  location: keep:ef70506d71ee761b1ec28d67290216a0+1252/hg19.fa.gz
+afn:
+  class: File
+  location: keep:98c5e71956730c36cc89bb25b99fe58b+965/assembly.00.hg19.fw.gz
+aidx:
+  class: File
+  location: keep:98c5e71956730c36cc89bb25b99fe58b+965/assembly.00.hg19.fw.fwi
+refM: "hg19"
+reffaM:
+  class: File
+  location: keep:ef70506d71ee761b1ec28d67290216a0+1252/hg19.fa.gz
+afnM:
+  class: File
+  location: keep:98c5e71956730c36cc89bb25b99fe58b+965/assembly.00.hg19.fw.gz
+aidxM:
+  class: File
+  location: keep:98c5e71956730c36cc89bb25b99fe58b+965/assembly.00.hg19.fw.fwi
+seqidM: "chrM"
+tagset:
+  class: File
+  location: keep:cd9ada494bd979a8bc74e6d59d3e8710+174/tagset.fa.gz

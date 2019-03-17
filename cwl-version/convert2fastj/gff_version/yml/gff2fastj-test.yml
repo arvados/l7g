@@ -1,6 +1,6 @@
 gff:
   class: File
-  location: keep:5341cd1bd4a17a95f709a382715a3d48+307/hu826751-GS03052-DNA_B01.gff.gz
+  location: keep:2e3ddcd96443b42f9ccb59ddb1aea116+327/hu826751-GS03052-DNA_B01.gff.gz
 ref: "hg19"
 reffa:
   class: File

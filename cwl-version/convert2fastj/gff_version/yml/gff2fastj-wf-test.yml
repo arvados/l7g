@@ -1,6 +1,6 @@
 gffdir:
   class: Directory
-  location: keep:5341cd1bd4a17a95f709a382715a3d48+307
+  location: keep:2e3ddcd96443b42f9ccb59ddb1aea116+327
 ref: "hg19"
 reffa:
   class: File

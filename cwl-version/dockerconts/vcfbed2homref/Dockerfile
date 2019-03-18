@@ -17,7 +17,7 @@ RUN apt-get update && \
 
 RUN mkdir -p /root/git && \
   cd /root/git && \
-  git clone https://github.com/bunchoftrees/l7g && \
+  git clone https://github.com/curoverse/l7g && \
   git clone https://github.com/simongog/sdsl-lite && \
   cd /root/git/sdsl-lite && ./install.sh /usr/local && \
 

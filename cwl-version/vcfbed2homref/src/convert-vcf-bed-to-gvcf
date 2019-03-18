@@ -55,7 +55,6 @@ if [[ "$VERBOSE" -eq 1 ]] ; then
   echo "### indexing $outvcf"
 fi
 
-bgzip -r "$outvcf"
 tabix -f "$outvcf"
 
 if [[ "$VERBOSE" -eq 1 ]] ; then

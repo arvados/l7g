@@ -5,56 +5,45 @@ cwlVersion: v1.0
 class: CommandLineTool
 requirements:
   - class: DockerRequirement
-    dockerPull: vcfbed2homref0.1.3
+    dockerPull: vcfbed2homref
   - class: ResourceRequirement
     coresMin: 1
-  - class: InlineJavascriptRequirement
   - class: InitialWorkDirRequirement
     listing:
-     - entry: $(inputs.refFaFn)
+     - entry: $(inputs.ref)
        writable: True
-     # - entry: $(inputs.refFaFn.secondaryFiles[0])
-       # writable: True
-hints:
-  - class: arv:RuntimeConstraints
-
 baseCommand: bash
-
 inputs:
-
   script:
     type: File
+    default:
+      class: File
+      location: ../src/convert-vcf-bed-to-gvcf
     inputBinding:
       position: 1
-
-  gvcfFn:
+  vcf:
     type: File
     inputBinding:
       position: 2
     secondaryFiles:
       - .tbi
-
-  bedFn:
+  bed:
     type: File
     inputBinding:
       position: 3
-
-  refFaFn:
+  ref:
     type: File
     inputBinding:
       position: 4
       valueFrom: $(self.basename)
-    # secondaryFiles:
-      # - .gzi
-      # - .fai
-
-  outName:
+  out_file:
     type: string
     inputBinding:
       position: 5
-
 outputs:
   result:
-    type: Directory
+    type: File
     outputBinding:
       glob: "."
+    secondaryFiles:
+      - .tbi

@@ -3,20 +3,20 @@ cwlVersion: v1.0
 inputs:
   vcfsdir: Directory
 outputs:
-  gvcfFns:
+  vcfs:
     type: File[]
     secondaryFiles: [.tbi]
-  bedFns: File[]
-  outNames: string[]
+  beds: File[]
+  out_files: string[]
 requirements:
   InlineJavascriptRequirement: {}
   cwltool:LoadListingRequirement:
     loadListing: deep_listing
 expression: |
   ${
-    var gvcfFns = [];
-    var bedFns = [];
-    var outNames = [];
+    var vcfs = [];
+    var beds = [];
+    var out_files = [];
 
     for (var i = 0; i < inputs.vcfsdir.listing.length; i++) {
       var file = inputs.vcfsdir.listing[i];
@@ -32,12 +32,10 @@ expression: |
             var bed = file;
           }
         }
-        gvcfFns.push(main);
-        bedFns.push(bed);
-        outNames.push(mainName);
-
+        vcfs.push(main);
+        beds.push(bed);
+        out_files.push(mainName);
       }
     }
-
-    return {"gvcfFns": gvcfFns, "bedFns": bedFns, "outNames": outNames};
+    return {"vcfs": vcfs, "beds": beds, "out_files": out_files};
   }

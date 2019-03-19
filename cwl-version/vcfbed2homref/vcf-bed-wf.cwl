@@ -11,7 +11,7 @@ requirements:
 inputs:
   vcfsdir: Directory
   script: File
-  refFaFn:
+  ref:
     type: File
 outputs:
   result:

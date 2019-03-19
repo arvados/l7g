@@ -25,7 +25,7 @@ steps:
     out: [vcfs, beds, out_files]
   vcftogvcftool:
     run: vcf-bed-tool.cwl
-    scatter: [gvcfFn, bedFn, out_file]
+    scatter: [vcf, bed, out_file]
     scatterMethod: dotproduct
     in:
       script: script

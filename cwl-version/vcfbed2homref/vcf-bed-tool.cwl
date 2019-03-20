@@ -18,7 +18,7 @@ inputs:
     type: File
     default:
       class: File
-      location: ../src/convert-vcf-bed-to-gvcf
+      location: src/convert-vcf-bed-to-gvcf
     inputBinding:
       position: 1
   vcf:
@@ -44,6 +44,6 @@ outputs:
   result:
     type: File
     outputBinding:
-      glob: "."
+      glob: "*.vcf.gz"
     secondaryFiles:
       - .tbi

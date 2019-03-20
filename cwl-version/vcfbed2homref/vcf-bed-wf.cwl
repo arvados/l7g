@@ -10,12 +10,11 @@ requirements:
   - class: ScatterFeatureRequirement
 inputs:
   vcfsdir: Directory
-  script: File
   ref:
     type: File
 outputs:
   result:
-    type: Directory[]
+    type: File[]
     outputSource: vcftogvcftool/result
 steps:
   getfiles:
@@ -28,7 +27,6 @@ steps:
     scatter: [vcf, bed, out_file]
     scatterMethod: dotproduct
     in:
-      script: script
       vcf: getfiles/vcfs
       bed: getfiles/beds
       ref: ref

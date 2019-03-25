@@ -36,7 +36,7 @@ inputs:
     inputBinding:
       position: 4
       valueFrom: $(self.basename)
-  out_file:
+  outname:
     type: string
     inputBinding:
       position: 5

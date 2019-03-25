@@ -7,7 +7,7 @@ outputs:
     type: File[]
     secondaryFiles: [.tbi]
   beds: File[]
-  out_files: string[]
+  outnames: string[]
 requirements:
   InlineJavascriptRequirement: {}
   cwltool:LoadListingRequirement:
@@ -16,7 +16,7 @@ expression: |
   ${
     var vcfs = [];
     var beds = [];
-    var out_files = [];
+    var outnames = [];
 
     for (var i = 0; i < inputs.vcfsdir.listing.length; i++) {
       var file = inputs.vcfsdir.listing[i];
@@ -34,8 +34,8 @@ expression: |
         }
         vcfs.push(main);
         beds.push(bed);
-        out_files.push(mainName);
+        outnames.push(mainName);
       }
     }
-    return {"vcfs": vcfs, "beds": beds, "out_files": out_files};
+    return {"vcfs": vcfs, "beds": beds, "outnames": outnames};
   }

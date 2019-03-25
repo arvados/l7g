@@ -5,8 +5,6 @@ requirements:
     dockerPull: vcfbed2homref
   - class: ResourceRequirement
     coresMin: 1
-  - class: InlineJavascriptRequirement
-  - class: SubworkflowFeatureRequirement
   - class: ScatterFeatureRequirement
 inputs:
   vcfsdir: Directory
@@ -15,20 +13,20 @@ inputs:
 outputs:
   result:
     type: File[]
-    outputSource: vcftogvcftool/result
+    outputSource: vcfbed2gvcf/result
 steps:
-  getfiles:
-    run: vcf-bed-scatter.cwl
+  get-vcfbed:
+    run: get-vcfbed.cwl
     in: 
       vcfsdir: vcfsdir
-    out: [vcfs, beds, out_files]
-  vcftogvcftool:
-    run: vcf-bed-tool.cwl
-    scatter: [vcf, bed, out_file]
+    out: [vcfs, beds, outnames]
+  vcfbed2gvcf:
+    run: vcfbed2gvcf.cwl
+    scatter: [vcf, bed, outname]
     scatterMethod: dotproduct
     in:
-      vcf: getfiles/vcfs
-      bed: getfiles/beds
+      vcf: get-vcfbed/vcfs
+      bed: get-vcfbed/beds
       ref: ref
-      out_file: getfiles/out_files
+      outname: get-vcfbed/outnames
     out: [result]

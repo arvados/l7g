@@ -1,0 +1,62 @@
+#!/bin/bash
+#
+# vcfbed2homref is expected to be available
+# The VCF file is expected to be indexed and gzip'd
+# The BED file is expected to be uncompressed
+# The reference file is expected to be compressed and indexed
+#
+
+VERBOSE=1
+
+invcf="$1"
+inbed="$2"
+inref="$3"
+outvcf="$4"
+
+if [[ "$invcf" == "" ]] || [[ "$inbed" == "" ]] || [[ "$inref" == "" ]] ; then
+  echo "provide input vcf and bed file"
+  exit 1
+fi
+
+if [[ "$outvcf" == "" ]] ; then
+  outvcf="out.vcf.gz"
+fi
+
+function choosecat {
+  inf="$1"
+
+  ftype=`file -b -i -L "$inf" | cut -f1 -d';'`
+
+  if [[ ! -e "$inf" ]] ; then
+    echo "cat"
+  elif [[ "$ftype" == "application/x-bzip2" ]] ; then
+    echo "bzcat"
+  elif [[ "$ftype" == "application/gzip" ]] ; then
+    echo "zcat"
+  elif [[ "$ftype" == "text/plain" ]] ; then
+    echo "cat"
+  else
+    echo "cat"
+  fi
+}
+vcfcat=`choosecat "$invcf"`
+bedcat=`choosecat "$inbed"`
+
+if [[ "$VERBOSE" -eq 1 ]] ; then
+  echo "vcfbed2homref -r \"$inref\" -b <( $bedcat \"$inbed\" ) <( $vcfcat \"$invcf\" ) | bgzip -c > \"$outvcf\" "
+fi
+
+vcfbed2homref -r "$inref" -b "$inbed" "$invcf" | \
+  bgzip -c > "$outvcf"
+r=$?
+
+if [[ "$VERBOSE" -eq 1 ]] ; then
+  echo "### finished conversion, exit code $r"
+  echo "### indexing $outvcf"
+fi
+
+tabix -f "$outvcf"
+
+if [[ "$VERBOSE" -eq 1 ]] ; then
+  echo "### done"
+fi

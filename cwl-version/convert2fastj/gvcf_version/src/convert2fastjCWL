@@ -3,7 +3,6 @@
 set -a
 
 DEBUG=0
-export MAKE_NEW_DIR=1
 export VERBOSE=1
 
 function _q {
@@ -11,38 +10,37 @@ function _q {
   exit 1
 }
 
-gvcfDir="$1"
-gvcfPrefix="$2"
+gvcfInitial="$1"
 
-if [ "$gvcfDir" == "" ] ; then
-  echo "provide inital directory"
+if [ "$gvcfInitial" == "" ] ; then
+  echo "provide file"
   exit 1
 fi
 
-trap "ERROR: $gvcfDir $path ; exit" ERR
+trap "ERROR: $gvcfInitial $path ; exit" ERR
 
-export ref1="$3"
-export reffa1="$4"
-export afn1="$5"
-export aidx1="$6"
+export ref1="$2"
+export reffa1="$3"
+export afn1="$4"
+export aidx1="$5"
 
-export refM="$7"
-export reffaM="$8"
-export afnM="$9"
-export aidxM="${10}"
-export seqidM="${11}"
+export refM="$6"
+export reffaM="$7"
+export afnM="$8"
+export aidxM="$9"
+export seqidM="${10}"
 
-export tagdir="${12}"
-export l7g="${13}"
-export pasta="${14}"
-export refstream="${15}"
-export tile_assembly="${16}"
+export tagdir="${11}"
+export l7g="${12}"
+export pasta="${13}"
+export refstream="${14}"
+export tile_assembly="${15}"
 
 export LD_LIBRARY_PATH='/usr/local/bin'
 
 if [[ "$VERBOSE" -eq 1 ]] ; then
 echo "individual variable listings"
-echo "dir $gvcfDir"
+echo "gvcf $gvcfInitial"
 echo "ref $ref1"
 echo "reffa $reffa1"
 echo "afn $afn1"
@@ -59,27 +57,16 @@ echo "l7g $l7g"
 echo "tile_assembly $tile_assembly"
 fi
 
-mkdir -p 'indexed'
+ifnInitial=`basename $gvcfInitial`
+stripped_name=`basename $ifnInitial .vcf.gz`
+export gvcf=$gvcfInitial
 
 for chrom in chr1 chr2 chr3 chr4 chr5 chr6 chr7 chr8 chr9 chr10 chr11 chr12 chr13 chr14 chr15 chr16 chr17 chr18 chr19 chr20 chr21 chr22 chrX chrY chrM ; do
-
-   gvcfInitial=$gvcfDir'/filtered_'$gvcfPrefix.raw_variants.$chrom.gvcf.gz
-   ifnInitial=`basename $gvcfInitial`
-   stripped_name=`basename $ifnInitial .gvcf.gz`
 
    if [[ "$VERBOSE" -eq 1 ]] ; then
      echo "gvcfInitial: $gvcfInitial"
      echo "ifnInitial: $ifnInitial"
      echo "stripped_name: $stripped_name"
-   fi
-
-   if [[ "$MAKE_NEW_DIR" != 1 ]] ; then
-     tabix -f $gvcfInitial
-     gvcf=$gvcfInitial
-   else
-     cp -f $gvcfInitial 'indexed/'$stripped_name'.gvcf.gz'
-     gvcf='indexed/'$stripped_name'.gvcf.gz'
-     tabix -f $gvcf
    fi
 
    if [[ "$VERBOSE" -eq 1 ]] ; then
@@ -109,7 +96,7 @@ for chrom in chr1 chr2 chr3 chr4 chr5 chr6 chr7 chr8 chr9 chr10 chr11 chr12 chr1
     echo $stripped_name processing $chrom
   fi
 
-  odir="stage/$gvcfPrefix"
+  odir="stage/$stripped_name"
   mkdir -p $odir
 
   while read line

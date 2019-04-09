@@ -59,7 +59,7 @@ steps:
     out: [sglfs]
 
   handle-sglfs:
-    run: jstools/nestedarray-to-dir.cwl
+    run: expressiontool/nestedarray-to-dir.cwl
     in:
       nestedarr: createsglf-wf/sglfs
       dirname:
@@ -81,7 +81,7 @@ steps:
     out: [cgfs]
 
   handle-cgfs:
-    run: jstools/array-to-dir.cwl
+    run: expressiontool/array-to-dir.cwl
     in:
       arr: createcgf-wf/cgfs
       dirname:

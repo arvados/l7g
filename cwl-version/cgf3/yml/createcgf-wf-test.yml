@@ -1,6 +1,6 @@
 fjdir:
   class: Directory
-  location: keep:8855966fec04d8acf527874c2e5906d7+363535/A-IIAA-IA000604-BL-NCR-14AD67907
+  location: keep:8855966fec04d8acf527874c2e5906d7+363535
 
 lib:
   class: Directory

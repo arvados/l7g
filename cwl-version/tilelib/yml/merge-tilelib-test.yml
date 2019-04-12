@@ -1,9 +1,7 @@
-srcdir:
+srclib:
   class: Directory
-  path: keep:930016325d1255b6de3a52e7e3f92e2b+33997
+  location: keep:930016325d1255b6de3a52e7e3f92e2b+33997
 
-nppdir:
+newlib:
   class: Directory
-  path: keep:84442119b488b9ccd7d9c9fec49dd779+33982
-
-nthreads: "6"
+  location: keep:84442119b488b9ccd7d9c9fec49dd779+33982

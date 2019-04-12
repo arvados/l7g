@@ -9,6 +9,7 @@ requirements:
   - class: ResourceRequirement
     coresMin: 2
     coresMax: 2
+    ramMin: 13000
 hints:
   arv:RuntimeConstraints:
     keep_cache: 4096

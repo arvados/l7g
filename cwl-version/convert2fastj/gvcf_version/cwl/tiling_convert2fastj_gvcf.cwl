@@ -57,14 +57,6 @@ outputs:
     type: Directory[]
     label: Directories of FastJs
     outputSource: step2/out1
-  out2:
-    type:
-      type: array
-      items:
-        type: array
-        items: File
-    label: Indexed and zipped gVCFs
-    outputSource: step2/out2
 
 steps:
   step1:

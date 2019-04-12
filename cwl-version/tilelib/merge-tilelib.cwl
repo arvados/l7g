@@ -45,5 +45,5 @@ arguments:
     valueFrom: $(inputs.srclib)
   - prefix: "-n"
     valueFrom: $(inputs.newlib)
-  - $(runtime.cores)
+  - "6"
   - $(inputs.mergetilelib)

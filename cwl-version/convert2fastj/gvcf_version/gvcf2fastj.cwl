@@ -60,7 +60,7 @@ inputs:
     default: "/usr/local/bin/l7g"
   pasta:
     type: string
-    label: Tool for streaming and converting variant call formats
+    label: Tool for handling verbose stream oriented format
     default: "/usr/local/bin/pasta"
   refstream:
     type: string

@@ -14,7 +14,7 @@ hints:
 inputs:
   gvcfdir:
     type: Directory
-    label: Input gvcf directory
+    label: Input gVCF directory
   ref:
     type: string
     label: Reference genome
@@ -49,6 +49,7 @@ inputs:
 outputs:
   fjdirs:
     type: Directory[]
+    label: Output FastJ directories
     outputSource: gvcf2fastj/fjdir
 
 steps:

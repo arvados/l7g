@@ -1,0 +1,3 @@
+vcf:
+  path: Sample_out.vcf
+  class: File

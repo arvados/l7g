@@ -6,14 +6,13 @@
 
 FROM arvados/jobs:latest
 
-
 USER root
 
 RUN apt-get update && \
-  apt-get install -y build-essential golang libssl-dev \
+  apt-get install -y build-essential golang libssl-dev git bedtools \
     less wget \
     libncurses5-dev autoconf libbz2-dev liblzma-dev \
-    cmake tabix libhts-dev parallel python-numpy 
+    cmake tabix zlib1g-dev libhts-dev parallel python-numpy
 
 RUN mkdir -p /root/git && \
   cd /root/git && \
@@ -33,6 +32,14 @@ RUN mkdir -p /root/git && \
   cd /root/git/samtools && \
   autoheader && autoconf -Wno-syntax && \
   ./configure && make && make install && \
+
+  cd /root/git && \
+  git clone https://github.com/vcftools/vcftools && \
+  cd /root/git/vcftools && \
+  ./autogen.sh && ./configure && make && make install && \
+
+  cd /root/git/l7g/tools/misc && make && \
+  cp /root/git/l7g/tools/misc/cleanvcf /usr/local/bin && \
 
   cd /root/git/l7g/tools/fjt && make && \
   cp /root/git/l7g/tools/fjt/fjt /usr/local/bin && \
@@ -110,5 +117,4 @@ RUN cd /usr/local/bin && \
   wget http://hgdownload.cse.ucsc.edu/admin/exe/linux.x86_64/bigWigToBedGraph && \
   chmod a+x bigWigToBedGraph
 
-USER crunch
 

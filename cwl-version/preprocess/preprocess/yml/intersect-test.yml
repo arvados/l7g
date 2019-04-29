@@ -1,0 +1,6 @@
+vcf:
+  path: keep:0539d64eeafd9c64840963de92b90621+2158/unsorted/HG002_GIAB_highconf_IllFB-IllGATKHC-CG-Ion-Solid_CHROM1-22_v3.2_highconf.vcf
+  class: File
+bed:
+  path: keep:0539d64eeafd9c64840963de92b90621+2158/unsorted/HG002_GIAB_highconf_IllFB-IllGATKHC-CG-Ion-Solid_CHROM1-22_v3.2_highconf.bed
+  class: File 

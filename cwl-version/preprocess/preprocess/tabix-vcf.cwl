@@ -4,11 +4,11 @@ requirements:
   - class: DockerRequirement
     dockerPull: fbh/vcfpreprocess
 inputs:
-  sortedvcf:
+  bgzipvcf:
     type: File
     inputBinding:
       position: 1
 outputs:
-  bgzipvcf:
+  tabixvcf:
     type: File
-baseCommand: bgzip
+baseCommand: tabix

@@ -3,7 +3,10 @@ class: CommandLineTool
 requirements:
   - class: DockerRequirement 
     dockerPull: fbh/vcfpreprocess
-  - class: ShellCommandRequirement  
+  - class: ShellCommandRequirement
+  - class: ResourceRequirement
+    #coresMin: 2
+    ramMin: 13000
 inputs: 
   sortedvcf:
     type: File
@@ -19,17 +22,17 @@ inputs:
     type: string
     default: "-F 1"
     inputBinding:
-      shellQuote: False 
+      #shellQuote: False 
       position: 3
-# Print the header from the A file prior to results      
+# Print the header to stdout from the A file prior to results      
   headeroption:
     type: string
     default: "-header"
     inputBinding:
-      shellQuote: False
+      #shellQuote: False
       position: 4
 outputs: 
   intersectedvcf:
     type: stdout
-baseCommand: intersectBed
+baseCommand: [bedtools, intersect]
 stdout: "intersected-output.vcf"

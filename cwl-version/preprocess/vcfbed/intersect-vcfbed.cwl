@@ -14,8 +14,13 @@ outputs:
     outputBinding:
       glob: "*.vcf.gz" 
     secondaryFiles: [.tbi]
-baseCommand: [bedtools, intersect]
+baseCommand: [gunzip]
 arguments:
+    valueFrom: $(inputs.vcf.basename).gz
+  - shellQuote: false
+    valueFrom: "&&"
+  - "bedtools"
+  - "intersect"
   - "-header" 
   - prefix: "-a" 
     valueFrom: $(inputs.vcf)

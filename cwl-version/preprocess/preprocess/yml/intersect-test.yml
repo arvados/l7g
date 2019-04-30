@@ -1,6 +1,6 @@
 vcf:
-  path: keep:0539d64eeafd9c64840963de92b90621+2158/unsorted/HG002_GIAB_highconf_IllFB-IllGATKHC-CG-Ion-Solid_CHROM1-22_v3.2_highconf.vcf
+  path: keep:3f73e6f121e56f46cea93ae7c4442f51+370/hu01F73B_masterVarBeta-GS000037833-ASM.vcf
   class: File
 bed:
-  path: keep:0539d64eeafd9c64840963de92b90621+2158/unsorted/HG002_GIAB_highconf_IllFB-IllGATKHC-CG-Ion-Solid_CHROM1-22_v3.2_highconf.bed
+  path: keep:3f73e6f121e56f46cea93ae7c4442f51+370/hu01F73B_masterVarBeta-GS000037833-ASM.bed
   class: File 

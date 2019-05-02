@@ -33,7 +33,7 @@ inputs:
     type: File
     label: Reference tile assembly file
     secondaryFiles: [.fwi, .gzi]
-  refFaFn:
+  reffa:
     type: File
     label: Reference FASTA file
     secondaryFiles: [.fai, .gzi]
@@ -52,4 +52,4 @@ arguments:
   - $(inputs.checknum)
   - $(inputs.chrom)
   - $(inputs.tileassembly)
-  - $(inputs.refFaFn)
+  - $(inputs.reffa)

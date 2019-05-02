@@ -28,6 +28,23 @@ inputs:
   srclib:
     type: Directory?
     label: Existing tile library directory
+  gvcfdir:
+    type: Directory
+    label: gVCF directory
+  checknum:
+    type: int
+    label: Number of samples to check
+  chroms:
+    type: string[]
+    label: Chromosomes to analyze
+  tileassembly:
+    type: File
+    label: Reference tile assembly file
+    secondaryFiles: [.fwi, .gzi]
+  reffa:
+    type: File
+    label: Reference FASTA file
+    secondaryFiles: [.fai, .gzi]
 
 outputs:
   lib:
@@ -87,6 +104,18 @@ steps:
       dirname:
         valueFrom: "cgf"
     out: [dir]
+
+  check-cgfs:
+    run: ../checks/check-cgf/gvcf/check-cgf-gvcf-wf.cwl
+    in:
+      cgfdir: handle-cgfs/dir
+      sglfdir: merge-tilelib/mergedlib
+      gvcfdir: gvcfdir
+      checknum: checknum
+      chroms: chroms
+      tileassembly: tileassembly
+      reffa: reffa
+    out: [logs]
 
   createnpy-wf:
     run: ../npy/createnpy-wf.cwl

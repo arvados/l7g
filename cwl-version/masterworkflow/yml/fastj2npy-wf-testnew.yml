@@ -1,9 +1,12 @@
-cgfdir:
+fjdir:
   class: Directory
-  location: keep:618da11ba90cc10b54cfb0b52afe29cf+28796/cgf
-sglfdir:
-  class: Directory
-  location: keep:618da11ba90cc10b54cfb0b52afe29cf+28796/lib-merge
+  location: keep:bbfdef250959c36582e49c3daceb4d77+204434
+tagset:
+  class: File
+  location: keep:cd9ada494bd979a8bc74e6d59d3e8710+174/tagset.fa.gz
+pathmin: "0"
+pathmax: "862"
+nchunks: "15"
 gvcfdir:
   class: Directory
   location: keep:4983898697fdc0890f26c87413f883f3+14420

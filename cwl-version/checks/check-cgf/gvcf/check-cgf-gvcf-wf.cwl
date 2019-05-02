@@ -24,10 +24,11 @@ inputs:
     type: File
     label: Reference tile assembly file
     secondaryFiles: [.fwi, .gzi]
-  refFaFn:
+  reffa:
     type: File
     label: Reference FASTA file
     secondaryFiles: [.fai, .gzi]
+
 outputs:
   logs:
     type: File[]
@@ -45,5 +46,5 @@ steps:
       checknum: checknum
       chrom: chroms
       tileassembly: tileassembly
-      refFaFn: refFaFn
+      reffa: reffa
     out: [log]

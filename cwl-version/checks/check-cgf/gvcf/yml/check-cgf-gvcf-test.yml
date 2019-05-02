@@ -12,6 +12,6 @@ chrom: "chr1"
 tileassembly:
   class: File
   location: keep:ee01813e404906d36527b402e124e537+241/assembly.00.hg38.fw.gz
-refFaFn:
+reffa:
   class: File
   location: keep:5fb82d9a1d2c5d5c64ceca29a90a9c8e+763/hg38.fa.gz

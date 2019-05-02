@@ -8,36 +8,28 @@ SKIP_BAND=0
 export cgf_dir="$1"
 export sglf_dir="$2"
 export gvcf_dir="$3"
+export check_num="$4"
 
-export chrom="$4"
+export chrom="$5"
 
-export afn="$5"
-export ref_fa="$6"
+export afn="$6"
+export ref_fa="$7"
 
-export gvcf_pfx="$7"
-export gvcf_sfx="$8"
-
-export outfile="$9"
+export outfile=$chrom"-output.log"
 
 export ref=`basename $ref_fa .fa.gz`
 export aidx="$afn.fwi"
 
-if [[ "$outfile" == "" ]] ; then
-  outfile=/dev/stdout
-else
-  rm -rf $outfile
-fi
-
-
 if [[ "$cgf_dir" == "" ]] || \
    [[ "$sglf_dir" == "" ]] || \
-   [[ "$sglf_dir" == "" ]] || \
+   [[ "$gvcf_dir" == "" ]] || \
+   [[ "$check_num" == "" ]] || \
    [[ "$chrom" == "" ]] || \
    [[ "$ref_fa" == "" ]] || \
    [[ "$afn" == "" ]] ; then
   echo "usage:" >> $outfile
   echo "" >> $outfile
-  echo "  ./verify-conversion-batch-gvcf-cgf.sh <cgf_dir> <sglf_dir> <gvcf_dir> <tileassembly> <ref.fa> [chrom] [gvcf_prefix] [gvcf_suffix}" >> $outfile
+  echo "  ./verify-conversion-batch-gvcf-cgf_skip-empty-and-zero-tilepaths.sh <cgf_dir> <sglf_dir> <gvcf_dir> <check_num> <chrom> <tileassembly> <ref.fa>" >> $outfile
   echo "" >> $outfile
   exit -1
 fi
@@ -46,14 +38,13 @@ if [[ "$VERBOSE" -eq 1 ]] ; then
   echo "## cgf_dir: $cgf_dir" >> $outfile
   echo "## sglf_dir: $sglf_dir" >> $outfile
   echo "## gvcf_dir: $gvcf_dir" >> $outfile
+  echo "## check_num: $check_num" >> $outfile
+  echo "## chrom: $chrom" >> $outfile
   echo "## tileassembly: $afn" >> $outfile
   echo "## ref_fa: $ref_fa" >> $outfile
-  echo "## chrom: $chrom" >> $outfile
-  echo "## gvcf_pfx: $gvcf_pfx" >> $outfile
-  echo "## gvcf_sfx: $gvcf_sfx" >> $outfile
 fi
 
-export cgf_fns=$( for base_fn in `ls $cgf_dir/*.cgf` ; do cgf_fn="$cgf_dir/$base_fn" ; echo $base_fn ; done )
+export cgf_fns=$( for base_fn in `ls $cgf_dir/*.cgf` ; do cgf_fn="$cgf_dir/$base_fn" ; echo $base_fn ; done | head -n$check_num )
 export rep_cgf=$( for base_fn in `ls $cgf_dir/*.cgf` ; do cgf_fn="$cgf_dir/$base_fn" ; echo $base_fn ; done | head -n1 )
 
 if [[ "$VERBOSE" -eq 1 ]] ; then
@@ -119,12 +110,9 @@ fi
 
 ## loading the sglf into memory is the slow part
 ## so we 'batch' the hashes derived from the sequence
-## fromt eh band files on a tilepath basis.
+## from the band files on a tilepath basis.
 ##
-rm -f "$band_hash"
 for p in `seq $beg_p $end_p_inc` ; do
-  rm -f $band_fn
-
   hxp=`printf "%04x" $p`
   if [[ "$hxp" =~ $skip_tilepath_regex ]] ; then
     echo "## SKIPPING TILEPATH $hxp (band in $skip_tilepath_regex)" >> "$outfile"
@@ -135,56 +123,27 @@ for p in `seq $beg_p $end_p_inc` ; do
     cgft -b $p $cgf_fn >> $band_fn
   done
 
-  #tileband-hash -L <( zcat `seq $beg_p $end_p_inc | xargs -n1 -I{} printf $sglf_dir/"%04x".sglf.gz"\n" {} | egrep -v 031f | tr '\n' ' ' ` ) \
-  #  -T $beg_p+$n_p \
   tileband-hash -L <( zcat $sglf_dir/$hxp.sglf.gz ) \
     -T $p \
     $band_fn >> $band_hash
 
+  rm -f $band_fn
 done
 
 ###
 ### create sequence hashes derived from gVCF files
 ###
 
-gvcf_tdir=`mktemp -d`
-
 ## we do the same 'batching' for the gvcf to sequence (to hash)
-## conersion so we can easily compare the lis tof hashes
+## conersion so we can easily compare the list tof hashes
 ##
 while read line ; do
 
   for cgf_fn in $cgf_fns; do
     dsid=`basename $cgf_fn .cgf`
-    dsid=`basename $dsid .cgfv3`
-    dsid=`basename $dsid .cgf3`
-    gvcf_fn="$gvcf_dir/$dsid/$gvcf_pfx$dsid$gvcf_sfx"
+    gvcf_fn="$gvcf_dir/$dsid.vcf.gz"
 
     export gvcf="$gvcf_fn"
-    if [[ ! -e "$gvcf_fn.tbi" ]] ; then
-
-      tgvcf=$gvcf_tdir/`basename $gvcf_fn`
-
-      ## reuse indexed gvcf is we've already copied it locally
-      ## and indexed.
-      ##
-      if [[ ! -e "$tgvcf.tbi" ]] ; then
-
-        if [[ "$VERBOSE" -eq 1 ]] ; then
-          echo "## copying gVCF locally and indexing ($tgvcf)" >> $outfile
-        fi
-
-        #cp $gvcf_fn $tgvcf
-        ln -s $gvcf_fn $tgvcf
-        tabix $tgvcf
-
-      else
-        if [[ "$VERBOSE" -eq 1 ]] ; then echo "## reusing index file ($tgvcf)" fi >> $outfile ; fi
-      fi
-
-      gvcf="$tgvcf"
-    fi
-
 
     if [[ "$VERBOSE" -eq 1 ]] ; then
       echo "## processing gvcf $gvcf_fn" >> $outfile
@@ -313,38 +272,20 @@ while read line ; do
 
 done < <( egrep '^'$ref':'$chrom':' $aidx )
 
-if [[ "$gvcf_tdir" != "" ]] ; then
-  rm -rf $gvcf_tdir
-fi
-
-
 x=`cat $band_hash | md5sum | cut -f1 -d' '`
 y=`cat $gvcf_hash | md5sum | cut -f1 -d' '`
 
+echo "chrom: $chrom" >> $outfile
+echo "cgf: $cgf_fns" >> $outfile
+echo "band_hash: $band_hash, gvcf_hash: $gvcf_hash" >> $outfile
+
 if [[ "$x" != "$y" ]] ; then
-  echo "chrom: $chrom" >> $outfile
-  echo "cgf: $cgf_fns" >> $outfile
-  echo "band_hash: $band_hash, gvcf_hash: $gvcf_hash" >> $outfile
-  echo "band_fn: $band_fn" >> $outfile
-  echo "band_hash: $band_hash" >> $outfile
-  echo "gvcf_hash: $gvcf_hash" >> $outfile
   echo "MISMATCH: $x != $y" >> $outfile
   diff $band_hash $gvcf_hash >> $outfile
+  echo "FAIL" >> $outfile
+  exit -1
 else
-  echo "## $chrom ok" >> $outfile
-  echo "ok" >> $outfile
+  echo "MATCH: $x = $y" >> $outfile
+  echo "PASS" >> $outfile
+  exit 0
 fi
-
-rm -f $band_fn
-rm -f $band_hash
-rm -f $gvcf_hash
-
-####
-####
-
-
-if [[ "$VERBOSE" -eq 1 ]] ; then
-  echo "finished" >> $outfile
-fi
-
-exit 0

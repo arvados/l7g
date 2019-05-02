@@ -1,0 +1,17 @@
+cgfdir:
+  class: Directory
+  location: keep:618da11ba90cc10b54cfb0b52afe29cf+28796/cgf
+sglfdir:
+  class: Directory
+  location: keep:618da11ba90cc10b54cfb0b52afe29cf+28796/lib-merge
+gvcfdir:
+  class: Directory
+  location: keep:4983898697fdc0890f26c87413f883f3+14420
+checknum: 2
+chrom: "chr1"
+tileassembly:
+  class: File
+  location: keep:ee01813e404906d36527b402e124e537+241/assembly.00.hg38.fw.gz
+refFaFn:
+  class: File
+  location: keep:5fb82d9a1d2c5d5c64ceca29a90a9c8e+763/hg38.fa.gz

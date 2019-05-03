@@ -120,6 +120,6 @@ steps:
   createnpy-wf:
     run: ../npy/createnpy-wf.cwl
     in:
-      waitsignal: check-cgfs/logs
+      waitsignal: check-cgf-gvcf-wf/logs
       cgfdir: handle-cgfs/dir
     out: [consolnpydir, names]

@@ -9,6 +9,9 @@ requirements:
     dockerPull: arvados/l7g
 
 inputs:
+  waitsignal:
+    type: Any?
+    label: Wait signal to start workflow
   cgfdir:
     type: Directory
     label: Directory of compact genome format files

@@ -11,7 +11,7 @@ USER root
 RUN apt-get update && \
   apt-get install -y build-essential golang libssl-dev git bedtools \
     less wget \
-    libncurses5-dev autoconf libbz2-dev liblzma-dev \
+    libncurses5-dev libcurl4-gnutls-dev autoconf libbz2-dev liblzma-dev \
     cmake tabix zlib1g-dev libhts-dev parallel python-numpy
 
 RUN mkdir -p /root/git && \
@@ -117,4 +117,6 @@ RUN cd /usr/local/bin && \
   wget http://hgdownload.cse.ucsc.edu/admin/exe/linux.x86_64/bigWigToBedGraph && \
   chmod a+x bigWigToBedGraph
 
+RUN cd /root/git/htslib \
 
+RUN ln -s libhts.so.2to3part5 libhts.so.2 \

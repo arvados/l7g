@@ -2,11 +2,6 @@ class: ExpressionTool
 cwlVersion: v1.0
 inputs:
   vcfsdir: Directory
-  # optional single 'universal bed' as an input, if provided, create an array in the expression
-  #default:
-  #    class: File
-  #    location: keep:...
-  #universalbed: File
 outputs:
   vcfs:
     type: File[]

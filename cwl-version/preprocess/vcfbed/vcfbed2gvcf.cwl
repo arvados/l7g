@@ -5,7 +5,7 @@ cwlVersion: v1.0
 class: CommandLineTool
 requirements:
   - class: DockerRequirement
-    dockerPull: fbh/vcfbed2homref
+    dockerPull: fbh/vcfpreprocess
   - class: ResourceRequirement
     coresMin: 1
   - class: InitialWorkDirRequirement
@@ -21,7 +21,7 @@ inputs:
       location: src/convert-vcf-bed-to-gvcf
     inputBinding:
       position: 1
-  vcfgz:
+  vcf:
     type: File
     inputBinding:
       position: 2

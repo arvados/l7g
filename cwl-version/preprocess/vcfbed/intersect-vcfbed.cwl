@@ -3,13 +3,8 @@ class: CommandLineTool
 requirements:
   - class: ShellCommandRequirement
   - class: DockerRequirement
-    dockerPull: 
-  - class: InitialWorkDirRequirement
-    listing:
-     - entry: $(inputs.ref)
-       writable: True  
+    dockerPull: fbh/vcfpreprocess
   - class: ResourceRequirement
-    #coresMin: 2
     ramMin: 13000
 inputs:
   vcf: File

@@ -2,7 +2,7 @@ cwlVersion: v1.0
 class: Workflow
 requirements:
   - class: DockerRequirement
-    dockerPull: fbh/vcfbed2homref
+    dockerPull: fbh/vcfpreprocess
   - class: ResourceRequirement
     coresMin: 1
     ramMin: 13000
@@ -28,7 +28,7 @@ steps:
     in:
       vcf: get-vcfbed/vcfs
       bed: get-vcfbed/beds
-    out: [result]  
+    out: [sortedvcf, sortedbed]  
   vcfbed2gvcf:
     run: vcfbed2gvcf.cwl
     scatter: [vcf, bed, outname]

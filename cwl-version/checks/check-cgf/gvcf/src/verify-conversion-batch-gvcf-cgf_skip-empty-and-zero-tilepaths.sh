@@ -31,7 +31,7 @@ if [[ "$cgf_dir" == "" ]] || \
   echo "" >> $outfile
   echo "  ./verify-conversion-batch-gvcf-cgf_skip-empty-and-zero-tilepaths.sh <cgf_dir> <sglf_dir> <gvcf_dir> <check_num> <chrom> <tileassembly> <ref.fa>" >> $outfile
   echo "" >> $outfile
-  exit -1
+  exit 1
 fi
 
 if [[ "$VERBOSE" -eq 1 ]] ; then
@@ -283,7 +283,7 @@ if [[ "$x" != "$y" ]] ; then
   echo "MISMATCH: $x != $y" >> $outfile
   diff $band_hash $gvcf_hash >> $outfile
   echo "FAIL" >> $outfile
-  exit -1
+  exit 1
 else
   echo "MATCH: $x = $y" >> $outfile
   echo "PASS" >> $outfile

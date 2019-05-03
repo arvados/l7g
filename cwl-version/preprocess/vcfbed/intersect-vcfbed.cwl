@@ -3,7 +3,7 @@ class: CommandLineTool
 requirements:
   - class: ShellCommandRequirement
   - class: DockerRequirement
-    dockerPull: fbh/vcfpreprocess
+    dockerPull: fbh/vcfbedtest
   - class: ResourceRequirement
     ramMin: 13000
 inputs:

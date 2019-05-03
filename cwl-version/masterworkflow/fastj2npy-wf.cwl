@@ -105,7 +105,7 @@ steps:
         valueFrom: "cgf"
     out: [dir]
 
-  check-cgfs:
+  check-cgf-gvcf-wf:
     run: ../checks/check-cgf/gvcf/check-cgf-gvcf-wf.cwl
     in:
       cgfdir: handle-cgfs/dir

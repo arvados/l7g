@@ -10,9 +10,10 @@ USER root
 
 RUN apt-get update && \
   apt-get install -y build-essential golang libssl-dev git bedtools \
-    less wget \
+    less wget libncursesw5-dev vcftools \
     libncurses5-dev libcurl4-gnutls-dev autoconf libbz2-dev liblzma-dev \
     cmake tabix zlib1g-dev libhts-dev parallel python-numpy
+
 
 RUN mkdir -p /root/git && \
   cd /root/git && \
@@ -20,23 +21,21 @@ RUN mkdir -p /root/git && \
   git clone https://github.com/simongog/sdsl-lite && \
   cd /root/git/sdsl-lite && ./install.sh /usr/local && \
 
-  cd /root/git && \
-  git clone https://github.com/samtools/htslib && \
-  cd htslib && \
-  autoheader && autoconf && \
-  ./configure && make && make install && \
+  cd /usr/bin && \
+  wget https://github.com/samtools/htslib/releases/download/1.9/htslib-1.9.tar.bz2 && \
+  tar -vxjf htslib-1.9.tar.bz2 && \
+  cd htslib-1.9 && \
+  ./configure && \
+  make && \
+  make install && \
 
-  cd /root/git && \
-  cd /root/git && \
-  git clone https://github.com/samtools/samtools && \
-  cd /root/git/samtools && \
-  autoheader && autoconf -Wno-syntax && \
-  ./configure && make && make install && \
-
-  cd /root/git && \
-  git clone https://github.com/vcftools/vcftools && \
-  cd /root/git/vcftools && \
-  ./autogen.sh && ./configure && make && make install && \
+  cd /usr/bin && \
+  wget https://github.com/samtools/samtools/releases/download/1.9/samtools-1.9.tar.bz2 && \
+  tar -vxjf samtools-1.9.tar.bz2 && \
+  cd samtools-1.9 && \
+  ./configure && \
+  make && \
+  make install && \
 
   cd /root/git/l7g/tools/misc && make && \
   cp /root/git/l7g/tools/misc/cleanvcf /usr/local/bin && \
@@ -116,7 +115,3 @@ RUN  cd /root/git/l7g/lib/asmukk && make && \
 RUN cd /usr/local/bin && \
   wget http://hgdownload.cse.ucsc.edu/admin/exe/linux.x86_64/bigWigToBedGraph && \
   chmod a+x bigWigToBedGraph
-
-RUN cd /root/git/htslib \
-
-RUN ln -s libhts.so.2to3part5 libhts.so.2 \

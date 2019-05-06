@@ -2,7 +2,7 @@ cwlVersion: v1.0
 class: Workflow
 requirements:
   - class: DockerRequirement
-    dockerPull: fbh/vcfbedtest
+    dockerPull: fbh/preprocess-vcfbed
   - class: ResourceRequirement
     coresMin: 1
     ramMin: 13000

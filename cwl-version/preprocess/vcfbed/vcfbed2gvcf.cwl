@@ -5,7 +5,7 @@ cwlVersion: v1.0
 class: CommandLineTool
 requirements:
   - class: DockerRequirement
-    dockerPull: fbh/vcfbedtest
+    dockerPull: fbh/preprocess-vcfbed
   - class: ResourceRequirement
     coresMin: 1
   - class: InitialWorkDirRequirement

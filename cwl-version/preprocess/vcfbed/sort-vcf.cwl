@@ -1,12 +1,12 @@
 cwlVersion: v1.0
 class: CommandLineTool
+label: Sort VCF by natural ordering (1,2,10,MT,X)
 requirements:
   - class: ShellCommandRequirement
   - class: DockerRequirement
     dockerPull: l7g/preprocess-vcfbed
 inputs:
   vcf: File
-  bed: File
 outputs:
   sortedvcf:
     type: File
@@ -20,5 +20,5 @@ arguments:
   - shellQuote: False
     valueFrom: ">"
   - $(inputs.vcf.basename)
-  - shellQuote: False
-    valueFrom: "&&"
+  #- shellQuote: False
+   # valueFrom: "&&"

@@ -4,8 +4,6 @@ requirements:
   - class: ShellCommandRequirement
   - class: DockerRequirement
     dockerPull: l7g/preprocess-vcfbed
-  - class: ResourceRequirement
-    ramMin: 13000
 inputs:
   vcf: File
   bed: File
@@ -14,3 +12,7 @@ outputs:
     type: File
     outputBinding:
       glob: "*.bed"
+baseCommand: sorted
+  - valueFrom: "-k1,1V"
+  - "-k2,2n"
+  - $(inputs.bed)

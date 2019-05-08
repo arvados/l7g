@@ -1,3 +1,0 @@
-intersectedvcf:
-  class: File
-  path: keep:555e2bc11fc12bd786229c9dceb6181f+1080/preprocess/HG002_GIAB_highconf_IllFB-IllGATKHC-CG-Ion-Solid_CHROM1-22_v3.2_highconf.vcf 

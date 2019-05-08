@@ -30,7 +30,7 @@ arguments:
     valueFrom: "&&"
   - "sort"
   - "-k1,1V"
-  - "-k2,2n" 
+  - "-k2,2n"
   - $(inputs.bed)
   - shellQuote: False
     valueFrom: ">"
@@ -39,15 +39,15 @@ arguments:
     valueFrom: "&&"
   - "bedtools"
   - "intersect"
-  - "-header" 
+  - "-header"
   - shellQuote: False
-  - prefix: "-a" 
+  - prefix: "-a"
     valueFrom: $(inputs.vcf)
-  - prefix: "-b" 
-    valueFrom: $(inputs.bed)  
-  - prefix: "-f" 
-    valueFrom: "1" 
-  - "|" 
+  - prefix: "-b"
+    valueFrom: $(inputs.bed)
+  - prefix: "-f"
+    valueFrom: "1"
+  - "|"
   - "bgzip"
   - shellQuote: False
     prefix: "-c"
@@ -55,8 +55,8 @@ arguments:
   - $(inputs.vcf.basename)
   - shellQuote: False
     valueFrom: "&&"
-  - "tabix" 
-  - prefix: "-p" 
-    valueFrom: "vcf" 
+  - "tabix"
+  - prefix: "-p"
+    valueFrom: "vcf"
   - $(inputs.vcf.basename)
   - shellQuote: False

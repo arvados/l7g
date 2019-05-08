@@ -8,10 +8,10 @@ requirements:
     dockerPull: l7g/preprocess-vcfbed
   - class: ResourceRequirement
     coresMin: 1
-  - class: InitialWorkDirRequirement
-    listing:
-     - entry: $(inputs.ref)
-       writable: True
+  #- class: InitialWorkDirRequirement
+    #listing:
+     #- entry: $(inputs.ref)
+       #writable: True
 baseCommand: bash
 inputs:
   script:

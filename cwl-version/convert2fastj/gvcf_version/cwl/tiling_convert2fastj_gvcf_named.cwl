@@ -59,13 +59,6 @@ outputs:
   out1:
     type: Directory[]
     outputSource: step2/out1
-  out2:
-    type:
-      type: array
-      items:
-        type: array
-        items: File
-    outputSource: step2/out2
 
 steps:
   step1:

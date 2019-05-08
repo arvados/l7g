@@ -3,24 +3,18 @@ $namespaces:
   cwltool: "http://commonwl.org/cwltool#"
 cwlVersion: v1.0
 class: Workflow
-label: Creates a FastJ file for each gVCF by path
+label: Convert GFFs to FastJ
 requirements:
-  - class: DockerRequirement
+  DockerRequirement:
     dockerPull: arvados/l7g
-  - class: ResourceRequirement
-    coresMin: 2
-    coresMax: 2
-  - class: ScatterFeatureRequirement
+  ScatterFeatureRequirement: {}
 hints:
   arv:RuntimeConstraints:
     keep_cache: 4096
-  cwltool:LoadListingRequirement:
-    loadListing: shallow_listing
-
 inputs:
-  refdirectory:
+  gffdir:
     type: Directory
-    label: Directory of input gVCFs
+    label: Input GFF directory
   ref:
     type: string
     label: Reference genome
@@ -47,30 +41,28 @@ inputs:
     label: Mitochondrial assembly index file
   seqidM:
     type: string
-    label: Mitochondrial naming scheme for gVCF
-  tagdir:
+    label: Mitochondrial naming scheme
+  tagset:
     type: File
     label: Compressed tagset in FASTA format
 
 outputs:
-  out1:
+  fjdirs:
     type: Directory[]
-    label: Directories of FastJs
-    outputSource: step2/out1
+    outputSource: gff2fastj/fjdir
 
 steps:
-  step1:
-    run: getdirs.cwl
+  getfiles:
+    run: getfiles.cwl
     in:
-      refdirectory: refdirectory
-    out: [out1,out2]
+      gffdir: gffdir
+    out: [gffs]
 
-  step2:
-    scatter: [gffDir,gffPrefix]
-    scatterMethod: dotproduct
+  gff2fastj:
+    run: gff2fastj.cwl
+    scatter: gff
     in:
-      gffDir: step1/out1
-      gffPrefix: step1/out2
+      gff: getfiles/gffs
       ref: ref
       reffa: reffa
       afn: afn
@@ -80,6 +72,5 @@ steps:
       afnM: afnM
       aidxM: aidxM
       seqidM: seqidM
-      tagdir: tagdir
-    run: convertgvcf.cwl
-    out: [out1,out2]
+      tagset: tagset
+    out: [fjdir]

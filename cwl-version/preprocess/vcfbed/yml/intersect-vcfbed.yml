@@ -1,6 +1,0 @@
-vcf:
-  path: keep:2e4f43fa39835afd15c37ad11f99a913+246/hu01F73B_masterVarBeta-GS000037833-ASM.vcf.gz
-  class: File
-bed:
-  path: keep:2e4f43fa39835afd15c37ad11f99a913+246/hu01F73B_masterVarBeta-GS000037833-ASM.bed
-  class: File

@@ -27,7 +27,7 @@ def main():
                     previous_end_POS = max(previous_end_POS, POS + len(REF) - 1)
             else:
                 print(line, end='')
-                previous_end_POS = 0
+                previous_end_POS = POS + len(REF) - 1
             previous_CHROM = CHROM
         else:
             print(line, end='')

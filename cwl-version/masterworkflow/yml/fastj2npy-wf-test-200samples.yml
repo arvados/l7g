@@ -1,0 +1,9 @@
+fjdir:
+  class: Directory
+  location: keep:956b75507c4d8844a8ca579446ea51c1+10206365
+tagset:
+  class: File
+  location: keep:cd9ada494bd979a8bc74e6d59d3e8710+174/tagset.fa.gz
+pathmin: "0"
+pathmax: "862"
+nchunks: "15"

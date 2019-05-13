@@ -61,8 +61,6 @@ echo "pasta $pasta"
 echo "refstream $refstream"
 echo "l7g $l7g"
 
-mkdir -p 'cleaned'
-
 ifnInitial=`basename $gffInitial`
 export gff=$gffInitial
 

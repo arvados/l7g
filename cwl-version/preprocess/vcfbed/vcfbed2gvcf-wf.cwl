@@ -13,7 +13,7 @@ requirements:
   - class: ScatterFeatureRequirement
 
 inputs:
-  vcfsdir: 
+  vcfsdir:
     type: Directory
     label: Directory of VCF, BED and index files
   ref:
@@ -27,9 +27,9 @@ outputs:
     outputSource: vcfbed2gvcf/result
 
 steps:
-  get-vcfbed: 
+  get-vcfbed:
     run: get-vcfbed.cwl
-    in: 
+    in:
       vcfsdir: vcfsdir
     out: [vcfs, beds, outnames]
   sort-vcf:

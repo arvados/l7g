@@ -11,10 +11,10 @@ requirements:
   - class: ResourceRequirement
     ramMin: 13000
 inputs:
-  vcf: 
+  vcf:
     type: File
     label: VCF to be intersected
-  bed: 
+  bed:
     type: File
     label: BED to intersect with VCF
 outputs:

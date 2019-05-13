@@ -28,7 +28,7 @@ inputs:
       - .tbi
   bed:
     type: File
-    label: BED to merge into VCF
+    label: BED representing called region of VCF
     inputBinding:
       position: 3
   ref:

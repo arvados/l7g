@@ -9,7 +9,7 @@ requirements:
   - class: DockerRequirement
     dockerPull: l7g/preprocess-vcfbed
 inputs:
-  bed: 
+  bed:
    type: File
    label: BED to be sorted by natural ordering
 outputs:

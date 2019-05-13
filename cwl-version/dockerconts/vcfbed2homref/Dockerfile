@@ -114,7 +114,5 @@ RUN cd /usr/local/bin && \
   wget http://hgdownload.cse.ucsc.edu/admin/exe/linux.x86_64/bigWigToBedGraph && \
   chmod a+x bigWigToBedGraph
 
-RUN git cl  
-
 USER crunch
 

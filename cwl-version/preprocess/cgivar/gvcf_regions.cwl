@@ -1,9 +1,14 @@
 cwlVersion: v1.0
 class: CommandLineTool
+label: Extract called region from GVCF
 inputs:
-  vcf: File
+  vcf:
+    type: File
+    label: Input GVCF
 outputs:
-  bed: stdout
+  bed:
+    type: stdout
+    label: BED region of GVCF
 baseCommand: /gvcf_regions/gvcf_regions.py
 arguments:
   - $(inputs.vcf)

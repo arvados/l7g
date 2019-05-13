@@ -11,7 +11,7 @@ RUN apt-get install -qy build-essential wget cmake zlib1g-dev git
 
 RUN wget https://sourceforge.net/projects/cgatools/files/1.8.0/cgatools-1.8.0.1-linux_binary-x86_64.tar.gz && \
     tar -xzvf cgatools-1.8.0.1-linux_binary-x86_64.tar.gz && \
-    cp cgatools-1.8.0.1-linux_binary-x86_64/bin/cgatools /usr/local/bin    
+    cp cgatools-1.8.0.1-linux_binary-x86_64/bin/cgatools /usr/local/bin
 
 WORKDIR /
 

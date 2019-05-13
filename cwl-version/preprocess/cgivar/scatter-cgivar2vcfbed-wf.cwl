@@ -2,6 +2,7 @@ $namespaces:
   arv: "http://arvados.org/cwl#"
 cwlVersion: v1.0
 class: Workflow
+label: Scatter to convert CGIVARs to VCFs and BEDs
 requirements:
   SubworkflowFeatureRequirement: {}
   ScatterFeatureRequirement: {}
@@ -9,15 +10,21 @@ hints:
   DockerRequirement:
     dockerPull: process-cgi
 inputs:
-  cgivarsdir: Directory
-  reference: File
+  cgivarsdir:
+    type: Directory
+    label: Input directory of CGIVARs
+  reference:
+    type: File
+    label: CRR reference used for cgatools
 
 outputs:
   vcfgzs:
     type: File[]
+    label: Output VCFs
     outputSource: cgivar2vcfbed-wf/vcfgz
   beds:
     type: File[]
+    label: Output BEDs
     outputSource: cgivar2vcfbed-wf/bed
 
 steps:

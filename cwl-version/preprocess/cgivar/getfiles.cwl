@@ -1,10 +1,17 @@
-class: ExpressionTool
 cwlVersion: v1.0
+class: ExpressionTool
+label: Create list of CGIVARs to process
 inputs:
-  dir: Directory
+  dir:
+    type: Directory
+    label: Input directory of CGIVARs
 outputs:
-  cgivars: File[]
-  samples: string[]
+  cgivars:
+    type: File[]
+    label: Output CGIVARs
+  samples:
+    type: string[]
+    label: Sample names of CGIVARs
 requirements:
   InlineJavascriptRequirement: {}
 expression: |

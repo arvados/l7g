@@ -2,6 +2,7 @@ $namespaces:
   arv: "http://arvados.org/cwl#"
 cwlVersion: v1.0
 class: Workflow
+label: Convert CGIVAR to VCF and BED region
 requirements:
   arv:RunInSingleContainer: {}
 hints:
@@ -10,16 +11,24 @@ hints:
   ResourceRequirement:
     ramMin: 13000
 inputs:
-  cgivar: File
-  sample: string
-  reference: File
+  cgivar:
+    type: File
+    label: Input CGIVAR
+  sample:
+    type: string
+    label: Sample name
+  reference:
+    type: File
+    label: CRR reference used for cgatools
   cgascript:
     type: File
+    label: Script invoking cgatools
     default:
       class: File
       location: cgatools-mkvcf.sh
   fixscript:
     type: File
+    label: Script to fix VCF
     default:
       class: File
       location: fix_vcf.py
@@ -27,9 +36,11 @@ inputs:
 outputs:
   vcfgz:
     type: File
+    label: Output VCF
     outputSource: bedtools-intersect/vcfgz
   bed:
     type: File
+    label: BED region VCF
     outputSource: gvcf_regions/bed
 
 steps:

@@ -1,13 +1,19 @@
 cwlVersion: v1.0
 class: CommandLineTool
+label: Intersect VCF with BED
 requirements:
   ShellCommandRequirement: {}
 inputs:
-  vcf: File
-  bed: File
+  vcf:
+    type: File
+    label: Input VCF
+  bed:
+    type: File
+    label: Input BED
 outputs:
   vcfgz:
     type: File
+    label: Output VCF with records inside the BED region
     outputBinding:
       glob: "*.vcf.gz"
     secondaryFiles: [.tbi]

@@ -1,12 +1,23 @@
 cwlVersion: v1.0
 class: CommandLineTool
+label: Convert CGIVAR to VCF
 inputs:
-  cgascript: File
-  reference: File
-  cgivar: File
-  sample: string
+  cgascript:
+    type: File
+    label: Script invoking cgatools
+  reference:
+    type: File
+    label: CRR reference used for cgatools
+  cgivar:
+    type: File
+    label: Input CGIVAR
+  sample:
+    type: string
+    label: Sample name
 outputs:
-  vcf: stdout
+  vcf:
+    type: stdout
+    label: Output VCF
 arguments:
   - $(inputs.cgascript)
   - $(inputs.reference)

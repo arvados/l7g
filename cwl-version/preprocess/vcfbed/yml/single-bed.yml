@@ -1,0 +1,9 @@
+vcfsdir:
+  class: Directory
+  path: keep:890e2842e843ee611c82ffeb033b5f4c+385
+bedfile:
+  class: File
+  path: keep:a33dcf43e857a96eef48d93a76615285+140/hu01F73B_masterVarBeta-GS000037833-ASM.bed
+ref:
+  class: File
+  path: keep:5858d764a2e7ef4dfbb2ca3490b3e3c1+2334/chrM_37/g1k/human_g1k_v37.fasta.gz

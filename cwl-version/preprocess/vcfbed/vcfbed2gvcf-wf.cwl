@@ -19,6 +19,9 @@ inputs:
   ref:
     type: File
     label: Reference FASTA file
+  bedfile:
+    type: File?
+    label: Optional BED to scatter over if not included in vcfsdir  
 
 outputs:
   result:

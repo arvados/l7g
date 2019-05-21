@@ -4,7 +4,7 @@ $namespaces:
 requirements:
   InlineJavascriptRequirement: {}
   cwltool:LoadListingRequirement:
-    loadListing: deep_listing  
+    loadListing: deep_listing
 cwlVersion: v1.0
 class: ExpressionTool
 label: Scatter over directory to pair VCF, BED and index files
@@ -46,7 +46,7 @@ expression: |
             var bed = inputs.bedfile;
           } else if (file.basename == baseName+".bed") {
             var bed = file;
-          } 
+          }
         }
         vcfs.push(main);
         beds.push(bed);

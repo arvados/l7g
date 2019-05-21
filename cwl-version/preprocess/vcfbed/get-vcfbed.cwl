@@ -43,8 +43,7 @@ expression: |
           if (file.basename == baseName+".tbi") {
             main.secondaryFiles = [file];
           } else if (inputs.bedfile) {
-            var bedFile = inputs.bedfile.basename;
-            var bed = bedFile;
+            var bed = inputs.bedfile;
           } else if (file.basename == baseName+".bed") {
             var bed = file;
           } 

@@ -5,6 +5,7 @@
 #
 
 FROM arvados/jobs:latest
+
 USER root
 
 RUN apt-get update && \

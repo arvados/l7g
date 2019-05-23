@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 import fnmatch
 import requests
 import time
@@ -14,7 +16,7 @@ HEADERS = {
 }
 
 addResponse = requests.post(BASE_URL,
-                            data={'url': workflowurl}, headers = HEADERS)
+                            data={'url': workflowurl}, headers=HEADERS)
 
 
 print(addResponse.status_code)

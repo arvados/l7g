@@ -1,13 +1,24 @@
-class: ExpressionTool
+$namespaces:
+  arv: "http://arvados.org/cwl#"
+  cwltool: "http://commonwl.org/cwltool#"
 cwlVersion: v1.0
+class: ExpressionTool
+label: Scatter over directory to pair VCF, BED and index files
 inputs:
-  vcfsdir: Directory
+  vcfsdir:
+    type: Directory
+    label: Directory containing compressed VCF, BED, and index files for processing
 outputs:
   vcfs:
     type: File[]
+    label: Array of compressed VCF files from input directory
     secondaryFiles: [.tbi]
-  beds: File[]
-  outnames: string[]
+  beds:
+    type: File[]
+    label: Array of BED files from input directory
+  outnames:
+    type: string[]
+    label: Array of file names to maintain naming convention for gVCF conversion
 requirements:
   InlineJavascriptRequirement: {}
   cwltool:LoadListingRequirement:

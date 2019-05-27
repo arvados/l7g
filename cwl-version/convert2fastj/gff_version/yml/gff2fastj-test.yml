@@ -1,0 +1,27 @@
+gff:
+  class: File
+  location: keep:2e3ddcd96443b42f9ccb59ddb1aea116+327/hu826751-GS03052-DNA_B01.gff.gz
+ref: "hg19"
+reffa:
+  class: File
+  location: keep:ef70506d71ee761b1ec28d67290216a0+1252/hg19.fa.gz
+afn:
+  class: File
+  location: keep:98c5e71956730c36cc89bb25b99fe58b+965/assembly.00.hg19.fw.gz
+aidx:
+  class: File
+  location: keep:98c5e71956730c36cc89bb25b99fe58b+965/assembly.00.hg19.fw.fwi
+refM: "hg19"
+reffaM:
+  class: File
+  location: keep:ef70506d71ee761b1ec28d67290216a0+1252/hg19.fa.gz
+afnM:
+  class: File
+  location: keep:98c5e71956730c36cc89bb25b99fe58b+965/assembly.00.hg19.fw.gz
+aidxM:
+  class: File
+  location: keep:98c5e71956730c36cc89bb25b99fe58b+965/assembly.00.hg19.fw.fwi
+seqidM: "chrM"
+tagset:
+  class: File
+  location: keep:cd9ada494bd979a8bc74e6d59d3e8710+174/tagset.fa.gz

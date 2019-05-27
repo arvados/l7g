@@ -19,49 +19,40 @@ fi
 
 trap "ERROR: $gvcfInitial $path ; exit" ERR
 
-export ref1="$2"
-export reffa1="$3"
-export afn1="$4"
-export aidx1="$5"
+export ref="$2"
+export reffa="$3"
+export afn="$4"
+export aidx="$5"
 
-export refM="$6"
-export reffaM="$7"
-export afnM="$8"
-export aidxM="$9"
-export seqidM="${10}"
+export tagset="$6"
+export l7g="$7"
+export pasta="$8"
+export refstream="$9"
 
-export tagdir="${11}"
-export l7g="${12}"
-export pasta="${13}"
-export refstream="${14}"
-export tile_assembly="${15}"
+args=( "$@" )
+export chroms="${args[@]:9}"
 
 export LD_LIBRARY_PATH='/usr/local/bin'
 
 if [[ "$VERBOSE" -eq 1 ]] ; then
 echo "individual variable listings"
 echo "gvcf $gvcfInitial"
-echo "ref $ref1"
-echo "reffa $reffa1"
-echo "afn $afn1"
-echo "aidx $aidx1"
-echo "refM $refM"
-echo "reffaM $reffaM"
-echo "afnM  $afnM"
-echo "aidxM $aidxM"
-echo "seqidM $seqidM"
-echo "tagdir $tagdir"
+echo "ref $ref"
+echo "reffa $reffa"
+echo "afn $afn"
+echo "aidx $aidx"
+echo "tagset $tagset"
 echo "pasta $pasta"
 echo "refstream $refstream"
 echo "l7g $l7g"
-echo "tile_assembly $tile_assembly"
+echo "chroms ${chroms[@]}"
 fi
 
 ifnInitial=`basename $gvcfInitial`
 stripped_name=`basename $ifnInitial .vcf.gz`
 export gvcf=$gvcfInitial
 
-for chrom in chr1 chr2 chr3 chr4 chr5 chr6 chr7 chr8 chr9 chr10 chr11 chr12 chr13 chr14 chr15 chr16 chr17 chr18 chr19 chr20 chr21 chr22 chrX chrY chrM ; do
+for chrom in $chroms; do
 
    if [[ "$VERBOSE" -eq 1 ]] ; then
      echo "gvcfInitial: $gvcfInitial"
@@ -72,25 +63,6 @@ for chrom in chr1 chr2 chr3 chr4 chr5 chr6 chr7 chr8 chr9 chr10 chr11 chr12 chr1
    if [[ "$VERBOSE" -eq 1 ]] ; then
      echo "gvcf: $gvcf"
    fi
-
-  if [ "$chrom" == "chrM" ] ; then
-
-    if [[ "$VERBOSE" -eq 1 ]] ; then
-      echo "Using $refM ref for $chrom"
-    fi
-
-    export ref=$refM
-    export reffa=$reffaM
-    export afn=$afnM
-    export aidx=$aidxM
-    export refchrom=$seqidM
-  else
-    export ref=$ref1
-    export reffa=$reffa1
-    export afn=$afn1
-    export aidx=$aidx1
-    export refchrom=$chrom
-  fi
 
   if [[ "$VERBOSE" -eq 1 ]] ; then
     echo $stripped_name processing $chrom
@@ -243,11 +215,11 @@ for chrom in chr1 chr2 chr3 chr4 chr5 chr6 chr7 chr8 chr9 chr10 chr11 chr12 chr1
     fi
 
     if [[ "$VERBOSE" -eq 1 ]] ; then
-      echo "$refstream $reffa "$refchrom:$window_start1+$window_len" > $tdir/$tilepath.ref"
+      echo "$refstream $reffa "$chrom:$window_start1+$window_len" > $tdir/$tilepath.ref"
       echo "cat <( echo -e '\n\n\n' ) <( tabix $gvcf $chrom:$window_start1-$window_end1_inc ) > $tdir/$tilepath.gvcf"
     fi
 
-    $refstream $reffa "$refchrom:$window_start1+$window_len" > $tdir/$tilepath.ref
+    $refstream $reffa "$chrom:$window_start1+$window_len" > $tdir/$tilepath.ref
     cat <( echo -e '\n\n\n' ) <( tabix $gvcf $chrom:$window_start1-$window_end1_inc ) > $tdir/$tilepath.gvcf
 
     if [[ "$VERBOSE" -eq 1 ]] ; then
@@ -270,19 +242,19 @@ for chrom in chr1 chr2 chr3 chr4 chr5 chr6 chr7 chr8 chr9 chr10 chr11 chr12 chr1
     if [[ "$VERBOSE" -eq 1 ]] ; then
       echo "$pasta -action rotini-fastj -start $tilepath_start0 -tilepath $tilepath -chrom $chrom -build $ref \
         -i $odir/$tilepath.pa \
-        -assembly <( $tile_assembly tilepath $afn $tilepath ) \
-        -tag <( cat <( samtools faidx $tagdir $tilepath.00 | egrep -v '^>' | tr -d '\n' | fold -w 24 ) <(echo ) ) > $odir/$tilepath.fj"
+        -assembly <( $l7g assembly $afn $tilepath ) \
+        -tag <( cat <( samtools faidx $tagset $tilepath.00 | egrep -v '^>' | tr -d '\n' | fold -w 24 ) <( echo ) ) > $odir/$tilepath.fj"
     fi
 
     $pasta -action rotini-fastj -start $tilepath_start0 -tilepath $tilepath -chrom $chrom -build $ref \
       -i $odir/$tilepath.pa \
-      -assembly <( $tile_assembly tilepath $afn $tilepath ) \
-      -tag <( cat <( samtools faidx $tagdir $tilepath.00 | egrep -v '^>' | tr -d '\n' | fold -w 24 ) <( echo )  ) > $odir/$tilepath.fj
+      -assembly <( $l7g assembly $afn $tilepath ) \
+      -tag <( cat <( samtools faidx $tagset $tilepath.00 | egrep -v '^>' | tr -d '\n' | fold -w 24 ) <( echo ) ) > $odir/$tilepath.fj
 
     rm -f $odir/$tilepath.pa
     bgzip -f $odir/$tilepath.fj
     bgzip -r $odir/$tilepath.fj.gz
 
-  done < <( egrep '^'$ref':'$refchrom':' $aidx )
+  done < <( egrep '^'$ref':'$chrom':' $aidx )
 
 done # chrom

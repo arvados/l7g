@@ -11,17 +11,7 @@ afn:
 aidx:
   class: File
   location: keep:98c5e71956730c36cc89bb25b99fe58b+965/assembly.00.hg38.fw.fwi
-refM: "hg38"
-reffaM:
-  class: File
-  location: keep:320d7a6717aa7b555a09e52976ba4a02+18534/hg38.fa.gz
-afnM:
-  class: File
-  location: keep:98c5e71956730c36cc89bb25b99fe58b+965/assembly.00.hg38.fw.gz
-aidxM:
-  class: File
-  location: keep:98c5e71956730c36cc89bb25b99fe58b+965/assembly.00.hg38.fw.fwi
-seqidM: "chrM"
 tagset:
   class: File
   location: keep:cd9ada494bd979a8bc74e6d59d3e8710+174/tagset.fa.gz
+chroms: ["chr1", "chr2", "chr3", "chr4", "chr5", "chr6", "chr7", "chr8", "chr9", "chr10", "chr11", "chr12", "chr13", "chr14", "chr15", "chr16", "chr17", "chr18", "chr19", "chr20", "chr21", "chr22", "chrX", "chrY", "chrM"]

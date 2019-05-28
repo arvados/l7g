@@ -1,0 +1,17 @@
+gvcfdir:
+  class: Directory
+  location: keep:a7f54f723eaa4fb1b021150be80028fe+1343
+ref: "human_g1k_v37"
+reffa:
+  class: File
+  location: keep:5858d764a2e7ef4dfbb2ca3490b3e3c1+2334/chrM_37/g1k/human_g1k_v37.fasta.gz
+afn:
+  class: File
+  location: keep:72de1f7368b81d1d93fcac81d52e414c+219/assembly.00.human_g1k_v37.fw.gz
+aidx:
+  class: File
+  location: keep:72de1f7368b81d1d93fcac81d52e414c+219/assembly.00.human_g1k_v37.fw.fwi
+tagset:
+  class: File
+  location: keep:cd9ada494bd979a8bc74e6d59d3e8710+174/tagset.fa.gz
+chroms: ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "X", "Y", "M"]

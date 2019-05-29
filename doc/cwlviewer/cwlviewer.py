@@ -35,13 +35,15 @@ def cwlviewer():
                                 data={'url': workflowURL},
                                 headers=HEADERS)
 
+    
     if addResponse.status_code == requests.codes.accepted:
-        qLocation = addResponse.headers['location']
+        qLocation = addResponse.headers['Location']
         # Get the queue item until success
         qResponse = requests.get(BASE_URL + qLocation,
                                  headers=HEADERS,
                                  allow_redirects=False)
         maxAttempts = 5
+
         while qResponse.status_code == requests.codes.ok and qResponse.json()['cwltoolStatus'] == 'RUNNING' and maxAttempts > 0:
             time.sleep(5)
             qResponse = requests.get(BASE_URL + qLocation,
@@ -49,7 +51,8 @@ def cwlviewer():
                                      allow_redirects=False)
             maxAttempts -= 1
 
-        if qResponse.headers['location']:
+
+        if 'Location' in qResponse.headers:
             # Success, get the workflow
             workflowResponse = requests.get(
                 BASE_URL + qResponse.headers['location'], headers=HEADERS)
@@ -62,7 +65,8 @@ def cwlviewer():
                 print('Could not get returned workflow')
         elif qResponse.json()['cwltoolStatus'] == 'ERROR':
             # Cwltool failed to run here
-            print(qResponse.json()['message'])
+#            print(qResponse.json()['message'])
+            print('cwltool failed to verify')
         elif maxAttempts == 0:
             print('Timeout: Cwltool did not finish')
 

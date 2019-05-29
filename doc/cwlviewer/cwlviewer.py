@@ -62,11 +62,11 @@ def cwlviewer():
                 print('Verified with cwltool version ' +
                       workflowJson['cwltoolVersion'])
             else:
-                print('Could not get returned workflow')
+                print('Error: Could not get returned workflow')
         elif qResponse.json()['cwltoolStatus'] == 'ERROR':
             # Cwltool failed to run here
 #            print(qResponse.json()['message'])
-            print('cwltool failed to verify')
+            print('Error: Cwltool failed to verify')
         elif maxAttempts == 0:
             print('Timeout: Cwltool did not finish')
 
@@ -84,3 +84,4 @@ def cwlviewer():
 
 if __name__ == '__main__':
     cwlviewer()
+

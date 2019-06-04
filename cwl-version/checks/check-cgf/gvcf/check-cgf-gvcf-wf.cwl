@@ -23,17 +23,19 @@ inputs:
   tileassembly:
     type: File
     label: Reference tile assembly file
-    secondaryFiles: [.fwi, .gzi]
+    secondaryFiles: [^.fwi, .gzi]
+  ref:
+    type: string
+    label: Reference genome
   reffa:
     type: File
     label: Reference FASTA file
-    secondaryFiles: [.fai, .gzi]
 
 outputs:
-  logs:
+  gvcfhashes:
     type: File[]
-    label: Validation logs
-    outputSource: check-cgf-gvcf/log
+    label: Hashes of gvcf pasta stream by path
+    outputSource: check-cgf-gvcf/gvcfhash
 
 steps:
   check-cgf-gvcf:
@@ -46,5 +48,6 @@ steps:
       checknum: checknum
       chrom: chroms
       tileassembly: tileassembly
+      ref: ref
       reffa: reffa
-    out: [log]
+    out: [gvcfhash]

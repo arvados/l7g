@@ -40,11 +40,13 @@ inputs:
   tileassembly:
     type: File
     label: Reference tile assembly file
-    secondaryFiles: [.fwi, .gzi]
+    secondaryFiles: [^.fwi, .gzi]
+  ref:
+    type: string
+    label: Reference genome
   reffa:
     type: File
     label: Reference FASTA file
-    secondaryFiles: [.fai, .gzi]
 
 outputs:
   lib:
@@ -114,12 +116,13 @@ steps:
       checknum: checknum
       chroms: chroms
       tileassembly: tileassembly
+      ref: ref
       reffa: reffa
-    out: [logs]
+    out: [gvcfhashes]
 
   createnpy-wf:
     run: ../npy/createnpy-wf.cwl
     in:
-      waitsignal: check-cgf-gvcf-wf/logs
+      waitsignal: check-cgf-gvcf-wf/gvcfhashes
       cgfdir: handle-cgfs/dir
     out: [consolnpydir, names]

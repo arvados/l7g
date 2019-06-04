@@ -1,3 +1,33 @@
+# Lightning Documentation : Master
+
+Lightning Concept
+---
+
+Lightning is a system that allows efficient access to
+large scale population genomic data with a focus
+on clinical and research use.
+Lightning's primary focus is human genomic
+data, but this could be extended to encompass other organisms.
+Genomes are stored in a compressed format that compromises
+between size and accessibility.
+Additional data sources, such as phenotype data from
+the Harvard Personal Genome Project and variant data from
+the ClinVar database, are added for practical use.
+
+The Lightning system is a combination of a conceptual way
+to think about genomes (genomic tiling),
+the internal representation of genomes for efficient access
+(the compact genome format and auxiliary data), and
+software that manages access to the data.
+
+This document will be focusing on some of the concepts
+motivating the rest of the architecture and data formats.
+Please refer to [Lightning Architecture](Lightning-Architecture.md)
+for a description on the Lightning architecture.
+and
+[Lightning Data](Lightning-Data.md) for references to the
+data structures used.
+
 Lightning Data
 ===
 
@@ -265,7 +295,7 @@ For example, `chrM` for `hg19` and `MT` for the `human_g1k_v37` reference.
 The current fixed width files total ~56MiB.  The most current assembly files can
 be found at:
 
-* [Lightning hg19 Tile Assembly *BROKEN*](https://workbench.su92l.arvadosapi.com/collections/su92l-4zz18-rg323w0m5a5ci7n)
+* [Lightning hg19 Tile Assembly](https://workbench.su92l.arvadosapi.com/collections/su92l-4zz18-rg323w0m5a5ci7n)
 
 Span
 ---

@@ -52,8 +52,8 @@ fi
 ####
 ####
 
-beg_hxp=`egrep ":$chrom:" $afn.fwi | head -n1 | cut -f1 | cut -f3 -d':'`
-end_hxp_inc=`egrep ":$chrom:" $afn.fwi | tail -n1 | cut -f1 | cut -f3 -d':'`
+beg_hxp=`egrep ":$chrom:" $aidx | head -n1 | cut -f1 | cut -f3 -d':'`
+end_hxp_inc=`egrep ":$chrom:" $aidx | tail -n1 | cut -f1 | cut -f3 -d':'`
 
 beg_p=`cat <( echo "ibase=16;" ) <( echo "$beg_hxp" | tr '[:lower:]' '[:upper:]' ) | bc`
 end_p_inc=`cat <( echo "ibase=16;" ) <( echo "$end_hxp_inc" | tr '[:lower:]' '[:upper:]' ) | bc`

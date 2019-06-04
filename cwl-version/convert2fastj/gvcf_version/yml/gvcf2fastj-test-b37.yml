@@ -4,13 +4,10 @@ gvcf:
 ref: "human_g1k_v37"
 reffa:
   class: File
-  location: keep:5858d764a2e7ef4dfbb2ca3490b3e3c1+2334/chrM_37/g1k/human_g1k_v37.fasta.gz
+  location: keep:5a42cfaddd3a9cfc4fac89b3fe73c6f6+751/human_g1k_v37.fasta.gz
 afn:
   class: File
-  location: keep:72de1f7368b81d1d93fcac81d52e414c+219/assembly.00.human_g1k_v37.fw.gz
-aidx:
-  class: File
-  location: keep:72de1f7368b81d1d93fcac81d52e414c+219/assembly.00.human_g1k_v37.fw.fwi
+  location: keep:96fe7d3fdc5b0bd82128131a23117635+269/assembly.00.human_g1k_v37.fw.gz
 tagset:
   class: File
   location: keep:cd9ada494bd979a8bc74e6d59d3e8710+174/tagset.fa.gz

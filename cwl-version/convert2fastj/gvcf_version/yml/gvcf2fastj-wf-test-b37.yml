@@ -8,9 +8,6 @@ reffa:
 afn:
   class: File
   location: keep:96fe7d3fdc5b0bd82128131a23117635+269/assembly.00.human_g1k_v37.fw.gz
-aidx:
-  class: File
-  location: keep:96fe7d3fdc5b0bd82128131a23117635+269/assembly.00.human_g1k_v37.fw.fwi
 tagset:
   class: File
   location: keep:cd9ada494bd979a8bc74e6d59d3e8710+174/tagset.fa.gz

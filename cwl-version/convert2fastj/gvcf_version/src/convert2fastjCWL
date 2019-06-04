@@ -22,16 +22,15 @@ trap "ERROR: $gvcfInitial $path ; exit" ERR
 export ref="$2"
 export reffa="$3"
 export afn="$4"
-export aidx="$5"
-
-export tagset="$6"
-export l7g="$7"
-export pasta="$8"
-export refstream="$9"
+export tagset="$5"
+export l7g="$6"
+export pasta="$7"
+export refstream="$8"
 
 args=( "$@" )
-export chroms="${args[@]:9}"
+export chroms="${args[@]:8}"
 
+export aidx="${afn%.*}.fwi"
 export LD_LIBRARY_PATH='/usr/local/bin'
 
 if [[ "$VERBOSE" -eq 1 ]] ; then
@@ -40,7 +39,6 @@ echo "gvcf $gvcfInitial"
 echo "ref $ref"
 echo "reffa $reffa"
 echo "afn $afn"
-echo "aidx $aidx"
 echo "tagset $tagset"
 echo "pasta $pasta"
 echo "refstream $refstream"

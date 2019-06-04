@@ -33,9 +33,7 @@ inputs:
   afn:
     type: File
     label: Compressed assembly fixed width file
-  aidx:
-    type: File
-    label: Assembly index file
+    secondaryFiles: [^.fwi, .gzi]
   tagset:
     type: File
     label: Compressed tagset in FASTA format
@@ -67,7 +65,6 @@ arguments:
   - $(inputs.ref)
   - $(inputs.reffa)
   - $(inputs.afn)
-  - $(inputs.aidx)
   - $(inputs.tagset)
   - $(inputs.l7g)
   - $(inputs.pasta)

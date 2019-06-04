@@ -24,9 +24,7 @@ inputs:
   afn:
     type: File
     label: Compressed assembly fixed width file
-  aidx:
-    type: File
-    label: Assembly index file
+    secondaryFiles: [^.fwi, .gzi]
   tagset:
     type: File
     label: Compressed tagset in FASTA format
@@ -55,7 +53,6 @@ steps:
       ref: ref
       reffa: reffa
       afn: afn
-      aidx: aidx
       tagset: tagset
       chroms: chroms
     out: [fjdir]

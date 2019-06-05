@@ -3,11 +3,15 @@ $namespaces:
   cwltool: "http://commonwl.org/cwltool#"
 cwlVersion: v1.0
 class: Workflow
+label: Convert FastJs to npy arrays
 requirements:
   DockerRequirement:
     dockerPull: arvados/l7g
   SubworkflowFeatureRequirement: {}
   StepInputExpressionRequirement: {}
+hints:
+ cwltool:LoadListingRequirement:
+   loadListing: shallow_listing
 
 inputs:
   fjdir:

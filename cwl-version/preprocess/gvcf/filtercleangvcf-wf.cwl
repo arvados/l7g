@@ -36,7 +36,7 @@ steps:
   filtercleangvcf:
     run: filtercleangvcf.cwl
     scatter: gvcf
-    in: 
+    in:
       gvcf: getfiles/gvcfs
       cutoff: cutoff
     out: [filteredcleangvcf]

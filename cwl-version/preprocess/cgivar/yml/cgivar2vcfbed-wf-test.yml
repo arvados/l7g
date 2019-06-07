@@ -5,3 +5,9 @@ sample: "hu011C57_var-GS000015172-ASM"
 reference:
   class: File
   location: keep:320d7a6717aa7b555a09e52976ba4a02+18534/build37.crr
+cgascript:
+  class: File
+  location: ../cgatools-mkvcf.sh
+fixscript:
+  class: File
+  location: ../fix_vcf.py

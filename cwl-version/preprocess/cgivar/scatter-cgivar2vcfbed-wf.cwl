@@ -16,6 +16,18 @@ inputs:
   reference:
     type: File
     label: CRR reference used for cgatools
+  cgascript:
+    type: File
+    label: Script invoking cgatools
+    default:
+      class: File
+      location: cgatools-mkvcf.sh
+  fixscript:
+    type: File
+    label: Script to fix VCF
+    default:
+      class: File
+      location: fix_vcf.py
 
 outputs:
   vcfgzs:
@@ -34,8 +46,6 @@ steps:
       dir: cgivarsdir
     out: [cgivars, samples]
   cgivar2vcfbed-wf:
-    requirements:
-      arv:RunInSingleContainer: {}
     run: cgivar2vcfbed-wf.cwl
     scatter: [cgivar, sample]
     scatterMethod: dotproduct
@@ -43,4 +53,6 @@ steps:
       cgivar: getfiles/cgivars
       sample: getfiles/samples
       reference: reference
+      cgascript: cgascript
+      fixscript: fixscript
     out: [vcfgz, bed]

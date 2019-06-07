@@ -23,15 +23,9 @@ inputs:
   cgascript:
     type: File
     label: Script invoking cgatools
-    default:
-      class: File
-      location: cgatools-mkvcf.sh
   fixscript:
     type: File
     label: Script to fix VCF
-    default:
-      class: File
-      location: fix_vcf.py
 
 outputs:
   vcfgz:

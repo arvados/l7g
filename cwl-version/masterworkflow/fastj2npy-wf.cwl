@@ -96,9 +96,16 @@ steps:
       newlib: handle-sglfs/dir
     out: [mergedlib]
 
+  sglf-sanity-check:
+    run: ../checks/check-sglf/sglf-sanity-check.cwl
+    in:
+      sglfdir: merge-tilelib/mergedlib
+    out: [log]
+
   createcgf-wf:
     run: ../cgf3/createcgf-wf.cwl
     in:
+      waitsignal: sglf-sanity-check/log
       fjdir: fjdir
       lib: merge-tilelib/mergedlib
     out: [cgfs]

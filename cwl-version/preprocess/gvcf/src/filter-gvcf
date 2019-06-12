@@ -1,0 +1,94 @@
+#!/usr/bin/python
+
+# import sys
+import argparse
+import gzip
+
+
+def filter_gvcf():
+
+    # setting up inputs
+    parser = argparse.ArgumentParser(prog="filter-gvcf", description="Filter a \
+        gVCF with a user-set quality threshold.", usage='%(prog)s [-k] GVCF \
+        QUALITY')
+    parser.add_argument("-k", "--keepGQdot", help="Keeps the variant when GQ \
+        is '.'", action="store_true")
+    parser.add_argument("gvcf", metavar="GVCF", help="Input gVCF to filter")
+    parser.add_argument("quality_threshold", metavar="QUALITY", help="Quality \
+        threshold", type=float)
+
+    args = parser.parse_args()
+    keepGQdot = args.keepGQdot
+    quality_threshold = args.quality_threshold
+    gvcf = args.gvcf
+
+    g = gzip.open(gvcf) if gvcf.endswith(".gz") else open(gvcf)
+
+    for line in g:
+        line = line.strip()
+
+        if len(line) == 0:
+            print ""
+            continue
+        if line[0] == '#':
+            print line
+            continue
+
+<<<<<<< HEAD:cwl-version/filter/src/filter-gvcf
+        fields = line.split("\t")
+
+        if len(fields) < 10:
+            continue
+
+        keys = fields[8].split(":")
+        vals = fields[9].split(":")
+        d = dict(zip(keys, vals))
+
+        gq = 100.0
+        if "GQ" in d:
+            if keepGQdot:
+                gq = "."
+                break
+            else:
+                gq = float(dict.get("GQ"))
+                break
+        if quality_threshold <= gq:
+            print line
+
+
+
+
+
+
+
+
+
+
+'''
+        for k, kn in enumerate(keys):
+            if kn == "GQ":
+                if keepGQdot:
+                    gq = "."
+                    break
+                else:
+                    gq = float(vals[k])
+                    break
+        if quality_threshold <= gq:
+            print line
+            '''
+
+if __name__ == '__main__':
+    filter_gvcf()
+
+
+# convert to using a real dictionary, potentially fix loop
+# switch statement???
+=======
+  gq=100.0
+  for k,kn in enumerate(keys):
+    if kn=="GQ":
+      gq=float(vals[k])
+      break
+  if quality_threshold <= gq:
+    print line
+>>>>>>> master:cwl-version/preprocess/gvcf/src/filter-gvcf

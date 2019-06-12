@@ -85,8 +85,8 @@ database and the untap database provided:
 Compact Genome Format Files
 ---
 
-See the [CGF schema](CGF-Schema.md) for a description of the CGF files.
-The library and command line tools provided in [cgf](https://github.com/abeconnelly/cgf)
+See the [CGF schema](CGFv3-Schema.md) for a description of the CGF files.
+The library and command line tools provided in [cgf](https://github.com/curoverse/l7g/tree/master/tools/cgft)
 allow for inspection and creation of CGF files.
 
 The current 651 CGF files (433 Thousand Genomes Project, 217 Harvard Personal Genome Project and
@@ -376,11 +376,3 @@ compact genome format files.
 
 * [FastJ Files](https://workbench.su92l.arvadosapi.com/projects/su92l-j7d0g-fmbjujfq6wy7j1i#Data_collections)
 
-Untap
----
-
-See the [untap](https://github.com/abeconnelly/untap) project for details.
-
-The most current version of the `untap` database can be found at:
-
-* [untap](https://workbench.su92l.arvadosapi.com/collections/su92l-4zz18-ziluyxgz77rkekm)

@@ -4,11 +4,13 @@ label: Collect all output logs from validation step into one directory
 requirements:
   InlineJavascriptRequirement: {}
 inputs:
-  infiles: File[]
-  label: Output logs from the cgf validation step
+  infiles:
+    type: File[]
+    label: Output logs from the cgf validation step
 outputs:
-  out: Directory
-  label: Directory of validation logs
+  out:
+    type: Directory
+    label: Directory of validation logs
 expression: |
   ${
     var gathered_dirs = { "class" : "Directory", "basename": "output", "listing" : [] };

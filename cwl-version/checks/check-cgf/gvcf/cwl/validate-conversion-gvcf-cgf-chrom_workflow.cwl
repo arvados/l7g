@@ -21,9 +21,15 @@ inputs:
   tileassembly:
     type: File
     label: Reference tile assembly file
+    secondaryFiles:
+      - .fwi
+      - .gzi
   refFaFn:
     type: File
     label: Reference FASTA file
+    secondaryFiles:
+      - .fai
+      - .gzi
   gvcfPrefix:
     type: string
     label: Prefix for gVCF files

@@ -45,20 +45,15 @@ def filter_gvcf():
 
         gq = 100.0
         if "GQ" in d:
-            if keepGQdot:
-                gq = "."
+            gq = d['GQ']
+            if gq == "." and keepGQdot:
                 print line
-                break
-            else:
-                gq = float(dict.get("GQ"))
-                break
-        if quality_threshold <= gq:
-            print line
-            break
-        else if keepGQdot:
-            print line
-            break
+            elif isinstance(gq, float):
+                if quality_threshold <= gq:
+                    print line
 
+if __name__ == '__main__':
+    filter_gvcf()
 
 
 

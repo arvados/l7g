@@ -34,8 +34,7 @@ def filter_gvcf():
             print line
             continue
 
-<<<<<<< HEAD:cwl-version/filter/src/filter-gvcf
-        fields = line.split("\t")
+        fields = line.split('\t')
 
         if len(fields) < 10:
             continue
@@ -48,12 +47,17 @@ def filter_gvcf():
         if "GQ" in d:
             if keepGQdot:
                 gq = "."
+                print line
                 break
             else:
                 gq = float(dict.get("GQ"))
                 break
         if quality_threshold <= gq:
             print line
+            break
+        else if keepGQdot:
+            print line
+            break
 
 
 
@@ -83,12 +87,3 @@ if __name__ == '__main__':
 
 # convert to using a real dictionary, potentially fix loop
 # switch statement???
-=======
-  gq=100.0
-  for k,kn in enumerate(keys):
-    if kn=="GQ":
-      gq=float(vals[k])
-      break
-  if quality_threshold <= gq:
-    print line
->>>>>>> master:cwl-version/preprocess/gvcf/src/filter-gvcf

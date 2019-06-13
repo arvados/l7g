@@ -1,5 +1,1 @@
-title: Lightning Documentation 
-description: Documentation for the Lightning System 
-show_downloads: true
-google_analytics:
-theme: cayman
+theme: jekyll-theme-cayman

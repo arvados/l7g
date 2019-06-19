@@ -102,11 +102,12 @@ func TileExists(path, step int, toCheck TileVariant, library *Library) int {
 }
 
 // AddTile is a function to add a tile (without sorting).
-func AddTile(path, step int, new TileVariant, library *Library) {
+func AddTile(path, step int, new TileVariant, bases string, library *Library) {
 	if index := TileExists(path, step, new, library); index == -1 { // maybe not necessary, but good for safety
 		(*library)[path][step].List = append((*library)[path][step].List, new)
 		(*library)[path][step].Counts = append((*library)[path][step].Counts, 1)
 		(*library)[path][step].LookupTable = append((*library)[path][step].LookupTable, len((*library)[path][step].LookupTable))
+		writeToTextFile(path, step, "testing", bases, new.Hash)
 	} else {
 		(*library)[path][step].Counts[index]++
 	}
@@ -228,7 +229,7 @@ func writeToTextFile(genomePath, step int, directory, bases string, hash Variant
 		log.Fatal(err)
 	}
 	var b strings.Builder
-	b.WriteString(fmt.Sprintf("%40x",step))
+	b.WriteString(fmt.Sprintf("%04x",step))
 	b.WriteString(".txt")
 	textFile, err2 := os.OpenFile(path.Join(directory,fmt.Sprintf("%04x", genomePath),b.String()), os.O_APPEND | os.O_CREATE | os.O_WRONLY, 0644)
 	if err2 != nil {
@@ -245,6 +246,7 @@ func writeToTextFile(genomePath, step int, directory, bases string, hash Variant
 	if err3 != nil {
 		log.Fatal(err3)
 	}
+	bufferedWriter.Flush()
 
 }
 
@@ -285,22 +287,23 @@ func writePathToSGLF(library *Library, genomePath, version int, directoryToWrite
 			stepInt := 256 * int(stepInHex[0]) + int(stepInHex[1])
 			bufferedWriter.WriteString(fmt.Sprintf("%04x", genomePath)) // path
 			bufferedWriter.WriteString(".")
-			bufferedWriter.WriteString(fmt.Sprintf("%02v", version))
+			bufferedWriter.WriteString(fmt.Sprintf("%02v", version)) // Version
 			bufferedWriter.WriteString(".")
-			bufferedWriter.WriteString(step)
+			bufferedWriter.WriteString(step) // Step
 			bufferedWriter.WriteString(".")
-			bufferedWriter.WriteString(strconv.Itoa(index))
+			bufferedWriter.WriteString(fmt.Sprintf("%03x", index)) // Tile variant number
 			bufferedWriter.WriteString("+")
-			bufferedWriter.WriteString(strconv.Itoa((*library)[genomePath][stepInt].List[index].Length))
+			bufferedWriter.WriteString(fmt.Sprintf("%01x", (*library)[genomePath][stepInt].List[index].Length)) // Tile length
 			bufferedWriter.WriteString(",")
-			bufferedWriter.WriteString(tiles[(*library)[genomePath][stepInt].LookupTable[index]])
+			bufferedWriter.WriteString(tiles[(*library)[genomePath][stepInt].LookupTable[index]]) // Hash and bases of tile.
+			bufferedWriter.WriteString("\n") // New tile.
 		}
 	}
+	bufferedWriter.Flush()
 }
 
 func parseFastJLibrary(filepath string, library *Library) {
 	file := path.Base(filepath) // the name of the file.
-	fmt.Println("Starting path", file)
 	splitpath := strings.Split(file, ".")
 	if len(splitpath) != 3 {
 		log.Fatal(errors.New("error: Not a valid gzipped file "+file)) // Makes sure that the filepath goes to a valid file
@@ -332,17 +335,36 @@ func parseFastJLibrary(filepath string, library *Library) {
 			}
 			var hashArray VariantHash
 			copy(hashArray[:], hash)
-			lengthString := strings.Split(strings.SplitN(line, ",", 7)[5], ":")[1]
+			var lengthString string
+			commaCounter := 0
+			for i, character := range line {
+				if character == ',' {
+					commaCounter++
+				}
+				if commaCounter == 6 {
+					lengthString=string(line[i-1])
+					break
+				}
+			}
+			
 			length, err3 := strconv.Atoi(lengthString)
 			if err3 != nil {
 				log.Fatal(err3)
 			}
+			baseData := strings.Split(line, "\n")[1:]
+			var b strings.Builder
+			for _, data := range baseData {
+				if data != "\n" {
+					b.WriteString(data)
+				}
+			}
+			bases := b.String()
 			newTile := TileCreator(hashArray, length, "")
-			AddTile(hexNumber, step, newTile, library)
+			AddTile(hexNumber, step, newTile, bases, library)
 		}
 	}
 	splitpath, data, tiles=  nil, nil, nil // Clears most things in memory that were used here.
-	fmt.Println("Finished path ", hexNumber)
+
 }
 /*
 func parseSGLF(filepath string, library *Library) {
@@ -418,9 +440,20 @@ func addLibraryFastJ(directory string, library *Library) {
 	}
 }
 
+func addPathFromDirectories(library *Library, directories []string, genomePath int) {
+	var b strings.Builder
+
+	b.WriteString(fmt.Sprintf("%04x",genomePath))
+	b.WriteString(".fj.gz")
+	for _, directory := range directories {
+		parseFastJLibrary(path.Join(directory,b.String()),library)
+	}
+}
+
 // Function to open a gzipped file.
+// GZ reading seems to be slower than before.
 func openGZ(filepath string) []byte {
-	file, err := os.Open(filepath)
+	file, err := os.Open(filepath) // seems to take a long time to open and close this file
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -434,6 +467,7 @@ func openGZ(filepath string) []byte {
 	if err3 != nil {
 		log.Fatal(err3)
 	}
+
 	return data
 }
 
@@ -448,18 +482,25 @@ func initializeLibrary() Library {
 }
 
 
-// The following main function is only used for testing speed and memory usage of these structures.
-
+// The following main function is only used fortesting speed and memory usage of these structures.
+// Speed and heap allocation usage: 3.5-4 minutes, 2-4GB
+// time to make one sglf file: 2 seconds
 func main() {
 	var m runtime.MemStats
 	fmt.Println("Starting timer...")
 	startTime := time.Now()
 	l:=initializeLibrary()
-	addLibraryFastJ("../../../../keep/home/tile-library-architecture/Copy of Container output for request su92l-xvhdp-qc9aol66z8oo7ws/hu03E3D2_masterVarBeta-GS000038659-ASM", &l)
+	//addLibraryFastJ("../../../../keep/home/tile-library-architecture/Copy of Container output for request su92l-xvhdp-qc9aol66z8oo7ws/hu03E3D2_masterVarBeta-GS000038659-ASM", &l)
+	addPathFromDirectories(&l,[]string{"../../../../keep/home/tile-library-architecture/Copy of Container output for request su92l-xvhdp-qc9aol66z8oo7ws/hu03E3D2_masterVarBeta-GS000038659-ASM",
+	"../../../../keep/home/tile-library-architecture/Copy of Container output for request su92l-xvhdp-qc9aol66z8oo7ws/hu03E3D2_masterVarBeta-GS000037847-ASM",
+	"../../../../keep/home/tile-library-architecture/Copy of Container output for request su92l-xvhdp-qc9aol66z8oo7ws/hu01F73B_masterVarBeta-GS000037833-ASM",
+	"../../../../keep/home/tile-library-architecture/Copy of Container output for request su92l-xvhdp-qc9aol66z8oo7ws/hu02C8E3_masterVarBeta-GS000036653-ASM",
+	"../../../../keep/home/tile-library-architecture/Copy of Container output for request su92l-xvhdp-qc9aol66z8oo7ws/hu0486D6_masterVarBeta-GS000037846-ASM"},24)
+	writePathToSGLF(&l, 24, 0, "sglf", "testing")
 	sortLibrary(&l)
+	
 	total := time.Since(startTime)
 	runtime.ReadMemStats(&m)
 	fmt.Printf("Total time: %v\n", total)
 	fmt.Println(m)
-
 }

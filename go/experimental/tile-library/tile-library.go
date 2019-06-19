@@ -26,11 +26,11 @@ type TileVariant struct {
 	Annotation string         // any notes about this tile (by default, no comments)
 }
 
-// Hash for a tile variant--currently MD5
+// VariantHash is a hash for a tile variant--currently the hash algorithm is MD5
 type VariantHash [md5.Size]byte
 
-// Equals checks for equality of variants based on md5sum.
-// This works based on the assumption that no two tiles in the same path and step have the same MD5.
+// Equals checks for equality of variants based on hash.
+// This works based on the assumption that no two tiles in the same path and step have the same hash.
 func (t TileVariant) Equals(t2 TileVariant) bool {
 	return (t.Hash == t2.Hash)
 }
@@ -42,9 +42,10 @@ type KnownVariants struct {
 	LookupTable VariantLookupTable // The original position of each variant in the List (for reference to text files later)
 }
 
-// A type for looking up the original positions of variants in a list--for now, the table is a list
+// VariantLookupTable is a type for looking up the original positions of variants in a list--for now, the table is a list
 type VariantLookupTable []int
 
+// Paths is the number of paths a genome has.
 const paths int = 863 // Constant because we know that the number of paths is always the same.
 
 // Genome is a type to represent a genome, through its paths. Two phases are present here (path and counterpart path).
@@ -60,7 +61,7 @@ type Step struct {
 }
 
 // Library is a type to represent a library of tile variants.
-type Library []map[int]*KnownVariants
+type Library [][]*KnownVariants
 
 // Function to sort the library once all initial genomes are done being added.
 // This function should only be used once during initial setup of the library, after all tiles have been added, since it sorts everything.
@@ -72,29 +73,34 @@ func sortLibrary(library *Library) {
 	}
 	for _, steps := range (*library) {
 		for _, steplist := range steps {
-			var sortStructList []sortStruct
-			sortStructList = make([]sortStruct, len((*steplist).List))
-			for i:=0; i<len((*steplist).List); i++ {
-				sortStructList[i] = sortStruct{(*steplist).List[i], (*steplist).Counts[i], (*steplist).LookupTable[i]}
-			}
-			sort.Slice(sortStructList, func(i, j int) bool { return sortStructList[i].Count > sortStructList[i].Count })
-			for j:=0; j<len((*steplist).List); j++ {
-				(*steplist).List[j], (*steplist).Counts[j], (*steplist).LookupTable[j] = sortStructList[j].Variant, sortStructList[j].Count, sortStructList[j].LookupReference
+			if steplist != nil {
+				var sortStructList []sortStruct
+				sortStructList = make([]sortStruct, len((*steplist).List))
+				for i:=0; i<len((*steplist).List); i++ {
+					sortStructList[i] = sortStruct{(*steplist).List[i], (*steplist).Counts[i], (*steplist).LookupTable[i]}
+				}
+				sort.Slice(sortStructList, func(i, j int) bool { return sortStructList[i].Count > sortStructList[i].Count })
+				for j:=0; j<len((*steplist).List); j++ {
+					(*steplist).List[j], (*steplist).Counts[j], (*steplist).LookupTable[j] = sortStructList[j].Variant, sortStructList[j].Count, sortStructList[j].LookupReference
+				}
 			}
 		}
 	}
 }
 
 // TileExists is a function to check if a specific tile exists at a specific path and step.
-// Returns the index, if found
+// Returns the index, if found--otherwise, returns -1.
 func TileExists(path, step int, toCheck TileVariant, library *Library) int {
-	if (*library)[path][step] != nil { // safety to make sure that the KnownVariants struct has been created
+	if len((*library)[path]) > step && (*library)[path][step] != nil { // Safety to make sure that the KnownVariants struct has been created
 		for i, value := range (*library)[path][step].List {
 			if toCheck.Equals(value) {
 				return i
 			}
 		}
 		return -1
+	}
+	for len((*library)[path]) <= step {
+		(*library)[path] = append((*library)[path], nil)
 	}
 	newKnownVariants := &KnownVariants{make([]TileVariant, 0, 1), make([]int, 0, 1), make([]int, 0, 1)}
 	(*library)[path][step] = newKnownVariants
@@ -103,11 +109,12 @@ func TileExists(path, step int, toCheck TileVariant, library *Library) int {
 
 // AddTile is a function to add a tile (without sorting).
 func AddTile(path, step int, new TileVariant, bases string, library *Library) {
-	if index := TileExists(path, step, new, library); index == -1 { // maybe not necessary, but good for safety
+	if index := TileExists(path, step, new, library); index == -1 { // Checks if the tile exists already.
 		(*library)[path][step].List = append((*library)[path][step].List, new)
 		(*library)[path][step].Counts = append((*library)[path][step].Counts, 1)
 		(*library)[path][step].LookupTable = append((*library)[path][step].LookupTable, len((*library)[path][step].LookupTable))
-		writeToTextFile(path, step, "testing", bases, new.Hash)
+		//writeToTextFile(path, step, "testing", bases, new.Hash)
+		// TODO: implement writing to any directory name
 	} else {
 		(*library)[path][step].Counts[index]++
 	}
@@ -140,6 +147,7 @@ func AddGenome(genome Genome, library *Library) {
 	}
 }
 */
+
 // FindFrequency is a function to find the frequency of a specific tile at a specific path and step.
 func FindFrequency(path, step int, toFind TileVariant, library *Library) int {
 	if index:= TileExists(path, step, toFind, library); index != -1 {
@@ -171,7 +179,7 @@ func TileCreator(hash VariantHash, length int, annotation string) TileVariant {
 
 
 // The following files parse gzipped FastJ and SGLF files.
-/*
+// parseFastJGenome puts the contents a (gzipped) FastJ into a Genome.
 func parseFastJGenome(filepath string, genome *Genome) {
 	file := path.Base(filepath) // the name of the file.
 	splitpath := strings.Split(file, ".")
@@ -189,40 +197,61 @@ func parseFastJGenome(filepath string, genome *Genome) {
 	data := openGZ(filepath)
 	text := string(data)
 	tiles := strings.Split(text, "\n\n") // since the only divider between each tile is two newlines, this works
-	var tileData [][]string
-	tileData = make([][]string, 0, 1)
 	for _, line := range tiles {
 		if strings.HasPrefix(line, ">") {
-			tileData = append(tileData, strings.Split(line, "\n")) // within each tile the top information is separated by a newline, and the bases are separated by newlines--need to join the bases together
-		}
-	}
-	for _, oneTile := range tileData {
-		tileInfo := strings.Split(oneTile[0], ",")
-		tileLength, err := strconv.Atoi(strings.Split(tileInfo[5], ":")[1])
-		if err != nil {
-			log.Fatal(err)
-		}
-		tilePathStep := strings.Split(tileInfo[0],":")[1]
-		stepInHex, err2 := hex.DecodeString(strings.Split(tilePathStep, ".")[2])
-		if err2 != nil {
-			log.Fatal(err2)
-		}
-		step := 256 * int(stepInHex[0]) + int(stepInHex[1])
-		phase, err3 := strconv.Atoi(strings.TrimSuffix(strings.Split(tilePathStep, ".")[3], "\""))
-		if err3 != nil {
-			log.Fatal(err3)
-		}
-		tileBases := strings.Join(oneTile[1:], "")
-		newTile := TileCreator(tileBases, tileLength, "")
-		for len(genome[hexNumber][phase]) < step {
-			genome[hexNumber][phase] = append(genome[hexNumber][phase], Step{true, nil}) // This adds empty (skipped) steps until we reach the right step number.
-		}
-		genome[hexNumber][phase] = append(genome[hexNumber][phase],Step{false, &newTile})
-	}
-	splitpath, data, tiles, tileData =  nil, nil, nil, nil // Clears most things in memory that were used here.
-}
-*/
+			stepInHex := line[20:24]
+			stepBytes, err := hex.DecodeString(stepInHex)
+			if err != nil {
+				log.Fatal(err)
+			}
+			step := 256 * int(stepBytes[0]) + int(stepBytes[1])
+			hashString := line[40:72]
+			hash, err2 := hex.DecodeString(hashString)
+			if err2 != nil {
+				log.Fatal(err2)
+			}
+			var hashArray VariantHash
+			copy(hashArray[:], hash)
+			var lengthString string
+			commaCounter := 0
+			for i, character := range line {
+				if character == ',' {
+					commaCounter++
+				}
+				if commaCounter == 6 {
+					lengthString=string(line[i-1])
+					break
+				}
+			}
+			
+			length, err3 := strconv.Atoi(lengthString)
+			if err3 != nil {
+				log.Fatal(err3)
+			}
+			phase, err4 := strconv.Atoi(line[25:28])
+			if err4 != nil {
+				log.Fatal(err4)
+			}
+			baseData := strings.Split(line, "\n")[1:]
+			var b strings.Builder
+			for _, data := range baseData {
+				if data != "\n" {
+					b.WriteString(data)
+				}
+			}
+			//bases := b.String()
+			newTile := TileCreator(hashArray, length, "")
 
+			for len((*genome)[hexNumber][phase]) < step {
+				(*genome)[hexNumber][phase] = append((*genome)[hexNumber][phase], Step{true, nil}) // This adds empty (skipped) steps until we reach the right step number.
+			}
+			(*genome)[hexNumber][phase] = append((*genome)[hexNumber][phase],Step{false, &newTile})
+		}
+	}
+	splitpath, data, tiles=  nil, nil, nil // Clears most things in memory that were used here.
+}
+
+// writeToTextFile writes the entry of a lookup from a hash to bases for a specific path and step, in a text file.
 func writeToTextFile(genomePath, step int, directory, bases string, hash VariantHash) {
 	err := os.MkdirAll(path.Join(directory,fmt.Sprintf("%04x", genomePath)), os.ModePerm)
 	if err != nil {
@@ -250,6 +279,7 @@ func writeToTextFile(genomePath, step int, directory, bases string, hash Variant
 
 }
 
+// writePathToSGLF writes an SGLF for an entire path given a library.
 func writePathToSGLF(library *Library, genomePath, version int, directoryToWriteTo, directoryToGetFrom string) {
 	var b strings.Builder
 	b.WriteString(fmt.Sprintf("%04x", genomePath))
@@ -302,6 +332,14 @@ func writePathToSGLF(library *Library, genomePath, version int, directoryToWrite
 	bufferedWriter.Flush()
 }
 
+// Function to write the contents of a library to SGLF files.
+func writeLibraryToSGLF(library *Library, version int, directoryToWriteTo, directoryToGetFrom string) {
+	for path := 0; path < paths; path++ {
+		writePathToSGLF(library, path, version, directoryToWriteTo, directoryToGetFrom)
+	}
+}
+
+// parseFastJLibrary puts the contents of a (gzipped) FastJ into a Library.
 func parseFastJLibrary(filepath string, library *Library) {
 	file := path.Base(filepath) // the name of the file.
 	splitpath := strings.Split(file, ".")
@@ -411,22 +449,21 @@ func parseSGLF(filepath string, library *Library) {
 
 	splitpath, data, tiles, tileData =  nil, nil, nil, nil // Clears most things in memory that were used here.
 }
+*/
 
-// creates a Genome based on a directory containing all of the needed FastJ files
-func createGenome(directory string) Genome {
-	var newGenome Genome
+//creates a Genome based on a directory containing all of the needed FastJ files
+func createGenome(directory string, genome *Genome) {
 	fastJFiles, err := ioutil.ReadDir(directory)
 	if err != nil {
 		log.Fatal(err)
 	}
 	for _, file := range fastJFiles {
 		if strings.HasSuffix(file.Name(), ".gz") {
-			parseFastJGenome(path.Join(directory, file.Name()), &newGenome)
+			parseFastJGenome(path.Join(directory, file.Name()), genome)
 		}
 	}
-	return newGenome
 }
-*/
+
 // Function to add a directory of gzipped FastJ files to a specific library. 
 func addLibraryFastJ(directory string, library *Library) {
 	fastJFiles, err := ioutil.ReadDir(directory)
@@ -440,6 +477,7 @@ func addLibraryFastJ(directory string, library *Library) {
 	}
 }
 
+// addPathFromDirectories parses the same path for all genomes, represented by a list of directories, and puts the information in a Library.
 func addPathFromDirectories(library *Library, directories []string, genomePath int) {
 	var b strings.Builder
 
@@ -450,8 +488,14 @@ func addPathFromDirectories(library *Library, directories []string, genomePath i
 	}
 }
 
+// addByDirectories adds information from a list of directories for genomes into a library, but parses by path.
+func addByDirectories(library *Library, directories []string) {
+	for path := 0; path < paths; path++ {
+		addPathFromDirectories(library, directories, path)
+	}
+}
+
 // Function to open a gzipped file.
-// GZ reading seems to be slower than before.
 func openGZ(filepath string) []byte {
 	file, err := os.Open(filepath) // seems to take a long time to open and close this file
 	if err != nil {
@@ -474,29 +518,43 @@ func openGZ(filepath string) []byte {
 // Function to initialize a new Library.
 func initializeLibrary() Library {
 	var newLibrary Library
-	newLibrary = make([]map[int]*KnownVariants, paths, paths)
+	newLibrary = make([][]*KnownVariants, paths, paths)
 	for i := range newLibrary {
-		newLibrary[i] = make(map[int]*KnownVariants)
+		newLibrary[i] = make([]*KnownVariants, 0, 1)
 	}
 	return newLibrary
 }
 
+// Function to initialize a Genome.
+func initializeGenome() Genome {
+	var newGenome Genome
+	newGenome = make([][]Path, paths, paths)
+	for i := range newGenome {
+		newGenome[i] = make([]Path, 2, 2)
+	}
+	return newGenome
+}
+
 
 // The following main function is only used fortesting speed and memory usage of these structures.
-// Speed and heap allocation usage: 3.5-4 minutes, 2-4GB
-// time to make one sglf file: 2 seconds
+// Speed and heap allocation usage: 3-3.5 minutes, 1.5-2.5GB?
+// time to make one sglf file for path 24: 1.5 seconds--at this rate would take around 20-22 minutes per genome, but would probably be less in practice
+
+// time and space to go through 5 genomes by path: 22-23 minutes, 4.5GB
+// time and space to go through 5 genomes by directory: 
 func main() {
 	var m runtime.MemStats
 	fmt.Println("Starting timer...")
 	startTime := time.Now()
 	l:=initializeLibrary()
 	//addLibraryFastJ("../../../../keep/home/tile-library-architecture/Copy of Container output for request su92l-xvhdp-qc9aol66z8oo7ws/hu03E3D2_masterVarBeta-GS000038659-ASM", &l)
-	addPathFromDirectories(&l,[]string{"../../../../keep/home/tile-library-architecture/Copy of Container output for request su92l-xvhdp-qc9aol66z8oo7ws/hu03E3D2_masterVarBeta-GS000038659-ASM",
+	addByDirectories(&l,[]string{"../../../../keep/home/tile-library-architecture/Copy of Container output for request su92l-xvhdp-qc9aol66z8oo7ws/hu03E3D2_masterVarBeta-GS000038659-ASM",
 	"../../../../keep/home/tile-library-architecture/Copy of Container output for request su92l-xvhdp-qc9aol66z8oo7ws/hu03E3D2_masterVarBeta-GS000037847-ASM",
 	"../../../../keep/home/tile-library-architecture/Copy of Container output for request su92l-xvhdp-qc9aol66z8oo7ws/hu01F73B_masterVarBeta-GS000037833-ASM",
 	"../../../../keep/home/tile-library-architecture/Copy of Container output for request su92l-xvhdp-qc9aol66z8oo7ws/hu02C8E3_masterVarBeta-GS000036653-ASM",
-	"../../../../keep/home/tile-library-architecture/Copy of Container output for request su92l-xvhdp-qc9aol66z8oo7ws/hu0486D6_masterVarBeta-GS000037846-ASM"},24)
-	writePathToSGLF(&l, 24, 0, "sglf", "testing")
+	"../../../../keep/home/tile-library-architecture/Copy of Container output for request su92l-xvhdp-qc9aol66z8oo7ws/hu0486D6_masterVarBeta-GS000037846-ASM"})
+	
+	//writePathToSGLF(&l, 24, 0, "sglf", "testing")
 	sortLibrary(&l)
 	
 	total := time.Since(startTime)

@@ -1,6 +1,5 @@
 package main
 
-
 import (
 	"bufio"
 	"compress/gzip"
@@ -37,7 +36,7 @@ func (t TileVariant) Equals(t2 TileVariant) bool {
 
 // KnownVariants is a struct to hold the known variants in a specific step.
 type KnownVariants struct {
-	List []TileVariant          // List to keep track of relative tile ordering (implicitly assigns tile variant numbers by index)
+	List []TileVariant          // List to keep track of relative tile ordering (implicitly assigns tile variant numbers by index after sorting)
 	Counts []int // Counts of each variant so far
 	LookupTable VariantLookupTable // The original position of each variant in the List (for reference to text files later)
 }
@@ -61,6 +60,7 @@ type Step struct {
 }
 
 // Library is a type to represent a library of tile variants.
+// The first slice represents paths, and the second slice represents steps.
 type Library [][]*KnownVariants
 
 // Function to sort the library once all initial genomes are done being added.
@@ -88,7 +88,7 @@ func sortLibrary(library *Library) {
 	}
 }
 
-// TileExists is a function to check if a specific tile exists at a specific path and step.
+// TileExists is a function to check if a specific tile exists at a specific path and step in a library.
 // Returns the index, if found--otherwise, returns -1.
 func TileExists(path, step int, toCheck TileVariant, library *Library) int {
 	if len((*library)[path]) > step && (*library)[path][step] != nil { // Safety to make sure that the KnownVariants struct has been created
@@ -379,8 +379,8 @@ func parseFastJLibrary(filepath string, library *Library) {
 				if character == ',' {
 					commaCounter++
 				}
-				if commaCounter == 6 {
-					lengthString=string(line[i-1])
+				if commaCounter == 6 { // This is dependent on the location of the length field.
+					lengthString=string(line[i-1]) // account for the possibility of length being at least 16
 					break
 				}
 			}
@@ -478,6 +478,7 @@ func addLibraryFastJ(directory string, library *Library) {
 }
 
 // addPathFromDirectories parses the same path for all genomes, represented by a list of directories, and puts the information in a Library.
+// Could save space by just putting it in a []*KnownVariants instead of an entire library
 func addPathFromDirectories(library *Library, directories []string, genomePath int) {
 	var b strings.Builder
 
@@ -535,24 +536,58 @@ func initializeGenome() Genome {
 	return newGenome
 }
 
+// Function to merge the first library into the second library.
+func mergeLibraries(filepathToMerge string, libraryToMerge *Library, mainLibrary *Library) {
+	for i, path := range (*libraryToMerge) {
+		for j := range path {
+			mergeKnownVariants(filepathToMerge, i, j, (*libraryToMerge)[i][j], mainLibrary)
+		}
+	}
+}
 
-// The following main function is only used fortesting speed and memory usage of these structures.
+// Function to merge a KnownVariants at a specific path and step into another library.
+func mergeKnownVariants(filepathToMerge string, genomePath, step int, variantsToMerge *KnownVariants, mainLibrary *Library) {
+	var b strings.Builder
+	b.WriteString(fmt.Sprintf("%04x",step))
+	b.WriteString(".txt")
+	lines, err := os.Open(path.Join(filepathToMerge, fmt.Sprintf("%04x", genomePath), b.String()))
+	if err != nil {
+		log.Fatal(err)
+	}
+	scanner := bufio.NewScanner(lines)
+	var tiles []string
+	tiles = make([]string, 0, 1)
+	for scanner.Scan() {
+		tiles = append(tiles, scanner.Text())
+	}
+	for i, variant := range (*variantsToMerge).List {
+		AddTile(genomePath, step, variant, tiles[(*variantsToMerge).LookupTable[i]], mainLibrary)
+		(*mainLibrary)[genomePath][step].Counts[TileExists(genomePath, step, variant, mainLibrary)] += (*variantsToMerge).Counts[i]-1
+	}
+}
+
+
+// The following main function is only used for testing speed and memory usage of these structures.
 // Speed and heap allocation usage: 3-3.5 minutes, 1.5-2.5GB?
-// time to make one sglf file for path 24: 1.5 seconds--at this rate would take around 20-22 minutes per genome, but would probably be less in practice
+// time to make one sglf file for path 24: 1.5 seconds--at this rate would take around 20-22 minutes per 5 genomes, but would probably be less in practice
 
 // time and space to go through 5 genomes by path: 22-23 minutes, 4.5GB
-// time and space to go through 5 genomes by directory: 
+// time and space to go through 5 genomes by directory: 21 minutes, 3.5GB
 func main() {
 	var m runtime.MemStats
 	fmt.Println("Starting timer...")
 	startTime := time.Now()
 	l:=initializeLibrary()
-	//addLibraryFastJ("../../../../keep/home/tile-library-architecture/Copy of Container output for request su92l-xvhdp-qc9aol66z8oo7ws/hu03E3D2_masterVarBeta-GS000038659-ASM", &l)
-	addByDirectories(&l,[]string{"../../../../keep/home/tile-library-architecture/Copy of Container output for request su92l-xvhdp-qc9aol66z8oo7ws/hu03E3D2_masterVarBeta-GS000038659-ASM",
-	"../../../../keep/home/tile-library-architecture/Copy of Container output for request su92l-xvhdp-qc9aol66z8oo7ws/hu03E3D2_masterVarBeta-GS000037847-ASM",
-	"../../../../keep/home/tile-library-architecture/Copy of Container output for request su92l-xvhdp-qc9aol66z8oo7ws/hu01F73B_masterVarBeta-GS000037833-ASM",
-	"../../../../keep/home/tile-library-architecture/Copy of Container output for request su92l-xvhdp-qc9aol66z8oo7ws/hu02C8E3_masterVarBeta-GS000036653-ASM",
-	"../../../../keep/home/tile-library-architecture/Copy of Container output for request su92l-xvhdp-qc9aol66z8oo7ws/hu0486D6_masterVarBeta-GS000037846-ASM"})
+	addLibraryFastJ("../../../../keep/home/tile-library-architecture/Copy of Container output for request su92l-xvhdp-qc9aol66z8oo7ws/hu03E3D2_masterVarBeta-GS000038659-ASM", &l)
+	//addLibraryFastJ("../../../../keep/home/tile-library-architecture/Copy of Container output for request su92l-xvhdp-qc9aol66z8oo7ws/hu03E3D2_masterVarBeta-GS000037847-ASM", &l)
+	//addLibraryFastJ("../../../../keep/home/tile-library-architecture/Copy of Container output for request su92l-xvhdp-qc9aol66z8oo7ws/hu01F73B_masterVarBeta-GS000037833-ASM", &l)
+	//addLibraryFastJ("../../../../keep/home/tile-library-architecture/Copy of Container output for request su92l-xvhdp-qc9aol66z8oo7ws/hu02C8E3_masterVarBeta-GS000036653-ASM", &l)
+	//addLibraryFastJ("../../../../keep/home/tile-library-architecture/Copy of Container output for request su92l-xvhdp-qc9aol66z8oo7ws/hu0486D6_masterVarBeta-GS000037846-ASM", &l)
+	//addByDirectories(&l,[]string{"../../../../keep/home/tile-library-architecture/Copy of Container output for request su92l-xvhdp-qc9aol66z8oo7ws/hu03E3D2_masterVarBeta-GS000038659-ASM",
+	//"../../../../keep/home/tile-library-architecture/Copy of Container output for request su92l-xvhdp-qc9aol66z8oo7ws/hu03E3D2_masterVarBeta-GS000037847-ASM",
+	//"../../../../keep/home/tile-library-architecture/Copy of Container output for request su92l-xvhdp-qc9aol66z8oo7ws/hu01F73B_masterVarBeta-GS000037833-ASM",
+	//"../../../../keep/home/tile-library-architecture/Copy of Container output for request su92l-xvhdp-qc9aol66z8oo7ws/hu02C8E3_masterVarBeta-GS000036653-ASM",
+	//"../../../../keep/home/tile-library-architecture/Copy of Container output for request su92l-xvhdp-qc9aol66z8oo7ws/hu0486D6_masterVarBeta-GS000037846-ASM"})
 	
 	//writePathToSGLF(&l, 24, 0, "sglf", "testing")
 	sortLibrary(&l)

@@ -7,6 +7,7 @@ tagset:
 pathmin: "0"
 pathmax: "862"
 nchunks: "15"
+sglfthreshold: 4000
 gvcfdir:
   class: Directory
   location: keep:a7f54f723eaa4fb1b021150be80028fe+1343

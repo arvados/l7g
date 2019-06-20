@@ -36,6 +36,9 @@ inputs:
   lib:
     type: Directory
     label: Tile library directory
+  skippaths:
+    type: File
+    label: Paths to skip
 outputs:
   cgf:
     type: File
@@ -49,3 +52,4 @@ arguments:
   - $(inputs.cgft)
   - $(inputs.fjt)
   - $(inputs.lib)
+  - $(inputs.skippaths)

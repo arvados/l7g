@@ -1,5 +1,7 @@
 package genome
-
+/*
+	Genome is a package for representing the genome with Go data structures.
+*/
 import (
 	"errors"
 	"encoding/hex"
@@ -19,8 +21,8 @@ type Path []Step
 
 // Step is a type to represent a step within a path, which can take on a specific tile variant.
 type Step struct {
-	Skipped bool // determines if this step has been skipped (due to a spanning tile)
-	Variant *(structures.TileVariant) // the Variant in this step
+	Skipped bool // Determines if this step has been skipped (due to a spanning tile)
+	Variant *(structures.TileVariant) // The Variant in this step
 }
 
 

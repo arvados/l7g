@@ -8,13 +8,12 @@ def filter_gvcf():
 
     # setting up inputs
     parser = argparse.ArgumentParser(prog="filter-gvcf", description="Filter a \
-        gVCF with a user-set quality threshold.", usage='%(prog)s [-k] GVCF \
-        QUALITY')
+        gVCF with a user-set quality threshold.")
     parser.add_argument("-k", "--keepGQdot", help="Keeps the variant when GQ \
         is '.'", action="store_true")
-    parser.add_argument("gvcf", metavar="GVCF", help="Input gVCF to filter")
     parser.add_argument("quality_threshold", metavar="QUALITY", help="Quality \
         threshold", type=float)
+    parser.add_argument("gvcf", metavar="GVCF", help="Input gVCF to filter")
 
     args = parser.parse_args()
     keepGQdot = args.keepGQdot

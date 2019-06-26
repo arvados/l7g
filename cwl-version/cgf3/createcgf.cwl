@@ -9,7 +9,7 @@ requirements:
     dockerPull: arvados/l7g
   ResourceRequirement:
     coresMin: 2
-    ramMin: 13000
+    ramMin: 11000
 hints:
   arv:RuntimeConstraints:
     keep_cache: 1046

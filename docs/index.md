@@ -1,68 +1,21 @@
-l7g
-===
+# Lightning Documentation 
 
-`l7g` is the main codebase for the Lightning system being developed
-by Curoverse Research.
+This website presents the concepts, architecture, specifications, and general documentation for Lightning, a genomic tiling system.
 
-The repository contains documents, source code and pipelines for
-the various aspects of Lightning.
+## Table of Contents
 
-Code here should be considered "research grade" and is a work in progress.
+[Lightning Concept](https://github.com/curoverse/l7g/blob/master/doc/Lightning-Concepts.md) : A brief overview of the Lightning System, it's purpose, and construction
 
-Overview
----
+[Lightning Architecture](https://github.com/curoverse/l7g/blob/master/doc/Lightning-Architecture.md) : Technical specifications for the architectual parts that make up Lightning
 
-Lightning is a system based on "genomic tiling".
-Genomes are split into small segments, on average roughly 250 base pairs (bp) long,
-and these small segments are called "tiles".
+[Lightning Data](https://github.com/curoverse/l7g/blob/master/doc/Lightning-Data.md) : Specific information about data types used in Lightning 
 
-For a given population of genomic data, the genomic sequences are tiled with
-tiles that have redundant sequences de-duplicated.
-Coalescing all unique tiles creates a "Lightning tile library", where a source sequence
-from the population pool can be stored by using position references into the
-lightning tile library.
+[CGF Schema Draft v.3](https://github.com/curoverse/l7g/blob/master/doc/CGFv3-Schema.md) : The latest schema for the Compact Genome Files used in Lightning
 
-A compact representation of a genome can be created by storing arrays of
-indexes into the Lightning tile libary referencing their underlying sequence.
-
-A representation of the compact genome representation we've developed is called
-"compact genome format" (CGF) that can represent a whole genome in ~30Mb, depending
-on the amount of low quality data in the original genome sample.
-
-
-Directory Structure
----
-
-### cwl-version/
-
-[Common Workflow Language (CWL)](https://github.com/common-workflow-language/common-workflow-language) pipelines
-for creating Lightning data.
-
-### doc/
-
-Lightning documentation
-
-### go/
-
-`go` (golang) programs used by Lightning.
-
-### img/
-
-Image directory for pictures.
-
-### prototype/
-
-A directory for the Lightning system prototype.
-
-### proxy/
-
-Authentication for Lightning prototype.
-
-### sandbox/
-
-Subdirectory for experimental code.
-
-### tools/
-
-Source and tools used by Lightning.
++ [Lightning Genome Tile Library Format](https://github.com/curoverse/l7g/blob/master/doc/Lightning-Genome-Library-Format.md)
++ [Lightning Tile Schema](https://github.com/curoverse/l7g/blob/master/doc/Lightning-Tile-Schema.md)
++ Tiling Workflow CWL Documentation (_Under Construction_)
++ Tools used by Tiling Workflow Documentation:
+  + [PASTA](https://github.com/curoverse/l7g/blob/master/doc/PASTA.md) 
++ Examples of Using Tiled Data (_Under Construction_)
 

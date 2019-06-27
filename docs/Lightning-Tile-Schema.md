@@ -1,4 +1,4 @@
-Lightning Tile
+Lightning Tile Arrays
 ===
 
 Introduction

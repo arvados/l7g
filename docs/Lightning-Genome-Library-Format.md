@@ -22,7 +22,7 @@ Overview
 ---
 
 To facilitate different uses of the tile library, different formats are created.
-The main formats are the SGLF, the 2bit and the 2bit tar formats.
+The main formats are the SGLF, the 2bit, and the 2bit tar formats.
 Each of these three different formats are trying to focus on different aspects
 of usability:
 
@@ -36,7 +36,7 @@ tag information and reference position information.
 
 ### Terms
 
-Some common terms will be used:
+Some common terms:
 
 * `Tile ID`: The tile identification, often 'joined dot' notation, with the tile path first,
   the tile library version second, the tile step third and the tile variant fourth.  This
@@ -112,11 +112,11 @@ The fill in process will be discussed later.
 ---
 
 Whereas SGLF was concerned with ease of processing at the cost of space and the 2bit format was concerned with
-compatibility and space, the 2bit, tar format is concerned with space and access.
+compatibility and space, the 2bit tar format is concerned with space and access.
 The SGLF files are too big to access quickly and the 2bit files need to load information in on a tile path basis to extract
 sequence for a single tile step.
 In order to retain the compactness of the combination of 2bit representation and gzip compression, each tile step is compressed
-into a 2bit file, bundled into a tar archive on a tile path basis and compressed.
+into a 2bit file, bundled into a tar archive on a tile path basis, and compressed.
 Further, index files are produced to indicate where in the archive each 2bit tile step file is located for fast random access.
 
 As an example, here is a small set of steps to extract the sequence for the extended tile path `035e.00.0018.01c`:
@@ -162,7 +162,7 @@ Currently only `hg19` is supported.
 
 The main file holds the inclusive end locations in base 0 reference position
 of each tile position in the tile library to the reference in question.
-The format is two fixed width fields separated by a tab, each
+The format consists of two fixed width fields separated by a tab, each
 field padded with spaces (to the left).  Each block contains a line starting with a
 `>` that holds the name of the assembly (e.g.  `hg19`), the chromosome name (`chr`
 prefix, e.g. `chr13`) and the path in hex (e.g. `2c5`) all separated by a colon (`:`) delimiter.
@@ -300,7 +300,7 @@ tile library server for quick lookup.
 ### Tile Library Difference
 
 To help keep track of what tiles have been added and to try and keep some provenance of tile versioning,
-the tile updates to the tile library, it's new hash and other information is provided in a JSON file.
+the tile updates to the tile library, it's new hash, and other information is provided in a JSON file.
 
 The structure should be something like:
 

@@ -15,6 +15,7 @@ type TileVariant struct {
 	Hash       VariantHash 	  // The hash of the tile variant's bases.
 	Length     int            // The length (span) of the tile
 	Annotation string         // Any notes about this tile (by default, no comments)
+	// File string // The path to the file for which the variant is from.
 }
 
 // TileCreator is a small function to create a new tile given information about it.

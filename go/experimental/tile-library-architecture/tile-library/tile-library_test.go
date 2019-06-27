@@ -7,6 +7,7 @@ import (
 	"../structures"
 )
 
+// This is a test of the TileExists function.
 func TestExists(t *testing.T) {
 	l := InitializeLibrary()
 	hash1 := md5.Sum([]byte{1})
@@ -21,7 +22,7 @@ func TestExists(t *testing.T) {
 	}
 	test2 := TileExists(0,0,tile2, &l)
 	if test2==-1 {
-		t.Errorf("Test 2 is false, expected true")
+		t.Errorf("Test 2 is false, expected true") // This is because tile1 and tile2 have the same hash--equality of tiles is only based on hash.
 	}
 	test3 := TileExists(0,0,tile3,&l)
 	if test3!=-1 {
@@ -29,6 +30,7 @@ func TestExists(t *testing.T) {
 	}
 }
 
+// This is a test of the FindFrequency function.
 func TestFrequency(t *testing.T) {
 	l := InitializeLibrary()
 	hash1 := md5.Sum([]byte{1})
@@ -43,7 +45,7 @@ func TestFrequency(t *testing.T) {
 	AddTile(0,1,tile1, "t", &l)
 	test1 := FindFrequency(0,0,tile1,&l)
 	if test1!=3 {
-		t.Errorf("Test 1 was %v, expected 3", test1)
+		t.Errorf("Test 1 was %v, expected 3", test1) // This is because tile1 and tile2 have the same hash--equality of tiles is only based on hash, so tile1 counts the two instances of tile1 and the instance of tile2 in path 0, step 0.
 	}
 	test2 := FindFrequency(0,0,tile2, &l)
 	if test2!=3 {
@@ -60,6 +62,10 @@ func TestFrequency(t *testing.T) {
 	test5 := FindFrequency(0,1,tile3, &l)
 	if test5!=0 {
 		t.Errorf("Test 5 was %v, expected 0",test5)
+	}
+	test6 := FindFrequency(0,2, tile2, &l)
+	if test6 !=0 {
+		t.Errorf("Test 6 was %v, expacted 0", test6)
 	}
 }
 /*
@@ -81,6 +87,7 @@ func TestLibraryMerging(t *testing.T) {
 }
 */
 
+// This is a test of the sortLibrary function.
 func TestLibrarySorting(t *testing.T) {
 	l := InitializeLibrary()
 	hash1 := md5.Sum([]byte{1})

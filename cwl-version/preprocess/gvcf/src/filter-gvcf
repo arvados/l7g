@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
 import argparse
-import gzip
+import sys
 
 
 def filter_gvcf():
@@ -12,23 +12,20 @@ def filter_gvcf():
     parser.add_argument("-k", "--keepGQdot", help="Keeps the variant when GQ \
         is '.'", action="store_true")
     parser.add_argument("quality_threshold", metavar="QUALITY", help="Quality \
-        threshold", type=float)
-    parser.add_argument("gvcf", metavar="GVCF", help="Input gVCF to filter")
+        threshold", type=int)
+    parser.add_argument("gvcf", metavar="GVCF", nargs='?', type=argparse.FileType('r'),
+        default=sys.stdin, help="Input gVCF to filter from stdin")
 
     args = parser.parse_args()
     keepGQdot = args.keepGQdot
     quality_threshold = args.quality_threshold
     gvcf = args.gvcf
 
-    # open with gzip if GVCF is gzipped
-    g = gzip.open(gvcf) if gvcf.endswith(".gz") else open(gvcf)
-
-    for line in g:
+    for line in gvcf:
         line = line.strip()
 
         # retain header and info lines
         if len(line) == 0:
-            print ""
             continue
         if line[0] == '#':
             print line
@@ -39,23 +36,19 @@ def filter_gvcf():
         if len(fields) < 10:
             continue
 
-        # create dictionary
-        keys = fields[8].split(":")
-        vals = fields[9].split(":")
-        d = dict(zip(keys, vals))
+        FORMAT_fields = fields[8].split(":")
+        sample_fields = fields[9].split(":")
 
         # filter quality scores below the threshold
-        gq = 100.0
-        if "GQ" in d:
-            gq = d['GQ']
-            # checking if keepGQdot flag is on
-            if gq == "." and keepGQdot:
-                print line
-            elif gq.isdigit():
-                gq = float(gq)
-                if quality_threshold <= gq:
+        try:
+            GQ_index = FORMAT_fields.index('GQ')
+            GQ = sample_fields[GQ_index]
+            if GQ.isdigit():
+                if quality_threshold <= int(GQ):
                     print line
-        else:
+            elif GQ == "." and keepGQdot:
+                print line
+        except ValueError:
             print line
 
 if __name__ == '__main__':

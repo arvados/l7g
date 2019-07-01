@@ -4,7 +4,6 @@ package main // should be changed to package tile-library or package tilelibrary
 
 import (
 	"bufio"
-	"crypto/md5"
 	"encoding/hex"
 	"errors"
 	"fmt"
@@ -87,13 +86,14 @@ func TileExists(path, step int, toCheck structures.TileVariant, library *Library
 	return -1
 }
 
-// AddTile is a function to add a tile (without sorting).
+// AddTile is a function to add a tile (without sorting). Safe to use without checking existence of the tile beforehand (since the function will do that for you).
 func AddTile(genomePath, step, lookupNumber int, new structures.TileVariant, libraryTextFile, bases string, library *Library) {
 	if index := TileExists(genomePath, step, new, library); index == -1 { // Checks if the tile exists already.
 		(*library)[genomePath][step].List = append((*library)[genomePath][step].List, new)
 		(*library)[genomePath][step].Counts = append((*library)[genomePath][step].Counts, 1)
 		(*library)[genomePath][step].LookupTable = append((*library)[genomePath][step].LookupTable, lookupNumber)
 		//writeToTextFile(genomePath, step, path.Dir(libraryTextFile), bases, path.Base(libraryTextFile), new.Hash)
+		// The writeToTextFile line may not be necessary any more, since writing will be done in the buffered read/write section.
 	} else {
 		(*library)[genomePath][step].Counts[index]++
 	}
@@ -101,21 +101,18 @@ func AddTile(genomePath, step, lookupNumber int, new structures.TileVariant, lib
 
 // AddTileUnsafe is a function to add a tile without sorting.
 // Unsafe because it doesn't check if the tile is already in the library, unlike AddTile.
-func AddTileUnsafe(genomePath, step, lookupNumber int, new structures.TileVariant, libraryTextFile, bases string, library *Library) {
-	
+// Be careful to check if the tile already exists before using this function.
+func AddTileUnsafe(genomePath, step, lookupNumber int, new structures.TileVariant, libraryTextFile string, library *Library) {
 	(*library)[genomePath][step].List = append((*library)[genomePath][step].List, new)
 	(*library)[genomePath][step].Counts = append((*library)[genomePath][step].Counts, 1)
 	(*library)[genomePath][step].LookupTable = append((*library)[genomePath][step].LookupTable, lookupNumber)
-
 }
 /*
-// AddAndSortTiles takes a list of tiles to put into a path and step, and adds them all at once (and sorts afterwards).
+// AddAndSortTiles takes a list of tiles to put into a path and step, and adds them all at once.
 func AddAndSortTiles(path, step int, newTiles []TileVariant, library *Library) {
 	for _, tile := range newTiles {
 		AddTile(path, step, tile, library)
 	}
-	toSort := library[path][step]
-	sort.Slice(toSort.List, func(i, j int) bool { return toSort.Set[*toSort.List[i].MD5] > toSort.Set[*toSort.List[j].MD5] })
 }
 
 
@@ -164,23 +161,30 @@ func Annotate(path, step int, toAnnotate structures.TileVariant, library *Librar
 }
 
 
-// TODO: make a goroutine do the writing to disk while information relevant to the library structure is added, and add a temporary index number to tiles that have been processed but not written yet.
-// fine to read and write concurrently?
-// in addition, buffer bases so that there are fewer writes to disk
+// baseInfo is a temporary struct to pass around information about a tile's bases.
+type baseInfo struct {
+	bases string
+	hash structures.VariantHash
+}
 
-// Maybe store everything from a path in data, and then write and add everything all at once? Need to check if there are duplicates.
-
+// tileInfo is a temporary struct to pass around information about a tile's location.
+type tileInfo struct {
+	path int
+	step int
+	indexInList int
+}
 
 func bufferedTileRead(fastJFilepath, libraryTextFile string, library *Library) {
-	var baseChannel chan string
+	var baseChannel chan baseInfo
 	var startingIndices chan int
-	baseChannel = make(chan string, 16) // Put strings of bases in here while they need to be processed.
+	var tileInfoChannel chan tileInfo
+	baseChannel = make(chan baseInfo, 16) // Put information about bases of tiles in here while they need to be processed.
 	startingIndices = make(chan int, 16) // Put pointer indices here while waiting to be processed.
-
+	tileInfoChannel = make(chan tileInfo, 16) // Put infomation about locations of tiles in here while they need to be processed.
 	go bufferedBaseWrite(libraryTextFile, baseChannel, startingIndices)
-
+	go bufferedInfo(tileInfoChannel, startingIndices, library)
 	file := path.Base(fastJFilepath) // The name of the file.
-	splitpath := strings.Split(file, ".")
+	splitpath := strings.Split(file, ".") // This is used to make sure the file is in the right format.
 	if len(splitpath) != 3 {
 		log.Fatal(errors.New("error: Not a valid gzipped file "+file)) // Makes sure that the filepath goes to a valid file
 	}
@@ -236,21 +240,22 @@ func bufferedTileRead(fastJFilepath, libraryTextFile string, library *Library) {
 			}
 			bases := b.String()
 			newTile := structures.TileCreator(hashArray, length, "")
-			
-
-			if TileExists(hexNumber, step, newTile, library)==-1 {
-				baseChannel <- bases
-				index := <- startingIndices
-				AddTileUnsafe(hexNumber, step, index, newTile, libraryTextFile, bases, library)
+			if tileIndex:=TileExists(hexNumber, step, newTile, library); tileIndex==-1 {
+				AddTileUnsafe(hexNumber, step, -1, newTile, libraryTextFile, library) // -1 for unknown index. This will be set to the actual value later by the bufferedInfo function.
+				baseChannel <- baseInfo{bases,hashArray}
+				tileInfoChannel <- tileInfo{hexNumber, step, len((*library)[hexNumber][step].List)-1}
+			} else {
+				(*library)[hexNumber][step].Counts[tileIndex]++
 			}
 			
 		}
 	}
 	close(baseChannel)
-	splitpath, data, tiles=  nil, nil, nil // Clears most things in memory that were used here, to free up memory.
+	close(tileInfoChannel)
+	splitpath, data, tiles = nil, nil, nil // Clears most things in memory that were used here, to free up memory.
 }
 
-func bufferedBaseWrite(libraryTextFile string, channel chan string, startingIndices chan int) {
+func bufferedBaseWrite(libraryTextFile string, channel chan baseInfo, startingIndices chan int) {
 	err := os.MkdirAll(path.Dir(libraryTextFile), os.ModePerm)
 	if err != nil {
 		log.Fatal(err)
@@ -258,32 +263,32 @@ func bufferedBaseWrite(libraryTextFile string, channel chan string, startingIndi
 	file, err2 := os.OpenFile(libraryTextFile, os.O_APPEND | os.O_CREATE | os.O_WRONLY, 0644)
 	bufferedWriter := bufio.NewWriter(file)
 	if err2 != nil {
-		log.Fatal(err)
+		log.Fatal(err2)
 	}
-	ok := true
-	for ok {
-		bases, channelOk := <- channel
-		ok = channelOk
-		if ok {
-			info, err3 := os.Stat(libraryTextFile)
-			if err3 != nil {
-				log.Fatal(err3)
-			}
-			startingIndices <- (int(info.Size())+bufferedWriter.Buffered())
-			hash := md5.Sum([]byte(bases))
-			hashString := hex.EncodeToString(hash[:])
-			bufferedWriter.WriteString(hashString)
-			bufferedWriter.WriteString(",")
-			bufferedWriter.WriteString(bases)
-			bufferedWriter.WriteString("\n")
+	for bases := range channel {
+		info, err3 := os.Stat(libraryTextFile)
+		if err3 != nil {
+			log.Fatal(err3)
 		}
+		startingIndices <- (int(info.Size())+bufferedWriter.Buffered())
+		
+		hashString := hex.EncodeToString(bases.hash[:])
+		bufferedWriter.WriteString(hashString)
+		bufferedWriter.WriteString(",")
+		bufferedWriter.WriteString(bases.bases)
+		bufferedWriter.WriteString("\n")
 	}
 	bufferedWriter.Flush()
 
 	file.Close()
 }
 
-
+func bufferedInfo(tileInfoChannel chan tileInfo, startingIndices chan int, library *Library) {
+	for info := range tileInfoChannel {
+		index := <- startingIndices
+		(*library)[info.path][info.step].LookupTable[info.indexInList] = index
+	}
+}
 
 // writeToTextFile writes the entry of a lookup from a hash to bases for a specific path and step, in a text file.
 
@@ -492,8 +497,8 @@ func AddLibraryFastJ(directory, libraryTextFile string, library *Library) {
 		log.Fatal(err)
 	}
 	for _, file := range fastJFiles {
-		if strings.HasSuffix(file.Name(), ".gz") {
-			ParseFastJLibrary(path.Join(directory, file.Name()), libraryTextFile, library)
+		if strings.HasSuffix(file.Name(), ".gz") { // Checks if a file is a gz file.
+			bufferedTileRead(path.Join(directory, file.Name()), libraryTextFile, library)
 		}
 	}
 }
@@ -506,7 +511,7 @@ func AddPathFromDirectories(library *Library, directories []string, genomePath i
 	b.WriteString(fmt.Sprintf("%04x",genomePath))
 	b.WriteString(".fj.gz")
 	for _, directory := range directories {
-		ParseFastJLibrary(path.Join(directory,b.String()),libraryTextFile,library)
+		bufferedTileRead(path.Join(directory,b.String()),libraryTextFile,library)
 	}
 }
 
@@ -616,6 +621,10 @@ func MergeKnownVariants(filepathToMerge string, genomePath, step int, variantsTo
 // time and space to go through 5 genomes by path: 22-23 minutes, 4.5GB
 // time and space to go through 5 genomes by directory: 21 minutes, 3.5GB
 // time and space to put 5 genomes in a library and write bases to a file: 32 minutes, 3.5GB
+// after adjustments and goroutines, by directory: 27 minutes, 3.8 GB, 28 minutes, 5.3 GB, 22.5 minutes, 4.5 GB, 23.5 minutes, 4GB
+// 23 minutes, 5.8 GB
+// By path: 21 minutes, 4.1GB, 19.5 minutes, 4.7 GB, 20 minutes, 4 GB.
+
 func main() {
 	log.SetFlags(log.Llongfile)
 	var m runtime.MemStats
@@ -624,11 +633,11 @@ func main() {
 	//fjtMakeSGLFFromGenomes("/mnt/keep/by_id/6a3b88d7cde57054971eeabe15639cf8+263878/", "l7g/go/experimental/tile-library-architecture", "~/keep/by_id/cd9ada494bd979a8bc74e6d59d3e8710+174/tagset.fa.gz", 862)
 	l:=InitializeLibrary()
 	
-	bufferedTileRead("../../../../../keep/home/tile-library-architecture/Copy of Container output for request su92l-xvhdp-qc9aol66z8oo7ws/hu03E3D2_masterVarBeta-GS000038659-ASM/0017.fj.gz", "testing/test.txt",&l)
-	bufferedTileRead("../../../../../keep/home/tile-library-architecture/Copy of Container output for request su92l-xvhdp-qc9aol66z8oo7ws/hu03E3D2_masterVarBeta-GS000037847-ASM/0017.fj.gz", "testing/test.txt",&l)
-	bufferedTileRead("../../../../../keep/home/tile-library-architecture/Copy of Container output for request su92l-xvhdp-qc9aol66z8oo7ws/hu01F73B_masterVarBeta-GS000037833-ASM/0017.fj.gz", "testing/test.txt",&l)
-	bufferedTileRead("../../../../../keep/home/tile-library-architecture/Copy of Container output for request su92l-xvhdp-qc9aol66z8oo7ws/hu02C8E3_masterVarBeta-GS000036653-ASM/0017.fj.gz", "testing/test.txt",&l)
-	bufferedTileRead("../../../../../keep/home/tile-library-architecture/Copy of Container output for request su92l-xvhdp-qc9aol66z8oo7ws/hu0486D6_masterVarBeta-GS000037846-ASM/0017.fj.gz", "testing/test.txt",&l)
+	bufferedTileRead("../../../../../keep/home/tile-library-architecture/Copy of Container output for request su92l-xvhdp-qc9aol66z8oo7ws/hu03E3D2_masterVarBeta-GS000038659-ASM/035e.fj.gz", "testing/test.txt",&l)
+	bufferedTileRead("../../../../../keep/home/tile-library-architecture/Copy of Container output for request su92l-xvhdp-qc9aol66z8oo7ws/hu03E3D2_masterVarBeta-GS000037847-ASM/035e.fj.gz", "testing/test.txt",&l)
+	bufferedTileRead("../../../../../keep/home/tile-library-architecture/Copy of Container output for request su92l-xvhdp-qc9aol66z8oo7ws/hu01F73B_masterVarBeta-GS000037833-ASM/035e.fj.gz", "testing/test.txt",&l)
+	bufferedTileRead("../../../../../keep/home/tile-library-architecture/Copy of Container output for request su92l-xvhdp-qc9aol66z8oo7ws/hu02C8E3_masterVarBeta-GS000036653-ASM/035e.fj.gz", "testing/test.txt",&l)
+	bufferedTileRead("../../../../../keep/home/tile-library-architecture/Copy of Container output for request su92l-xvhdp-qc9aol66z8oo7ws/hu0486D6_masterVarBeta-GS000037846-ASM/035e.fj.gz", "testing/test.txt",&l)
 	
 	/*
 	ParseFastJLibrary("../../../../../keep/home/tile-library-architecture/Copy of Container output for request su92l-xvhdp-qc9aol66z8oo7ws/hu03E3D2_masterVarBeta-GS000038659-ASM/035e.fj.gz", "testing2/test.txt",&l)
@@ -637,18 +646,23 @@ func main() {
 	ParseFastJLibrary("../../../../../keep/home/tile-library-architecture/Copy of Container output for request su92l-xvhdp-qc9aol66z8oo7ws/hu02C8E3_masterVarBeta-GS000036653-ASM/035e.fj.gz", "testing2/test.txt",&l)
 	ParseFastJLibrary("../../../../../keep/home/tile-library-architecture/Copy of Container output for request su92l-xvhdp-qc9aol66z8oo7ws/hu0486D6_masterVarBeta-GS000037846-ASM/035e.fj.gz", "testing2/test.txt",&l)
 	*/
-	//AddLibraryFastJ("../../../../../keep/home/tile-library-architecture/Copy of Container output for request su92l-xvhdp-qc9aol66z8oo7ws/hu03E3D2_masterVarBeta-GS000038659-ASM", "/data-sdc/jc/tile-library/test.txt",&l)
- 	//AddLibraryFastJ("../../../../../keep/home/tile-library-architecture/Copy of Container output for request su92l-xvhdp-qc9aol66z8oo7ws/hu03E3D2_masterVarBeta-GS000037847-ASM", "/data-sdc/jc/tile-library/test.txt",&l)
-	//AddLibraryFastJ("../../../../../keep/home/tile-library-architecture/Copy of Container output for request su92l-xvhdp-qc9aol66z8oo7ws/hu01F73B_masterVarBeta-GS000037833-ASM", "/data-sdc/jc/tile-library/test.txt",&l)
-	//AddLibraryFastJ("../../../../../keep/home/tile-library-architecture/Copy of Container output for request su92l-xvhdp-qc9aol66z8oo7ws/hu02C8E3_masterVarBeta-GS000036653-ASM", "/data-sdc/jc/tile-library/test.txt",&l)
-	//AddLibraryFastJ("../../../../../keep/home/tile-library-architecture/Copy of Container output for request su92l-xvhdp-qc9aol66z8oo7ws/hu0486D6_masterVarBeta-GS000037846-ASM", "/data-sdc/jc/tile-library/test.txt",&l)
-	//addByDirectories(&l,[]string{"../../../../keep/home/tile-library-architecture/Copy of Container output for request su92l-xvhdp-qc9aol66z8oo7ws/hu03E3D2_masterVarBeta-GS000038659-ASM",
-	//"../../../../keep/home/tile-library-architecture/Copy of Container output for request su92l-xvhdp-qc9aol66z8oo7ws/hu03E3D2_masterVarBeta-GS000037847-ASM",
-	//"../../../../keep/home/tile-library-architecture/Copy of Container output for request su92l-xvhdp-qc9aol66z8oo7ws/hu01F73B_masterVarBeta-GS000037833-ASM",
-	//"../../../../keep/home/tile-library-architecture/Copy of Container output for request su92l-xvhdp-qc9aol66z8oo7ws/hu02C8E3_masterVarBeta-GS000036653-ASM",
-	//"../../../../keep/home/tile-library-architecture/Copy of Container output for request su92l-xvhdp-qc9aol66z8oo7ws/hu0486D6_masterVarBeta-GS000037846-ASM"})
+	/*
+	AddLibraryFastJ("../../../../../keep/home/tile-library-architecture/Copy of Container output for request su92l-xvhdp-qc9aol66z8oo7ws/hu03E3D2_masterVarBeta-GS000038659-ASM", "/data-sdc/jc/tile-library/test.txt",&l)
+ 	AddLibraryFastJ("../../../../../keep/home/tile-library-architecture/Copy of Container output for request su92l-xvhdp-qc9aol66z8oo7ws/hu03E3D2_masterVarBeta-GS000037847-ASM", "/data-sdc/jc/tile-library/test.txt",&l)
+	AddLibraryFastJ("../../../../../keep/home/tile-library-architecture/Copy of Container output for request su92l-xvhdp-qc9aol66z8oo7ws/hu01F73B_masterVarBeta-GS000037833-ASM", "/data-sdc/jc/tile-library/test.txt",&l)
+	AddLibraryFastJ("../../../../../keep/home/tile-library-architecture/Copy of Container output for request su92l-xvhdp-qc9aol66z8oo7ws/hu02C8E3_masterVarBeta-GS000036653-ASM", "/data-sdc/jc/tile-library/test.txt",&l)
+	AddLibraryFastJ("../../../../../keep/home/tile-library-architecture/Copy of Container output for request su92l-xvhdp-qc9aol66z8oo7ws/hu0486D6_masterVarBeta-GS000037846-ASM", "/data-sdc/jc/tile-library/test.txt",&l)
+	*/
+	/*
+	AddByDirectories(&l,[]string{"../../../../../keep/home/tile-library-architecture/Copy of Container output for request su92l-xvhdp-qc9aol66z8oo7ws/hu03E3D2_masterVarBeta-GS000038659-ASM",
+	"../../../../../keep/home/tile-library-architecture/Copy of Container output for request su92l-xvhdp-qc9aol66z8oo7ws/hu03E3D2_masterVarBeta-GS000037847-ASM",
+	"../../../../../keep/home/tile-library-architecture/Copy of Container output for request su92l-xvhdp-qc9aol66z8oo7ws/hu01F73B_masterVarBeta-GS000037833-ASM",
+	"../../../../../keep/home/tile-library-architecture/Copy of Container output for request su92l-xvhdp-qc9aol66z8oo7ws/hu02C8E3_masterVarBeta-GS000036653-ASM",
+	"../../../../../keep/home/tile-library-architecture/Copy of Container output for request su92l-xvhdp-qc9aol66z8oo7ws/hu0486D6_masterVarBeta-GS000037846-ASM"},
+	"/data-sdc/jc/tile-library/test.txt")
+	*/
 	sortLibrary(&l)
-	writePathToSGLF(&l, 23, 0, "testing", "testing", "test.txt")
+	writePathToSGLF(&l, 862, 0, "testing", "testing", "test.txt")
 	//writePathToSGLF(&l, 862, 0, "testing2", "testing2", "test.txt")
 	//WriteLibraryToSGLF(&l, 0, "/data-sdc/jc/tile-library", "/data-sdc/jc/tile-library", "test.txt")
 	total := time.Since(startTime)

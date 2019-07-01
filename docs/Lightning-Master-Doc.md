@@ -1,31 +1,51 @@
-Lightning Data
+# Lightning Documentation : Master
+
+## Table of Contents
+
++ [Lightning Concepts](https://github.com/curoverse/l7g/blob/master/doc/Lightning-Concepts.md)
++ [Lightning Architecture](https://github.com/curoverse/l7g/blob/master/doc/Lightning-Architecture.md)
++ [Lightning Data](https://github.com/curoverse/l7g/blob/master/doc/Lightning-Data.md)
++ [CGF Schema Draft v.3](https://github.com/curoverse/l7g/blob/master/doc/CGFv3-Schema.md)	
++ [Lightning Genome Tile Library Format](https://github.com/curoverse/l7g/blob/master/doc/Lightning-Genome-Library-Format.md)
++ [Lightning Tile Schema](https://github.com/curoverse/l7g/blob/master/doc/Lightning-Tile-Schema.md)
++ Tiling Workflow CWL Documentation
++ Tools used by Tiling Workflow Documentation
+  + [PASTA](https://github.com/curoverse/l7g/blob/master/doc/PASTA.md) 
++ Examples of Using Tiled Data 
+
+
+
+
+Lightning Concepts
 ===
 
-Overview
----
-
-Lightning allows efficient access to large scale population genomic data with a focus
+Lightning is a system that allows efficient access to
+large scale population genomic data with a focus
 on clinical and research use.
-Lightning is for populations human genomic
-data but this could be extended to encompass other organisms.
-Genomes are stored in a compressed format that is a compromise
+Lightning's primary focus is on human genomic
+data, but this could be extended to encompass other organisms.
+Genomes are stored in a compressed format that compromises
 between size and accessibility.
-Additional data data sources, such as phenotype data from
-the Harvard Personal Genome Project and variant data from
+Additional data sources, such as phenotype data from
+the Harvard Personal Genome Project, and variant data from
 the ClinVar database, are added for practical use.
 
 The Lightning system is a combination of a conceptual way
 to think about genomes (genomic tiling),
 the internal representation of genomes for efficient access
-(the compact genome format and auxiliary data) and the
+(the compact genome format and auxiliary data), and
 software that manages access to the data.
 
-This document will be focusing on the data files and formats
-used in the Lightning system.
-Please refer to [Lightning Concepts](Lightning-Concepts.md)
-for the description of the tiling system and
-[Lightning Architecture](Lightning-Architecture.md) for references to the
-engineering architecture.
+This document will be focusing on some of the concepts
+motivating the rest of the architecture and data formats.
+Please refer to [Lightning Architecture](Lightning-Architecture.md)
+for a description on the Lightning architecture
+and
+[Lightning Data](Lightning-Data.md) for references to the
+data structures used.
+
+Lightning Data
+===
 
 Data Overview
 ---
@@ -55,8 +75,8 @@ database and the untap database provided:
 Compact Genome Format Files
 ---
 
-See the [CGF schema](CGF-Schema.md) for a description of the CGF files.
-The library and command line tools provided in [cgf](https://github.com/abeconnelly/cgf)
+See the [CGF schema](CGFv3-Schema.md) for a description of the CGF files.
+The library and command line tools provided in [cgf](https://github.com/curoverse/l7g/tree/master/tools/cgft)
 allow for inspection and creation of CGF files.
 
 The current 651 CGF files (433 Thousand Genomes Project, 217 Harvard Personal Genome Project and
@@ -265,7 +285,7 @@ For example, `chrM` for `hg19` and `MT` for the `human_g1k_v37` reference.
 The current fixed width files total ~56MiB.  The most current assembly files can
 be found at:
 
-* [Lightning hg19 Tile Assembly *BROKEN*](https://workbench.su92l.arvadosapi.com/collections/su92l-4zz18-rg323w0m5a5ci7n)
+* [Lightning hg19 Tile Assembly](https://workbench.su92l.arvadosapi.com/collections/su92l-4zz18-rg323w0m5a5ci7n)
 
 Span
 ---
@@ -346,11 +366,3 @@ compact genome format files.
 
 * [FastJ Files](https://workbench.su92l.arvadosapi.com/projects/su92l-j7d0g-fmbjujfq6wy7j1i#Data_collections)
 
-Untap
----
-
-See the [untap](https://github.com/abeconnelly/untap) project for details.
-
-The most current version of the `untap` database can be found at:
-
-* [untap](https://workbench.su92l.arvadosapi.com/collections/su92l-4zz18-ziluyxgz77rkekm)

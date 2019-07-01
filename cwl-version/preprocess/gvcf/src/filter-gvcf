@@ -13,7 +13,7 @@ def filter_gvcf():
                         is '.'", action="store_true")
     parser.add_argument("quality_threshold", metavar="QUALITY", help="Quality \
                         threshold", type=int)
-    parser.add_argument("gvcf", metavar="GVCF", nargs='?', 
+    parser.add_argument("gvcf", metavar="GVCF", nargs='?',
                         type=argparse.FileType('r'), default=sys.stdin, help="\
                         Input gVCF to filter from stdin")
 

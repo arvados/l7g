@@ -8,13 +8,14 @@ def filter_gvcf():
 
     # setting up inputs
     parser = argparse.ArgumentParser(prog="filter-gvcf", description="Filter a \
-        gVCF with a user-set quality threshold.")
+                                    gVCF with a user-set quality threshold.")
     parser.add_argument("-k", "--keepGQdot", help="Keeps the variant when GQ \
-        is '.'", action="store_true")
+                        is '.'", action="store_true")
     parser.add_argument("quality_threshold", metavar="QUALITY", help="Quality \
-        threshold", type=int)
-    parser.add_argument("gvcf", metavar="GVCF", nargs='?', type=argparse.FileType('r'),
-        default=sys.stdin, help="Input gVCF to filter from stdin")
+                        threshold", type=int)
+    parser.add_argument("gvcf", metavar="GVCF", nargs='?', 
+                        type=argparse.FileType('r'), default=sys.stdin, help="\
+                        Input gVCF to filter from stdin")
 
     args = parser.parse_args()
     keepGQdot = args.keepGQdot

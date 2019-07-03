@@ -24,6 +24,7 @@ type Step struct {
 	Skipped bool // Determines if this step has been skipped (due to a spanning tile)
 	Variant *(structures.TileVariant) // The Variant in this step
 }
+// restructure to use integer referring ot tile variant.
 
 
 // ParseFastJGenome puts the contents of a (gzipped) FastJ into a Genome.

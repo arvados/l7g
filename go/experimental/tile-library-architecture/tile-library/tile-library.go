@@ -17,6 +17,7 @@ import (
 	"sort"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 	"../structures" // try to avoid relative paths. If possible, move to github.
 )
@@ -34,15 +35,14 @@ type VariantLookupTable []int
 
 // Library is a type to represent a library of tile variants.
 // The first slice represents paths, and the second slice represents steps.
-type Library [][]*KnownVariants
+type Library []concurrentPath
 
-/*
-In the future, for concurrency involving reshaping the library:
-type Library struct {
-	Variants [][]*KnownVariants
-	Lock sync.Mutex
+
+type concurrentPath struct {
+	Lock sync.RWMutex
+	Variants []*KnownVariants
 }
-*/
+
 
 // Function to sort the library once all initial genomes are done being added.
 // This function should only be used once during initial setup of the library, after all tiles have been added, since it sorts everything.
@@ -52,7 +52,8 @@ func sortLibrary(library *Library) {
 		Count int
 	}
 	for _, steps := range (*library) {
-		for _, steplist := range steps {
+		steps.Lock.Lock()
+		for _, steplist := range steps.Variants {
 			if steplist != nil {
 				var sortStructList []sortStruct
 				sortStructList = make([]sortStruct, len((*steplist).List))
@@ -65,25 +66,28 @@ func sortLibrary(library *Library) {
 				}
 			}
 		}
+		steps.Lock.Unlock()
 	}
 }
 
 // TileExists is a function to check if a specific tile exists at a specific path and step in a library.
 // Returns the index of the variant, if found--otherwise, returns -1.
 func TileExists(path, step int, toCheck *structures.TileVariant, library *Library) int {
-	if len((*library)[path]) > step && (*library)[path][step] != nil { // Safety to make sure that the KnownVariants struct has been created
-		for i, value := range (*library)[path][step].List {
+	(*library)[path].Lock.Lock()
+	defer (*library)[path].Lock.Unlock()
+	if len((*library)[path].Variants) > step && (*library)[path].Variants[step] != nil { // Safety to make sure that the KnownVariants struct has been created
+		for i, value := range (*library)[path].Variants[step].List {
 			if toCheck.Equals(*value) {
 				return i
 			}
 		}
 		return -1
 	}
-	for len((*library)[path]) <= step {
-		(*library)[path] = append((*library)[path], nil)
+	for len((*library)[path].Variants) <= step {
+		(*library)[path].Variants = append((*library)[path].Variants, nil)
 	}
 	newKnownVariants := &KnownVariants{make([](*structures.TileVariant), 0, 1), make([]int, 0, 1)}
-	(*library)[path][step] = newKnownVariants
+	(*library)[path].Variants[step] = newKnownVariants
 	return -1
 }
 
@@ -91,21 +95,27 @@ func TileExists(path, step int, toCheck *structures.TileVariant, library *Librar
 // Safe to use without checking existence of the tile beforehand (since the function will do that for you).
 func AddTile(genomePath, step, lookupNumber int, new *structures.TileVariant, libraryTextFile, bases string, library *Library) {
 	if index := TileExists(genomePath, step, new, library); index == -1 { // Checks if the tile exists already.
-		(*library)[genomePath][step].List = append((*library)[genomePath][step].List, new)
-		(*library)[genomePath][step].Counts = append((*library)[genomePath][step].Counts, 1)
+		(*library)[genomePath].Lock.Lock()
+		(*library)[genomePath].Variants[step].List = append((*library)[genomePath].Variants[step].List, new)
+		(*library)[genomePath].Variants[step].Counts = append((*library)[genomePath].Variants[step].Counts, 1)
+		(*library)[genomePath].Lock.Unlock()
 		//writeToTextFile(genomePath, step, path.Dir(libraryTextFile), bases, path.Base(libraryTextFile), new.Hash)
 		// The writeToTextFile line may not be necessary any more, since writing will be done in the buffered read/write section.
 	} else {
-		(*library)[genomePath][step].Counts[index]++ // Adds 1 to the count of the tile (since it's already in the library)
+		(*library)[genomePath].Lock.RLock()
+		(*library)[genomePath].Variants[step].Counts[index]++ // Adds 1 to the count of the tile (since it's already in the library)
+		(*library)[genomePath].Lock.RUnlock()
 	}
 }
 
 // AddTileUnsafe is a function to add a tile without sorting.
 // Unsafe because it doesn't check if the tile is already in the library, unlike AddTile.
-// Be careful to check if the tile already exists before using this function.
+// Be careful to check if the tile already exists before using this function to avoid repeats in the library.
 func AddTileUnsafe(genomePath, step, lookupNumber int, new *structures.TileVariant, libraryTextFile string, library *Library) {
-	(*library)[genomePath][step].List = append((*library)[genomePath][step].List, new)
-	(*library)[genomePath][step].Counts = append((*library)[genomePath][step].Counts, 1)
+	(*library)[genomePath].Lock.Lock()
+	(*library)[genomePath].Variants[step].List = append((*library)[genomePath].Variants[step].List, new)
+	(*library)[genomePath].Variants[step].Counts = append((*library)[genomePath].Variants[step].Counts, 1)
+	(*library)[genomePath].Lock.Unlock()
 }
 /*
 // AddAndSortTiles takes a list of tiles to put into a path and step, and adds them all at once.
@@ -136,16 +146,19 @@ func AddGenome(genome Genome, library *Library) {
 
 // FindFrequency is a function to find the frequency of a specific tile at a specific path and step.
 func FindFrequency(path, step int, toFind *structures.TileVariant, library *Library) int {
+	(*library)[path].Lock.RLock()
 	if index:= TileExists(path, step, toFind, library); index != -1 {
-		return (*library)[path][step].Counts[index]
+		(*library)[path].Lock.RUnlock()
+		return (*library)[path].Variants[step].Counts[index]
 	}
 	fmt.Println("Variant not found.")
+	(*library)[path].Lock.RUnlock()
 	return 0 // Possibly return an error instead?
 }
 
 // Annotate is a method to annotate (or re-annotate) a Tile at a specific path and step. If no match is found, the user is notified.
 func Annotate(path, step int, toAnnotate *structures.TileVariant, library *Library) {
-	for _, tile := range (*library)[path][step].List {
+	for _, tile := range (*library)[path].Variants[step].List {
 		if toAnnotate.Equals(*tile) {
 			fmt.Print("Enter annotation: ")
 			readKeyboard := bufio.NewReader(os.Stdin)
@@ -238,7 +251,7 @@ func bufferedTileRead(fastJFilepath, libraryTextFile string, library *Library) {
 				AddTileUnsafe(hexNumber, step, -1, &newTile, libraryTextFile, library) // -1 for unknown lookup reference. This will be set to the actual value later by the bufferedInfo function.
 				baseChannel <- baseInfo{bases,hashArray, &newTile}
 			} else {
-				(*library)[hexNumber][step].Counts[tileIndex]++ // Increments the count of the tile variant if it is found.
+				(*library)[hexNumber].Variants[step].Counts[tileIndex]++ // Increments the count of the tile variant if it is found.
 			}
 		}
 	}
@@ -319,7 +332,7 @@ func writePathToSGLF(library *Library, genomePath, version int, directoryToWrite
 		log.Fatal(err3)
 	}
 	fileReader := bufio.NewReader(textFile)
-	for step, variants := range (*library)[genomePath] {
+	for step, variants := range (*library)[genomePath].Variants {
 		if variants != nil {
 			for i, variant := range (*variants).List {
 				textFile.Seek(int64(variant.LookupReference),0)
@@ -562,9 +575,10 @@ func AddByDirectories(library *Library, directories []string, libraryTextFile st
 // InitializeLibrary sets up the basic structure for a library.
 func InitializeLibrary() Library {
 	var newLibrary Library
-	newLibrary = make([][]*KnownVariants, structures.Paths, structures.Paths)
+	newLibrary = make([]concurrentPath, structures.Paths, structures.Paths)
 	for i := range newLibrary {
-		newLibrary[i] = make([]*KnownVariants, 0, 1)
+		var newLock sync.RWMutex
+		newLibrary[i] = concurrentPath{newLock, make([]*KnownVariants, 0, 1)}
 	}
 	return newLibrary
 }
@@ -574,8 +588,8 @@ func InitializeLibrary() Library {
 // Function to merge the first library into the second library.
 func mergeLibraries(filepathToMerge string, libraryToMerge *Library, mainLibrary *Library) {
 	for i, path := range (*libraryToMerge) {
-		for j := range path {
-			MergeKnownVariants(filepathToMerge, i, j, (*libraryToMerge)[i][j], mainLibrary)
+		for j := range path.Variants {
+			MergeKnownVariants(filepathToMerge, i, j, (*libraryToMerge)[i].Variants[j], mainLibrary)
 		}
 	}
 }
@@ -598,7 +612,7 @@ func MergeKnownVariants(filepathToMerge string, genomePath, step int, variantsTo
 	}
 	for i, variant := range (*variantsToMerge).List {
 		//AddTile(genomePath, step, variant, tiles[(*variantsToMerge).LookupTable[i]], mainLibrary)
-		(*mainLibrary)[genomePath][step].Counts[TileExists(genomePath, step, variant, mainLibrary)] += (*variantsToMerge).Counts[i]-1
+		(*mainLibrary)[genomePath].Variants[step].Counts[TileExists(genomePath, step, variant, mainLibrary)] += (*variantsToMerge).Counts[i]-1
 	}
 }
 

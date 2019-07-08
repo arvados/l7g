@@ -11,20 +11,20 @@ import (
 	"strconv"
 	"strings"
 	"../structures"
+
 )
 
-// Genome is a type to represent a genome, through its paths. Two phases are present here (path and counterpart path).
-type Genome [][]Path
+// Genome is a struct to represent a genome. It contains a pointer to its reference library, which allows for easy tiling.
+type Genome struct {
+	Paths [][]Path // Paths represents a genome through its paths. Two phases are present here (path and counterpart path).
+	ReferenceLibrary *Library // This is the reference library for this Genome.
+}
 
 // Path is a type to represent a path, through its steps.
 type Path []Step
 
 // Step is a type to represent a step within a path, which can take on a specific tile variant.
-type Step struct {
-	Skipped bool // Determines if this step has been skipped (due to a spanning tile)
-	Variant *(structures.TileVariant) // The Variant in this step
-}
-// restructure to use integer referring ot tile variant.
+type Step int // -1 for a skipped step, and any other integer refers to the tile variant number in the reference library.
 
 
 // ParseFastJGenome puts the contents of a (gzipped) FastJ into a Genome.
@@ -88,12 +88,12 @@ func ParseFastJGenome(filepath string, genome *Genome) {
 				}
 			}
 			//bases := b.String()
-			newTile := structures.TileCreator(hashArray, length, "")
+			newTile := structures.TileCreator(hashArray, length, "", -1) // -1 is a filler value--change this.
 
-			for len((*genome)[hexNumber][phase]) < step {
-				(*genome)[hexNumber][phase] = append((*genome)[hexNumber][phase], Step{true, nil}) // This adds empty (skipped) steps until we reach the right step number.
+			for len((genome.Paths)[hexNumber][phase]) < step {
+				(genome.Paths)[hexNumber][phase] = append((genome.Paths)[hexNumber][phase], -1) // This adds empty (skipped) steps until we reach the right step number.
 			}
-			(*genome)[hexNumber][phase] = append((*genome)[hexNumber][phase],Step{false, &newTile})
+			(genome.Paths)[hexNumber][phase] = append((genome.Paths)[hexNumber][phase],TileExists(hexNumber, step, &newTile, genome.ReferenceLibrary)) // 0 is a filler value--change this.
 		}
 	}
 	splitpath, data, tiles=  nil, nil, nil // Clears most things in memory that were used here.
@@ -111,12 +111,21 @@ func CreateGenome(directory string, genome *Genome) {
 		}
 	}
 }
+
 // InitializeGenome is a function to initialize a Genome.
 func InitializeGenome() Genome {
-	var newGenome Genome
-	newGenome = make([][]Path, structures.Paths, structures.Paths)
-	for i := range newGenome {
-		newGenome[i] = make([]Path, 2, 2)
+	var newPaths [][]Path
+	newPaths = make([][]Path, structures.Paths, structures.Paths)
+	for i := range newPaths {
+		newPaths[i] = make([]Path, 2, 2)
 	}
-	return newGenome
+	return Genome{newPaths}
 }
+
+// Possibly can generate a FastJ from a genome like this.
+/*
+func makeFastJ(genome Genome) {
+	
+}
+
+*/

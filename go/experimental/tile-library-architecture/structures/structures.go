@@ -16,11 +16,12 @@ type TileVariant struct {
 	Hash       VariantHash 	  // The hash of the tile variant's bases.
 	Length     int            // The length (span) of the tile
 	Annotation string         // Any notes about this tile (by default, no comments)
+	LookupReference int       // The lookup reference for the bases of this variant in the text file for the corresponding library.
 }
 
 // TileCreator is a small function to create a new tile given information about it.
-func TileCreator(hash VariantHash, length int, annotation string) TileVariant {
-	return TileVariant{hash, length, annotation}
+func TileCreator(hash VariantHash, length int, annotation string, reference int) TileVariant {
+	return TileVariant{Hash: hash, Length: length, Annotation: annotation, LookupReference: reference}
 }
 
 // VariantHash is a hash for the bases of a tile variant.
@@ -36,7 +37,7 @@ func (t TileVariant) Equals(t2 TileVariant) bool {
 // Paths is the number of paths a genome has.
 const Paths int = 863 // Constant because we know that the number of paths is always the same.
 
-// OpenGZ is a function to open gzipped files and return the corresponding slice of bytes.
+// OpenGZ is a function to open gzipped files and return the corresponding slice of bytes of the data.
 // Mostly important for gzipped FastJs, but other gzipped files can be opened too.
 func OpenGZ(filepath string) []byte {
 	file, err := os.Open(filepath)

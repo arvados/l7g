@@ -7,6 +7,7 @@ import (
 	"encoding/hex"
 	"errors"
 	"fmt"
+	"io"
 	"io/ioutil"
 	"log"
 	"os"
@@ -22,10 +23,11 @@ import (
 
 // KnownVariants is a struct to hold the known variants in a specific step.
 type KnownVariants struct {
-	List [](structures.TileVariant)         // List to keep track of relative tile ordering (implicitly assigns tile variant numbers by index after sorting)
+	List [](*structures.TileVariant)         // List to keep track of relative tile ordering (implicitly assigns tile variant numbers by index after sorting)
 	Counts []int // Counts of each variant so far
-	LookupTable VariantLookupTable // The original position of each variant in the List (for reference to text files later)
 }
+
+// For future concurrency, each KnownVariants can contain a sync.Mutex lock.
 
 // VariantLookupTable is a type for looking up the original positions of variants in a list--for now, the table is a list
 type VariantLookupTable []int
@@ -34,13 +36,20 @@ type VariantLookupTable []int
 // The first slice represents paths, and the second slice represents steps.
 type Library [][]*KnownVariants
 
+/*
+In the future, for concurrency involving reshaping the library:
+type Library struct {
+	Variants [][]*KnownVariants
+	Lock sync.Mutex
+}
+*/
+
 // Function to sort the library once all initial genomes are done being added.
 // This function should only be used once during initial setup of the library, after all tiles have been added, since it sorts everything.
 func sortLibrary(library *Library) {
 	type sortStruct struct { // Temporary struct that groups together the variant, count, and lookup reference for sorting purposes.
-		Variant structures.TileVariant
+		Variant *structures.TileVariant
 		Count int
-		LookupReference int
 	}
 	for _, steps := range (*library) {
 		for _, steplist := range steps {
@@ -48,11 +57,11 @@ func sortLibrary(library *Library) {
 				var sortStructList []sortStruct
 				sortStructList = make([]sortStruct, len((*steplist).List))
 				for i:=0; i<len((*steplist).List); i++ {
-					sortStructList[i] = sortStruct{(*steplist).List[i], (*steplist).Counts[i], (*steplist).LookupTable[i]}
+					sortStructList[i] = sortStruct{(*steplist).List[i], (*steplist).Counts[i]}
 				}
 				sort.Slice(sortStructList, func(i, j int) bool { return sortStructList[i].Count > sortStructList[j].Count })
 				for j:=0; j<len((*steplist).List); j++ {
-					(*steplist).List[j], (*steplist).Counts[j], (*steplist).LookupTable[j] = sortStructList[j].Variant, sortStructList[j].Count, sortStructList[j].LookupReference
+					(*steplist).List[j], (*steplist).Counts[j]= sortStructList[j].Variant, sortStructList[j].Count
 				}
 			}
 		}
@@ -61,10 +70,10 @@ func sortLibrary(library *Library) {
 
 // TileExists is a function to check if a specific tile exists at a specific path and step in a library.
 // Returns the index of the variant, if found--otherwise, returns -1.
-func TileExists(path, step int, toCheck structures.TileVariant, library *Library) int {
+func TileExists(path, step int, toCheck *structures.TileVariant, library *Library) int {
 	if len((*library)[path]) > step && (*library)[path][step] != nil { // Safety to make sure that the KnownVariants struct has been created
 		for i, value := range (*library)[path][step].List {
-			if toCheck.Equals(value) {
+			if toCheck.Equals(*value) {
 				return i
 			}
 		}
@@ -73,18 +82,17 @@ func TileExists(path, step int, toCheck structures.TileVariant, library *Library
 	for len((*library)[path]) <= step {
 		(*library)[path] = append((*library)[path], nil)
 	}
-	newKnownVariants := &KnownVariants{make([](structures.TileVariant), 0, 1), make([]int, 0, 1), make([]int, 0, 1)}
+	newKnownVariants := &KnownVariants{make([](*structures.TileVariant), 0, 1), make([]int, 0, 1)}
 	(*library)[path][step] = newKnownVariants
 	return -1
 }
 
 // AddTile is a function to add a tile (without sorting).
 // Safe to use without checking existence of the tile beforehand (since the function will do that for you).
-func AddTile(genomePath, step, lookupNumber int, new structures.TileVariant, libraryTextFile, bases string, library *Library) {
+func AddTile(genomePath, step, lookupNumber int, new *structures.TileVariant, libraryTextFile, bases string, library *Library) {
 	if index := TileExists(genomePath, step, new, library); index == -1 { // Checks if the tile exists already.
 		(*library)[genomePath][step].List = append((*library)[genomePath][step].List, new)
 		(*library)[genomePath][step].Counts = append((*library)[genomePath][step].Counts, 1)
-		(*library)[genomePath][step].LookupTable = append((*library)[genomePath][step].LookupTable, lookupNumber)
 		//writeToTextFile(genomePath, step, path.Dir(libraryTextFile), bases, path.Base(libraryTextFile), new.Hash)
 		// The writeToTextFile line may not be necessary any more, since writing will be done in the buffered read/write section.
 	} else {
@@ -95,10 +103,9 @@ func AddTile(genomePath, step, lookupNumber int, new structures.TileVariant, lib
 // AddTileUnsafe is a function to add a tile without sorting.
 // Unsafe because it doesn't check if the tile is already in the library, unlike AddTile.
 // Be careful to check if the tile already exists before using this function.
-func AddTileUnsafe(genomePath, step, lookupNumber int, new structures.TileVariant, libraryTextFile string, library *Library) {
+func AddTileUnsafe(genomePath, step, lookupNumber int, new *structures.TileVariant, libraryTextFile string, library *Library) {
 	(*library)[genomePath][step].List = append((*library)[genomePath][step].List, new)
 	(*library)[genomePath][step].Counts = append((*library)[genomePath][step].Counts, 1)
-	(*library)[genomePath][step].LookupTable = append((*library)[genomePath][step].LookupTable, lookupNumber)
 }
 /*
 // AddAndSortTiles takes a list of tiles to put into a path and step, and adds them all at once.
@@ -128,7 +135,7 @@ func AddGenome(genome Genome, library *Library) {
 */
 
 // FindFrequency is a function to find the frequency of a specific tile at a specific path and step.
-func FindFrequency(path, step int, toFind structures.TileVariant, library *Library) int {
+func FindFrequency(path, step int, toFind *structures.TileVariant, library *Library) int {
 	if index:= TileExists(path, step, toFind, library); index != -1 {
 		return (*library)[path][step].Counts[index]
 	}
@@ -137,9 +144,9 @@ func FindFrequency(path, step int, toFind structures.TileVariant, library *Libra
 }
 
 // Annotate is a method to annotate (or re-annotate) a Tile at a specific path and step. If no match is found, the user is notified.
-func Annotate(path, step int, toAnnotate structures.TileVariant, library *Library) {
+func Annotate(path, step int, toAnnotate *structures.TileVariant, library *Library) {
 	for _, tile := range (*library)[path][step].List {
-		if toAnnotate.Equals(tile) {
+		if toAnnotate.Equals(*tile) {
 			fmt.Print("Enter annotation: ")
 			readKeyboard := bufio.NewReader(os.Stdin)
 			annotation, err := readKeyboard.ReadString('\n') // Maybe allow for input for annotation without the use of keyboard input?
@@ -157,26 +164,14 @@ func Annotate(path, step int, toAnnotate structures.TileVariant, library *Librar
 type baseInfo struct {
 	bases string
 	hash structures.VariantHash
-	// send a pointer to a tilevariant
-}
-
-// tileInfo is a temporary struct to pass around information about a tile's location.
-type tileInfo struct {
-	path int
-	step int
-	indexInList int
+	variant *(structures.TileVariant)
 }
 
 // bufferedTileRead reads a FastJ file and adds its tiles to the provided library.
 func bufferedTileRead(fastJFilepath, libraryTextFile string, library *Library) {
 	var baseChannel chan baseInfo
-	var startingIndices chan int
-	var tileInfoChannel chan tileInfo
 	baseChannel = make(chan baseInfo, 16) // Put information about bases of tiles in here while they need to be processed.
-	startingIndices = make(chan int, 16) // Put pointer indices here while waiting to be processed.
-	tileInfoChannel = make(chan tileInfo, 16) // Put infomation about locations of tiles in here while they need to be processed.
-	go bufferedBaseWrite(libraryTextFile, baseChannel, startingIndices)
-	go bufferedInfo(tileInfoChannel, startingIndices, library)
+	go bufferedBaseWrite(libraryTextFile, baseChannel)
 	file := path.Base(fastJFilepath) // The name of the file.
 	splitpath := strings.Split(file, ".") // This is used to make sure the file is in the right format.
 	if len(splitpath) != 3 {
@@ -238,30 +233,28 @@ func bufferedTileRead(fastJFilepath, libraryTextFile string, library *Library) {
 				}
 			}
 			bases := b.String()
-			newTile := structures.TileCreator(hashArray, length, "")
-			if tileIndex:=TileExists(hexNumber, step, newTile, library); tileIndex==-1 {
-				AddTileUnsafe(hexNumber, step, -1, newTile, libraryTextFile, library) // -1 for unknown lookup reference. This will be set to the actual value later by the bufferedInfo function.
-				baseChannel <- baseInfo{bases,hashArray}
-				tileInfoChannel <- tileInfo{hexNumber, step, len((*library)[hexNumber][step].List)-1} // Safe since this is the only goroutine that adds tiles.
+			newTile := structures.TileCreator(hashArray, length, "", -1)
+			if tileIndex:=TileExists(hexNumber, step, &newTile, library); tileIndex==-1 {
+				AddTileUnsafe(hexNumber, step, -1, &newTile, libraryTextFile, library) // -1 for unknown lookup reference. This will be set to the actual value later by the bufferedInfo function.
+				baseChannel <- baseInfo{bases,hashArray, &newTile}
 			} else {
 				(*library)[hexNumber][step].Counts[tileIndex]++ // Increments the count of the tile variant if it is found.
 			}
 		}
 	}
 	close(baseChannel)
-	close(tileInfoChannel) // Closes both channels to end both goroutines.
 	splitpath, data, tiles = nil, nil, nil // Clears most things in memory that were used here, to free up memory.
 }
 
 // bufferedBaseWrite writes bases and hashes of tiles to the given text file.
 // To be used in conjunction with bufferedTileRead and bufferedInfo.
-func bufferedBaseWrite(libraryTextFile string, channel chan baseInfo, startingIndices chan int) {
+func bufferedBaseWrite(libraryTextFile string, channel chan baseInfo) {
 	err := os.MkdirAll(path.Dir(libraryTextFile), os.ModePerm)
 	if err != nil {
 		log.Fatal(err)
 	}
 	file, err2 := os.OpenFile(libraryTextFile, os.O_APPEND | os.O_CREATE | os.O_WRONLY, 0644)
-	bufferedWriter := bufio.NewWriterSize(file, 8192)
+	bufferedWriter := bufio.NewWriter(file)
 	if err2 != nil {
 		log.Fatal(err2)
 	}
@@ -270,8 +263,7 @@ func bufferedBaseWrite(libraryTextFile string, channel chan baseInfo, startingIn
 		if err3 != nil {
 			log.Fatal(err3)
 		}
-		startingIndices <- (int(info.Size())+bufferedWriter.Buffered()) // Safe since this is the only goroutine writing to the file.
-		
+		(bases.variant).LookupReference = (int(info.Size())+bufferedWriter.Buffered())
 		hashString := hex.EncodeToString(bases.hash[:])
 		bufferedWriter.WriteString(hashString)
 		bufferedWriter.WriteString(",")
@@ -283,14 +275,6 @@ func bufferedBaseWrite(libraryTextFile string, channel chan baseInfo, startingIn
 	file.Close()
 }
 
-// bufferedInfo corrects the index information assigned to tiles when they are added by bufferedTileRead.
-// To be used in conjunction with bufferedTileRead and bufferedBaseWrite.
-func bufferedInfo(tileInfoChannel chan tileInfo, startingIndices chan int, library *Library) {
-	for info := range tileInfoChannel {
-		index := <- startingIndices
-		(*library)[info.path][info.step].LookupTable[info.indexInList] = index
-	}
-}
 
 // writeToTextFile writes the entry of a lookup from a hash to bases for a specific path and step, in a text file.
 
@@ -329,19 +313,19 @@ func writePathToSGLF(library *Library, genomePath, version int, directoryToWrite
 	if err2 != nil {
 		log.Fatal(err2)
 	}
-	bufferedWriter := bufio.NewWriterSize(sglfFile, 8192)
-	textFile, err2 := os.OpenFile(path.Join(directoryToGetFrom,textFilename), os.O_RDONLY, 0644)
-	if err2 != nil {
-		log.Fatal(err2)
+	bufferedWriter := bufio.NewWriter(sglfFile)
+	textFile, err3 := os.OpenFile(path.Join(directoryToGetFrom,textFilename), os.O_RDONLY, 0644)
+	if err3 != nil {
+		log.Fatal(err3)
 	}
 	fileReader := bufio.NewReader(textFile)
 	for step, variants := range (*library)[genomePath] {
 		if variants != nil {
 			for i, variant := range (*variants).List {
-				textFile.Seek(int64((*variants).LookupTable[i]),0)
+				textFile.Seek(int64(variant.LookupReference),0)
 				fileReader.Reset(textFile)
 				tileString, err := fileReader.ReadString('\n') // This includes the newline at the end.
-				if err != nil {
+				if err != nil && err != io.EOF {
 					log.Fatal(err)
 				}
 				stepHex := fmt.Sprintf("%04x", step)
@@ -371,7 +355,7 @@ func WriteLibraryToSGLF(library *Library, version int, directoryToWriteTo, direc
 		writePathToSGLF(library, path, version, directoryToWriteTo, directoryToGetFrom, textFile)
 	}
 }
-
+/*
 // ParseFastJLibrary puts the contents of a (gzipped) FastJ into a Library.
 func ParseFastJLibrary(filepath, libraryTextFile string, library *Library) {
 	file := path.Base(filepath) // The name of the file.
@@ -445,6 +429,7 @@ func ParseFastJLibrary(filepath, libraryTextFile string, library *Library) {
 	splitpath, data, tiles=  nil, nil, nil // Clears most things in memory that were used here, to free up memory.
 
 }
+*/
 /*
 func parseSGLF(filepath string, library *Library) {
 	file := path.Base(filepath)
@@ -636,14 +621,14 @@ func main() {
 	startTime := time.Now()
 	//fjtMakeSGLFFromGenomes("/mnt/keep/by_id/6a3b88d7cde57054971eeabe15639cf8+263878/", "l7g/go/experimental/tile-library-architecture", "~/keep/by_id/cd9ada494bd979a8bc74e6d59d3e8710+174/tagset.fa.gz", 862)
 	l:=InitializeLibrary()
-	/*
-	bufferedTileRead("../../../../../keep/home/tile-library-architecture/Copy of Container output for request su92l-xvhdp-qc9aol66z8oo7ws/hu03E3D2_masterVarBeta-GS000038659-ASM/0017.fj.gz", "testing/test.txt",&l)
-	bufferedTileRead("../../../../../keep/home/tile-library-architecture/Copy of Container output for request su92l-xvhdp-qc9aol66z8oo7ws/hu03E3D2_masterVarBeta-GS000037847-ASM/0017.fj.gz", "testing/test.txt",&l)
-	bufferedTileRead("../../../../../keep/home/tile-library-architecture/Copy of Container output for request su92l-xvhdp-qc9aol66z8oo7ws/hu01F73B_masterVarBeta-GS000037833-ASM/0017.fj.gz", "testing/test.txt",&l)
-	bufferedTileRead("../../../../../keep/home/tile-library-architecture/Copy of Container output for request su92l-xvhdp-qc9aol66z8oo7ws/hu02C8E3_masterVarBeta-GS000036653-ASM/0017.fj.gz", "testing/test.txt",&l)
-	bufferedTileRead("../../../../../keep/home/tile-library-architecture/Copy of Container output for request su92l-xvhdp-qc9aol66z8oo7ws/hu0486D6_masterVarBeta-GS000037846-ASM/0017.fj.gz", "testing/test.txt",&l)
+	
+	bufferedTileRead("../../../../../keep/home/tile-library-architecture/Copy of Container output for request su92l-xvhdp-qc9aol66z8oo7ws/hu03E3D2_masterVarBeta-GS000038659-ASM/035e.fj.gz", "testing/test.txt",&l)
+	bufferedTileRead("../../../../../keep/home/tile-library-architecture/Copy of Container output for request su92l-xvhdp-qc9aol66z8oo7ws/hu03E3D2_masterVarBeta-GS000037847-ASM/035e.fj.gz", "testing/test.txt",&l)
+	bufferedTileRead("../../../../../keep/home/tile-library-architecture/Copy of Container output for request su92l-xvhdp-qc9aol66z8oo7ws/hu01F73B_masterVarBeta-GS000037833-ASM/035e.fj.gz", "testing/test.txt",&l)
+	bufferedTileRead("../../../../../keep/home/tile-library-architecture/Copy of Container output for request su92l-xvhdp-qc9aol66z8oo7ws/hu02C8E3_masterVarBeta-GS000036653-ASM/035e.fj.gz", "testing/test.txt",&l)
+	bufferedTileRead("../../../../../keep/home/tile-library-architecture/Copy of Container output for request su92l-xvhdp-qc9aol66z8oo7ws/hu0486D6_masterVarBeta-GS000037846-ASM/035e.fj.gz", "testing/test.txt",&l)
 	readTime := time.Now()
-	*/
+	
 	/*
 	ParseFastJLibrary("../../../../../keep/home/tile-library-architecture/Copy of Container output for request su92l-xvhdp-qc9aol66z8oo7ws/hu03E3D2_masterVarBeta-GS000038659-ASM/035e.fj.gz", "testing2/test.txt",&l)
 	ParseFastJLibrary("../../../../../keep/home/tile-library-architecture/Copy of Container output for request su92l-xvhdp-qc9aol66z8oo7ws/hu03E3D2_masterVarBeta-GS000037847-ASM/035e.fj.gz", "testing2/test.txt",&l)
@@ -658,22 +643,22 @@ func main() {
 	AddLibraryFastJ("../../../../../keep/home/tile-library-architecture/Copy of Container output for request su92l-xvhdp-qc9aol66z8oo7ws/hu02C8E3_masterVarBeta-GS000036653-ASM", "/data-sdc/jc/tile-library/test.txt",&l)
 	AddLibraryFastJ("../../../../../keep/home/tile-library-architecture/Copy of Container output for request su92l-xvhdp-qc9aol66z8oo7ws/hu0486D6_masterVarBeta-GS000037846-ASM", "/data-sdc/jc/tile-library/test.txt",&l)
 	*/
-	
+	/*
 	AddByDirectories(&l,[]string{"../../../../../keep/home/tile-library-architecture/Copy of Container output for request su92l-xvhdp-qc9aol66z8oo7ws/hu03E3D2_masterVarBeta-GS000038659-ASM",
 	"../../../../../keep/home/tile-library-architecture/Copy of Container output for request su92l-xvhdp-qc9aol66z8oo7ws/hu03E3D2_masterVarBeta-GS000037847-ASM",
 	"../../../../../keep/home/tile-library-architecture/Copy of Container output for request su92l-xvhdp-qc9aol66z8oo7ws/hu01F73B_masterVarBeta-GS000037833-ASM",
 	"../../../../../keep/home/tile-library-architecture/Copy of Container output for request su92l-xvhdp-qc9aol66z8oo7ws/hu02C8E3_masterVarBeta-GS000036653-ASM",
 	"../../../../../keep/home/tile-library-architecture/Copy of Container output for request su92l-xvhdp-qc9aol66z8oo7ws/hu0486D6_masterVarBeta-GS000037846-ASM"},
 	"/data-sdc/jc/tile-library/test.txt")
-	
+	*/
 	sortLibrary(&l)
-	//writePathToSGLF(&l, 23, 0, "testing", "testing", "test.txt")
+	writePathToSGLF(&l, 862, 0, "testing", "testing", "test.txt")
 	//writePathToSGLF(&l, 862, 0, "testing2", "testing2", "test.txt")
-	WriteLibraryToSGLF(&l, 0, "/data-sdc/jc/tile-library", "/data-sdc/jc/tile-library", "test.txt")
+	//WriteLibraryToSGLF(&l, 0, "/data-sdc/jc/tile-library", "/data-sdc/jc/tile-library", "test.txt")
 	finishTime := time.Now()
 	runtime.ReadMemStats(&m)
 	fmt.Printf("Total time: %v\n", finishTime.Sub(startTime))
-	//fmt.Printf("Read time: %v\n", readTime.Sub(startTime))
-	//fmt.Printf("Write and sort time: %v\n", finishTime.Sub(readTime))
+	fmt.Printf("Read time: %v\n", readTime.Sub(startTime))
+	fmt.Printf("Write and sort time: %v\n", finishTime.Sub(readTime))
 	fmt.Println(m)
 }

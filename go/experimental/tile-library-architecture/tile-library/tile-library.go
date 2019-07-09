@@ -22,6 +22,12 @@ import (
 	"../structures" // try to avoid relative paths. If possible, move to github.
 )
 
+// TODO: potentially create a new file format similar to SGLF but including counts, so that descending order of tiles within each step is preserved.
+// current SGLF format: path.version.step.length+variantNumber,hash,bases
+// potential new format: path.version.step.length+variantNumber,count,hash,bases
+// This would allow for reconstruction of a tile library from SGLF back into this Go structure. (without refernce numbers, however)
+// count would probably take a 4 digit hex representation--this accounts for potentially a high count of this tile while also not taking much space.
+
 // KnownVariants is a struct to hold the known variants in a specific step.
 type KnownVariants struct {
 	List [](*structures.TileVariant)         // List to keep track of relative tile ordering (implicitly assigns tile variant numbers by index after sorting)
@@ -35,12 +41,14 @@ type VariantLookupTable []int
 
 // Library is a type to represent a library of tile variants.
 // The first slice represents paths, and the second slice represents steps.
+// Potentially want to have a pointer to another library here for merging purposes--in this case, the pointer would go to a parent library.
+// The nil pointer can be used to represent that this library is its own reference library.
 type Library []concurrentPath
 
-
+// concurrentPath is a type to represent a path, while also being safe for concurrent use.
 type concurrentPath struct {
-	Lock sync.RWMutex
-	Variants []*KnownVariants
+	Lock sync.RWMutex // The read/write lock used for concurrency within a step.
+	Variants []*KnownVariants // The list of steps, where each step contains the known variants at that step.
 }
 
 
@@ -586,6 +594,7 @@ func InitializeLibrary() Library {
 
 
 // Function to merge the first library into the second library.
+// TODO: create a new library and point both of the original libraries to this library.
 func mergeLibraries(filepathToMerge string, libraryToMerge *Library, mainLibrary *Library) {
 	for i, path := range (*libraryToMerge) {
 		for j := range path.Variants {
@@ -596,6 +605,7 @@ func mergeLibraries(filepathToMerge string, libraryToMerge *Library, mainLibrary
 
 // MergeKnownVariants puts the contents of a KnownVariants at a specific path and step into another library.
 // Account for CGF files here (try to avoid potential remapping with CGF files)
+// Should create a new library and point the old libraries to this library.
 func MergeKnownVariants(filepathToMerge string, genomePath, step int, variantsToMerge *KnownVariants, mainLibrary *Library) {
 	var b strings.Builder
 	b.WriteString(fmt.Sprintf("%04x",step))
@@ -635,14 +645,14 @@ func main() {
 	startTime := time.Now()
 	//fjtMakeSGLFFromGenomes("/mnt/keep/by_id/6a3b88d7cde57054971eeabe15639cf8+263878/", "l7g/go/experimental/tile-library-architecture", "~/keep/by_id/cd9ada494bd979a8bc74e6d59d3e8710+174/tagset.fa.gz", 862)
 	l:=InitializeLibrary()
-	
-	bufferedTileRead("../../../../../keep/home/tile-library-architecture/Copy of Container output for request su92l-xvhdp-qc9aol66z8oo7ws/hu03E3D2_masterVarBeta-GS000038659-ASM/035e.fj.gz", "testing/test.txt",&l)
-	bufferedTileRead("../../../../../keep/home/tile-library-architecture/Copy of Container output for request su92l-xvhdp-qc9aol66z8oo7ws/hu03E3D2_masterVarBeta-GS000037847-ASM/035e.fj.gz", "testing/test.txt",&l)
-	bufferedTileRead("../../../../../keep/home/tile-library-architecture/Copy of Container output for request su92l-xvhdp-qc9aol66z8oo7ws/hu01F73B_masterVarBeta-GS000037833-ASM/035e.fj.gz", "testing/test.txt",&l)
-	bufferedTileRead("../../../../../keep/home/tile-library-architecture/Copy of Container output for request su92l-xvhdp-qc9aol66z8oo7ws/hu02C8E3_masterVarBeta-GS000036653-ASM/035e.fj.gz", "testing/test.txt",&l)
-	bufferedTileRead("../../../../../keep/home/tile-library-architecture/Copy of Container output for request su92l-xvhdp-qc9aol66z8oo7ws/hu0486D6_masterVarBeta-GS000037846-ASM/035e.fj.gz", "testing/test.txt",&l)
+	/*
+	bufferedTileRead("../../../../../keep/home/tile-library-architecture/Copy of Container output for request su92l-xvhdp-qc9aol66z8oo7ws/hu03E3D2_masterVarBeta-GS000038659-ASM/0018.fj.gz", "testing/test.txt",&l)
+	bufferedTileRead("../../../../../keep/home/tile-library-architecture/Copy of Container output for request su92l-xvhdp-qc9aol66z8oo7ws/hu03E3D2_masterVarBeta-GS000037847-ASM/0018.fj.gz", "testing/test.txt",&l)
+	bufferedTileRead("../../../../../keep/home/tile-library-architecture/Copy of Container output for request su92l-xvhdp-qc9aol66z8oo7ws/hu01F73B_masterVarBeta-GS000037833-ASM/0018.fj.gz", "testing/test.txt",&l)
+	bufferedTileRead("../../../../../keep/home/tile-library-architecture/Copy of Container output for request su92l-xvhdp-qc9aol66z8oo7ws/hu02C8E3_masterVarBeta-GS000036653-ASM/0018.fj.gz", "testing/test.txt",&l)
+	bufferedTileRead("../../../../../keep/home/tile-library-architecture/Copy of Container output for request su92l-xvhdp-qc9aol66z8oo7ws/hu0486D6_masterVarBeta-GS000037846-ASM/0018.fj.gz", "testing/test.txt",&l)
 	readTime := time.Now()
-	
+	*/
 	/*
 	ParseFastJLibrary("../../../../../keep/home/tile-library-architecture/Copy of Container output for request su92l-xvhdp-qc9aol66z8oo7ws/hu03E3D2_masterVarBeta-GS000038659-ASM/035e.fj.gz", "testing2/test.txt",&l)
 	ParseFastJLibrary("../../../../../keep/home/tile-library-architecture/Copy of Container output for request su92l-xvhdp-qc9aol66z8oo7ws/hu03E3D2_masterVarBeta-GS000037847-ASM/035e.fj.gz", "testing2/test.txt",&l)
@@ -657,22 +667,22 @@ func main() {
 	AddLibraryFastJ("../../../../../keep/home/tile-library-architecture/Copy of Container output for request su92l-xvhdp-qc9aol66z8oo7ws/hu02C8E3_masterVarBeta-GS000036653-ASM", "/data-sdc/jc/tile-library/test.txt",&l)
 	AddLibraryFastJ("../../../../../keep/home/tile-library-architecture/Copy of Container output for request su92l-xvhdp-qc9aol66z8oo7ws/hu0486D6_masterVarBeta-GS000037846-ASM", "/data-sdc/jc/tile-library/test.txt",&l)
 	*/
-	/*
+	
 	AddByDirectories(&l,[]string{"../../../../../keep/home/tile-library-architecture/Copy of Container output for request su92l-xvhdp-qc9aol66z8oo7ws/hu03E3D2_masterVarBeta-GS000038659-ASM",
 	"../../../../../keep/home/tile-library-architecture/Copy of Container output for request su92l-xvhdp-qc9aol66z8oo7ws/hu03E3D2_masterVarBeta-GS000037847-ASM",
 	"../../../../../keep/home/tile-library-architecture/Copy of Container output for request su92l-xvhdp-qc9aol66z8oo7ws/hu01F73B_masterVarBeta-GS000037833-ASM",
 	"../../../../../keep/home/tile-library-architecture/Copy of Container output for request su92l-xvhdp-qc9aol66z8oo7ws/hu02C8E3_masterVarBeta-GS000036653-ASM",
 	"../../../../../keep/home/tile-library-architecture/Copy of Container output for request su92l-xvhdp-qc9aol66z8oo7ws/hu0486D6_masterVarBeta-GS000037846-ASM"},
 	"/data-sdc/jc/tile-library/test.txt")
-	*/
+	
 	sortLibrary(&l)
-	writePathToSGLF(&l, 862, 0, "testing", "testing", "test.txt")
+	//writePathToSGLF(&l, 24, 0, "testing", "testing", "test.txt")
 	//writePathToSGLF(&l, 862, 0, "testing2", "testing2", "test.txt")
-	//WriteLibraryToSGLF(&l, 0, "/data-sdc/jc/tile-library", "/data-sdc/jc/tile-library", "test.txt")
+	WriteLibraryToSGLF(&l, 0, "/data-sdc/jc/tile-library", "/data-sdc/jc/tile-library", "test.txt")
 	finishTime := time.Now()
 	runtime.ReadMemStats(&m)
 	fmt.Printf("Total time: %v\n", finishTime.Sub(startTime))
-	fmt.Printf("Read time: %v\n", readTime.Sub(startTime))
-	fmt.Printf("Write and sort time: %v\n", finishTime.Sub(readTime))
+	//fmt.Printf("Read time: %v\n", readTime.Sub(startTime))
+	//fmt.Printf("Write and sort time: %v\n", finishTime.Sub(readTime))
 	fmt.Println(m)
 }

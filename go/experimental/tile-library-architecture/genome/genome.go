@@ -11,13 +11,12 @@ import (
 	"strconv"
 	"strings"
 	"../structures"
-
 )
 
 // Genome is a struct to represent a genome. It contains a pointer to its reference library, which allows for easy tiling.
 type Genome struct {
 	Paths [][]Path // Paths represents a genome through its paths. Two phases are present here (path and counterpart path).
-	ReferenceLibrary *Library // This is the reference library for this Genome.
+	//ReferenceLibrary *Library // This is the reference library for this Genome.
 }
 
 // Path is a type to represent a path, through its steps.
@@ -122,7 +121,7 @@ func InitializeGenome() Genome {
 	return Genome{newPaths}
 }
 
-// Possibly can generate a FastJ from a genome like this.
+// Can generate a FastJ from a genome like this.
 /*
 func makeFastJ(genome Genome) {
 	

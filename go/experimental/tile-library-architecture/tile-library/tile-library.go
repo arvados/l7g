@@ -45,6 +45,30 @@ type Library struct {
 	// TODO: Decide if components refers to direct components or all components.
 }
 
+// Equals checks for equality between two libraries. It does not check similarity in text or components, and tiles are checked by hash.
+func (l1 Library) Equals(l2 Library) bool {
+	for path := range l1.Paths {
+		l1.Paths[path].Lock.RLock()
+		l2.Paths[path].Lock.RLock()
+		if len(l1.Paths[path].Variants) != len(l2.Paths[path].Variants) {
+			return false
+		}
+		for step, stepList := range l1.Paths[path].Variants {
+			if len((*stepList).List) != len(l2.Paths[path].Variants[step].List) {
+				return false
+			}
+			for i, variant := range (*stepList).List {
+				if !variant.Equals((*l2.Paths[path].Variants[step].List[i])) || l1.Paths[path].Variants[step].Counts[i] != l2.Paths[path].Variants[step].Counts[i] {
+					return false
+				}
+			}
+		}
+		l2.Paths[path].Lock.RUnlock()
+		l1.Paths[path].Lock.RUnlock()
+	}
+	return true
+}
+
 // TODO: decide where to put component libraries
 // TODO: convert SGLFv2 format into libraries for use (for convenience)
 
@@ -574,20 +598,20 @@ func mergeLibraries(text string, libraryToMerge *Library, mainLibrary *Library) 
 	type referenceSortStruct struct { // Temporary struct that groups together the variant and the count for sorting purposes.
 		variant *structures.TileVariant
 		count int
-		references [][]int
+		references []int
 	}
 	for pathNumber := range newLibrary.Paths {
 		newLibrary.Paths[pathNumber].Lock.Lock()
-		for _, steplist := range newLibrary.Paths[pathNumber].Variants {
+		for step, steplist := range newLibrary.Paths[pathNumber].Variants {
 			if steplist != nil {
 				var referenceSortStructList []referenceSortStruct
 				referenceSortStructList = make([]referenceSortStruct, len((*steplist).List), len((*steplist).List))
 				for k:=0; k<len((*steplist).List); k++ {
-					referenceSortStructList[k] = referenceSortStruct{(*steplist).List[k], (*steplist).Counts[k], listOfReferences[pathNumber][k]}
+					referenceSortStructList[k] = referenceSortStruct{(*steplist).List[k], (*steplist).Counts[k], listOfReferences[pathNumber][step][k]}
 				}
 				sort.Slice(referenceSortStructList, func(i, j int) bool { return referenceSortStructList[i].count > referenceSortStructList[j].count })
 				for l:=0; l<len((*steplist).List); l++ {
-					(*steplist).List[l], (*steplist).Counts[l], listOfReferences[pathNumber][l]= referenceSortStructList[l].variant, referenceSortStructList[l].count, referenceSortStructList[l].references
+					(*steplist).List[l], (*steplist).Counts[l], listOfReferences[pathNumber][step][l]= referenceSortStructList[l].variant, referenceSortStructList[l].count, referenceSortStructList[l].references
 				}
 			}
 		}
@@ -634,9 +658,9 @@ type LiftoverMapping struct {
 }
 
 // createMapping creates a liftover mapping from the source library to the destination library.
-// Other way would to be to assume m+n is small and just do a linear search, takes O((m+n)^2), but probably with a lower coefficient.
+// Other way is to sort destination by reference number according to source, which takes O((m+n)log(m+n)) time, but probably a higher coefficient.
 // Can check later which way is faster in practice.
-func createMapping(source, destination *Library, references *[][][][]int) LiftoverMapping {
+func createMapping(source, destination *Library) LiftoverMapping {
 	index := -1
 	for i, libraryString := range destination.Components {
 		if libraryString == source.Text {
@@ -649,15 +673,15 @@ func createMapping(source, destination *Library, references *[][][][]int) Liftov
 	}
 	var mapping [][][]int
 	mapping = make([][][]int, structures.Paths, structures.Paths)
-	for path := range *references {
-		for step, variants := range (*references)[path] {
-			sort.Slice(variants, func(i,j int) bool { return variants[i][index] < variants[j][index] })
-			firstZeroIndex := sort.Search(len(variants), func(i int) bool { return i>=0 })
-			variantsInSource := variants[firstZeroIndex:len(variants)]
-			for _, variant := range variantsInSource {
-				mapping[path][step] = append(mapping[path][step], variant[index])
+	for path := range (*source).Paths {
+		(*source).Paths[path].Lock.RLock()
+		mapping[path] = make([][]int, len((*source).Paths[path].Variants)) // Number of steps.
+		for step, variants := range (*source).Paths[path].Variants {
+			for _, variant := range (*variants).List {
+				mapping[path][step] = append(mapping[path][step], TileExists(path, step, variant, destination))
 			}
 		}
+		(*source).Paths[path].Lock.RUnlock()
 	}
 	return LiftoverMapping{mapping, source, destination}
 }

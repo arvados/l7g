@@ -1,3 +1,6 @@
+$namespaces:
+  arv: "http://arvados.org/cwl#"
+  cwltool: "http://commonwl.org/cwltool#"
 cwlVersion: v1.0
 class: CommandLineTool
 requirements:
@@ -17,8 +20,8 @@ inputs:
     type: int
     label: Filtering cutoff threshold
   keepdot:
-    type: string?
-    label: Optional flag for keeping GQ represented by "."
+    type: boolean
+    label: Flag for keeping GQ represented by "."
   cleanvcf:
     type: File
     label: Code that cleans gVCFs
@@ -38,21 +41,22 @@ arguments:
   - shellQuote: false
     valueFrom: "|" 
   - $(inputs.filtergvcf)
-  - $(inputs.keepdot)
+  - prefix: "-k"
+    valueFrom: $(inputs.keepdot)
   - $(inputs.cutoff)
   - shellQuote: false
     valueFrom: "|"
   - $(inputs.cleanvcf)
   - shellQuote: false
-    valueFrom: "|" 
-  - "bgzip" 
-  - "-c" 
+    valueFrom: "|"
+  - "bgzip"
+  - "-c"
   - shellQuote: false
-    valueFrom: ">" 
+    valueFrom: ">"
   - $(inputs.gvcf.nameroot).gz
   - shellQuote: false
-    valueFrom: "&&" 
-  - "tabix" 
-  - prefix: "-p" 
-    valueFrom: "vcf" 
-  - $(inputs.vcf.nameroot).gz
+    valueFrom: "&&"
+  - "tabix"
+  - prefix: "-p"
+    valueFrom: "vcf"
+  - $(inputs.gvcf.nameroot).gz

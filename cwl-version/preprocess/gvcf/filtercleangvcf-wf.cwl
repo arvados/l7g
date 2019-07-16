@@ -19,8 +19,8 @@ inputs:
   cutoff:
     type: int
     label: Filtering cutoff threshold
-  keepdot:
-    type: boolean
+  keepgqdot:
+    type: boolean?
 
 outputs:
   filteredcleangvcfs:
@@ -36,10 +36,10 @@ steps:
     out: [gvcfs]
 
   filtercleangvcf:
-    run: filtergvcf.cwl
+    run: filtercleangvcf.cwl
     scatter: gvcf
     in:
       gvcf: getfiles/gvcfs
-      keepdot: keepdot
+      keepgqdot: keepgqdot
       cutoff: cutoff
     out: [filteredcleangvcf]

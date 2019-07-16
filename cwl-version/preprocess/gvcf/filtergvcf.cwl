@@ -39,7 +39,7 @@ baseCommand: zcat
 arguments:
   - $(inputs.gvcf)
   - shellQuote: false
-    valueFrom: "|" 
+    valueFrom: "|"
   - $(inputs.filtergvcf)
   - prefix: "-k"
     valueFrom: $(inputs.keepdot)

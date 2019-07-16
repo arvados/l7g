@@ -6,6 +6,7 @@ import (
 	//"fmt"
 	"log"
 	"math/rand"
+	"sort"
 	"strings"
 	"time"
 	"testing"
@@ -166,6 +167,19 @@ func generateRandomTiles(minTiles, maxTiles, minSteps, maxSteps, minBases, maxBa
 	return tileLists
 }
 
+func BenchmarkSort(b *testing.B) {
+	rand.Seed(1) // Seed for randomness can be changed.
+	tiles := generateRandomTiles(10, 15, 500, 1000, 248, 300) // Notice that this only creates around 600000 steps, rather than the more realistic 10 million.
+	l1 := generateRandomData("a", []string{}, tiles)
+	b.ResetTimer()
+	for i:=0; i<b.N; i++ {
+		sortLibrary(&l1)
+		b.StopTimer()
+		l1 = generateRandomData("a", []string{}, tiles)
+		b.StartTimer()
+	}
+}
+
 //Generate a random set of data based on a random set of data previously generated.
 func generateRandomData(text string, components []string, tileLists [][][]*structures.TileVariant) Library {
 	l := InitializeLibrary(text, components)
@@ -176,38 +190,31 @@ func generateRandomData(text string, components []string, tileLists [][][]*struc
 			numberOfPhases := 20 + rand.Intn(20) // Anywhere between 10 and 20 genomes worth of data here.
 			for k :=0; k<numberOfPhases; k++ {
 				randomTile := rand.Intn(numberOfTiles)
-				AddTile(path, step, -1, tileLists[path][step][randomTile], "test", "test", &l) // The fields marked "test" don't affect anything, so they can named anything.
+				AddTile(path, step, -1, tileLists[path][step][randomTile], "test", "test", &l) // The fields marked "test" don't affect anything, so they can be named anything.
 			}
 		}
 	}
 	return l
 }
 
-func BenchmarkLibrary(b *testing.B) {
-	l := InitializeLibrary("test", []string{})
-	newTile := structures.TileVariant{md5.Sum([]byte{1}), 1, "", -1}
-	AddTile(0, 0, -1, &newTile, "test", "gcat", &l)
-	b.ResetTimer()
+func BenchmarkGenerateTiles(b *testing.B) {
 	for i:=0; i<b.N; i++ {
-		l.Paths[0].Variants[0].List[0].LookupReference = 2
+		generateRandomTiles(10, 15, 500, 1000, 248, 300)
 	}
 }
 
-func BenchmarkPointer(b *testing.B) {
-	l := InitializeLibrary("test", []string{})
-	newTile := &structures.TileVariant{md5.Sum([]byte{1}), 1, "", -1}
-	info := baseInfo{"gcat", md5.Sum([]byte{1}), newTile}
-	AddTile(0, 0, -1, newTile, "test", "gcat", &l)
+func BenchmarkGenerateLibraries(b *testing.B) {
+	tiles := generateRandomTiles(10, 15, 500, 1000, 248, 300)
 	b.ResetTimer()
 	for i:=0; i<b.N; i++ {
-		info.variant.LookupReference = 2
+		generateRandomData("test", []string{}, tiles)
 	}
 }
 
 // Test for the libraryCopy function, which copies libraries.
 func TestCopy(t *testing.T) {
 	rand.Seed(1) // Seed for randomness can be changed.
-	tiles := generateRandomTiles(3, 15, 500, 1000, 248, 300) // Notice that this only creates around 600000 steps, rather than the more realistic 10 million.
+	tiles := generateRandomTiles(10, 15, 500, 1000, 248, 300) // Notice that this only creates around 600000 steps, rather than the more realistic 10 million.
 	l1 := generateRandomData("a", []string{}, tiles)
 	l4 := InitializeLibrary("b", []string{})
 	libraryCopy(&l4, &l1)
@@ -216,9 +223,20 @@ func TestCopy(t *testing.T) {
 	}
 }
 
+func BenchmarkCopy(b *testing.B) {
+	rand.Seed(1) // Seed for randomness can be changed.
+	tiles := generateRandomTiles(10, 15, 500, 1000, 248, 300) // Notice that this only creates around 600000 steps, rather than the more realistic 10 million.
+	l1 := generateRandomData("a", []string{}, tiles)
+	b.ResetTimer()
+	for i:=0; i<b.N; i++ {
+		l4 := InitializeLibrary("b", []string{})
+		libraryCopy(&l4, &l1)
+	}
+}
+
 func TestMerging(t *testing.T) {
 	rand.Seed(1) // Seed for randomness can be changed.
-	tiles := generateRandomTiles(3, 15, 500, 1000, 248, 300) // Notice that this only creates around 600000 steps, rather than the more realistic 10 million.
+	tiles := generateRandomTiles(10, 15, 500, 1000, 248, 300) // Notice that this only creates around 600000 steps, rather than the more realistic 10 million.
 	l1 := generateRandomData("a", []string{}, tiles)
 	l2 := generateRandomData("b", []string{}, tiles)
 	l3,_ := mergeLibraries("test",&l1,&l2)
@@ -244,11 +262,31 @@ func TestMerging(t *testing.T) {
 		}
 		l2.Paths[path].Lock.RUnlock()
 	}
+	for path := range l3.Paths {
+		l2.Paths[path].Lock.Lock()
+		for _, stepList := range l3.Paths[path].Variants {
+			if !sort.IsSorted(sort.Reverse(sort.IntSlice((*stepList).Counts))) {
+				t.Fatalf("a step is not sorted in descending order")
+			}
+		}
+		l2.Paths[path].Lock.Unlock()
+	}
+}
+
+func BenchmarkMerging(b *testing.B) {
+	rand.Seed(1) // Seed for randomness can be changed.
+	tiles := generateRandomTiles(10, 15, 500, 1000, 248, 300) // Notice that this only creates around 600000 steps, rather than the more realistic 10 million.
+	l1 := generateRandomData("a", []string{}, tiles)
+	l2 := generateRandomData("b", []string{}, tiles)
+	b.ResetTimer()
+	for i:=0; i<b.N; i++ {
+		mergeLibraries("test",&l1,&l2)
+	}
 }
 
 func TestReference(t *testing.T) {
 	rand.Seed(1) // Seed for randomness can be changed.
-	tiles := generateRandomTiles(3, 15, 500, 1000, 248, 300) // Notice that this only creates around 600000 steps, rather than the more realistic 10 million.
+	tiles := generateRandomTiles(10, 15, 500, 1000, 248, 300) // Notice that this only creates around 600000 steps, rather than the more realistic 10 million.
 	l1 := generateRandomData("a", []string{}, tiles)
 	l2 := generateRandomData("b", []string{}, tiles)
 	l3,references := mergeLibraries("test",&l1,&l2)
@@ -264,9 +302,9 @@ func TestReference(t *testing.T) {
 	}
 
 	index2 := -1
-	for i, libraryString := range (*l3).Components {
-		if libraryString == l2.Text {
-			index2 = i
+	for j, library2String := range (*l3).Components {
+		if library2String == l2.Text {
+			index2 = j
 			break
 		}
 	}
@@ -295,7 +333,7 @@ func TestReference(t *testing.T) {
 // TODO: write benchmarks for functions in addition to tests.
 func TestLiftover(t *testing.T) {
 	rand.Seed(1) // Seed for randomness can be changed.
-	tiles := generateRandomTiles(3, 15, 500, 1000, 248, 300) // Notice that this only creates around 600000 steps, rather than the more realistic 10 million.
+	tiles := generateRandomTiles(10, 15, 500, 1000, 248, 300) // Notice that this only creates around 600000 steps, rather than the more realistic 10 million.
 	l1 := generateRandomData("a", []string{}, tiles)
 	l2 := generateRandomData("b", []string{}, tiles)
 	l3,_ := mergeLibraries("test",&l1,&l2)
@@ -304,9 +342,21 @@ func TestLiftover(t *testing.T) {
 		for step, variantMapping := range stepMapping {
 			for oldIndex, newIndex := range variantMapping {
 				if !(*l1.Paths[path].Variants[step].List[oldIndex]).Equals(*l3.Paths[path].Variants[step].List[newIndex]) {
-					t.Fatalf("Variants from liftover are not equal.")
+					t.Fatalf("variants from liftover in library 1 are not equal.")
 				}
 			} 
 		}
+	}
+}
+
+func BenchmarkLiftover(b *testing.B) {
+	rand.Seed(1) // Seed for randomness can be changed.
+	tiles := generateRandomTiles(10, 15, 500, 1000, 248, 300) // Notice that this only creates around 600000 steps, rather than the more realistic 10 million.
+	l1 := generateRandomData("a", []string{}, tiles)
+	l2 := generateRandomData("b", []string{}, tiles)
+	l3,_ := mergeLibraries("test",&l1,&l2)
+	b.ResetTimer()
+	for i:=0; i<b.N; i++ {
+		createMapping(&l1, l3)
 	}
 }

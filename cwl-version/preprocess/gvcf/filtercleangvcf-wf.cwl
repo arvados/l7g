@@ -21,6 +21,7 @@ inputs:
     label: Filtering cutoff threshold
   keepgqdot:
     type: boolean?
+    label: Flag for keeping GQ represented by "."
 
 outputs:
   filteredcleangvcfs:

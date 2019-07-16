@@ -10,16 +10,8 @@ requirements:
   ResourceRequirement:
     coresMin: 2
     ramMin: 13000
-hints:
-  arv:RuntimeConstraints:
-    keep_cache: 4096
+  ShellCommandRequirement: {}
 inputs:
-  bashscript:
-    type: File
-    label: Master script to control filtering
-    default:
-      class: File
-      location: src/filtercleanCWL.sh
   gvcf:
     type: File
     label: Input gVCF file
@@ -33,6 +25,9 @@ inputs:
   cutoff:
     type: int
     label: Filtering cutoff threshold
+  keepgqdot:
+    type: boolean?
+    label: Flag for keeping GQ represented by "."
   cleanvcf:
     type: File
     label: Code that cleans gVCFs
@@ -46,10 +41,28 @@ outputs:
     outputBinding:
       glob: "*vcf.gz"
     secondaryFiles: [.tbi]
-baseCommand: bash
+baseCommand: zcat
 arguments:
-  - $(inputs.bashscript)
   - $(inputs.gvcf)
+  - shellQuote: false
+    valueFrom: "|"
   - $(inputs.filtergvcf)
+  - prefix: "-k"
+    valueFrom: $(inputs.keepgqdot)
   - $(inputs.cutoff)
+  - shellQuote: false
+    valueFrom: "|"
   - $(inputs.cleanvcf)
+  - shellQuote: false
+    valueFrom: "|"
+  - "bgzip"
+  - "-c"
+  - shellQuote: false
+    valueFrom: ">"
+  - $(inputs.gvcf.nameroot).gz
+  - shellQuote: false
+    valueFrom: "&&"
+  - "tabix"
+  - prefix: "-p"
+    valueFrom: "vcf"
+  - $(inputs.gvcf.nameroot).gz

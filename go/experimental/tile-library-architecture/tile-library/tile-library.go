@@ -4,6 +4,9 @@ package main
 
 import (
 	"bufio"
+	"compress/gzip"
+	"crypto/md5"
+	"encoding/binary"
 	"encoding/hex"
 	"errors"
 	"flag"
@@ -12,17 +15,52 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
-	"os/exec"
 	"path"
-	"runtime"
-	"runtime/pprof"
+	//"runtime"
+	//"runtime/pprof"
 	"sort"
 	"strconv"
 	"strings"
 	"sync"
-	"time"
+	//"time"
 	"../structures"
 )
+
+// openGZ is a function to open gzipped files and return the corresponding slice of bytes of the data.
+// Mostly important for gzipped FastJs, but other gzipped files can be opened too.
+func openGZ(filepath string) []byte {
+	file, err := os.Open(filepath)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer file.Close()
+	gz, err := gzip.NewReader(file)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer gz.Close()
+
+	data, err := ioutil.ReadAll(gz)
+	if err != nil {
+		log.Fatal(err)
+	}
+	return data
+}
+
+// openFile is a method to get the data of a file and return the corresponding slice of bytes.
+func openFile(filepath string) []byte {
+	file, err := os.Open(filepath)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer file.Close()
+
+	data, err := ioutil.ReadAll(file)
+	if err != nil {
+		log.Fatal(err)
+	}
+	return data
+}
 
 // KnownVariants is a struct to hold the known variants in a specific step.
 type KnownVariants struct {
@@ -32,45 +70,71 @@ type KnownVariants struct {
 
 // VariantLookupTable is a type for looking up the original positions of variants in a list--for now, the table is a list
 type VariantLookupTable []int
-/*
-// Library is a type to represent a library of tile variants.
-type Library []concurrentPath
-*/
 
 // Library is a type to represent a library of tile variants.
 type Library struct {
 	Paths []concurrentPath // The paths of the library.
+	ID [md5.Size]byte
 	Text string // The path of the text file containing the bases--if a directory, it refers to the sglf files there.
-	Components []string // the paths of the libraries that made this library (empty if this library was not made from other)
+	Components []string // the IDs of the libraries that made this library (empty if this library was not made from other)
 }
-// TODO: Give some sort of ID to each library for easy reference when convert back from an SGLFv2 file.
+
 // TODO: Keep track of the IDs of the component libraries as well, so they can be referenced.
 
+// Helper function used to make byte slices from unsigned int32s.
+// uint32 should be enough space for every integer used in the library.
+func uint32ToByteSlice(integer uint32) []byte {
+	slice := make([]byte, 4)
+	binary.LittleEndian.PutUint32(slice, integer)
+	return slice
+}
+
+// AssignID assigns a library its ID.
+// Current method takes the path, step, variant number, variant count, variant hash, and variant length into account when making the ID.
+// TODO: Find another way, if possible, since this takes so much time and memory.
+func (l Library) AssignID() {
+	var byteList []byte
+	byteList = make([]byte, 0, 1)
+	for path := range l.Paths {
+		byteList = append(byteList, uint32ToByteSlice(uint32(path))...)
+		l.Paths[path].Lock.RLock()
+		for step, variants := range l.Paths[path].Variants {
+			byteList = append(byteList,uint32ToByteSlice(uint32(step))...)
+			for variantNumber, variant := range (*variants).List {
+				byteList = append(byteList, uint32ToByteSlice(uint32(variantNumber))...) 
+				byteList = append(byteList, uint32ToByteSlice(uint32((*variants).Counts[variantNumber]))...)
+				byteList = append(byteList, uint32ToByteSlice(uint32((*variant).Length))...)
+				byteList = append(byteList, (*variant).Hash[:]...)
+			}
+		}
+		l.Paths[path].Lock.RUnlock()
+	}
+	l.ID = md5.Sum(byteList)
+}
+
 // Equals checks for equality between two libraries. It does not check similarity in text or components, and tiles are checked by hash.
-func (l1 Library) Equals(l2 Library) bool {
-	for path := range l1.Paths {
-		l1.Paths[path].Lock.RLock()
+func (l Library) Equals(l2 Library) bool {
+	for path := range l.Paths {
+		l.Paths[path].Lock.RLock()
 		l2.Paths[path].Lock.RLock()
-		if len(l1.Paths[path].Variants) != len(l2.Paths[path].Variants) {
+		if len(l.Paths[path].Variants) != len(l2.Paths[path].Variants) {
 			return false
 		}
-		for step, stepList := range l1.Paths[path].Variants {
+		for step, stepList := range l.Paths[path].Variants {
 			if len((*stepList).List) != len(l2.Paths[path].Variants[step].List) {
 				return false
 			}
 			for i, variant := range (*stepList).List {
-				if !variant.Equals((*l2.Paths[path].Variants[step].List[i])) || l1.Paths[path].Variants[step].Counts[i] != l2.Paths[path].Variants[step].Counts[i] {
+				if !variant.Equals((*l2.Paths[path].Variants[step].List[i])) || l.Paths[path].Variants[step].Counts[i] != l2.Paths[path].Variants[step].Counts[i] {
 					return false
 				}
 			}
 		}
 		l2.Paths[path].Lock.RUnlock()
-		l1.Paths[path].Lock.RUnlock()
+		l.Paths[path].Lock.RUnlock()
 	}
 	return true
 }
-
-// TODO: convert SGLFv2 format into libraries for use (for convenience)
 
 // concurrentPath is a type to represent a path, while also being safe for concurrent use.
 type concurrentPath struct {
@@ -127,13 +191,12 @@ func TileExists(path, step int, toCheck *structures.TileVariant, library *Librar
 
 // AddTile is a function to add a tile (without sorting).
 // Safe to use without checking existence of the tile beforehand (since the function will do that for you).
-func AddTile(genomePath, step, lookupNumber int, new *structures.TileVariant, libraryTextFile, bases string, library *Library) {
+func AddTile(genomePath, step int, new *structures.TileVariant, library *Library) {
 	if index := TileExists(genomePath, step, new, library); index == -1 { // Checks if the tile exists already.
 		(*library).Paths[genomePath].Lock.Lock()
 		defer (*library).Paths[genomePath].Lock.Unlock()
 		(*library).Paths[genomePath].Variants[step].List = append((*library).Paths[genomePath].Variants[step].List, new)
 		(*library).Paths[genomePath].Variants[step].Counts = append((*library).Paths[genomePath].Variants[step].Counts, 1)
-		//writeToTextFile(genomePath, step, path.Dir(libraryTextFile), bases, path.Base(libraryTextFile), new.Hash)
 	} else {
 		(*library).Paths[genomePath].Lock.RLock()
 		defer (*library).Paths[genomePath].Lock.RUnlock()
@@ -144,7 +207,7 @@ func AddTile(genomePath, step, lookupNumber int, new *structures.TileVariant, li
 // AddTileUnsafe is a function to add a tile without sorting.
 // Unsafe because it doesn't check if the tile is already in the library, unlike AddTile.
 // Be careful to check if the tile already exists before using this function to avoid repeats in the library.
-func AddTileUnsafe(genomePath, step, lookupNumber int, new *structures.TileVariant, libraryTextFile string, library *Library) {
+func addTileUnsafe(genomePath, step int, new *structures.TileVariant, libraryTextFile string, library *Library) {
 	(*library).Paths[genomePath].Lock.Lock()
 	defer (*library).Paths[genomePath].Lock.Unlock()
 	(*library).Paths[genomePath].Variants[step].List = append((*library).Paths[genomePath].Variants[step].List, new)
@@ -153,8 +216,6 @@ func AddTileUnsafe(genomePath, step, lookupNumber int, new *structures.TileVaria
 
 // FindFrequency is a function to find the frequency of a specific tile at a specific path and step.
 func FindFrequency(path, step int, toFind *structures.TileVariant, library *Library) int {
-	(*library).Paths[path].Lock.RLock()
-	defer (*library).Paths[path].Lock.RUnlock()
 	if index:= TileExists(path, step, toFind, library); index != -1 {
 		return (*library).Paths[path].Variants[step].Counts[index]
 	}
@@ -163,6 +224,7 @@ func FindFrequency(path, step int, toFind *structures.TileVariant, library *Libr
 }
 
 // Annotate is a method to annotate (or re-annotate) a Tile at a specific path and step. If no match is found, the user is notified.
+// Possibly use the hash instead of the entire tile variant?
 func Annotate(path, step int, toAnnotate *structures.TileVariant, library *Library) {
 	for _, tile := range (*library).Paths[path].Variants[step].List {
 		if toAnnotate.Equals(*tile) {
@@ -179,6 +241,20 @@ func Annotate(path, step int, toAnnotate *structures.TileVariant, library *Libra
 	fmt.Printf("No matching tile found at specified path %v and step %v.\n", path, step) // Information if tile isn't found.
 }
 
+/*
+func Annotate(path, step int, hash structures.VariantHash, annotation string, library *Library) {
+	(*library).Paths[path].Lock.Lock()
+	defer (*library).Paths[path].Lock.Unlock()
+	for _, tile := range (*library).Paths[path].Variants[step].List {
+		if hash==(*tile).Hash {
+			tile.Annotation = annotation
+			break
+		}
+	}
+	fmt.Printf("No matching tile found at specified path %v and step %v.\n", path, step) // Information if tile isn't found.
+}
+*/
+
 // baseInfo is a temporary struct to pass around information about a tile's bases.
 type baseInfo struct {
 	bases string
@@ -188,25 +264,30 @@ type baseInfo struct {
 
 var tileBuilder strings.Builder
 // bufferedTileRead reads a FastJ file and adds its tiles to the provided library.
+// Allows for gzipped FastJ files and regular FastJ files.
 func bufferedTileRead(fastJFilepath, libraryTextFile string, library *Library) {
 	var baseChannel chan baseInfo
 	baseChannel = make(chan baseInfo, 16) // Put information about bases of tiles in here while they need to be processed.
 	go bufferedBaseWrite(libraryTextFile, baseChannel)
 	file := path.Base(fastJFilepath) // The name of the file.
 	splitpath := strings.Split(file, ".") // This is used to make sure the file is in the right format.
-	if len(splitpath) != 3 {
-		log.Fatal(errors.New("error: Not a valid gzipped file "+file)) // Makes sure that the filepath goes to a valid file
+	if len(splitpath) != 3 && len(splitpath) != 2 {
+		log.Fatal(errors.New("error: Not a valid file "+file)) // Makes sure that the filepath goes to a valid file
 	}
-	if splitpath[1] != "fj" || splitpath[2] != "gz" {
-		log.Fatal(errors.New("error: not a gzipped FastJ file")) // Makes sure that the file is a FastJ file
+	if splitpath[1] != "fj" || (len(splitpath)==3 && splitpath[2] != "gz") {
+		log.Fatal(errors.New("error: not a valid FastJ file")) // Makes sure that the file is a FastJ file
 	}
 	pathHex, hexErr := hex.DecodeString(splitpath[0])
 	if len(pathHex) != 2 || hexErr != nil {
 		log.Fatal(errors.New("invalid hex file name")) // Makes sure the file title is four digits of hexadecimal
 	}
 	hexNumber := 256*int(pathHex[0])+int(pathHex[1]) // Conversion from hex into decimal--this is the path
-
-	data := structures.OpenGZ(fastJFilepath) // potentially create in the string in one pass through the file?
+	var data []byte
+	if len(splitpath) == 3 {
+		data = openGZ(fastJFilepath)
+	} else {
+		data = openFile(fastJFilepath)
+	}
 	text := string(data)
 	tiles := strings.Split(text, "\n\n") // The divider between two tiles is two newlines.
 	
@@ -247,13 +328,15 @@ func bufferedTileRead(fastJFilepath, libraryTextFile string, library *Library) {
 			}
 			baseData := strings.Split(line, "\n")[1:] // Data after the first part of the line are the bases of the tile variant.
 			tileBuilder.Reset()
+			// Test to see if this line takes a long time to run.
+			tileBuilder.Grow(4194304) // For paths with extremely large tiles, just in case, such as path 032b, which has tiles with roughly 2.7 million characters each.
 			for i := range baseData {
 				tileBuilder.WriteString(baseData[i])
 			}
 			bases := tileBuilder.String()
 			newTile := &structures.TileVariant{Hash: hashArray, Length: int(length), Annotation: "", LookupReference: -1}
 			if tileIndex:=TileExists(hexNumber, step, newTile, library); tileIndex==-1 {
-				AddTileUnsafe(hexNumber, step, -1, newTile, libraryTextFile, library) // -1 for unknown lookup reference, set later.
+				addTileUnsafe(hexNumber, step, newTile, libraryTextFile, library)
 				baseChannel <- baseInfo{bases,hashArray, newTile}
 			} else {
 				(*library).Paths[hexNumber].Variants[step].Counts[tileIndex]++ // Increments the count of the tile variant if it is found.
@@ -266,6 +349,8 @@ func bufferedTileRead(fastJFilepath, libraryTextFile string, library *Library) {
 
 // bufferedBaseWrite writes bases and hashes of tiles to the given text file.
 // To be used in conjunction with bufferedTileRead and bufferedInfo.
+
+// TODO: Paths 032b and 032c seem to have errors regarding how they were written to the SGLFv2 files--check if this is a reference problem.
 func bufferedBaseWrite(libraryTextFile string, channel chan baseInfo) {
 	err := os.MkdirAll(path.Dir(libraryTextFile), os.ModePerm)
 	if err != nil {
@@ -276,13 +361,12 @@ func bufferedBaseWrite(libraryTextFile string, channel chan baseInfo) {
 		log.Fatal(err)
 	}
 	bufferedWriter := bufio.NewWriter(file)
-	
 	for bases := range channel {
 		info, err := os.Stat(libraryTextFile)
 		if err != nil {
 			log.Fatal(err)
 		}
-		(bases.variant).LookupReference = (int(info.Size())+bufferedWriter.Buffered())
+		(bases.variant).LookupReference = info.Size()+int64(bufferedWriter.Buffered())
 		hashString := hex.EncodeToString(bases.hash[:])
 		bufferedWriter.WriteString(hashString)
 		bufferedWriter.WriteString(",")
@@ -336,6 +420,8 @@ func writePathToSGLF(library *Library, genomePath, version int, directoryToWrite
 		log.Fatal(err)
 	}
 	fileReader := bufio.NewReader(textFile)
+	(*library).Paths[genomePath].Lock.RLock()
+	defer (*library).Paths[genomePath].Lock.RUnlock()
 	for step := range (*library).Paths[genomePath].Variants {
 		if (*library).Paths[genomePath].Variants[step] != nil {
 			for i := range (*(*library).Paths[genomePath].Variants[step]).List {
@@ -393,10 +479,15 @@ func writePathToSGLFv2(library *Library, genomePath, version int, directoryToWri
 		log.Fatal(err)
 	}
 	fileReader := bufio.NewReader(textFile)
-	for step, variants := range (*library).Paths[genomePath].Variants {
-		if variants != nil {
-			for i, variant := range (*variants).List {
-				textFile.Seek(int64(variant.LookupReference),0)
+	(*library).Paths[genomePath].Lock.RLock()
+	defer (*library).Paths[genomePath].Lock.RUnlock()
+	for step := range (*library).Paths[genomePath].Variants {
+		if (*library).Paths[genomePath].Variants[step] != nil {
+			for i := range (*(*library).Paths[genomePath].Variants[step]).List {
+				_, err := textFile.Seek((*(*library).Paths[genomePath].Variants[step]).List[i].LookupReference,0)
+				if err != nil {
+					log.Fatal(err)
+				}
 				fileReader.Reset(textFile)
 				tileString, err := fileReader.ReadString('\n') // This includes the newline at the end.
 				if err != nil && err != io.EOF {
@@ -412,11 +503,12 @@ func writePathToSGLFv2(library *Library, genomePath, version int, directoryToWri
 				bufferedWriter.WriteString(".")
 				bufferedWriter.WriteString(fmt.Sprintf("%03x", i)) // Tile variant number
 				bufferedWriter.WriteString("+")
-				bufferedWriter.WriteString(fmt.Sprintf("%08x", (*variants).Counts[i])) // The count of this tile.
+				bufferedWriter.WriteString(fmt.Sprintf("%08x", (*(*library).Paths[genomePath].Variants[step]).Counts[i])) // The count of this tile.
 				bufferedWriter.WriteString("+")
-				bufferedWriter.WriteString(fmt.Sprintf("%01x", variant.Length)) // Tile length
+				bufferedWriter.WriteString(fmt.Sprintf("%01x", (*(*library).Paths[genomePath].Variants[step]).List[i].Length)) // Tile length
 				bufferedWriter.WriteString(",")
 				bufferedWriter.WriteString(tileString) // Hash and bases of tile.
+				// Newline is at the end of tileString, so no newline needs to be put here.
 			}
 		}
 	}
@@ -431,52 +523,6 @@ func WriteLibraryToSGLFv2(library *Library, version int, directoryToWriteTo, dir
 		writePathToSGLFv2(library, path, version, directoryToWriteTo, directoryToGetFrom, textFile)
 	}
 }
-/*
-func parseSGLF(filepath string, library *Library) {
-	file := path.Base(filepath)
-	splitpath := strings.Split(file, ".") 
-	if len(splitpath) != 3 {
-		log.Fatal(errors.New("error: Not a valid gzipped file")) // Makes sure that the filepath goes to a valid file
-	}
-	if splitpath[1] != "sglf" || splitpath[2] != "gz" {
-		log.Fatal(errors.New("error: not a gzipped sglf file")) // Makes sure that the file is an SGLF file
-	}
-	pathHex, hexErr := hex.DecodeString(splitpath[0])
-	if len(pathHex) != 2 || hexErr != nil {
-		log.Fatal(errors.New("invalid hex file name")) // Makes sure the title of the file is four digits of hexadecimal
-	}
-	hexNumber := 256*int(pathHex[0])+int(pathHex[1]) // conversion into an integer--this is the path number
-	data := openGZ(filepath)
-	text := string(data)
-	tiles := strings.Split(text, "\n")
-	var tileData [][]string
-	tileData = make([][]string, 0, 1)
-	for _, line := range tiles {
-		if line != "" {
-			tileData = append(tileData, strings.Split(line, ","))
-		}
-		
-	}
-	library[hexNumber] = make(map[int]*TilesInStep) // later should be generalized to any library
-	for _, oneTile := range tileData {
-		lengthInHex, err := strconv.ParseInt(strings.Split(oneTile[0], "+")[1], 16, 32)
-		if err != nil {
-			log.Fatal(err)
-		}
-		length := int(lengthInHex)
-		newTile := TileCreator(oneTile[2], length, "")
-		stepInHex, err2 := hex.DecodeString(strings.Split(oneTile[0], ".")[2])
-		if err2 != nil {
-			log.Fatal(err2)
-		}
-		step := 256 * int(stepInHex[0]) + int(stepInHex[1])
-		AddTile(hexNumber, step, newTile, library)
-	}
-
-
-	splitpath, data, tiles, tileData =  nil, nil, nil, nil // Clears most things in memory that were used here.
-}
-*/
 
 // AddLibraryFastJ adds a directory of gzipped FastJ files to a specific library. 
 func AddLibraryFastJ(directory, libraryTextFile string, library *Library) {
@@ -492,7 +538,6 @@ func AddLibraryFastJ(directory, libraryTextFile string, library *Library) {
 }
 
 // AddPathFromDirectories parses the same path for all genomes, represented by a list of directories, and puts the information in a Library.
-// Could save space by just putting it in a []*KnownVariants instead of an entire library
 func AddPathFromDirectories(library *Library, directories []string, genomePath int, libraryTextFile string) {
 	var b strings.Builder
 
@@ -502,52 +547,6 @@ func AddPathFromDirectories(library *Library, directories []string, genomePath i
 		bufferedTileRead(path.Join(directory,b.String()),libraryTextFile,library)
 	}
 }
-
-func fjtMakeSGLFFromGenomes(directoryOfGenomes, directoryToWriteTo, tagsetFile string, genomePath int) {
-	// commands:
-	// samtools faidx ~/keep/by_id/cd9ada494bd979a8bc74e6d59d3e8710+174/tagset.fa.gz 035e.00 | egrep -v '^>' | tr -d '\n' | fold -w 24 > tagset_035e.00
-	// docker run -i -v /home/jeremyfchen:/mnt arvados/l7g find /mnt/keep/by_id/6a3b88d7cde57054971eeabe15639cf8+263878/ -name 035e.fj.gz | docker run -i -v /home/jeremyfchen:/mnt arvados/l7g xargs -n1 zcat | docker run -i -v /home/jeremyfchen:/mnt arvados/l7g fjt -C -U | docker run -i -v /home/jeremyfchen:/mnt arvados/l7g fjcsv2sglf /mnt/tagset_035e.00 | bgzip -c > 035e.sglf.gz
-	var b strings.Builder
-
-	b.WriteString("samtools faidx ")
-	b.WriteString(tagsetFile)
-	b.WriteString(fmt.Sprintf(" %04x.00", genomePath))
-	b.WriteString(" | egrep -v '^>' | tr -d '\\n' | fold -w 24 > ")
-	b.WriteString(fmt.Sprintf("tempTagset_%04x", genomePath))
-	createTempTagset:= b.String()
-	createTagSetCommandList := strings.Split(createTempTagset, " ")
-	b.Reset()
-	b.WriteString("docker run -i -v /home/jeremyfchen:/mnt arvados/l7g find ")
-	b.WriteString(directoryOfGenomes)
-	b.WriteString(fmt.Sprintf(" -name %04x.fj.gz | docker run -i -v /home/jeremyfchen:/mnt arvados/l7g xargs -n1 zcat", genomePath))
-	b.WriteString(" | docker run -i -v /home/jeremyfchen:/mnt arvados/l7g fjt -C -U | docker run -i -v /home/jeremyfchen:/mnt arvados/l7g fjcsv2sglf ")
-	b.WriteString(fmt.Sprintf("/mnt/tempTagset_%04x | bgzip -c > %04x.sglf.gz", genomePath, genomePath))
-	createSGLF := b.String()
-	createSGLFCommandList := strings.Split(createSGLF, " ")
-	createTempTagsetCmd := exec.Command(createTagSetCommandList[0], createTagSetCommandList[1:]...)
-	output, cmdErr := (*createTempTagsetCmd).CombinedOutput()
-	if cmdErr != nil {
-		fmt.Println(createTempTagset)
-		fmt.Println(string(output))
-	}
-	createSGLFCmd := exec.Command(createSGLFCommandList[0], createSGLFCommandList[1:]...)
-	_, cmdErr = (*createSGLFCmd).Output()
-	if cmdErr != nil {
-		log.Fatal(cmdErr)
-	}
-	
-}
-
-func fjtAddAllFastJs(directoryOfGenomes, directoryToWriteTo, tagsetFile string) {
-	for i:=0; i<structures.Paths; i++ {
-		fjtMakeSGLFFromGenomes(directoryOfGenomes, directoryToWriteTo, tagsetFile, i)
-	}
-}
-/*
-func AddLibrarySGLFbyFJT(library *Library, directoryToWriteTo string, path int) {
-	fjtMakeSGLFFromGenomes((*library).Data, directoryToWriteTo, (*library).Tagset, path)
-}
-*/
 
 // AddByDirectories adds information from a list of directories for genomes into a library, but parses by path.
 func AddByDirectories(library *Library, directories []string, libraryTextFile string) {
@@ -565,7 +564,7 @@ func InitializeLibrary(textFile string, componentLibraries []string) Library {
 		var newLock sync.RWMutex
 		newLibraryPaths[i] = concurrentPath{newLock, make([]*KnownVariants, 0, 1)} // Lock is copied, but hasn't been used yet, so this is fine.
 	}
-	return Library{newLibraryPaths, textFile, componentLibraries}
+	return Library{Paths: newLibraryPaths, Text: textFile, Components: componentLibraries}
 }
 
 // Function to copy the contents of the source library into the new library.
@@ -579,9 +578,10 @@ func libraryCopy(destination, source *Library) {
 	}
 }
 
-// Function to merge the first library into the second library.
+// MergeLibraries is a function to merge the first library given into the second library.
+// This version creates a new library.
 // Need to fix references--some indices are out of bounds.
-func mergeLibraries(text string, libraryToMerge *Library, mainLibrary *Library) (*Library, [][][][]int) {
+func MergeLibraries(text string, libraryToMerge *Library, mainLibrary *Library) (*Library, [][][][]int) {
 	var listOfReferences [][][][]int
 	listOfReferences = make([][][][]int, structures.Paths, structures.Paths)
 	for i := range listOfReferences {
@@ -591,7 +591,7 @@ func mergeLibraries(text string, libraryToMerge *Library, mainLibrary *Library) 
 	libraryCopy(&newLibrary, mainLibrary)
 	for i := range (*libraryToMerge).Paths {
 		for j := range (*libraryToMerge).Paths[i].Variants {
-			listOfReferences[i] = append(listOfReferences[i], MergeKnownVariants(i, j, (*libraryToMerge).Paths[i].Variants[j], &newLibrary))
+			listOfReferences[i] = append(listOfReferences[i], mergeKnownVariants(i, j, (*libraryToMerge).Paths[i].Variants[j], &newLibrary))
 		}
 	}
 	type referenceSortStruct struct { // Temporary struct that groups together the variant, count, and references for sorting purposes.
@@ -624,7 +624,7 @@ func mergeLibraries(text string, libraryToMerge *Library, mainLibrary *Library) 
 // MergeKnownVariants puts the contents of a KnownVariants at a specific path and step into another library.
 // Account for CGF files here (try to avoid potential remapping with CGF files)
 // Should create a new library and point the old libraries to this library.
-func MergeKnownVariants(genomePath, step int, variantsToMerge *KnownVariants, newLibrary *Library) [][]int {
+func mergeKnownVariants(genomePath, step int, variantsToMerge *KnownVariants, newLibrary *Library) [][]int {
 	var references [][]int
 	originalLibraryLength := len((*newLibrary).Paths[genomePath].Variants[step].List)
 	references = make([][]int, 0, 1)
@@ -634,7 +634,7 @@ func MergeKnownVariants(genomePath, step int, variantsToMerge *KnownVariants, ne
 	newTileCounter := 0
 	for i, variant := range variantsToMerge.List {
 		if index := TileExists(genomePath, step, variant, newLibrary); index==-1 {
-			AddTileUnsafe(genomePath, step, variant.LookupReference, variant, "", newLibrary)
+			addTileUnsafe(genomePath, step, variant, "", newLibrary)
 			(*newLibrary).Paths[genomePath].Variants[step].Counts[originalLibraryLength+newTileCounter] += variantsToMerge.Counts[i]-1
 			newTileCounter++
 			references = append(references, []int{i,-1})
@@ -643,10 +643,49 @@ func MergeKnownVariants(genomePath, step int, variantsToMerge *KnownVariants, ne
 			references[index][0] = i
 		}
 	}
+	
 	return references
 }
-// TODO: store the references somewhere.
 
+func mergeLibrariesWithoutCreation(text string, libraryToMerge *Library, mainLibrary *Library) (*Library, [][][][]int) {
+	var listOfReferences [][][][]int
+	listOfReferences = make([][][][]int, structures.Paths, structures.Paths)
+	for i := range listOfReferences {
+		listOfReferences[i] = make([][][]int, 0, 1)
+	}
+	mainLibrary.Components = append(mainLibrary.Components, libraryToMerge.Text)
+	for i := range (*libraryToMerge).Paths {
+		for j := range (*libraryToMerge).Paths[i].Variants {
+			listOfReferences[i] = append(listOfReferences[i], mergeKnownVariants(i, j, (*libraryToMerge).Paths[i].Variants[j], mainLibrary))
+		}
+	}
+	type referenceSortStruct struct { // Temporary struct that groups together the variant, count, and references for sorting purposes.
+		variant *structures.TileVariant
+		count int
+		references []int
+	}
+	for pathNumber := range mainLibrary.Paths { // Sorting step.
+		mainLibrary.Paths[pathNumber].Lock.Lock()
+		for step, steplist := range mainLibrary.Paths[pathNumber].Variants {
+			if steplist != nil {
+				var referenceSortStructList []referenceSortStruct
+				referenceSortStructList = make([]referenceSortStruct, len((*steplist).List), len((*steplist).List))
+				for k:=0; k<len((*steplist).List); k++ {
+					newReferences := make([]int, len(listOfReferences[pathNumber][step][k]))
+					copy(newReferences, listOfReferences[pathNumber][step][k])
+					referenceSortStructList[k] = referenceSortStruct{(*steplist).List[k], (*steplist).Counts[k], newReferences}
+				}
+				sort.Slice(referenceSortStructList, func(i, j int) bool { return referenceSortStructList[i].count > referenceSortStructList[j].count })
+				for l:=0; l<len((*steplist).List); l++ {
+					(*steplist).List[l], (*steplist).Counts[l], listOfReferences[pathNumber][step][l]= referenceSortStructList[l].variant, referenceSortStructList[l].count, referenceSortStructList[l].references
+				}
+			}
+		}
+		mainLibrary.Paths[pathNumber].Lock.Unlock()
+	}
+	return mainLibrary, listOfReferences
+}
+// TODO: store the references somewhere.
 
 // LiftoverMapping is a representation of a liftover from one library to another.
 // If a = LiftoverMapping.Mapping[b][c][d], then in path b, step c, variant d in the first library maps to variant a in the second.
@@ -657,10 +696,10 @@ type LiftoverMapping struct {
 }
 // TODO: store mappings.
 
-// createMapping creates a liftover mapping from the source library to the destination library.
+// CreateMapping creates a liftover mapping from the source library to the destination library.
 // Other way is to sort destination by reference number according to source, which takes O((m+n)log(m+n)) time, but probably a higher coefficient.
 // Can check later which way is faster in practice.
-func createMapping(source, destination *Library) LiftoverMapping {
+func CreateMapping(source, destination *Library) LiftoverMapping {
 	index := -1
 	for i, libraryString := range destination.Components {
 		if libraryString == source.Text {
@@ -686,56 +725,79 @@ func createMapping(source, destination *Library) LiftoverMapping {
 	return LiftoverMapping{mapping, source, destination}
 }
 
-// Function to put SGLFv2 data back into a library.
+// ParseSGLFv2 is a function to put SGLFv2 data back into a library.
+// Allows for gzipped SGLFv2 files and regular SGLFv2 files.
 // TODO: check to make sure this and creation of SGLFv2 files works in a test function.
-func parseSGLFv2(filepath string, library *Library) {
+// TODO: handle both gzipped files and nongzipped files.
+func ParseSGLFv2(filepath string, library *Library) {
 	file := path.Base(filepath)
 	splitpath := strings.Split(file, ".") 
-	if len(splitpath) != 3 {
-		log.Fatal(errors.New("error: Not a valid gzipped file")) // Makes sure that the filepath goes to a valid file
+	if len(splitpath) != 2 && len(splitpath) != 3 {
+		log.Fatal(errors.New("error: Not a valid file")) // Makes sure that the filepath goes to a valid file
 	}
-	if splitpath[1] != "sglf" || splitpath[2] != "gz" {
-		log.Fatal(errors.New("error: not a gzipped sglf file")) // Makes sure that the file is an SGLF file
+	if splitpath[1] != "sglfv2" || (len(splitpath)==3 && splitpath[2] != ".gz") {
+		log.Fatal(errors.New("error: not an sglfv2 file")) // Makes sure that the file is an SGLFv2 file
 	}
 	pathHex, hexErr := hex.DecodeString(splitpath[0])
 	if len(pathHex) != 2 || hexErr != nil {
 		log.Fatal(errors.New("invalid hex file name")) // Makes sure the title of the file is four digits of hexadecimal
 	}
 	hexNumber := 256*int(pathHex[0])+int(pathHex[1]) // conversion into an integer--this is the path number
-	data := structures.OpenGZ(filepath)
+	var data []byte
+	if len(splitpath)== 2 {
+		data = openFile(filepath)
+	} else {
+		data = openGZ(filepath)
+	}
 	text := string(data)
 	tiles := strings.Split(text, "\n")
 	referenceCounter := 0
 	for _, line := range tiles {
-		fields := strings.Split(line, ",")
-		hashString := fields[1]
-		lineInfo := strings.Split(fields[0], ".")
-		stepString := lineInfo[2]
-		tileInfo := strings.Split(lineInfo[3], "+")
-		tileCountString := tileInfo[1]
-		tileLengthString := tileInfo[2]
-		step, err := strconv.ParseInt(stepString, 16, 0)
-		if err != nil {
-			log.Fatal(err)
+		if line != "" {
+			fields := strings.Split(line, ",")
+			hashString := fields[1]
+			lineInfo := strings.Split(fields[0], ".")
+			stepString := lineInfo[2]
+			tileInfo := strings.Split(lineInfo[3], "+")
+			tileCountString := tileInfo[1]
+			tileLengthString := tileInfo[2]
+			step, err := strconv.ParseInt(stepString, 16, 0)
+			if err != nil {
+				log.Fatal(err)
+			}
+			count, err := strconv.ParseInt(tileCountString, 16, 0)
+			if err != nil {
+				log.Fatal(err)
+			}
+			length, err := strconv.ParseInt(tileLengthString, 16, 0)
+			if err != nil {
+				log.Fatal(err)
+			}
+			hash, err := hex.DecodeString(hashString)
+			if err != nil {
+				fmt.Println(line)
+				log.Fatal(err)
+			}
+			var hashArray [16]byte
+			copy(hashArray[:], hash)
+			newVariant := structures.TileVariant{Hash: hashArray, Length: int(length), Annotation: "", LookupReference: 28+int64(referenceCounter)}
+			AddTile(hexNumber, int(step), &newVariant, library)
+			(*library).Paths[hexNumber].Variants[int(step)].Counts[TileExists(hexNumber, int(step), &newVariant, library)] += int(count-1)
+			referenceCounter += len(line)
 		}
-		count, err := strconv.ParseInt(tileCountString, 16, 0)
-		if err != nil {
-			log.Fatal(err)
+	}
+}
+
+// AddLibrarySGLFv2 adds a directory of SGLFv2 files to a library.
+func AddLibrarySGLFv2(directory string, library *Library) {
+	sglfv2Files, err := ioutil.ReadDir(directory)
+	if err != nil {
+		log.Fatal(err)
+	}
+	for _, file := range sglfv2Files {
+		if strings.HasSuffix(file.Name(), ".sglfv2") { // Checks if a file is an sglfv2 file.
+			ParseSGLFv2(path.Join(directory, file.Name()), library)
 		}
-		length, err := strconv.ParseInt(tileLengthString, 16, 0)
-		if err != nil {
-			log.Fatal(err)
-		}
-		hash, err := hex.DecodeString(hashString)
-		if err != nil {
-			log.Fatal(err)
-		}
-		var hashArray [16]byte
-		copy(hashArray[:], hash)
-		newVariant := structures.TileVariant{hashArray, int(length), "", 28+referenceCounter}
-		AddTile(hexNumber, int(step), 28+referenceCounter, &newVariant, filepath, fields[2], library)
-		(*library).Paths[hexNumber].Variants[int(step)].Counts[TileExists(hexNumber, int(step), &newVariant, library)] += int(count-1)
-		referenceCounter += len(line)
 	}
 }
 
@@ -745,7 +807,9 @@ var memprofile = flag.String("memprofile", "", "write memory profile to this fil
 
 // Note: may want to take care of assigned consecutive goroutines with different paths, so as not to lock out other goroutines.
 func main() {
+	
 	log.SetFlags(log.Llongfile)
+	/*
 	flag.Parse()
     if *cpuprofile != "" {
         f, err := os.Create(*cpuprofile)
@@ -775,7 +839,7 @@ func main() {
 	AddLibraryFastJ("../../../../../keep/home/tile-library-architecture/Copy of Container output for request su92l-xvhdp-qc9aol66z8oo7ws/hu02C8E3_masterVarBeta-GS000036653-ASM", "/data-sdc/jc/tile-library/test.txt",&l)
 	AddLibraryFastJ("../../../../../keep/home/tile-library-architecture/Copy of Container output for request su92l-xvhdp-qc9aol66z8oo7ws/hu0486D6_masterVarBeta-GS000037846-ASM", "/data-sdc/jc/tile-library/test.txt",&l)
 	*/
-	
+	/*
 	AddByDirectories(&l,[]string{"../../../../../keep/home/tile-library-architecture/Copy of Container output for request su92l-xvhdp-qc9aol66z8oo7ws/hu03E3D2_masterVarBeta-GS000038659-ASM",
 	"../../../../../keep/home/tile-library-architecture/Copy of Container output for request su92l-xvhdp-qc9aol66z8oo7ws/hu03E3D2_masterVarBeta-GS000037847-ASM",
 	"../../../../../keep/home/tile-library-architecture/Copy of Container output for request su92l-xvhdp-qc9aol66z8oo7ws/hu01F73B_masterVarBeta-GS000037833-ASM",
@@ -801,5 +865,18 @@ func main() {
         pprof.WriteHeapProfile(f)
         f.Close()
         return
-    }
+	}
+	*/
+	fmt.Println("starting")
+	l:=InitializeLibrary("/data-sdc/jc/tile-library/test.txt", []string{})
+	AddLibraryFastJ("../../../../../keep/home/tile-library-architecture/Copy of Container output for request su92l-xvhdp-qc9aol66z8oo7ws/hu03E3D2_masterVarBeta-GS000038659-ASM", "/data-sdc/jc/tile-library/test.txt",&l)
+	fmt.Println("Finished adding first library")
+	sortLibrary(&l)
+	fmt.Println("Finished sorting")
+	WriteLibraryToSGLFv2(&l, 0, "/data-sdc/jc/tile-library", "/data-sdc/jc/tile-library", "test.txt")
+	fmt.Println("Finished writing SGLFv2")
+	l1:=InitializeLibrary("/data-sdc/jc/tile-library/test.txt", []string{})
+	AddLibrarySGLFv2("/data-sdc/jc/tile-library", &l1)
+	fmt.Println("Finished adding second library")
+	fmt.Println(l1.Equals(l))
 }

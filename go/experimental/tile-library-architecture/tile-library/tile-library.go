@@ -121,14 +121,19 @@ func (l Library) Equals(l2 Library) bool {
 			return false
 		}
 		for step, stepList := range l.Paths[path].Variants {
-			if len((*stepList).List) != len(l2.Paths[path].Variants[step].List) {
-				return false
-			}
-			for i, variant := range (*stepList).List {
-				if !variant.Equals((*l2.Paths[path].Variants[step].List[i])) || l.Paths[path].Variants[step].Counts[i] != l2.Paths[path].Variants[step].Counts[i] {
+			if stepList != nil && l2.Paths[path].Variants[step] != nil {
+				if len((*stepList).List) != len(l2.Paths[path].Variants[step].List) {
 					return false
 				}
+				for i, variant := range (*stepList).List {
+					if !variant.Equals((*l2.Paths[path].Variants[step].List[i])) || l.Paths[path].Variants[step].Counts[i] != l2.Paths[path].Variants[step].Counts[i] {
+						return false
+					}
+				}
+			} else if stepList != nil || l2.Paths[path].Variants[step] != nil {
+				return false
 			}
+
 		}
 		l2.Paths[path].Lock.RUnlock()
 		l.Paths[path].Lock.RUnlock()
@@ -266,9 +271,12 @@ var tileBuilder strings.Builder
 // bufferedTileRead reads a FastJ file and adds its tiles to the provided library.
 // Allows for gzipped FastJ files and regular FastJ files.
 func bufferedTileRead(fastJFilepath, libraryTextFile string, library *Library) {
+	var wg sync.WaitGroup
 	var baseChannel chan baseInfo
 	baseChannel = make(chan baseInfo, 16) // Put information about bases of tiles in here while they need to be processed.
-	go bufferedBaseWrite(libraryTextFile, baseChannel)
+	writeChannel := make(chan bool, 16)
+	wg.Add(2)
+	go bufferedBaseWrite(libraryTextFile, baseChannel, writeChannel, &wg)
 	file := path.Base(fastJFilepath) // The name of the file.
 	splitpath := strings.Split(file, ".") // This is used to make sure the file is in the right format.
 	if len(splitpath) != 3 && len(splitpath) != 2 {
@@ -328,8 +336,12 @@ func bufferedTileRead(fastJFilepath, libraryTextFile string, library *Library) {
 			}
 			baseData := strings.Split(line, "\n")[1:] // Data after the first part of the line are the bases of the tile variant.
 			tileBuilder.Reset()
+			if hexNumber == 811 { // Grows the buffer of tileBuilder to 2^22 bytes if the path is 811, which seems to contain very large (roughly 2.7 million bases per tile) tiles.
+				// Not sure of the exact reasons why this is needed, but SGLFv2 construction will fail on paths 811 and 812 without these lines.
+				// TODO: find the right limit at which tileBuilder should Grow.
+				tileBuilder.Grow(4194304)
+			}
 			// Test to see if this line takes a long time to run.
-			tileBuilder.Grow(4194304) // For paths with extremely large tiles, just in case, such as path 032b, which has tiles with roughly 2.7 million characters each.
 			for i := range baseData {
 				tileBuilder.WriteString(baseData[i])
 			}
@@ -343,15 +355,20 @@ func bufferedTileRead(fastJFilepath, libraryTextFile string, library *Library) {
 			}
 		}
 	}
+	wg.Done()
+	var nilHash [md5.Size]byte
+	baseChannel <- baseInfo{"", nilHash, nil} // Sends a "nil" baseInfo to signal that there are no more tiles.
+	<-writeChannel // Make sure the writer is done.
 	close(baseChannel)
 	splitpath, data, tiles = nil, nil, nil // Clears most things in memory that were used here, to free up memory.
+	wg.Wait()
 }
 
 // bufferedBaseWrite writes bases and hashes of tiles to the given text file.
 // To be used in conjunction with bufferedTileRead and bufferedInfo.
 
 // TODO: Paths 032b and 032c seem to have errors regarding how they were written to the SGLFv2 files--check if this is a reference problem.
-func bufferedBaseWrite(libraryTextFile string, channel chan baseInfo) {
+func bufferedBaseWrite(libraryTextFile string, channel chan baseInfo, writeChannel chan bool, group *sync.WaitGroup) {
 	err := os.MkdirAll(path.Dir(libraryTextFile), os.ModePerm)
 	if err != nil {
 		log.Fatal(err)
@@ -362,20 +379,25 @@ func bufferedBaseWrite(libraryTextFile string, channel chan baseInfo) {
 	}
 	bufferedWriter := bufio.NewWriter(file)
 	for bases := range channel {
-		info, err := os.Stat(libraryTextFile)
-		if err != nil {
-			log.Fatal(err)
+		if bases.variant != nil { // Checks if there are any more tiles
+			info, err := os.Stat(libraryTextFile)
+			if err != nil {
+				log.Fatal(err)
+			}
+			(bases.variant).LookupReference = info.Size()+int64(bufferedWriter.Buffered())
+			hashString := hex.EncodeToString(bases.hash[:])
+			bufferedWriter.WriteString(hashString)
+			bufferedWriter.WriteString(",")
+			bufferedWriter.WriteString(bases.bases)
+			bufferedWriter.WriteString("\n")
+		} else {
+			writeChannel <- true // No more tiles, so we are done writing.
 		}
-		(bases.variant).LookupReference = info.Size()+int64(bufferedWriter.Buffered())
-		hashString := hex.EncodeToString(bases.hash[:])
-		bufferedWriter.WriteString(hashString)
-		bufferedWriter.WriteString(",")
-		bufferedWriter.WriteString(bases.bases)
-		bufferedWriter.WriteString("\n")
 	}
 	bufferedWriter.Flush()
 
 	file.Close()
+	group.Done()
 }
 
 // writeToTextFile writes the entry of a lookup from a hash to bases for a specific path and step, in a text file.
@@ -725,10 +747,39 @@ func CreateMapping(source, destination *Library) LiftoverMapping {
 	return LiftoverMapping{mapping, source, destination}
 }
 
+func WriteMapping(filename string, mapping LiftoverMapping) {
+	textFile, err := os.OpenFile(filename, os.O_APPEND | os.O_CREATE | os.O_WRONLY, 0644)
+	if err != nil {
+		log.Fatal(err)
+	}
+	bufferedWriter := bufio.NewWriter(textFile)
+	for path := range mapping.Mapping {
+		for step := range mapping.Mapping[path] {
+			bufferedWriter.WriteString(strconv.Itoa(path))
+			bufferedWriter.WriteString("/")
+			bufferedWriter.WriteString(strconv.Itoa(step))
+			bufferedWriter.WriteString("/")
+			for index, value := range mapping.Mapping[path][step] {
+				bufferedWriter.WriteString(strconv.Itoa(index))
+				bufferedWriter.WriteString(",")
+				bufferedWriter.WriteString(strconv.Itoa(value))
+				bufferedWriter.WriteString(";")
+			}
+			bufferedWriter.WriteString("\n")
+		}
+	}
+	bufferedWriter.Flush()
+	textFile.Close()
+}
+
 // ParseSGLFv2 is a function to put SGLFv2 data back into a library.
 // Allows for gzipped SGLFv2 files and regular SGLFv2 files.
-// TODO: check to make sure this and creation of SGLFv2 files works in a test function.
-// TODO: handle both gzipped files and nongzipped files.
+// Note: the creation of an SGLFv2 may be incorrect and put a series of bases before the hash, when the input tile from the FastJ file
+// was extremely long (e.g. a couple million bases). This will result in an error here when decoding the hash. To fix this, you can instruct
+// the tileBuilder in bufferedTileRead to Grow before constructing the tiles in that path. So far, this error is known to happen for path 811,
+// which will create 032b.sglfv2 and 032c.sglfv2 incorrectly.
+// It's possible that the cause is that the two goroutines for reading and writing end too early, leaving some tiles with
+// LookupReferences of -1, which results in the incorrect results.
 func ParseSGLFv2(filepath string, library *Library) {
 	file := path.Base(filepath)
 	splitpath := strings.Split(file, ".") 
@@ -775,7 +826,7 @@ func ParseSGLFv2(filepath string, library *Library) {
 			}
 			hash, err := hex.DecodeString(hashString)
 			if err != nil {
-				fmt.Println(line)
+				fmt.Println(hexNumber)
 				log.Fatal(err)
 			}
 			var hashArray [16]byte
@@ -879,4 +930,5 @@ func main() {
 	AddLibrarySGLFv2("/data-sdc/jc/tile-library", &l1)
 	fmt.Println("Finished adding second library")
 	fmt.Println(l1.Equals(l))
+	fmt.Println(l.Equals(l1))
 }

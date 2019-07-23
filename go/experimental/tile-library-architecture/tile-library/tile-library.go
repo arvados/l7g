@@ -1,6 +1,7 @@
-package main
+package tilelibrary
 
 // This tile library package assumes that any necessary imputation was done beforehand.
+// Note: adding tiles to a library at any point will require sorting that library before writing it to a file.
 
 import (
 	"bufio"
@@ -9,25 +10,21 @@ import (
 	"encoding/binary"
 	"encoding/hex"
 	"errors"
-	"flag"
 	"fmt"
 	"io"
 	"io/ioutil"
 	"log"
 	"os"
 	"path"
-	//"runtime"
-	//"runtime/pprof"
 	"sort"
 	"strconv"
 	"strings"
 	"sync"
-	//"time"
 	"../structures"
 )
 
 // openGZ is a function to open gzipped files and return the corresponding slice of bytes of the data.
-// Mostly important for gzipped FastJs, but other gzipped files can be opened too.
+// Mostly important for gzipped FastJs, but any gzipped file can be opened too.
 func openGZ(filepath string) []byte {
 	file, err := os.Open(filepath)
 	if err != nil {
@@ -48,6 +45,7 @@ func openGZ(filepath string) []byte {
 }
 
 // openFile is a method to get the data of a file and return the corresponding slice of bytes.
+// Available mostly as a way to be flexible with files, since with openGZ a gzipped file or a non-gzipped file can be read and used.
 func openFile(filepath string) []byte {
 	file, err := os.Open(filepath)
 	if err != nil {
@@ -68,18 +66,14 @@ type KnownVariants struct {
 	Counts []int // Counts of each variant so far
 }
 
-// VariantLookupTable is a type for looking up the original positions of variants in a list--for now, the table is a list
-type VariantLookupTable []int
-
 // Library is a type to represent a library of tile variants.
 type Library struct {
 	Paths []concurrentPath // The paths of the library.
-	ID [md5.Size]byte
+	ID [md5.Size]byte // The ID of a library.
 	Text string // The path of the text file containing the bases--if a directory, it refers to the sglf files there.
-	Components []string // the IDs of the libraries that made this library (empty if this library was not made from other)
+	// Note: the Text field is only relevant to the file system this Library is on.
+	Components [][md5.Size]byte // the IDs of the libraries that directly made this library (empty if this library was not made from other)
 }
-
-// TODO: Keep track of the IDs of the component libraries as well, so they can be referenced.
 
 // Helper function used to make byte slices from unsigned int32s.
 // uint32 should be enough space for every integer used in the library.
@@ -92,24 +86,26 @@ func uint32ToByteSlice(integer uint32) []byte {
 // AssignID assigns a library its ID.
 // Current method takes the path, step, variant number, variant count, variant hash, and variant length into account when making the ID.
 // TODO: Find another way, if possible, since this takes so much time and memory.
-func (l Library) AssignID() {
+func (l *Library) AssignID() {
 	var byteList []byte
-	byteList = make([]byte, 0, 1)
+	byteList = make([]byte, 0, 6000000000) // Allocation of 6 gigabytes, a little over the size of what would be expected of a library with 10 tiles per step.
 	for path := range l.Paths {
 		byteList = append(byteList, uint32ToByteSlice(uint32(path))...)
 		l.Paths[path].Lock.RLock()
 		for step, variants := range l.Paths[path].Variants {
 			byteList = append(byteList,uint32ToByteSlice(uint32(step))...)
-			for variantNumber, variant := range (*variants).List {
-				byteList = append(byteList, uint32ToByteSlice(uint32(variantNumber))...) 
-				byteList = append(byteList, uint32ToByteSlice(uint32((*variants).Counts[variantNumber]))...)
-				byteList = append(byteList, uint32ToByteSlice(uint32((*variant).Length))...)
-				byteList = append(byteList, (*variant).Hash[:]...)
+			if variants != nil {
+				for variantNumber, variant := range (*variants).List {
+					byteList = append(byteList, uint32ToByteSlice(uint32(variantNumber))...) 
+					byteList = append(byteList, uint32ToByteSlice(uint32((*variants).Counts[variantNumber]))...)
+					byteList = append(byteList, uint32ToByteSlice(uint32((*variant).Length))...)
+					byteList = append(byteList, (*variant).Hash[:]...)
+				}
 			}
 		}
 		l.Paths[path].Lock.RUnlock()
 	}
-	l.ID = md5.Sum(byteList)
+	(*l).ID = md5.Sum(byteList)
 }
 
 // Equals checks for equality between two libraries. It does not check similarity in text or components, and tiles are checked by hash.
@@ -133,23 +129,27 @@ func (l Library) Equals(l2 Library) bool {
 			} else if stepList != nil || l2.Paths[path].Variants[step] != nil {
 				return false
 			}
-
 		}
 		l2.Paths[path].Lock.RUnlock()
 		l.Paths[path].Lock.RUnlock()
 	}
 	return true
 }
+/*
+func (l Library) Equals(l2 Library) bool {
+	return l.ID=l2.ID
+}
+*/
 
 // concurrentPath is a type to represent a path, while also being safe for concurrent use.
 type concurrentPath struct {
-	Lock sync.RWMutex // The read/write lock used for concurrency within a step.
-	Variants []*KnownVariants // The list of steps, where each step contains the known variants at that step.
+	Lock sync.RWMutex // The read/write lock used for concurrency within a path.
+	Variants []*KnownVariants // The list of steps, where each entry contains the known variants at that step.
 }
 
-// Function to sort the library once all initial genomes are done being added.
-// This function should only be used once during initial setup of the library, after all tiles have been added, since it sorts everything.
-func sortLibrary(library *Library) {
+// SortLibrary is a function to sort the library once all initial genomes are done being added.
+// This function should only be used once after initial setup of the library, after all tiles have been added, since it sorts everything.
+func SortLibrary(library *Library) {
 	type sortStruct struct { // Temporary struct that groups together the variant and the count for sorting purposes.
 		variant *structures.TileVariant
 		count int
@@ -174,7 +174,7 @@ func sortLibrary(library *Library) {
 }
 
 // TileExists is a function to check if a specific tile exists at a specific path and step in a library.
-// Returns the index of the variant, if found--otherwise, returns -1.
+// Returns the index of the variant, if found--otherwise, returns -1, meaning not found.
 func TileExists(path, step int, toCheck *structures.TileVariant, library *Library) int {
 	(*library).Paths[path].Lock.Lock()
 	defer (*library).Paths[path].Lock.Unlock()
@@ -229,24 +229,6 @@ func FindFrequency(path, step int, toFind *structures.TileVariant, library *Libr
 }
 
 // Annotate is a method to annotate (or re-annotate) a Tile at a specific path and step. If no match is found, the user is notified.
-// Possibly use the hash instead of the entire tile variant?
-func Annotate(path, step int, toAnnotate *structures.TileVariant, library *Library) {
-	for _, tile := range (*library).Paths[path].Variants[step].List {
-		if toAnnotate.Equals(*tile) {
-			fmt.Print("Enter annotation: ")
-			readKeyboard := bufio.NewReader(os.Stdin)
-			annotation, err := readKeyboard.ReadString('\n') // Maybe allow for input for annotation without the use of keyboard input?
-			if err!=nil {
-				log.Fatal(err)
-			}
-			tile.Annotation = annotation
-			break
-		}
-	}
-	fmt.Printf("No matching tile found at specified path %v and step %v.\n", path, step) // Information if tile isn't found.
-}
-
-/*
 func Annotate(path, step int, hash structures.VariantHash, annotation string, library *Library) {
 	(*library).Paths[path].Lock.Lock()
 	defer (*library).Paths[path].Lock.Unlock()
@@ -258,7 +240,7 @@ func Annotate(path, step int, hash structures.VariantHash, annotation string, li
 	}
 	fmt.Printf("No matching tile found at specified path %v and step %v.\n", path, step) // Information if tile isn't found.
 }
-*/
+
 
 // baseInfo is a temporary struct to pass around information about a tile's bases.
 type baseInfo struct {
@@ -366,8 +348,6 @@ func bufferedTileRead(fastJFilepath, libraryTextFile string, library *Library) {
 
 // bufferedBaseWrite writes bases and hashes of tiles to the given text file.
 // To be used in conjunction with bufferedTileRead and bufferedInfo.
-
-// TODO: Paths 032b and 032c seem to have errors regarding how they were written to the SGLFv2 files--check if this is a reference problem.
 func bufferedBaseWrite(libraryTextFile string, channel chan baseInfo, writeChannel chan bool, group *sync.WaitGroup) {
 	err := os.MkdirAll(path.Dir(libraryTextFile), os.ModePerm)
 	if err != nil {
@@ -475,14 +455,15 @@ func writePathToSGLF(library *Library, genomePath, version int, directoryToWrite
 }
 
 // WriteLibraryToSGLF writes the contents of a library to SGLF files.
-func WriteLibraryToSGLF(library *Library, version int, directoryToWriteTo, directoryToGetFrom, textFile string) {
+func WriteLibraryToSGLF(library *Library, directoryToWriteTo, directoryToGetFrom, textFile string) {
 	for path := 0; path < structures.Paths; path++ {
-		writePathToSGLF(library, path, version, directoryToWriteTo, directoryToGetFrom, textFile)
+		writePathToSGLF(library, path, 0, directoryToWriteTo, directoryToGetFrom, textFile)
 	}
 }
 
 // writePathToSGLFv2 writes an SGLFv2 for an entire path given a library.
 // This assumes that the library has been sorted beforehand.
+// TODO: differentiate between writing when the reference is a directory and when it's a text file.
 func writePathToSGLFv2(library *Library, genomePath, version int, directoryToWriteTo, directoryToGetFrom, textFilename string) {
 	var b strings.Builder
 	b.WriteString(fmt.Sprintf("%04x", genomePath))
@@ -501,6 +482,16 @@ func writePathToSGLFv2(library *Library, genomePath, version int, directoryToWri
 		log.Fatal(err)
 	}
 	fileReader := bufio.NewReader(textFile)
+	bufferedWriter.WriteString("ID:")
+	bufferedWriter.WriteString(hex.EncodeToString(library.ID[:]))
+	bufferedWriter.WriteString(";Components:")
+	if len(library.Components) > 0 {
+		bufferedWriter.WriteString(hex.EncodeToString(library.Components[0][:]))
+		bufferedWriter.WriteString(",")
+		bufferedWriter.WriteString(hex.EncodeToString(library.Components[1][:]))
+	}
+	bufferedWriter.WriteString("\n")
+	
 	(*library).Paths[genomePath].Lock.RLock()
 	defer (*library).Paths[genomePath].Lock.RUnlock()
 	for step := range (*library).Paths[genomePath].Variants {
@@ -540,9 +531,9 @@ func writePathToSGLFv2(library *Library, genomePath, version int, directoryToWri
 }
 
 // WriteLibraryToSGLFv2 writes the contents of a library to SGLFv2 files.
-func WriteLibraryToSGLFv2(library *Library, version int, directoryToWriteTo, directoryToGetFrom, textFile string) {
+func WriteLibraryToSGLFv2(library *Library, directoryToWriteTo, directoryToGetFrom, textFile string) {
 	for path := 0; path < structures.Paths; path++ {
-		writePathToSGLFv2(library, path, version, directoryToWriteTo, directoryToGetFrom, textFile)
+		writePathToSGLFv2(library, path, 1, directoryToWriteTo, directoryToGetFrom, textFile)
 	}
 }
 
@@ -577,9 +568,18 @@ func AddByDirectories(library *Library, directories []string, libraryTextFile st
 	}
 }
 
+// CompileDirectoriesToLibrary creates a new Library based on the directories given, sorts it, and gives it its ID (so this library is ready for use).
+func CompileDirectoriesToLibrary(directories []string, libraryTextFile string) *Library {
+	l := InitializeLibrary(libraryTextFile, [][md5.Size]byte{})
+	AddByDirectories(&l, directories, libraryTextFile)
+	SortLibrary(&l)
+	(&l).AssignID()
+	return &l
+}
+
 // InitializeLibrary sets up the basic structure for a library.
 // For consistency, it's best to use an absolute path for the text file.
-func InitializeLibrary(textFile string, componentLibraries []string) Library {
+func InitializeLibrary(textFile string, componentLibraries [][md5.Size]byte) Library {
 	var newLibraryPaths []concurrentPath
 	newLibraryPaths = make([]concurrentPath, structures.Paths, structures.Paths)
 	for i := range newLibraryPaths {
@@ -592,6 +592,7 @@ func InitializeLibrary(textFile string, componentLibraries []string) Library {
 // Function to copy the contents of the source library into the new library.
 // Note that the normal copy function can't be used on the entire library, since locks should not be copied after use.
 func libraryCopy(destination, source *Library) {
+	destination.ID = source.ID
 	for i := range source.Paths {
 		source.Paths[i].Lock.RLock() // Locked since we're reading from path.Variants when we copy.
 		destination.Paths[i].Variants = make([]*KnownVariants, len(source.Paths[i].Variants)) // This is to make sure all elements are copied over.
@@ -600,85 +601,45 @@ func libraryCopy(destination, source *Library) {
 	}
 }
 
-// MergeLibraries is a function to merge the first library given into the second library.
+// MergeLibraries is a function to merge the first library given with the second library.
 // This version creates a new library.
 // Need to fix references--some indices are out of bounds.
-func MergeLibraries(text string, libraryToMerge *Library, mainLibrary *Library) (*Library, [][][][]int) {
-	var listOfReferences [][][][]int
-	listOfReferences = make([][][][]int, structures.Paths, structures.Paths)
-	for i := range listOfReferences {
-		listOfReferences[i] = make([][][]int, 0, 1)
-	}
-	newLibrary := InitializeLibrary(text, []string{libraryToMerge.Text, mainLibrary.Text})
+// Can remove references.
+func MergeLibraries(text string, libraryToMerge *Library, mainLibrary *Library) *Library {
+	newLibrary := InitializeLibrary(text, [][md5.Size]byte{libraryToMerge.ID, mainLibrary.ID})
 	libraryCopy(&newLibrary, mainLibrary)
 	for i := range (*libraryToMerge).Paths {
 		for j := range (*libraryToMerge).Paths[i].Variants {
-			listOfReferences[i] = append(listOfReferences[i], mergeKnownVariants(i, j, (*libraryToMerge).Paths[i].Variants[j], &newLibrary))
+			mergeKnownVariants(i, j, (*libraryToMerge).Paths[i].Variants[j], &newLibrary)
 		}
 	}
-	type referenceSortStruct struct { // Temporary struct that groups together the variant, count, and references for sorting purposes.
-		variant *structures.TileVariant
-		count int
-		references []int
-	}
-	for pathNumber := range newLibrary.Paths { // Sorting step.
-		newLibrary.Paths[pathNumber].Lock.Lock()
-		for step, steplist := range newLibrary.Paths[pathNumber].Variants {
-			if steplist != nil {
-				var referenceSortStructList []referenceSortStruct
-				referenceSortStructList = make([]referenceSortStruct, len((*steplist).List), len((*steplist).List))
-				for k:=0; k<len((*steplist).List); k++ {
-					newReferences := make([]int, len(listOfReferences[pathNumber][step][k]))
-					copy(newReferences, listOfReferences[pathNumber][step][k])
-					referenceSortStructList[k] = referenceSortStruct{(*steplist).List[k], (*steplist).Counts[k], newReferences}
-				}
-				sort.Slice(referenceSortStructList, func(i, j int) bool { return referenceSortStructList[i].count > referenceSortStructList[j].count })
-				for l:=0; l<len((*steplist).List); l++ {
-					(*steplist).List[l], (*steplist).Counts[l], listOfReferences[pathNumber][step][l]= referenceSortStructList[l].variant, referenceSortStructList[l].count, referenceSortStructList[l].references
-				}
-			}
-		}
-		newLibrary.Paths[pathNumber].Lock.Unlock()
-	}
-	return &newLibrary, listOfReferences
+	SortLibrary(&newLibrary)
+	return &newLibrary
 }
 
 // MergeKnownVariants puts the contents of a KnownVariants at a specific path and step into another library.
 // Account for CGF files here (try to avoid potential remapping with CGF files)
 // Should create a new library and point the old libraries to this library.
-func mergeKnownVariants(genomePath, step int, variantsToMerge *KnownVariants, newLibrary *Library) [][]int {
-	var references [][]int
+func mergeKnownVariants(genomePath, step int, variantsToMerge *KnownVariants, newLibrary *Library) {
 	originalLibraryLength := len((*newLibrary).Paths[genomePath].Variants[step].List)
-	references = make([][]int, 0, 1)
-	for i:=0; i<originalLibraryLength; i++ {
-		references = append(references, []int{-1,i})
-	}
 	newTileCounter := 0
 	for i, variant := range variantsToMerge.List {
 		if index := TileExists(genomePath, step, variant, newLibrary); index==-1 {
 			addTileUnsafe(genomePath, step, variant, "", newLibrary)
 			(*newLibrary).Paths[genomePath].Variants[step].Counts[originalLibraryLength+newTileCounter] += variantsToMerge.Counts[i]-1
 			newTileCounter++
-			references = append(references, []int{i,-1})
 		} else {
 			(*newLibrary).Paths[genomePath].Variants[step].Counts[index] += variantsToMerge.Counts[i]
-			references[index][0] = i
 		}
 	}
-	
-	return references
 }
 
-func mergeLibrariesWithoutCreation(text string, libraryToMerge *Library, mainLibrary *Library) (*Library, [][][][]int) {
-	var listOfReferences [][][][]int
-	listOfReferences = make([][][][]int, structures.Paths, structures.Paths)
-	for i := range listOfReferences {
-		listOfReferences[i] = make([][][]int, 0, 1)
-	}
-	mainLibrary.Components = append(mainLibrary.Components, libraryToMerge.Text)
+// MergeLibrariesWithoutCreation merges libraries without creating a new one, using the "mainLibrary" instead.
+func MergeLibrariesWithoutCreation(text string, libraryToMerge *Library, mainLibrary *Library) *Library {
+	mainLibrary.Components = append(mainLibrary.Components, libraryToMerge.ID)
 	for i := range (*libraryToMerge).Paths {
 		for j := range (*libraryToMerge).Paths[i].Variants {
-			listOfReferences[i] = append(listOfReferences[i], mergeKnownVariants(i, j, (*libraryToMerge).Paths[i].Variants[j], mainLibrary))
+			mergeKnownVariants(i, j, (*libraryToMerge).Paths[i].Variants[j], mainLibrary)
 		}
 	}
 	type referenceSortStruct struct { // Temporary struct that groups together the variant, count, and references for sorting purposes.
@@ -686,28 +647,9 @@ func mergeLibrariesWithoutCreation(text string, libraryToMerge *Library, mainLib
 		count int
 		references []int
 	}
-	for pathNumber := range mainLibrary.Paths { // Sorting step.
-		mainLibrary.Paths[pathNumber].Lock.Lock()
-		for step, steplist := range mainLibrary.Paths[pathNumber].Variants {
-			if steplist != nil {
-				var referenceSortStructList []referenceSortStruct
-				referenceSortStructList = make([]referenceSortStruct, len((*steplist).List), len((*steplist).List))
-				for k:=0; k<len((*steplist).List); k++ {
-					newReferences := make([]int, len(listOfReferences[pathNumber][step][k]))
-					copy(newReferences, listOfReferences[pathNumber][step][k])
-					referenceSortStructList[k] = referenceSortStruct{(*steplist).List[k], (*steplist).Counts[k], newReferences}
-				}
-				sort.Slice(referenceSortStructList, func(i, j int) bool { return referenceSortStructList[i].count > referenceSortStructList[j].count })
-				for l:=0; l<len((*steplist).List); l++ {
-					(*steplist).List[l], (*steplist).Counts[l], listOfReferences[pathNumber][step][l]= referenceSortStructList[l].variant, referenceSortStructList[l].count, referenceSortStructList[l].references
-				}
-			}
-		}
-		mainLibrary.Paths[pathNumber].Lock.Unlock()
-	}
-	return mainLibrary, listOfReferences
+	SortLibrary(mainLibrary)
+	return mainLibrary
 }
-// TODO: store the references somewhere.
 
 // LiftoverMapping is a representation of a liftover from one library to another.
 // If a = LiftoverMapping.Mapping[b][c][d], then in path b, step c, variant d in the first library maps to variant a in the second.
@@ -719,12 +661,10 @@ type LiftoverMapping struct {
 // TODO: store mappings.
 
 // CreateMapping creates a liftover mapping from the source library to the destination library.
-// Other way is to sort destination by reference number according to source, which takes O((m+n)log(m+n)) time, but probably a higher coefficient.
-// Can check later which way is faster in practice.
 func CreateMapping(source, destination *Library) LiftoverMapping {
 	index := -1
-	for i, libraryString := range destination.Components {
-		if libraryString == source.Text {
+	for i, libraryID := range destination.Components {
+		if libraryID == source.ID {
 			index = i
 			break
 		}
@@ -747,17 +687,24 @@ func CreateMapping(source, destination *Library) LiftoverMapping {
 	return LiftoverMapping{mapping, source, destination}
 }
 
+// WriteMapping writes a LiftoverMapping to a specified file.
+// The format is path/step/source1,destination1;source2,destination2;...
+// Use goroutines per step here? Would need a Lock for concurrency issues
 func WriteMapping(filename string, mapping LiftoverMapping) {
 	textFile, err := os.OpenFile(filename, os.O_APPEND | os.O_CREATE | os.O_WRONLY, 0644)
 	if err != nil {
 		log.Fatal(err)
 	}
 	bufferedWriter := bufio.NewWriter(textFile)
+	bufferedWriter.WriteString(hex.EncodeToString(mapping.SourceLibrary.ID[:]))
+	bufferedWriter.WriteString(",")
+	bufferedWriter.WriteString(hex.EncodeToString(mapping.DestinationLibrary.ID[:]))
+	bufferedWriter.WriteString("\n")
 	for path := range mapping.Mapping {
 		for step := range mapping.Mapping[path] {
-			bufferedWriter.WriteString(strconv.Itoa(path))
+			bufferedWriter.WriteString(fmt.Sprintf("%04x",path))
 			bufferedWriter.WriteString("/")
-			bufferedWriter.WriteString(strconv.Itoa(step))
+			bufferedWriter.WriteString(fmt.Sprintf("%04x",step))
 			bufferedWriter.WriteString("/")
 			for index, value := range mapping.Mapping[path][step] {
 				bufferedWriter.WriteString(strconv.Itoa(index))
@@ -774,12 +721,13 @@ func WriteMapping(filename string, mapping LiftoverMapping) {
 
 // ParseSGLFv2 is a function to put SGLFv2 data back into a library.
 // Allows for gzipped SGLFv2 files and regular SGLFv2 files.
-// Note: the creation of an SGLFv2 may be incorrect and put a series of bases before the hash, when the input tile from the FastJ file
+// The following bug is believed to be fixed, but just in case it is not and an error occurs here:
+// Note: the creation of an SGLFv2 may be incorrect and may put a series of bases before the hash, when the input tile from the FastJ file
 // was extremely long (e.g. a couple million bases). This will result in an error here when decoding the hash. To fix this, you can instruct
 // the tileBuilder in bufferedTileRead to Grow before constructing the tiles in that path. So far, this error is known to happen for path 811,
 // which will create 032b.sglfv2 and 032c.sglfv2 incorrectly.
-// It's possible that the cause is that the two goroutines for reading and writing end too early, leaving some tiles with
-// LookupReferences of -1, which results in the incorrect results.
+// It's also possible that the cause is that the two goroutines for reading and writing end too early, leaving some tiles with
+// LookupReferences of -1, which results in the incorrect results. This could happen if bufferedTileRead ended first.
 func ParseSGLFv2(filepath string, library *Library) {
 	file := path.Base(filepath)
 	splitpath := strings.Split(file, ".") 
@@ -803,8 +751,8 @@ func ParseSGLFv2(filepath string, library *Library) {
 	text := string(data)
 	tiles := strings.Split(text, "\n")
 	referenceCounter := 0
-	for _, line := range tiles {
-		if line != "" {
+	for lineNumber, line := range tiles {
+		if line != "" && lineNumber > 0 {
 			fields := strings.Split(line, ",")
 			hashString := fields[1]
 			lineInfo := strings.Split(fields[0], ".")
@@ -826,7 +774,6 @@ func ParseSGLFv2(filepath string, library *Library) {
 			}
 			hash, err := hex.DecodeString(hashString)
 			if err != nil {
-				fmt.Println(hexNumber)
 				log.Fatal(err)
 			}
 			var hashArray [16]byte
@@ -834,7 +781,35 @@ func ParseSGLFv2(filepath string, library *Library) {
 			newVariant := structures.TileVariant{Hash: hashArray, Length: int(length), Annotation: "", LookupReference: 28+int64(referenceCounter)}
 			AddTile(hexNumber, int(step), &newVariant, library)
 			(*library).Paths[hexNumber].Variants[int(step)].Counts[TileExists(hexNumber, int(step), &newVariant, library)] += int(count-1)
+			// Adding count-1 instead of count since AddTile will already add 1 to the count of the new tile.
 			referenceCounter += len(line)
+		} else if line!="" { // This refers to the first line, which contains ID and Component information.
+			idSlice := strings.Split(line, ";")
+			idString := strings.Split(idSlice[0], ":")[1]
+			libraryHash, err := hex.DecodeString(idString)
+			if err != nil {
+				log.Fatal(err)
+			}
+			var hashArray[md5.Size]byte
+			copy(hashArray[:], libraryHash)
+			library.ID=hashArray
+			components := strings.Split(idSlice[1], ":")[1]
+			if components != "" {
+				componentStrings := strings.Split(components, ",")
+				component1Hash, err := hex.DecodeString(componentStrings[0])
+				if err != nil {
+					log.Fatal(err)
+				}
+				component2Hash, err := hex.DecodeString(componentStrings[1])
+				if err != nil {
+					log.Fatal(err)
+				}
+				var component1HashArray [md5.Size]byte
+				var component2HashArray [md5.Size]byte
+				copy(component1HashArray[:], component1Hash)
+				copy(component2HashArray[:], component2Hash)
+				library.Components = append(library.Components, component1HashArray, component2HashArray)
+			}
 		}
 	}
 }
@@ -852,83 +827,3 @@ func AddLibrarySGLFv2(directory string, library *Library) {
 	}
 }
 
-// The following main function is only used for testing speed and memory usage of these structures.
-var cpuprofile = flag.String("cpuprofile", "", "write cpu profile to file")
-var memprofile = flag.String("memprofile", "", "write memory profile to this file")
-
-// Note: may want to take care of assigned consecutive goroutines with different paths, so as not to lock out other goroutines.
-func main() {
-	
-	log.SetFlags(log.Llongfile)
-	/*
-	flag.Parse()
-    if *cpuprofile != "" {
-        f, err := os.Create(*cpuprofile)
-        if err != nil {
-            log.Fatal(err)
-        }
-        pprof.StartCPUProfile(f)
-        defer pprof.StopCPUProfile()
-    }
-	var m runtime.MemStats
-	fmt.Println("Starting timer...")
-	startTime := time.Now()
-	//fjtMakeSGLFFromGenomes("/mnt/keep/by_id/6a3b88d7cde57054971eeabe15639cf8+263878/", "l7g/go/experimental/tile-library-architecture", "~/keep/by_id/cd9ada494bd979a8bc74e6d59d3e8710+174/tagset.fa.gz", 862)
-	l:=InitializeLibrary("/data-sdc/jc/tile-library/test.txt", []string{})
-	/*
-	bufferedTileRead("../../../../../keep/home/tile-library-architecture/Copy of Container output for request su92l-xvhdp-qc9aol66z8oo7ws/hu03E3D2_masterVarBeta-GS000038659-ASM/035e.fj.gz", "testing/test.txt",&l)
-	bufferedTileRead("../../../../../keep/home/tile-library-architecture/Copy of Container output for request su92l-xvhdp-qc9aol66z8oo7ws/hu03E3D2_masterVarBeta-GS000037847-ASM/035e.fj.gz", "testing/test.txt",&l)
-	bufferedTileRead("../../../../../keep/home/tile-library-architecture/Copy of Container output for request su92l-xvhdp-qc9aol66z8oo7ws/hu01F73B_masterVarBeta-GS000037833-ASM/035e.fj.gz", "testing/test.txt",&l)
-	bufferedTileRead("../../../../../keep/home/tile-library-architecture/Copy of Container output for request su92l-xvhdp-qc9aol66z8oo7ws/hu02C8E3_masterVarBeta-GS000036653-ASM/035e.fj.gz", "testing/test.txt",&l)
-	bufferedTileRead("../../../../../keep/home/tile-library-architecture/Copy of Container output for request su92l-xvhdp-qc9aol66z8oo7ws/hu0486D6_masterVarBeta-GS000037846-ASM/035e.fj.gz", "testing/test.txt",&l)
-	//readTime := time.Now()
-	*/
-	/*
-	AddLibraryFastJ("../../../../../keep/home/tile-library-architecture/Copy of Container output for request su92l-xvhdp-qc9aol66z8oo7ws/hu03E3D2_masterVarBeta-GS000038659-ASM", "/data-sdc/jc/tile-library/test.txt",&l)
- 	AddLibraryFastJ("../../../../../keep/home/tile-library-architecture/Copy of Container output for request su92l-xvhdp-qc9aol66z8oo7ws/hu03E3D2_masterVarBeta-GS000037847-ASM", "/data-sdc/jc/tile-library/test.txt",&l)
-	AddLibraryFastJ("../../../../../keep/home/tile-library-architecture/Copy of Container output for request su92l-xvhdp-qc9aol66z8oo7ws/hu01F73B_masterVarBeta-GS000037833-ASM", "/data-sdc/jc/tile-library/test.txt",&l)
-	AddLibraryFastJ("../../../../../keep/home/tile-library-architecture/Copy of Container output for request su92l-xvhdp-qc9aol66z8oo7ws/hu02C8E3_masterVarBeta-GS000036653-ASM", "/data-sdc/jc/tile-library/test.txt",&l)
-	AddLibraryFastJ("../../../../../keep/home/tile-library-architecture/Copy of Container output for request su92l-xvhdp-qc9aol66z8oo7ws/hu0486D6_masterVarBeta-GS000037846-ASM", "/data-sdc/jc/tile-library/test.txt",&l)
-	*/
-	/*
-	AddByDirectories(&l,[]string{"../../../../../keep/home/tile-library-architecture/Copy of Container output for request su92l-xvhdp-qc9aol66z8oo7ws/hu03E3D2_masterVarBeta-GS000038659-ASM",
-	"../../../../../keep/home/tile-library-architecture/Copy of Container output for request su92l-xvhdp-qc9aol66z8oo7ws/hu03E3D2_masterVarBeta-GS000037847-ASM",
-	"../../../../../keep/home/tile-library-architecture/Copy of Container output for request su92l-xvhdp-qc9aol66z8oo7ws/hu01F73B_masterVarBeta-GS000037833-ASM",
-	"../../../../../keep/home/tile-library-architecture/Copy of Container output for request su92l-xvhdp-qc9aol66z8oo7ws/hu02C8E3_masterVarBeta-GS000036653-ASM",
-	"../../../../../keep/home/tile-library-architecture/Copy of Container output for request su92l-xvhdp-qc9aol66z8oo7ws/hu0486D6_masterVarBeta-GS000037846-ASM"},
-	"/data-sdc/jc/tile-library/test.txt")
-	
-	sortLibrary(&l)
-	//writePathToSGLF(&l, 862, 0, "testing", "testing", "test.txt")
-	//writePathToSGLF(&l, 862, 0, "testing2", "testing2", "test.txt")
-	WriteLibraryToSGLF(&l, 0, "/data-sdc/jc/tile-library", "/data-sdc/jc/tile-library", "test.txt")
-	finishTime := time.Now()
-	runtime.ReadMemStats(&m)
-	fmt.Printf("Total time: %v\n", finishTime.Sub(startTime))
-	//fmt.Printf("Read time: %v\n", readTime.Sub(startTime))
-	//fmt.Printf("Write and sort time: %v\n", finishTime.Sub(readTime))
-	fmt.Println(m)
-	if *memprofile != "" {
-        f, err := os.Create(*memprofile)
-        if err != nil {
-            log.Fatal(err)
-        }
-        pprof.WriteHeapProfile(f)
-        f.Close()
-        return
-	}
-	*/
-	fmt.Println("starting")
-	l:=InitializeLibrary("/data-sdc/jc/tile-library/test.txt", []string{})
-	AddLibraryFastJ("../../../../../keep/home/tile-library-architecture/Copy of Container output for request su92l-xvhdp-qc9aol66z8oo7ws/hu03E3D2_masterVarBeta-GS000038659-ASM", "/data-sdc/jc/tile-library/test.txt",&l)
-	fmt.Println("Finished adding first library")
-	sortLibrary(&l)
-	fmt.Println("Finished sorting")
-	WriteLibraryToSGLFv2(&l, 0, "/data-sdc/jc/tile-library", "/data-sdc/jc/tile-library", "test.txt")
-	fmt.Println("Finished writing SGLFv2")
-	l1:=InitializeLibrary("/data-sdc/jc/tile-library/test.txt", []string{})
-	AddLibrarySGLFv2("/data-sdc/jc/tile-library", &l1)
-	fmt.Println("Finished adding second library")
-	fmt.Println(l1.Equals(l))
-	fmt.Println(l.Equals(l1))
-}

@@ -236,7 +236,7 @@ func TestMerging(t *testing.T) {
 	l2 := generateRandomData("b", [][md5.Size]byte{}, tiles)
 	l2.AssignID()
 	SortLibrary(&l2)
-	l3:= MergeLibraries("test",&l1,&l2)
+	l3:= MergeLibraries(&l1,&l2)
 	for path := range l1.Paths {
 		l1.Paths[path].Lock.RLock()
 		for step, stepList := range l1.Paths[path].Variants {
@@ -284,7 +284,7 @@ func BenchmarkMerging(b *testing.B) {
 	l2.AssignID()
 	b.ResetTimer()
 	for i:=0; i<b.N; i++ {
-		MergeLibraries("test",&l1,&l2)
+		MergeLibraries(&l1,&l2)
 	}
 }
 
@@ -299,12 +299,23 @@ func TestLiftover(t *testing.T) {
 	l2 := generateRandomData("b", [][md5.Size]byte{}, tiles)
 	SortLibrary(&l2)
 	l2.AssignID()
-	l3 := MergeLibraries("test",&l1,&l2)
+	l3 := MergeLibraries(&l1,&l2)
 	newMapping := CreateMapping(&l1, l3)
 	for path, stepMapping := range newMapping.Mapping {
 		for step, variantMapping := range stepMapping {
 			for oldIndex, newIndex := range variantMapping {
 				if !(*l1.Paths[path].Variants[step].List[oldIndex]).Equals(*l3.Paths[path].Variants[step].List[newIndex]) {
+					t.Fatalf("variants from liftover in library 1 are not equal.")
+				}
+			} 
+		}
+	}
+
+	newMapping2 := CreateMapping(&l2, l3)
+	for path, stepMapping := range newMapping2.Mapping {
+		for step, variantMapping := range stepMapping {
+			for oldIndex, newIndex := range variantMapping {
+				if !(*l2.Paths[path].Variants[step].List[oldIndex]).Equals(*l3.Paths[path].Variants[step].List[newIndex]) {
 					t.Fatalf("variants from liftover in library 1 are not equal.")
 				}
 			} 
@@ -321,18 +332,11 @@ func BenchmarkLiftover(b *testing.B) {
 	l2 := generateRandomData("b", [][md5.Size]byte{}, tiles)
 	SortLibrary(&l2)
 	l2.AssignID()
-	l3 := MergeLibraries("test",&l1,&l2)
+	l3 := MergeLibraries(&l1,&l2)
 	b.ResetTimer()
 	for i:=0; i<b.N; i++ {
 		CreateMapping(&l1, l3)
 	}
-}
-
-func TestID(t *testing.T) {
-	rand.Seed(1)
-	tiles := generateRandomTiles(10, 15, 500, 1000, 248, 300)
-	l1 := generateRandomData("a", [][md5.Size]byte{}, tiles)
-	l1.AssignID()
 }
 
 func BenchmarkID(b *testing.B) {
@@ -346,14 +350,16 @@ func BenchmarkID(b *testing.B) {
 }
 
 // Tests the ParseSGLFv2 and AddLibrarySGLFv2 functions by writing a library to SGLFv2 files, converting it back, and testing if both libraries are equal.
+// Also tests IDs.
 func TestParseSGLFv2(t *testing.T) {
 	l:=InitializeLibrary("/data-sdc/jc/tile-library/test.txt", [][md5.Size]byte{})
 	AddLibraryFastJ("../../../../../keep/home/tile-library-architecture/Copy of Container output for request su92l-xvhdp-qc9aol66z8oo7ws/hu03E3D2_masterVarBeta-GS000038659-ASM", "/data-sdc/jc/tile-library/test.txt",&l)
 	SortLibrary(&l)
+	l.AssignID()
 	WriteLibraryToSGLFv2(&l, "/data-sdc/jc/tile-library", "/data-sdc/jc/tile-library", "test.txt")
 	l1:=InitializeLibrary("/data-sdc/jc/tile-library/test.txt", [][md5.Size]byte{})
 	AddLibrarySGLFv2("/data-sdc/jc/tile-library", &l1)
-	if !l1.Equals(l) || !l.Equals(l1) {
+	if !l1.Equals(l) || !l.Equals(l1) || l1.ID != l.ID {
 		t.Errorf("expected both libraries to be equal, but they aren't")
 	}
 }

@@ -1,0 +1,12 @@
+vcfgz:
+  class: File
+  location: keep:9f88a818cbc5b7b6614749c5508226d3+37493/hu007B82_1YB27IM-portable.vcf.gz
+sdf:
+  class: Directory
+  location: keep:6cf48f302f6615f44002c6df07852778+1240
+header:
+  class: File
+  location: ../header
+cleanvcf:
+  class: File
+  location: ../../gvcf/src/cleanvcf.py

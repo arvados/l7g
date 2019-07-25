@@ -32,17 +32,19 @@ inputs:
   tileassembly:
     type: File
     label: Reference tile assembly file
-    secondaryFiles: [.fwi, .gzi]
+    secondaryFiles: [^.fwi, .gzi]
+  ref:
+    type: string
+    label: Reference genome
   reffa:
     type: File
     label: Reference FASTA file
-    secondaryFiles: [.fai, .gzi]
 outputs:
-  log:
+  gvcfhash:
     type: File
-    label: Validation logs
+    label: Hashes of gvcf pasta stream by path
     outputBinding:
-      glob: "*output.log"
+      glob: "gvcf_hash_file"
 baseCommand: bash
 arguments:
   - $(inputs.script)
@@ -52,4 +54,5 @@ arguments:
   - $(inputs.checknum)
   - $(inputs.chrom)
   - $(inputs.tileassembly)
+  - $(inputs.ref)
   - $(inputs.reffa)

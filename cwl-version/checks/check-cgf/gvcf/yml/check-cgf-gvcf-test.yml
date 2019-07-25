@@ -11,7 +11,8 @@ checknum: 2
 chrom: "chr1"
 tileassembly:
   class: File
-  location: keep:ee01813e404906d36527b402e124e537+241/assembly.00.hg38.fw.gz
+  location: keep:7deca98a5827e1991bf49a96a0087318+233/assembly.00.hg38.fw.gz
+ref: "hg38"
 reffa:
   class: File
-  location: keep:5fb82d9a1d2c5d5c64ceca29a90a9c8e+763/hg38.fa.gz
+  location: keep:ee5b90cf2d5f3573e6d455ab56e15cdf+761/hg38.fa.gz

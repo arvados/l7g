@@ -3,11 +3,15 @@ $namespaces:
   cwltool: "http://commonwl.org/cwltool#"
 cwlVersion: v1.0
 class: Workflow
+label: Convert FastJs to npy arrays
 requirements:
   DockerRequirement:
     dockerPull: arvados/l7g
   SubworkflowFeatureRequirement: {}
   StepInputExpressionRequirement: {}
+hints:
+ cwltool:LoadListingRequirement:
+   loadListing: shallow_listing
 
 inputs:
   fjdir:
@@ -40,11 +44,13 @@ inputs:
   tileassembly:
     type: File
     label: Reference tile assembly file
-    secondaryFiles: [.fwi, .gzi]
+    secondaryFiles: [^.fwi, .gzi]
+  ref:
+    type: string
+    label: Reference genome
   reffa:
     type: File
     label: Reference FASTA file
-    secondaryFiles: [.fai, .gzi]
 
 outputs:
   lib:
@@ -121,12 +127,13 @@ steps:
       checknum: checknum
       chroms: chroms
       tileassembly: tileassembly
+      ref: ref
       reffa: reffa
-    out: [logs]
+    out: [gvcfhashes]
 
   createnpy-wf:
     run: ../npy/createnpy-wf.cwl
     in:
-      waitsignal: check-cgf-gvcf-wf/logs
+      waitsignal: check-cgf-gvcf-wf/gvcfhashes
       cgfdir: handle-cgfs/dir
     out: [consolnpydir, names]

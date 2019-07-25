@@ -1,6 +1,0 @@
-refdirectory:
-   class: Directory 
-   path: keep:xxx
-datafilenames:
-   class: File
-   path: /data-sdd/cwl_tiling/convert/gvcf_version/shortcollectnames.txt

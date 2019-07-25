@@ -31,7 +31,7 @@ steps:
     run: createnpy.cwl
     in:
       cgfdir: cgfdir
-    out: [npydir, npyhiqdir, names]
+    out: [npydir, names]
 
   consolnpy:
     run: consolnpy.cwl

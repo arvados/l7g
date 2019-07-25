@@ -1,9 +1,21 @@
 fjdir:
   class: Directory
-  location: keep:8855966fec04d8acf527874c2e5906d7+363535
+  location: keep:bbfdef250959c36582e49c3daceb4d77+204434
 tagset:
   class: File
   location: keep:cd9ada494bd979a8bc74e6d59d3e8710+174/tagset.fa.gz
 pathmin: "0"
 pathmax: "862"
-nchunks: "5"
+nchunks: "15"
+gvcfdir:
+  class: Directory
+  location: keep:4983898697fdc0890f26c87413f883f3+14420
+checknum: 2
+chroms: ["chr1", "chr2", "chr3", "chr4", "chr5", "chr6", "chr7", "chr8", "chr9", "chr10", "chr11", "chr12", "chr13", "chr14", "chr15", "chr16", "chr17", "chr18", "chr19", "chr20", "chr21", "chr22", "chrX", "chrY", "chrM"]
+tileassembly:
+  class: File
+  location: keep:7deca98a5827e1991bf49a96a0087318+233/assembly.00.hg38.fw.gz
+ref: "hg38"
+reffa:
+  class: File
+  location: keep:ee5b90cf2d5f3573e6d455ab56e15cdf+761/hg38.fa.gz

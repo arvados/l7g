@@ -31,10 +31,6 @@ inputs:
     type: string
     label: Tool to convert band (path) information into NumPy array
     default: "/usr/local/bin/band-to-matrix-npy"
-  cnvrt2hiq:
-    type: string
-    label: Tool to create NumPy files for high quality arrays
-    default: "/usr/local/bin/npy-vec-to-hiq-1hot"
   makelist:
     type: File
     label: Tool for saving dataset names
@@ -47,11 +43,6 @@ outputs:
     label: Directory of NumPy arrays
     outputBinding:
       glob: "npy"
-  npyhiqdir:
-    type: Directory
-    label: Directory of high quality NumPy arrays
-    outputBinding:
-      glob: "npy-hiq"
   names:
     type: File
     label: File listing sample names
@@ -63,6 +54,5 @@ arguments:
   - $(inputs.cgft)
   - $(inputs.cgfdir)
   - $(inputs.band2matrix)
-  - $(inputs.cnvrt2hiq)
   - $(inputs.makelist)
   - $(runtime.cores)

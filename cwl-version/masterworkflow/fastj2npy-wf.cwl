@@ -3,11 +3,15 @@ $namespaces:
   cwltool: "http://commonwl.org/cwltool#"
 cwlVersion: v1.0
 class: Workflow
+label: Convert FastJs to npy arrays
 requirements:
   DockerRequirement:
     dockerPull: arvados/l7g
   SubworkflowFeatureRequirement: {}
   StepInputExpressionRequirement: {}
+hints:
+ cwltool:LoadListingRequirement:
+   loadListing: shallow_listing
 
 inputs:
   fjdir:
@@ -28,6 +32,25 @@ inputs:
   srclib:
     type: Directory?
     label: Existing tile library directory
+  gvcfdir:
+    type: Directory
+    label: gVCF directory
+  checknum:
+    type: int
+    label: Number of samples to check
+  chroms:
+    type: string[]
+    label: Chromosomes to analyze
+  tileassembly:
+    type: File
+    label: Reference tile assembly file
+    secondaryFiles: [^.fwi, .gzi]
+  ref:
+    type: string
+    label: Reference genome
+  reffa:
+    type: File
+    label: Reference FASTA file
 
 outputs:
   lib:
@@ -88,8 +111,22 @@ steps:
         valueFrom: "cgf"
     out: [dir]
 
+  check-cgf-gvcf-wf:
+    run: ../checks/check-cgf/gvcf/check-cgf-gvcf-wf.cwl
+    in:
+      cgfdir: handle-cgfs/dir
+      sglfdir: merge-tilelib/mergedlib
+      gvcfdir: gvcfdir
+      checknum: checknum
+      chroms: chroms
+      tileassembly: tileassembly
+      ref: ref
+      reffa: reffa
+    out: [gvcfhashes]
+
   createnpy-wf:
     run: ../npy/createnpy-wf.cwl
     in:
+      waitsignal: check-cgf-gvcf-wf/gvcfhashes
       cgfdir: handle-cgfs/dir
     out: [consolnpydir, names]

@@ -1,0 +1,18 @@
+cgfdir:
+  class: Directory
+  location: keep:0439624fa0415ac98950a1b8dc97e773+510
+sglfdir:
+  class: Directory
+  location: keep:dd1646a5e3ff41cce5d253b9e668a278+27843/lib-merge
+gvcfdir:
+  class: Directory
+  location: keep:a7f54f723eaa4fb1b021150be80028fe+1343
+checknum: 1
+chrom: "3"
+tileassembly:
+  class: File
+  location: keep:96fe7d3fdc5b0bd82128131a23117635+269/assembly.00.human_g1k_v37.fw.gz
+ref: "human_g1k_v37"
+reffa:
+  class: File
+  location: keep:5a42cfaddd3a9cfc4fac89b3fe73c6f6+751/human_g1k_v37.fasta.gz

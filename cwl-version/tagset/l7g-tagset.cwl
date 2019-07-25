@@ -16,6 +16,9 @@ inputs:
     type: File
   refFaFn:
     type: File
+    secondaryFiles:
+      - .fai
+      - .gzi
   script:
     type: File
 

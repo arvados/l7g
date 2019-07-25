@@ -1,0 +1,4 @@
+gvcf:
+  class: File
+  location: keep:2756bb4524567aebf16a002e94c2e407+14977/A-CUHS-CU010093-BL-COL-44045BL1.vcf.gz
+cutoff: 20

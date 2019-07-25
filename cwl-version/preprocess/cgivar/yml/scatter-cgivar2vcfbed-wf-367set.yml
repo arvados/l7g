@@ -1,0 +1,6 @@
+cgivarsdir:
+  class: Directory
+  location: keep:c9262dd71f8421735b3dde4e1b5b342f+86993
+reference:
+  class: File
+  location: keep:320d7a6717aa7b555a09e52976ba4a02+18534/build37.crr

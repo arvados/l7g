@@ -70,9 +70,12 @@ type KnownVariants struct {
 type Library struct {
 	Paths []concurrentPath // The paths of the library.
 	ID [md5.Size]byte // The ID of a library.
-	Text string // The path of the text file containing the bases--if a directory, it refers to the sglf files there.
+	Text string // The path of the text file containing the bases. As a special case, if Text is a directory, it refers to the sglf/sglfv2 files there.
+	// If empty, the library was merged.
 	// Note: the Text field is only relevant to the file system this Library is on.
+	Length int64 // The total length of text files used by this library or all of its sublibraries.
 	Components [][md5.Size]byte // the IDs of the libraries that directly made this library (empty if this library was not made from other)
+	sublibraries []*Library // The pointers to the direct sublibraries of this library
 }
 
 // Helper function used to make byte slices from unsigned int32s.
@@ -86,6 +89,7 @@ func uint32ToByteSlice(integer uint32) []byte {
 // AssignID assigns a library its ID.
 // Current method takes the path, step, variant number, variant count, variant hash, and variant length into account when making the ID.
 // TODO: Find another way, if possible, since this takes so much time and memory.
+// TODO: Find another way that isn't dependent on order of elements.
 func (l *Library) AssignID() {
 	var byteList []byte
 	byteList = make([]byte, 0, 6000000000) // Allocation of 6 gigabytes, a little over the size of what would be expected of a library with 10 tiles per step.
@@ -114,19 +118,23 @@ func (l Library) Equals(l2 Library) bool {
 		l.Paths[path].Lock.RLock()
 		l2.Paths[path].Lock.RLock()
 		if len(l.Paths[path].Variants) != len(l2.Paths[path].Variants) {
+			fmt.Println("error in path lengths", path)
 			return false
 		}
 		for step, stepList := range l.Paths[path].Variants {
 			if stepList != nil && l2.Paths[path].Variants[step] != nil {
 				if len((*stepList).List) != len(l2.Paths[path].Variants[step].List) {
+					fmt.Println("error in number of variants", path, step)
 					return false
 				}
 				for i, variant := range (*stepList).List {
 					if !variant.Equals((*l2.Paths[path].Variants[step].List[i])) || l.Paths[path].Variants[step].Counts[i] != l2.Paths[path].Variants[step].Counts[i] {
+						fmt.Println("error in variants or counts", path, step)
 						return false
 					}
 				}
 			} else if stepList != nil || l2.Paths[path].Variants[step] != nil {
+				fmt.Println("one set of variants is nil", path, step)
 				return false
 			}
 		}
@@ -136,6 +144,7 @@ func (l Library) Equals(l2 Library) bool {
 	return true
 }
 /*
+// A simpler way of checking equality, since two libraries with the same ID are almost certainly equal.
 func (l Library) Equals(l2 Library) bool {
 	return l.ID=l2.ID
 }
@@ -186,7 +195,7 @@ func TileExists(path, step int, toCheck *structures.TileVariant, library *Librar
 		}
 		return -1
 	}
-	for len((*library).Paths[path].Variants) <= step {
+	for len((*library).Paths[path].Variants) <= step { // Makes enough room so that there are step+1 elements in Paths[path].Variants
 		(*library).Paths[path].Variants = append((*library).Paths[path].Variants, nil)
 	}
 	newKnownVariants := &KnownVariants{make([](*structures.TileVariant), 0, 1), make([]int, 0, 1)}
@@ -256,7 +265,7 @@ func bufferedTileRead(fastJFilepath, libraryTextFile string, library *Library) {
 	var wg sync.WaitGroup
 	var baseChannel chan baseInfo
 	baseChannel = make(chan baseInfo, 16) // Put information about bases of tiles in here while they need to be processed.
-	writeChannel := make(chan bool, 16)
+	writeChannel := make(chan bool)
 	wg.Add(2)
 	go bufferedBaseWrite(libraryTextFile, baseChannel, writeChannel, &wg)
 	file := path.Base(fastJFilepath) // The name of the file.
@@ -312,7 +321,7 @@ func bufferedTileRead(fastJFilepath, libraryTextFile string, library *Library) {
 				}
 			}
 			
-			length, err := strconv.ParseInt(lengthString, 16, 0)
+			length, err := strconv.Atoi(lengthString) // Length is provided here in base 10
 			if err != nil {
 				log.Fatal(err)
 			}
@@ -328,7 +337,7 @@ func bufferedTileRead(fastJFilepath, libraryTextFile string, library *Library) {
 				tileBuilder.WriteString(baseData[i])
 			}
 			bases := tileBuilder.String()
-			newTile := &structures.TileVariant{Hash: hashArray, Length: int(length), Annotation: "", LookupReference: -1}
+			newTile := &structures.TileVariant{Hash: hashArray, Length: length, Annotation: "", LookupReference: -1}
 			if tileIndex:=TileExists(hexNumber, step, newTile, library); tileIndex==-1 {
 				addTileUnsafe(hexNumber, step, newTile, libraryTextFile, library)
 				baseChannel <- baseInfo{bases,hashArray, newTile}
@@ -461,10 +470,85 @@ func WriteLibraryToSGLF(library *Library, directoryToWriteTo, directoryToGetFrom
 	}
 }
 
+// isComplete determines if a set of bases is complete (has no nocalls).
+func isComplete(bases string) bool {
+	return !strings.ContainsRune(bases, 'n')
+}
+
+// LookupHashAndBases looks up the hash and bases, as a string, of a variant in a specific library.
+// This will include a newline at the end, which can be removed.
+func (l *Library) LookupHashAndBases(variant *structures.TileVariant, fileMap *map[*Library]*os.File) string {
+	if l.Text == "" { // library was merged, and so it must have sublibraries
+		if variant.LookupReference < l.sublibraries[0].Length{
+			return l.sublibraries[0].LookupHashAndBases(variant, fileMap)
+		}
+		variantCopy := *variant
+		variantCopy.LookupReference -= l.sublibraries[0].Length // reduced as to fit the scale of the second sublibrary.
+		return l.sublibraries[1].LookupHashAndBases(&variantCopy, fileMap)
+	}
+	file := (*fileMap)[l]
+	file.Seek(variant.LookupReference, 0)
+	bufferedReader := bufio.NewReader(file)
+	hashAndBases, err := bufferedReader.ReadString('\n')
+	if err != nil {
+		log.Fatal(err)
+	}
+	return hashAndBases
+}
+
+// originalLibrary determines which library a variant was originally added from, and returns that library, along with the original reference for that variant in that library.
+func originalLibraryAndReference(variant *structures.TileVariant, library *Library) (*Library , int64){
+	if library.Text == "" { // library was merged, and so it must have sublibraries
+		if variant.LookupReference < library.sublibraries[0].Length{
+			return originalLibraryAndReference(variant, library.sublibraries[0])
+		}
+		variantCopy := *variant
+		variantCopy.LookupReference -= library.sublibraries[0].Length // reduced as to fit the scale of the second sublibrary.
+		return originalLibraryAndReference(&variantCopy, library.sublibraries[1])
+	}
+	return library, variant.LookupReference
+}
+
+// searchForFiles generates a map of libraries to their corresponding file pointers.
+// It does this by checking the tree of libraries one at a time, collecting all of the files for this path.
+func searchForFiles(libraryToSearch *Library, genomePath int, fileMap *map[*Library]*os.File) {
+	if libraryToSearch.Text=="" {
+		searchForFiles(libraryToSearch.sublibraries[0], genomePath, fileMap)
+		searchForFiles(libraryToSearch.sublibraries[1], genomePath, fileMap)
+	} else {
+		info, err := os.Stat(libraryToSearch.Text)
+		if err != nil {
+			log.Fatal(err)
+		}
+		var fileToOpen string
+		if info.IsDir() {
+			fileToOpen = path.Join(libraryToSearch.Text, fmt.Sprintf("%04x.sglfv2", genomePath)) // If the reference is a directory, point to the corresponding SGLFv2 file as a reference.
+		} else {
+			fileToOpen = libraryToSearch.Text // Otherwise, just use the file already given.
+		}
+		file, err := os.Open(fileToOpen)
+		if err != nil {
+			log.Fatal(err)
+		}
+		(*fileMap)[libraryToSearch] = file
+	}
+}
+
 // writePathToSGLFv2 writes an SGLFv2 for an entire path given a library.
 // This assumes that the library has been sorted beforehand.
 // TODO: differentiate between writing when the reference is a directory and when it's a text file.
+// TODO: Handle merged libraries, which don't necessarily have their own text file of bases and hashes.
+// Ideally, don't want to move contents of files around, since the contents of files are very large
+// Another scenario: merged library of merged libraries--may need to be able to call this function recursively
+// Also, don't want to keep on opening and closing files--figure out how to store them.
+// maybe library can keep a list arranged like a heap?
 func writePathToSGLFv2(library *Library, genomePath, version int, directoryToWriteTo, directoryToGetFrom, textFilename string) {
+	var pathFileMap map[*Library]*os.File
+	pathFileMap = make(map[*Library]*os.File, 0)
+	searchForFiles(library, genomePath, &pathFileMap)
+	for _, file := range pathFileMap {
+		defer file.Close()
+	}
 	var b strings.Builder
 	b.WriteString(fmt.Sprintf("%04x", genomePath))
 	b.WriteString(".sglfv2")
@@ -477,7 +561,17 @@ func writePathToSGLFv2(library *Library, genomePath, version int, directoryToWri
 		log.Fatal(err)
 	}
 	bufferedWriter := bufio.NewWriter(sglfFile)
-	textFile, err := os.OpenFile(path.Join(directoryToGetFrom,textFilename), os.O_RDONLY, 0644)
+	info, err := os.Stat(path.Join(directoryToGetFrom, textFilename))
+	if err != nil {
+		log.Fatal(err)
+	}
+	var fileToOpen string
+	if info.IsDir() {
+		fileToOpen = path.Join(directoryToGetFrom, fmt.Sprintf("%04x.sglfv2", genomePath)) // If the reference is a directory, point to the corresponding SGLFv2 file as a reference.
+	} else {
+		fileToOpen = path.Join(directoryToGetFrom, textFilename)
+	}
+	textFile, err := os.OpenFile(fileToOpen, os.O_RDONLY, 0644)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -518,16 +612,18 @@ func writePathToSGLFv2(library *Library, genomePath, version int, directoryToWri
 				bufferedWriter.WriteString("+")
 				bufferedWriter.WriteString(fmt.Sprintf("%08x", (*(*library).Paths[genomePath].Variants[step]).Counts[i])) // The count of this tile.
 				bufferedWriter.WriteString("+")
-				bufferedWriter.WriteString(fmt.Sprintf("%01x", (*(*library).Paths[genomePath].Variants[step]).List[i].Length)) // Tile length
+				bufferedWriter.WriteString(strconv.FormatInt(int64((*(*library).Paths[genomePath].Variants[step]).List[i].Length), 16)) // Tile length
 				bufferedWriter.WriteString(",")
 				bufferedWriter.WriteString(tileString) // Hash and bases of tile.
 				// Newline is at the end of tileString, so no newline needs to be put here.
+				// This also means that every SGLFv2 file ends with a newline.
 			}
 		}
 	}
 	bufferedWriter.Flush()
 	sglfFile.Close()
 	textFile.Close()
+	
 }
 
 // WriteLibraryToSGLFv2 writes the contents of a library to SGLFv2 files.
@@ -574,6 +670,11 @@ func CompileDirectoriesToLibrary(directories []string, libraryTextFile string) *
 	AddByDirectories(&l, directories, libraryTextFile)
 	SortLibrary(&l)
 	(&l).AssignID()
+	info, err := os.Stat(libraryTextFile)
+	if err != nil {
+		log.Fatal(err)
+	}
+	l.Length = info.Size()
 	return &l
 }
 
@@ -603,14 +704,14 @@ func libraryCopy(destination, source *Library) {
 
 // MergeLibraries is a function to merge the first library given with the second library.
 // This version creates a new library.
-// Need to fix references--some indices are out of bounds.
-// Can remove references.
-func MergeLibraries(text string, libraryToMerge *Library, mainLibrary *Library) *Library {
-	newLibrary := InitializeLibrary(text, [][md5.Size]byte{libraryToMerge.ID, mainLibrary.ID})
+func MergeLibraries(libraryToMerge *Library, mainLibrary *Library) *Library {
+	newLibrary := InitializeLibrary("", [][md5.Size]byte{libraryToMerge.ID, mainLibrary.ID})
 	libraryCopy(&newLibrary, mainLibrary)
+	newLibrary.Length = libraryToMerge.Length + mainLibrary.Length
+	newLibrary.sublibraries = []*Library{mainLibrary, libraryToMerge}
 	for i := range (*libraryToMerge).Paths {
 		for j := range (*libraryToMerge).Paths[i].Variants {
-			mergeKnownVariants(i, j, (*libraryToMerge).Paths[i].Variants[j], &newLibrary)
+			mergeKnownVariants(i, j, (*libraryToMerge).Paths[i].Variants[j], &newLibrary, mainLibrary.Length)
 		}
 	}
 	SortLibrary(&newLibrary)
@@ -620,13 +721,15 @@ func MergeLibraries(text string, libraryToMerge *Library, mainLibrary *Library) 
 // MergeKnownVariants puts the contents of a KnownVariants at a specific path and step into another library.
 // Account for CGF files here (try to avoid potential remapping with CGF files)
 // Should create a new library and point the old libraries to this library.
-func mergeKnownVariants(genomePath, step int, variantsToMerge *KnownVariants, newLibrary *Library) {
-	originalLibraryLength := len((*newLibrary).Paths[genomePath].Variants[step].List)
+func mergeKnownVariants(genomePath, step int, variantsToMerge *KnownVariants, newLibrary *Library, oldLibraryLength int64) {
+	originalLibraryStepLength := len((*newLibrary).Paths[genomePath].Variants[step].List)
 	newTileCounter := 0
 	for i, variant := range variantsToMerge.List {
 		if index := TileExists(genomePath, step, variant, newLibrary); index==-1 {
-			addTileUnsafe(genomePath, step, variant, "", newLibrary)
-			(*newLibrary).Paths[genomePath].Variants[step].Counts[originalLibraryLength+newTileCounter] += variantsToMerge.Counts[i]-1
+			variantCopy := *variant
+			variantCopy.LookupReference += oldLibraryLength // Signals that it's from the libraryToMerge rather than the mainLibrary.
+			addTileUnsafe(genomePath, step, &variantCopy, "", newLibrary)
+			(*newLibrary).Paths[genomePath].Variants[step].Counts[originalLibraryStepLength+newTileCounter] += variantsToMerge.Counts[i]-1
 			newTileCounter++
 		} else {
 			(*newLibrary).Paths[genomePath].Variants[step].Counts[index] += variantsToMerge.Counts[i]
@@ -639,13 +742,8 @@ func MergeLibrariesWithoutCreation(text string, libraryToMerge *Library, mainLib
 	mainLibrary.Components = append(mainLibrary.Components, libraryToMerge.ID)
 	for i := range (*libraryToMerge).Paths {
 		for j := range (*libraryToMerge).Paths[i].Variants {
-			mergeKnownVariants(i, j, (*libraryToMerge).Paths[i].Variants[j], mainLibrary)
+			mergeKnownVariants(i, j, (*libraryToMerge).Paths[i].Variants[j], mainLibrary, mainLibrary.Length)
 		}
-	}
-	type referenceSortStruct struct { // Temporary struct that groups together the variant, count, and references for sorting purposes.
-		variant *structures.TileVariant
-		count int
-		references []int
 	}
 	SortLibrary(mainLibrary)
 	return mainLibrary
@@ -750,7 +848,7 @@ func ParseSGLFv2(filepath string, library *Library) {
 	}
 	text := string(data)
 	tiles := strings.Split(text, "\n")
-	referenceCounter := 0
+	referenceCounter := len(tiles[0])+1 // length of the first line plus the newline
 	for lineNumber, line := range tiles {
 		if line != "" && lineNumber > 0 {
 			fields := strings.Split(line, ",")
@@ -778,11 +876,11 @@ func ParseSGLFv2(filepath string, library *Library) {
 			}
 			var hashArray [16]byte
 			copy(hashArray[:], hash)
-			newVariant := structures.TileVariant{Hash: hashArray, Length: int(length), Annotation: "", LookupReference: 28+int64(referenceCounter)}
+			newVariant := structures.TileVariant{Hash: hashArray, Length: int(length), Annotation: "", LookupReference: 27+int64(len(tileLengthString))+int64(referenceCounter)}
 			AddTile(hexNumber, int(step), &newVariant, library)
 			(*library).Paths[hexNumber].Variants[int(step)].Counts[TileExists(hexNumber, int(step), &newVariant, library)] += int(count-1)
 			// Adding count-1 instead of count since AddTile will already add 1 to the count of the new tile.
-			referenceCounter += len(line)
+			referenceCounter += len(line)+1 // +1 to account for the newline.
 		} else if line!="" { // This refers to the first line, which contains ID and Component information.
 			idSlice := strings.Split(line, ";")
 			idString := strings.Split(idSlice[0], ":")[1]
@@ -815,15 +913,23 @@ func ParseSGLFv2(filepath string, library *Library) {
 }
 
 // AddLibrarySGLFv2 adds a directory of SGLFv2 files to a library.
+// Library should be initialized with this directory as the Text field, so that text files of bases and directories aren't mixed together.
 func AddLibrarySGLFv2(directory string, library *Library) {
-	sglfv2Files, err := ioutil.ReadDir(directory)
-	if err != nil {
-		log.Fatal(err)
-	}
-	for _, file := range sglfv2Files {
-		if strings.HasSuffix(file.Name(), ".sglfv2") { // Checks if a file is an sglfv2 file.
-			ParseSGLFv2(path.Join(directory, file.Name()), library)
+	if directory == library.Text {
+		sglfv2Files, err := ioutil.ReadDir(directory)
+		if err != nil {
+			log.Fatal(err)
 		}
+		for _, file := range sglfv2Files {
+			if strings.HasSuffix(file.Name(), ".sglfv2") { // Checks if a file is an sglfv2 file.
+				if file.Size() > library.Length {
+					library.Length = file.Size() // the library takes on the length of the longest SGLFv2 file.
+				}
+				ParseSGLFv2(path.Join(directory, file.Name()), library)
+			}
+		}
+	} else {
+		log.Fatal(errors.New("directory specified is not the same as the library's text field"))
 	}
 }
 

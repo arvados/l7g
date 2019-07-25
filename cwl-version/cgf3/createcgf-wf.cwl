@@ -13,6 +13,9 @@ hints:
     loadListing: shallow_listing
 
 inputs:
+  waitsignal:
+    type: Any?
+    label: Wait signal to start workflow
   fjdir:
     type: Directory
     label: Input directory of FastJs

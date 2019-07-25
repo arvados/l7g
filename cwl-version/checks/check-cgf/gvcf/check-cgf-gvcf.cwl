@@ -1,3 +1,6 @@
+$namespaces:
+  arv: "http://arvados.org/cwl#"
+  cwltool: "http://commonwl.org/cwltool#"
 cwlVersion: v1.0
 class: CommandLineTool
 label: Validate the conversion of the gVCF to cgf
@@ -5,8 +8,11 @@ requirements:
   DockerRequirement:
     dockerPull: arvados/l7g
   ResourceRequirement:
-    coresMin: 1
-    ramMin: 65000
+    coresMin: 2
+    ramMin: 8000
+hints:
+  arv:RuntimeConstraints:
+    keep_cache: 4000
 inputs:
   script:
     type: File

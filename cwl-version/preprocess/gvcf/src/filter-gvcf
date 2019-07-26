@@ -1,34 +1,56 @@
 #!/usr/bin/python
 
+import argparse
 import sys
 
-if len(sys.argv) < 2:
-  print "provide QUAL threshold"
-  sys.exit(1)
 
+def filter_gvcf():
 
-quality_threshold = float(sys.argv[1])
+    # setting up inputs
+    parser = argparse.ArgumentParser(prog="filter-gvcf", description="Filter a \
+                                    gVCF with a user-set quality threshold.")
+    parser.add_argument("-k", "--keepGQdot", help="Keeps the variant when GQ \
+                        is '.'", action="store_true")
+    parser.add_argument("quality_threshold", metavar="QUALITY", help="Quality \
+                        threshold", type=int)
+    parser.add_argument("gvcf", metavar="GVCF", nargs='?',
+                        type=argparse.FileType('r'), default=sys.stdin, help="\
+                        Input gVCF to filter from stdin")
 
-for line in sys.stdin:
-  line = line.strip()
+    args = parser.parse_args()
+    keepGQdot = args.keepGQdot
+    quality_threshold = args.quality_threshold
+    gvcf = args.gvcf
 
-  if len(line)==0:
-    print ""
-    continue
-  if line[0]=='#':
-    print line
-    continue
+    for line in gvcf:
+        line = line.strip()
 
-  fields = line.split("\t")
-  if len(fields)<10: continue
+        # retain header and info lines
+        if len(line) == 0:
+            continue
+        if line[0] == '#':
+            print line
+            continue
 
-  keys = fields[8].split(":")
-  vals = fields[9].split(":")
+        fields = line.split('\t')
 
-  gq=100.0
-  for k,kn in enumerate(keys):
-    if kn=="GQ":
-      gq=float(vals[k])
-      break
-  if quality_threshold <= gq:
-    print line
+        if len(fields) < 10:
+            continue
+
+        FORMAT_fields = fields[8].split(":")
+        sample_fields = fields[9].split(":")
+
+        # filter quality scores below the threshold
+        try:
+            GQ_index = FORMAT_fields.index('GQ')
+            GQ = sample_fields[GQ_index]
+            if GQ.isdigit():
+                if quality_threshold <= int(GQ):
+                    print line
+            elif GQ == "." and keepGQdot:
+                print line
+        except ValueError:
+            print line
+
+if __name__ == '__main__':
+    filter_gvcf()

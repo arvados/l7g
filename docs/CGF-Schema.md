@@ -288,7 +288,7 @@ References
 ---
 
 
-  - [2bit encoding in closure](http://eigenhombre.com/2013/07/06/a-two-bit-decoder/)
+  - [2bit encoding in closure (BROKEN)](http://eigenhombre.com/2013/07/06/a-two-bit-decoder/)
   - [Dlugosz Variable Length Integer](http://www.dlugosz.com/ZIP2/VLI.html)
 
 Variable length schemes will be used.  Dlugosz variable length

@@ -6,8 +6,7 @@ Introduction
 
 This document is a work in progress.
 
-Compact Genome Format (CGF) is a binary format that encodes a representation of a genome relative to
-a tile library.
+Compact Genome Format (CGF) is a binary format that encodes a representation of a genome relative to a tile library.
 
 This is version 3 of the CGF format.  The major difference between the previous
 format is that it keeps nocall information as separate as possible.
@@ -131,8 +130,7 @@ Description
 The tile map is stored as a string with a tile map entry stored per line.
 For each line, each allele is separated by a `:`.
 For each allele, tiles are separated by a `;`.
-If the span of a tile is greater than 1, the length of the span is indicated by a `+` followed by
-the number of "base" tiles it spans.
+If the span of a tile is greater than 1, the length of the span is indicated by a `+` followed by the number of "base" tiles it spans.
 
 For example, here is a portion of a tile map:
 
@@ -231,7 +229,7 @@ References
 ---
 
 
-  - [2bit encoding in closure](http://eigenhombre.com/2013/07/06/a-two-bit-decoder/)
+  - [2bit encoding in closure (*BROKEN*)](http://eigenhombre.com/2013/07/06/a-two-bit-decoder/)
   - [SDSL-lite](https://github.com/simongog/sdsl-lite)
   - [SDSL cheat sheet](http://simongog.github.io/assets/data/sdsl-cheatsheet.pdf)
   - [Latency Numbers Every Programmer Should Know](https://gist.github.com/jboner/2841832)

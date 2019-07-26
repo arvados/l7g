@@ -1,4 +1,4 @@
-Lightning Tile
+Lightning Tile Arrays
 ===
 
 Introduction
@@ -38,6 +38,7 @@ a non-anchor spanning tile and a `-2` representing a no-call tile:
 ```
 
 This could be converted into a one-hot representation as follows:
+*Note: Spaces and newlines added in for clarity.*
 
 ```
 [
@@ -72,15 +73,14 @@ This could be converted into a one-hot representation as follows:
 ]
 ```
 
-With spaces and newlines added in for clarity.
 
 In a sense, the one-hot encoding is flattened for each tile position and allele, alternating alleles, until
 the whole one-hot array is populated.
 The size of the flattened one-hot encoding is taken to be one more
-than the maximum tile variant value at that tile position, with a minimum one-hot encoding size of 1, in
+than the maximum tile variant value at that tile position, with a minimum one-hot encoding size of 1 in
 the special case all values are no-calls.
 
-As another example, with two encoded genomes, with the same special values as above:
+For another example, here are two encoded genomes, with the same special values as above:
 
 ```
 [
@@ -89,7 +89,7 @@ As another example, with two encoded genomes, with the same special values as ab
 ]
 ```
 
-could be encoded as:
+which could be encoded as:
 
 ```
 [
@@ -170,14 +170,14 @@ tile, shifted by the `d * M`, where `d` is the distance from the anchor
 tile and `M` is the maximum of all the anchor tile variant ids for spanning
 tile in that position and all the variant ids for the tile position.
 
-With this way of encoding non-anchor spanning tiles, non-anchor spanning tiles
+With this way of encoding, non-anchor spanning tiles
 will be included in any tile concordance count that occurs.
 The previous simple one-hot encoding will only count a matching spanning tile
 once, whereas the span encoded one-hot version will add the length of the spanning
 run for matching spanning tiles.
 
 For the non-anchor, non-spanning tiles, the encoding is similar to the above:
-for each tile position, the tile variant is converted to a one-hot representation
+for each tile position the tile variant is converted to a one-hot representation
 and added to the array.  Different alleles are interleaved so that two different
 alleles for the same tile position have their one-hot representation placed
 next to each other.  Each position is a float value.
@@ -193,6 +193,7 @@ a non-anchor spanning tile and a `-2` representing a no-call tile:
 ```
 
 This could be converted into a one-hot representation as follows:
+*With spaces and newlines added in for clarity.*
 
 ```
 [
@@ -227,9 +228,8 @@ This could be converted into a one-hot representation as follows:
 ]
 ```
 
-With spaces and newlines added in for clarity.
 
-As another example, with two encoded genomes, with the same special values as above:
+As another example, with two encoded genomes with the same special values as above:
 
 ```
 [

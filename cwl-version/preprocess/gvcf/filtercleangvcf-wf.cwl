@@ -19,6 +19,9 @@ inputs:
   cutoff:
     type: int
     label: Filtering cutoff threshold
+  keepgqdot:
+    type: boolean?
+    label: Flag for keeping GQ represented by "."
 
 outputs:
   filteredcleangvcfs:
@@ -38,5 +41,6 @@ steps:
     scatter: gvcf
     in:
       gvcf: getfiles/gvcfs
+      keepgqdot: keepgqdot
       cutoff: cutoff
     out: [filteredcleangvcf]

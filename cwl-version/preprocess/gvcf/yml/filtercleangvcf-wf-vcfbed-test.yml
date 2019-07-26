@@ -1,0 +1,4 @@
+gvcfdir:
+  class: Directory
+  location: keep:3c770879900f335fe58be1d9e6b42420+1353
+cutoff: 20

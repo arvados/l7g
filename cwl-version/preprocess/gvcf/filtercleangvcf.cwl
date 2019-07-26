@@ -9,8 +9,11 @@ requirements:
     dockerPull: arvados/l7g
   ResourceRequirement:
     coresMin: 2
-    ramMin: 13000
+    ramMin: 8000
   ShellCommandRequirement: {}
+hints:
+  arv:RuntimeConstraints:
+    keep_cache: 4096
 inputs:
   gvcf:
     type: File

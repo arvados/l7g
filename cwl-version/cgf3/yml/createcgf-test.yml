@@ -1,7 +1,9 @@
 fjdir:
   class: Directory
-  location: keep:8855966fec04d8acf527874c2e5906d7+363535/A-IIAA-IA000604-BL-NCR-14AD67907
-
+  location: keep:956b75507c4d8844a8ca579446ea51c1+10206365/A-ACT-AC002117-BL-NCR-15AD77432
 lib:
   class: Directory
-  location: keep:c5583087a866b1ef2cce5d1f477f2c99+34173
+  location: keep:8c332946eda4894acc82476b94f34ed5+36029/lib-merge
+skippaths:
+  class: File
+  location: keep:613e2ab73f4f4cde4ea4277e976d3c87+85/skippaths.txt

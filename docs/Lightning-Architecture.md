@@ -4,6 +4,8 @@ Lightning Architecture
 This is a work-in-progress document describing the architecture
 of the Lightning system.
 
+Currently, Lightning provides users with the ability to tile their own genomes using a CWL workflow. Systems for querying tile genomes and other major features are under development. Some future architectural elements and features are outlined below.
+
 Overview
 ---
 

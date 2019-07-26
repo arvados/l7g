@@ -29,6 +29,9 @@ inputs:
   nchunks:
     type: string
     label: Number of chunks to scatter
+  sglfthreshold:
+    type: int
+    label: Threshold for unzipped sglf size in MiB
   srclib:
     type: Directory?
     label: Existing tile library directory
@@ -57,6 +60,14 @@ outputs:
     type: Directory
     label: Tile library directory
     outputSource: merge-tilelib/mergedlib
+  sglfsize:
+    type: File
+    label: Unzipped sglf size
+    outputSource: getsglfsize/sglfsize
+  skippaths:
+    type: File
+    label: Paths to skip
+    outputSource: getsglfsize/skippaths
   cgfdir:
     type: Directory
     label: Output cgfs
@@ -102,12 +113,20 @@ steps:
       sglfdir: merge-tilelib/mergedlib
     out: [log]
 
+  getsglfsize:
+    run: ../checks/check-sglf/getsglfsize.cwl
+    in:
+      lib: merge-tilelib/mergedlib
+      threshold: sglfthreshold
+    out: [sglfsize, skippaths]
+
   createcgf-wf:
     run: ../cgf3/createcgf-wf.cwl
     in:
       waitsignal: sglf-sanity-check/log
       fjdir: fjdir
       lib: merge-tilelib/mergedlib
+      skippaths: getsglfsize/skippaths
     out: [cgfs]
 
   handle-cgfs:

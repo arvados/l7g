@@ -9,7 +9,7 @@ hints:
   DockerRequirement:
     dockerPull: vcfutil
   ResourceRequirement:
-    ramMin: 13000
+    ramMin: 12000
 
 inputs:
   vcfgz:

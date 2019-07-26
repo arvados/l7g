@@ -9,7 +9,7 @@ requirements:
     dockerPull: l7g/preprocess-vcfbed
   - class: ResourceRequirement
     coresMin: 1
-    ramMin: 13000
+    ramMin: 12000
   - class: ScatterFeatureRequirement
 
 inputs:

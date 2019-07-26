@@ -22,6 +22,9 @@ inputs:
   lib:
     type: Directory
     label: Tile library directory
+  skippaths:
+    type: File
+    label: Paths to skip
 
 outputs:
   cgfs:
@@ -42,4 +45,5 @@ steps:
     in:
       fjdir: getdirs/fjdirs
       lib: lib
+      skippaths: skippaths
     out: [cgf]

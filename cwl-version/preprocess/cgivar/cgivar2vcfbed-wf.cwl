@@ -9,7 +9,7 @@ hints:
   DockerRequirement:
     dockerPull: cgivar2vcfbed
   ResourceRequirement:
-    ramMin: 13000
+    ramMin: 12000
 inputs:
   cgivar:
     type: File

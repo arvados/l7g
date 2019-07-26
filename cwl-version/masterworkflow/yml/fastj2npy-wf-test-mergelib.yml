@@ -10,3 +10,4 @@ nchunks: "5"
 srclib:
   class: Directory
   location: keep:930016325d1255b6de3a52e7e3f92e2b+33997
+sglfthreshold: 4000

@@ -2,7 +2,8 @@ package tilelibrary
 
 import (
 	"crypto/md5"
-	//"fmt"
+	"fmt"
+	"log"
 	"math/rand"
 	"sort"
 	"strings"
@@ -181,7 +182,7 @@ func generateRandomData(text string, components [][md5.Size]byte, tileLists [][]
 		for step, stepList := range tileLists[path] {
 			numberOfTiles := len(stepList)
 			numberOfPhases := 20 + rand.Intn(20) // Anywhere between 10 and 20 genomes worth of data here.
-			for k :=0; k<numberOfPhases; k++ {
+			for k := 0; k<numberOfPhases; k++ {
 				randomTile := rand.Intn(numberOfTiles)
 				AddTile(path, step, tileLists[path][step][randomTile], &l) // The fields marked "test" don't affect anything, so they can be named anything.
 			}
@@ -228,6 +229,7 @@ func BenchmarkCopy(b *testing.B) {
 }
 
 func TestMerging(t *testing.T) {
+	log.SetFlags(log.Llongfile)
 	rand.Seed(1) // Seed for randomness can be changed.
 	tiles := generateRandomTiles(10, 15, 500, 1000, 248, 300) // Notice that this only creates around 600000 steps, rather than the more realistic 10 million.
 	l1 := generateRandomData("a", [][md5.Size]byte{}, tiles)
@@ -240,9 +242,11 @@ func TestMerging(t *testing.T) {
 	for path := range l1.Paths {
 		l1.Paths[path].Lock.RLock()
 		for step, stepList := range l1.Paths[path].Variants {
-			for _, variant := range (*stepList).List {
-				if TileExists(path, step, variant, l3) == -1 {
-					t.Fatalf("a tile in library 1 is not in library 3")
+			if stepList != nil {
+				for _, variant := range (*stepList).List {
+					if TileExists(path, step, variant, l3) == -1 {
+						t.Fatalf("a tile in library 1 is not in library 3")
+					}
 				}
 			}
 		}
@@ -251,9 +255,11 @@ func TestMerging(t *testing.T) {
 	for path := range l2.Paths {
 		l2.Paths[path].Lock.RLock()
 		for step, stepList := range l2.Paths[path].Variants {
-			for _, variant := range (*stepList).List {
-				if TileExists(path, step, variant, l3) == -1 {
-					t.Fatalf("a tile in library 2 is not in library 3")
+			if stepList != nil {
+				for _, variant := range (*stepList).List {
+					if TileExists(path, step, variant, l3) == -1 {
+						t.Fatalf("a tile in library 2 is not in library 3")
+					}
 				}
 			}
 		}
@@ -262,8 +268,10 @@ func TestMerging(t *testing.T) {
 	for path := range l3.Paths {
 		l3.Paths[path].Lock.Lock()
 		for _, stepList := range l3.Paths[path].Variants {
-			if !sort.IsSorted(sort.Reverse(sort.IntSlice((*stepList).Counts))) {
-				t.Fatalf("a step is not sorted in descending order")
+			if stepList != nil {
+				if !sort.IsSorted(sort.Reverse(sort.IntSlice((*stepList).Counts))) {
+					t.Fatalf("a step is not sorted in descending order")
+				}
 			}
 		}
 		l3.Paths[path].Lock.Unlock()
@@ -316,7 +324,7 @@ func TestLiftover(t *testing.T) {
 		for step, variantMapping := range stepMapping {
 			for oldIndex, newIndex := range variantMapping {
 				if !(*l2.Paths[path].Variants[step].List[oldIndex]).Equals(*l3.Paths[path].Variants[step].List[newIndex]) {
-					t.Fatalf("variants from liftover in library 1 are not equal.")
+					t.Fatalf("variants from liftover in library 2 are not equal.")
 				}
 			} 
 		}
@@ -350,16 +358,93 @@ func BenchmarkID(b *testing.B) {
 }
 
 // Tests the ParseSGLFv2 and AddLibrarySGLFv2 functions by writing a library to SGLFv2 files, converting it back, and testing if both libraries are equal.
-// Also tests IDs.
+// Also tests IDs and references created from AddLibrarySGLFv2.
 func TestParseSGLFv2(t *testing.T) {
+	log.SetFlags(log.Llongfile)
 	l:=InitializeLibrary("/data-sdc/jc/tile-library/test.txt", [][md5.Size]byte{})
 	AddLibraryFastJ("../../../../../keep/home/tile-library-architecture/Copy of Container output for request su92l-xvhdp-qc9aol66z8oo7ws/hu03E3D2_masterVarBeta-GS000038659-ASM", "/data-sdc/jc/tile-library/test.txt",&l)
 	SortLibrary(&l)
 	l.AssignID()
-	WriteLibraryToSGLFv2(&l, "/data-sdc/jc/tile-library", "/data-sdc/jc/tile-library", "test.txt")
-	l1:=InitializeLibrary("/data-sdc/jc/tile-library/test.txt", [][md5.Size]byte{})
+	WriteLibraryToSGLFv2(&l, "/data-sdc/jc/tile-library") // Writes it to disk and gets it back to make sure that the libraries will be the same
+	l1:=InitializeLibrary("/data-sdc/jc/tile-library", [][md5.Size]byte{})
 	AddLibrarySGLFv2("/data-sdc/jc/tile-library", &l1)
 	if !l1.Equals(l) || !l.Equals(l1) || l1.ID != l.ID {
 		t.Errorf("expected both libraries to be equal, but they aren't")
+	}
+	WriteLibraryToSGLFv2(&l1, "/data-sdc/jc/tile-library/test") // Writes it to disk again to test that writing from a directory of sglfv2 files works.
+	l2:=InitializeLibrary("/data-sdc/jc/tile-library/test", [][md5.Size]byte{})
+	AddLibrarySGLFv2("/data-sdc/jc/tile-library/test", &l2)
+	if !l1.Equals(l2) || !l2.Equals(l1) || l1.ID != l2.ID {
+		t.Errorf("expected second and third libraries to be equal, but they aren't")
+	}
+}
+
+// Test for merging libraries.
+func TestParseSGLFv2WithMerge(t *testing.T) {
+	log.SetFlags(log.Llongfile)
+	l:=InitializeLibrary("/data-sdc/jc/tile-library/test.txt", [][md5.Size]byte{})
+	AddLibraryFastJ("../../../../../keep/home/tile-library-architecture/Copy of Container output for request su92l-xvhdp-qc9aol66z8oo7ws/hu03E3D2_masterVarBeta-GS000038659-ASM", "/data-sdc/jc/tile-library/test.txt",&l)
+	SortLibrary(&l)
+	l.AssignID()
+	l1:=InitializeLibrary("/data-sdc/jc/tile-library/test/test.txt", [][md5.Size]byte{})
+	AddLibraryFastJ("../../../../../keep/home/tile-library-architecture/Copy of Container output for request su92l-xvhdp-qc9aol66z8oo7ws/hu03E3D2_masterVarBeta-GS000037847-ASM", "/data-sdc/jc/tile-library/test/test.txt",&l)
+	SortLibrary(&l1)
+	l1.AssignID()
+	l2:=MergeLibraries(&l, &l1)
+	l2.AssignID()
+	newMapping := CreateMapping(&l, l2)
+	for path, stepMapping := range newMapping.Mapping {
+		for step, variantMapping := range stepMapping {
+			for oldIndex, newIndex := range variantMapping {
+				if !(*l.Paths[path].Variants[step].List[oldIndex]).Equals(*l2.Paths[path].Variants[step].List[newIndex]) {
+					t.Fatalf("variants from liftover in library 1 are not equal.")
+				}
+			} 
+		}
+	}
+
+	newMapping2 := CreateMapping(&l1, l2)
+	for path, stepMapping := range newMapping2.Mapping {
+		for step, variantMapping := range stepMapping {
+			for oldIndex, newIndex := range variantMapping {
+				if !(*l1.Paths[path].Variants[step].List[oldIndex]).Equals(*l2.Paths[path].Variants[step].List[newIndex]) {
+					t.Fatalf("variants from liftover in library 2 are not equal.")
+				}
+			} 
+		}
+	}
+	fmt.Println("verified that merged library is valid")
+	WriteLibraryToSGLFv2(l2, "/data-sdc/jc/tile-library/test2")
+	l3:=InitializeLibrary("/data-sdc/jc/tile-library/test2", [][md5.Size]byte{})
+	AddLibrarySGLFv2("/data-sdc/jc/tile-library/test2", &l3) // Verification that the library is written correctly.
+	if !l3.Equals(*l2) || !l2.Equals(l3) || l3.ID != l2.ID {
+		t.Errorf("expected second and third libraries to be equal, but they aren't")
+	}
+}
+
+// Test to determine if sorting is not dependent on the order of libraries given.
+func TestIdenticalSort(t *testing.T) {
+	rand.Seed(1) // Seed for randomness can be changed.
+	tiles := generateRandomTiles(10, 15, 500, 1000, 248, 300) // Notice that this only creates around 600000 steps, rather than the more realistic 10 million.
+	l1 := generateRandomData("a", [][md5.Size]byte{}, tiles)
+	l1.AssignID()
+	SortLibrary(&l1)
+	l2 := generateRandomData("b", [][md5.Size]byte{}, tiles)
+	l2.AssignID()
+	SortLibrary(&l2)
+	l3 := MergeLibraries(&l1,&l2)
+	l4 := MergeLibraries(&l2, &l1)
+	if !l3.Equals(*l4) {
+		t.Errorf("sort is different for different ordering of merge")
+	}
+}
+
+func BenchmarkMD5(b *testing.B) {
+	rand.Seed(time.Now().UnixNano())
+	lst := make([]byte, 6000000000, 6000000000)
+	rand.Read(lst)
+	b.ResetTimer()
+	for i:=0; i<b.N; i++ {
+		md5.Sum(lst)
 	}
 }

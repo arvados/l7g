@@ -1,6 +1,6 @@
 gvcfdir:
   class: Directory
-  location: keep:6461ddeb0841728ad439897eb0e4538f+14264
+  location: keep:4983898697fdc0890f26c87413f883f3+14420
 ref: "hg38"
 reffa:
   class: File

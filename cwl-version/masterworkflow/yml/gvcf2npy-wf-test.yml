@@ -1,6 +1,6 @@
-gvcf:
-  class: File
-  location: keep:4983898697fdc0890f26c87413f883f3+14420/A-CUHS-CU010093-BL-COL-44045BL1.vcf.gz
+gvcfdir:
+  class: Directory
+  location: keep:4983898697fdc0890f26c87413f883f3+14420
 ref: "hg38"
 reffa:
   class: File
@@ -12,3 +12,8 @@ tagset:
   class: File
   location: keep:cd9ada494bd979a8bc74e6d59d3e8710+174/tagset.fa.gz
 chroms: ["chr1", "chr2", "chr3", "chr4", "chr5", "chr6", "chr7", "chr8", "chr9", "chr10", "chr11", "chr12", "chr13", "chr14", "chr15", "chr16", "chr17", "chr18", "chr19", "chr20", "chr21", "chr22", "chrX", "chrY", "chrM"]
+pathmin: "0"
+pathmax: "862"
+nchunks: "15"
+sglfthreshold: 4000
+checknum: 2

@@ -32,6 +32,7 @@ inputs:
 outputs:
   fjdirs:
     type: Directory[]
+    label: Output FastJ directories
     outputSource: gff2fastj/fjdir
 
 steps:

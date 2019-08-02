@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"math/rand"
+	//"os"
 	"sort"
 	"strings"
 	"time"
@@ -239,13 +240,20 @@ func TestMerging(t *testing.T) {
 	l2.AssignID()
 	SortLibrary(&l2)
 	l3:= MergeLibraries(&l1,&l2)
+	l3.AssignID()
+	l4 := InitializeLibrary("c", [][md5.Size]byte{}) // Created as a copy of l3 to check if the count of each tile is correct.
+	libraryCopy(&l4, l3)
 	for path := range l1.Paths {
 		l1.Paths[path].Lock.RLock()
 		for step, stepList := range l1.Paths[path].Variants {
 			if stepList != nil {
-				for _, variant := range (*stepList).List {
-					if TileExists(path, step, variant, l3) == -1 {
+				for i, variant := range (*stepList).List {
+					if index1 := TileExists(path, step, variant, l3); index1 == -1 {
 						t.Fatalf("a tile in library 1 is not in library 3")
+					} else {
+						l4.Paths[path].Lock.Lock()
+						l4.Paths[path].Variants[step].Counts[index1]-=stepList.Counts[i]
+						l4.Paths[path].Lock.Unlock()
 					}
 				}
 			}
@@ -256,9 +264,13 @@ func TestMerging(t *testing.T) {
 		l2.Paths[path].Lock.RLock()
 		for step, stepList := range l2.Paths[path].Variants {
 			if stepList != nil {
-				for _, variant := range (*stepList).List {
-					if TileExists(path, step, variant, l3) == -1 {
+				for i, variant := range (*stepList).List {
+					if index2 := TileExists(path, step, variant, l3); index2 == -1 {
 						t.Fatalf("a tile in library 2 is not in library 3")
+					} else {
+						l4.Paths[path].Lock.Lock()
+						l4.Paths[path].Variants[step].Counts[index2]-=stepList.Counts[i]
+						l4.Paths[path].Lock.Unlock()
 					}
 				}
 			}
@@ -275,6 +287,19 @@ func TestMerging(t *testing.T) {
 			}
 		}
 		l3.Paths[path].Lock.Unlock()
+	}
+	for path := range l4.Paths {
+		l4.Paths[path].Lock.Lock()
+		for _, stepList := range l4.Paths[path].Variants {
+			if stepList != nil {
+				for _, count := range stepList.Counts {
+					if count != 0 {
+						t.Fatalf("counts are not correct in merged library")
+					}
+				}
+			}
+		}
+		l4.Paths[path].Lock.Unlock()
 	}
 	if l1.ID != l3.Components[0] || l2.ID != l3.Components[1] {
 		t.Errorf("components are not correct")
@@ -297,7 +322,6 @@ func BenchmarkMerging(b *testing.B) {
 }
 
 // Test for the createMapping function, which makes liftover mappings from one library to another.
-// TODO: write benchmarks for functions in addition to tests.
 func TestLiftover(t *testing.T) {
 	rand.Seed(1) // Seed for randomness can be changed.
 	tiles := generateRandomTiles(10, 15, 500, 1000, 248, 300) // Notice that this only creates around 600000 steps, rather than the more realistic 10 million.
@@ -363,6 +387,7 @@ func TestParseSGLFv2(t *testing.T) {
 	log.SetFlags(log.Llongfile)
 	l:=InitializeLibrary("/data-sdc/jc/tile-library/test.txt", [][md5.Size]byte{})
 	AddLibraryFastJ("../../../../../keep/home/tile-library-architecture/Copy of Container output for request su92l-xvhdp-qc9aol66z8oo7ws/hu03E3D2_masterVarBeta-GS000038659-ASM", "/data-sdc/jc/tile-library/test.txt",&l)
+	//AddLibraryFastJ("../../../../../keep/home/tile-library-architecture/Copy of Container output for request su92l-xvhdp-qc9aol66z8oo7ws/hu03E3D2_masterVarBeta-GS000037847-ASM", "/data-sdc/jc/tile-library/test.txt",&l)
 	SortLibrary(&l)
 	l.AssignID()
 	WriteLibraryToSGLFv2(&l, "/data-sdc/jc/tile-library") // Writes it to disk and gets it back to make sure that the libraries will be the same
@@ -386,12 +411,29 @@ func TestParseSGLFv2WithMerge(t *testing.T) {
 	AddLibraryFastJ("../../../../../keep/home/tile-library-architecture/Copy of Container output for request su92l-xvhdp-qc9aol66z8oo7ws/hu03E3D2_masterVarBeta-GS000038659-ASM", "/data-sdc/jc/tile-library/test.txt",&l)
 	SortLibrary(&l)
 	l.AssignID()
-	l1:=InitializeLibrary("/data-sdc/jc/tile-library/test/test.txt", [][md5.Size]byte{})
-	AddLibraryFastJ("../../../../../keep/home/tile-library-architecture/Copy of Container output for request su92l-xvhdp-qc9aol66z8oo7ws/hu03E3D2_masterVarBeta-GS000037847-ASM", "/data-sdc/jc/tile-library/test/test.txt",&l)
+	l1:=InitializeLibrary("/data-sdc/jc/tile-library/testing/test.txt", [][md5.Size]byte{})
+	AddLibraryFastJ("../../../../../keep/home/tile-library-architecture/Copy of Container output for request su92l-xvhdp-qc9aol66z8oo7ws/hu03E3D2_masterVarBeta-GS000037847-ASM", "/data-sdc/jc/tile-library/testing/test.txt",&l1)
+	/*
+	info, err := os.Stat(l1.Text)
+	if err != nil {
+		log.Fatal(err)
+	}
+	file, err := os.Open(l1.Text)
+	if err != nil {
+		log.Fatal(err)
+	}
+	newVariant := structures.TileVariant{md5.Sum([]byte("a")), 1, "" ,info.Size(), true, &l1}
+	
+	bufferedWriter := bufio.NewWriter(file)
+	bufferedWriter.WriteString("0cc175b9c0f1b6a831c399e269772661,a\n")
+	bufferedWriter.Flush()
+	file.Close()
+	*/
+
 	SortLibrary(&l1)
 	l1.AssignID()
 	l2:=MergeLibraries(&l, &l1)
-	l2.AssignID()
+	(*l2).AssignID()
 	newMapping := CreateMapping(&l, l2)
 	for path, stepMapping := range newMapping.Mapping {
 		for step, variantMapping := range stepMapping {
@@ -446,5 +488,47 @@ func BenchmarkMD5(b *testing.B) {
 	b.ResetTimer()
 	for i:=0; i<b.N; i++ {
 		md5.Sum(lst)
+	}
+}
+
+func TestMapping(t *testing.T) {
+	log.SetFlags(log.Llongfile)
+	rand.Seed(1) // Seed for randomness can be changed.
+	tiles := generateRandomTiles(10, 15, 500, 1000, 248, 300) // Notice that this only creates around 600000 steps, rather than the more realistic 10 million.
+	l1 := generateRandomData("a", [][md5.Size]byte{}, tiles)
+	l1.AssignID()
+	SortLibrary(&l1)
+	l2 := generateRandomData("b", [][md5.Size]byte{}, tiles)
+	l2.AssignID()
+	SortLibrary(&l2)
+	l3:= MergeLibraries(&l1,&l2)
+	l3.AssignID()
+	newMapping := CreateMapping(&l1, l3)
+	WriteMapping("/data-sdc/jc/test.sglfmapping", newMapping)
+	mapping, source, destination := ReadMapping("/data-sdc/jc/test.sglfmapping")
+	for path := range mapping {
+		if len(mapping[path]) != len(newMapping.Mapping[path]) {
+			t.Fatalf("path %v doesn't have same length", path)
+		}
+		for step := range mapping[path] {
+			if mapping[path][step] != nil && newMapping.Mapping[path][step] != nil {
+				if len(mapping[path][step]) != len(newMapping.Mapping[path][step]) {
+					t.Fatalf("step %v doesn't have same length", step)
+				}
+				for index := range mapping[path][step] {
+					if mapping[path][step][index] != newMapping.Mapping[path][step][index] {
+						t.Fatalf("an index/value combination does not match")
+					}
+				}
+			} else if mapping[path][step] != nil || newMapping.Mapping[path][step] != nil {
+				t.Fatalf("exactly one path/step combination is non-nil")
+			}
+		}
+	}
+	if source != l1.ID {
+		t.Errorf("source IDs are not the same")
+	}
+	if destination != l3.ID {
+		t.Errorf("destination IDs are not the same")
 	}
 }

@@ -13,6 +13,7 @@ type TileVariant struct {
 	Length     int            // The length (span) of the tile
 	Annotation string         // Any notes about this tile (by default, no comments)
 	LookupReference int64      // The lookup reference for the bases of this variant in the text file for the corresponding library.
+	Complete bool // Determines if this variant is complete or not (complete meaning no nocalls).
 	ReferenceLibrary interface{} // A way of referencing the library this variant is from. (Will usually be a *Library).
 }
 

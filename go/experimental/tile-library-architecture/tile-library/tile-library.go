@@ -3,6 +3,12 @@ package tilelibrary
 // This tile library package assumes that any necessary imputation was done beforehand.
 // Note: adding tiles to a library at any point will require sorting that library before writing it to a file.
 
+// TODO: make a similar function to os.ReadAt that's safe for concurrent use?
+// get rid of os.Stat calls
+// try to avoid opening files for writing
+// get rid of excess open files for reading
+// create a object for a file that's in charge of all reads and writes for that file
+
 import (
 	"bufio"
 	"compress/gzip"
@@ -75,7 +81,7 @@ type Library struct {
 	// Note: the Text field is only relevant to the file system this Library is on.
 	//Length int64 // The total length of text files used by this library or all of its sublibraries.
 	Components [][md5.Size]byte // the IDs of the libraries that directly made this library (empty if this library was not made from other)
-	sublibraries []*Library // The pointers to the direct sublibraries of this library
+	//sublibraries []*Library // The pointers to the direct sublibraries of this library
 }
 
 // Helper function used to make byte slices from unsigned int32s.
@@ -210,7 +216,7 @@ func TileExists(path, step int, toCheck *structures.TileVariant, library *Librar
 		}
 		return -1
 	}
-	for len((*library).Paths[path].Variants) <= step+toCheck.Length { // Makes enough room so that there are step+1 elements in Paths[path].Variants
+	for len((*library).Paths[path].Variants) <= step+toCheck.Length-1 { // Makes enough room so that there are step+1 elements in Paths[path].Variants
 		(*library).Paths[path].Variants = append((*library).Paths[path].Variants, nil)
 	}
 	newKnownVariants := &KnownVariants{make([](*structures.TileVariant), 0, 1), make([]int, 0, 1)}
@@ -236,7 +242,7 @@ func AddTile(genomePath, step int, new *structures.TileVariant, library *Library
 // AddTileUnsafe is a function to add a tile without sorting.
 // Unsafe because it doesn't check if the tile is already in the library, unlike AddTile.
 // Be careful to check if the tile already exists before using this function to avoid repeats in the library.
-func addTileUnsafe(genomePath, step int, new *structures.TileVariant, libraryTextFile string, library *Library) {
+func addTileUnsafe(genomePath, step int, new *structures.TileVariant, library *Library) {
 	(*library).Paths[genomePath].Lock.Lock()
 	defer (*library).Paths[genomePath].Lock.Unlock()
 	(*library).Paths[genomePath].Variants[step].List = append((*library).Paths[genomePath].Variants[step].List, new)
@@ -344,7 +350,6 @@ func bufferedTileRead(fastJFilepath, libraryTextFile string, library *Library) {
 			tileBuilder.Reset()
 			if hexNumber == 811 { // Grows the buffer of tileBuilder to 2^22 bytes if the path is 811, which seems to contain very large (roughly 2.7 million bases per tile) tiles.
 				// Not sure of the exact reasons why this is needed, but SGLFv2 construction will fail on paths 811 and 812 without these lines.
-				// TODO: find the right limit at which tileBuilder should Grow.
 				tileBuilder.Grow(4194304)
 			}
 			// Test to see if this line takes a long time to run.
@@ -352,9 +357,9 @@ func bufferedTileRead(fastJFilepath, libraryTextFile string, library *Library) {
 				tileBuilder.WriteString(baseData[i])
 			}
 			bases := tileBuilder.String()
-			newTile := &structures.TileVariant{Hash: hashArray, Length: length, Annotation: "", LookupReference: -1, ReferenceLibrary: library}
+			newTile := &structures.TileVariant{Hash: hashArray, Length: length, Annotation: "", LookupReference: -1, Complete: isComplete(bases), ReferenceLibrary: library}
 			if tileIndex:=TileExists(hexNumber, step, newTile, library); tileIndex==-1 {
-				addTileUnsafe(hexNumber, step, newTile, libraryTextFile, library)
+				addTileUnsafe(hexNumber, step, newTile, library)
 				baseChannel <- baseInfo{bases,hashArray, newTile}
 			} else {
 				(*library).Paths[hexNumber].Variants[step].Counts[tileIndex]++ // Increments the count of the tile variant if it is found.
@@ -384,11 +389,13 @@ func bufferedBaseWrite(libraryTextFile string, channel chan baseInfo, writeChann
 	bufferedWriter := bufio.NewWriter(file)
 	for bases := range channel {
 		if bases.variant != nil { // Checks if there are any more tiles
-			info, err := os.Stat(libraryTextFile)
+			//info, err := os.Stat(libraryTextFile) // change this to seeking from current position.
+			currentPosition, err := file.Seek(0, 2)
 			if err != nil {
 				log.Fatal(err)
 			}
-			(bases.variant).LookupReference = info.Size()+int64(bufferedWriter.Buffered())
+			
+			(bases.variant).LookupReference = currentPosition+int64(bufferedWriter.Buffered())
 			hashString := hex.EncodeToString(bases.hash[:])
 			bufferedWriter.WriteString(hashString)
 			bufferedWriter.WriteString(",")
@@ -551,14 +558,9 @@ func searchForFiles(libraryToSearch *Library, genomePath int, fileMap *map[*Libr
 */
 // writePathToSGLFv2 writes an SGLFv2 for an entire path given a library.
 // This assumes that the library has been sorted beforehand.
-// TODO: differentiate between writing when the reference is a directory and when it's a text file.
-// TODO: Handle merged libraries, which don't necessarily have their own text file of bases and hashes.
-// Ideally, don't want to move contents of files around, since the contents of files are very large
-// Another scenario: merged library of merged libraries--may need to be able to call this function recursively
-// Also, don't want to keep on opening and closing files--figure out how to store them.
-// maybe library can keep a list arranged like a heap?
+// TODO: figure out why this doesn't work on merged libraries.
 func writePathToSGLFv2(library *Library, genomePath, version int, directoryToWriteTo string) {
-	//pathFileMap := make(map[string]*os.File, 0)	
+	pathFileMap := make(map[string]*os.File, 0)	
 	var b strings.Builder
 	b.WriteString(fmt.Sprintf("%04x", genomePath))
 	b.WriteString(".sglfv2")
@@ -570,7 +572,7 @@ func writePathToSGLFv2(library *Library, genomePath, version int, directoryToWri
 	if err != nil {
 		log.Fatal(err)
 	}
-	bufferedWriter := bufio.NewWriter(sglfFile)
+	bufferedWriter := bufio.NewWriterSize(sglfFile, 4194304) // 4MB buffer
 	
 	var fileReader *bufio.Reader
 	bufferedWriter.WriteString("ID:")
@@ -582,7 +584,7 @@ func writePathToSGLFv2(library *Library, genomePath, version int, directoryToWri
 		bufferedWriter.WriteString(hex.EncodeToString(library.Components[1][:]))
 	}
 	bufferedWriter.WriteString("\n")
-	
+
 	(*library).Paths[genomePath].Lock.RLock()
 	defer (*library).Paths[genomePath].Lock.RUnlock()
 	for step := range (*library).Paths[genomePath].Variants {
@@ -592,7 +594,7 @@ func writePathToSGLFv2(library *Library, genomePath, version int, directoryToWri
 				if !ok {
 					log.Fatal(errors.New("reference library field is not a library pointer"))
 				}
-				/*
+				
 				file, fileOk := pathFileMap[referenceLibrary.Text]
 				if !fileOk {
 					info, err := os.Stat(referenceLibrary.Text)
@@ -609,13 +611,14 @@ func writePathToSGLFv2(library *Library, genomePath, version int, directoryToWri
 					if err != nil {
 						log.Fatal(err)
 					}
+					defer textFile.Close()
 					pathFileMap[referenceLibrary.Text] = textFile
 					file = textFile
 					if fileReader == nil {
 						fileReader = bufio.NewReader(textFile)
 					}
 				}
-				*/
+				/*
 				info, err := os.Stat(referenceLibrary.Text)
 				if err != nil {
 					log.Fatal(err)
@@ -633,6 +636,7 @@ func writePathToSGLFv2(library *Library, genomePath, version int, directoryToWri
 				if fileReader == nil {
 					fileReader = bufio.NewReader(file)
 				}
+				*/
 				_, err = file.Seek((*(*library).Paths[genomePath].Variants[step]).List[i].LookupReference,0)
 				if err != nil {
 					log.Fatal(err)
@@ -659,12 +663,18 @@ func writePathToSGLFv2(library *Library, genomePath, version int, directoryToWri
 				bufferedWriter.WriteString(tileString) // Hash and bases of tile.
 				// Newline is at the end of tileString, so no newline needs to be put here.
 				// This also means that every SGLFv2 file ends with a newline.
-				file.Close()
+				//file.Close()
 			}
 		}
 	}
-	bufferedWriter.Flush()
-	sglfFile.Close()
+	err = bufferedWriter.Flush()
+	if err != nil {
+		log.Fatal(err)
+	}
+	err = sglfFile.Close()
+	if err != nil {
+		log.Fatal(err)
+	}
 	/*
 	for _, file := range pathFileMap {
 		file.Close()
@@ -674,6 +684,8 @@ func writePathToSGLFv2(library *Library, genomePath, version int, directoryToWri
 }
 
 // WriteLibraryToSGLFv2 writes the contents of a library to SGLFv2 files.
+// set buffer size to 4 mb
+// use strace command?
 func WriteLibraryToSGLFv2(library *Library, directoryToWriteTo string) {
 	for path := 0; path < structures.Paths; path++ {
 		writePathToSGLFv2(library, path, 1, directoryToWriteTo)
@@ -752,9 +764,30 @@ func libraryCopy(destination, source *Library) {
 				destination.Paths[i].Variants[step] = &KnownVariants{List: make([]*structures.TileVariant, length), Counts: make([]int, length)}
 				copy(destination.Paths[i].Variants[step].List, source.Paths[i].Variants[step].List)
 				copy(destination.Paths[i].Variants[step].Counts, source.Paths[i].Variants[step].Counts)
+				for j, variant := range source.Paths[i].Variants[step].List {
+					variantCopy := *variant // copies variants without reusing, so variants in source still have a pointer to source while variants in destination point to destination.
+					variantCopy.ReferenceLibrary = destination
+					destination.Paths[i].Variants[step].List[j] = &variantCopy
+				}
+				// copying List and Counts manually instead of copying Variants[step] makes sure the pointers for List and Counts aren't reused.
 			}
 		}
 		source.Paths[i].Lock.RUnlock()
+	}
+}
+
+// pointVariantsToLibrary points ALL variants of a library to another library.
+func pointVariantsToLibrary(library *Library, newLibrary *Library) {
+	for i := range library.Paths {
+		library.Paths[i].Lock.RLock() 
+		for step := range library.Paths[i].Variants {
+			if library.Paths[i].Variants[step]!= nil {
+				for _, variant := range library.Paths[i].Variants[step].List {
+					variant.ReferenceLibrary = newLibrary
+				}
+			}
+		}
+		library.Paths[i].Lock.RUnlock()
 	}
 }
 
@@ -763,8 +796,9 @@ func libraryCopy(destination, source *Library) {
 func MergeLibraries(libraryToMerge *Library, mainLibrary *Library) *Library {
 	newLibrary := InitializeLibrary("", [][md5.Size]byte{libraryToMerge.ID, mainLibrary.ID})
 	libraryCopy(&newLibrary, mainLibrary)
+	pointVariantsToLibrary(&newLibrary, mainLibrary)
 	//newLibrary.Length = libraryToMerge.Length + mainLibrary.Length
-	newLibrary.sublibraries = []*Library{mainLibrary, libraryToMerge}
+	//newLibrary.sublibraries = []*Library{mainLibrary, libraryToMerge}
 	for i := range (*libraryToMerge).Paths {
 		for j := range (*libraryToMerge).Paths[i].Variants {
 			mergeKnownVariants(i, j, (*libraryToMerge).Paths[i].Variants[j], &newLibrary)
@@ -788,7 +822,7 @@ func mergeKnownVariants(genomePath, step int, variantsToMerge *KnownVariants, ne
 	if variantsToMerge != nil {
 		for i, variant := range variantsToMerge.List {
 			if index := TileExists(genomePath, step, variant, newLibrary); index==-1 {
-				addTileUnsafe(genomePath, step, variant, "", newLibrary)
+				addTileUnsafe(genomePath, step, variant, newLibrary)
 				(*newLibrary).Paths[genomePath].Variants[step].Counts[TileExists(genomePath, step, variant, newLibrary)] += variantsToMerge.Counts[i]-1
 				//newTileCounter++
 			} else {
@@ -817,7 +851,6 @@ type LiftoverMapping struct {
 	SourceLibrary *Library // The source library to map from.
 	DestinationLibrary *Library // The destination library to map to.
 }
-// TODO: store mappings.
 
 // CreateMapping creates a liftover mapping from the source library to the destination library.
 func CreateMapping(source, destination *Library) LiftoverMapping {
@@ -851,6 +884,7 @@ func CreateMapping(source, destination *Library) LiftoverMapping {
 // WriteMapping writes a LiftoverMapping to a specified file.
 // The format is path/step/source1,destination1;source2,destination2;...
 // Use goroutines per step here? Would need a Lock for concurrency issues
+// current suffix for mappings: .sglfmapping (temporary)
 func WriteMapping(filename string, mapping LiftoverMapping) {
 	textFile, err := os.OpenFile(filename, os.O_APPEND | os.O_CREATE | os.O_WRONLY, 0644)
 	if err != nil {
@@ -863,21 +897,84 @@ func WriteMapping(filename string, mapping LiftoverMapping) {
 	bufferedWriter.WriteString("\n")
 	for path := range mapping.Mapping {
 		for step := range mapping.Mapping[path] {
-			bufferedWriter.WriteString(fmt.Sprintf("%04x",path))
-			bufferedWriter.WriteString("/")
-			bufferedWriter.WriteString(fmt.Sprintf("%04x",step))
-			bufferedWriter.WriteString("/")
-			for index, value := range mapping.Mapping[path][step] {
-				bufferedWriter.WriteString(strconv.Itoa(index))
-				bufferedWriter.WriteString(",")
-				bufferedWriter.WriteString(strconv.Itoa(value))
-				bufferedWriter.WriteString(";")
+			if mapping.Mapping[path][step] != nil {
+				bufferedWriter.WriteString(fmt.Sprintf("%04x",path))
+				bufferedWriter.WriteString("/")
+				bufferedWriter.WriteString(fmt.Sprintf("%04x",step))
+				bufferedWriter.WriteString("/")
+				bufferedWriter.WriteString("0,")
+				bufferedWriter.WriteString(strconv.Itoa(mapping.Mapping[path][step][0]))
+				for index, value := range mapping.Mapping[path][step][1:] {
+					bufferedWriter.WriteString(";")
+					bufferedWriter.WriteString(strconv.Itoa(index))
+					bufferedWriter.WriteString(",")
+					bufferedWriter.WriteString(strconv.Itoa(value))
+				}
+				bufferedWriter.WriteString("\n")
 			}
-			bufferedWriter.WriteString("\n")
 		}
 	}
 	bufferedWriter.Flush()
 	textFile.Close()
+}
+
+// ReadMapping gets the information from a mapping given its filepath.
+func ReadMapping(filepath string) ([][][]int, [md5.Size]byte, [md5.Size]byte) {
+	splitpath := strings.Split(filepath, ".")
+	if len(splitpath) < 2 || splitpath[1] != "sglfmapping" {
+		log.Fatal(errors.New("not a valid mapping file"))
+	}
+	info := openFile(filepath)
+	lines := strings.Split(string(info), "\n")
+	libraryIDs := strings.Split(lines[0], ",")
+	sourceLibraryID, err := hex.DecodeString(libraryIDs[0])
+	if err != nil {
+		log.Fatal(err)
+	}
+	var sourceHash [md5.Size]byte
+	copy(sourceHash[:], sourceLibraryID)
+	destinationLibraryID, err := hex.DecodeString(libraryIDs[1])
+	if err != nil {
+		log.Fatal(err)
+	}
+	var destinationHash [md5.Size]byte
+	copy(destinationHash[:], destinationLibraryID)
+	newMapping := make([][][]int, structures.Paths, structures.Paths)
+	for _, stepMapping := range lines[1:] {
+		if stepMapping != "" {
+			stepInfo := strings.Split(stepMapping, "/")
+			path, err := strconv.ParseInt(stepInfo[0], 16, 0)
+			if err != nil {
+				log.Fatal(err)
+			}
+			step, err := strconv.ParseInt(stepInfo[1], 16, 0)
+			if err != nil {
+				log.Fatal(err)
+			}
+			for len(newMapping[path]) <= int(step) {
+				newMapping[path] = append(newMapping[path], nil)
+			}
+			newMapping[path][step] = make([]int, 0, 1)
+			numberMappingInfo := strings.Split(stepInfo[2], ";")
+			for _, pair := range numberMappingInfo {
+				if pair != "" {
+					indexAndValue := strings.Split(pair, ",")
+					/*
+					index, err := strconv.Atoi(indexAndValue[0])
+					if err != nil {
+						log.Fatal(err)
+					}
+					*/
+					value, err := strconv.Atoi(indexAndValue[1])
+					if err != nil {
+						log.Fatal(err)
+					}
+					newMapping[path][step] = append(newMapping[path][step], value)
+				}
+			}
+		}
+	}
+	return newMapping, sourceHash, destinationHash
 }
 
 // ParseSGLFv2 is a function to put SGLFv2 data back into a library.
@@ -939,7 +1036,7 @@ func ParseSGLFv2(filepath string, library *Library) {
 			}
 			var hashArray [16]byte
 			copy(hashArray[:], hash)
-			newVariant := structures.TileVariant{Hash: hashArray, Length: int(length), Annotation: "", LookupReference: 27+int64(len(tileLengthString))+int64(referenceCounter), ReferenceLibrary: library}
+			newVariant := structures.TileVariant{Hash: hashArray, Length: int(length), Annotation: "", LookupReference: 27+int64(len(tileLengthString))+int64(referenceCounter), Complete: isComplete(fields[2]), ReferenceLibrary: library}
 			AddTile(hexNumber, int(step), &newVariant, library)
 			(*library).Paths[hexNumber].Variants[int(step)].Counts[TileExists(hexNumber, int(step), &newVariant, library)] += int(count-1)
 			// Adding count-1 instead of count since AddTile will already add 1 to the count of the new tile.

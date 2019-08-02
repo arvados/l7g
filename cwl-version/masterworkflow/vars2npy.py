@@ -78,7 +78,7 @@ def main():
         help='chromosome M notation.')
     parser.add_argument('--project-uuid', help='arvados project-uuid to run workflow.')
     parser.add_argument('--nchunks', type=int, default=15,
-        help='number of chunks of tile paths when creating tile library, default is 15')
+        help='number of chunks of tile paths when creating tile library, default is 15.')
 
     args = parser.parse_args()
     make_yml_and_run(args.project_uuid, args.varstype, args.inputpdh, args.ref, args.chr1, args.chrM, args.nchunks)

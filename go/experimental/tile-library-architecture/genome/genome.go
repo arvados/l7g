@@ -7,7 +7,6 @@ import (
 	"compress/gzip"
 	"errors"
 	"encoding/hex"
-	"fmt"
 	"io/ioutil"
 	"path"
 	"log"
@@ -156,9 +155,6 @@ func ParseFastJGenome(filepath string, genome *Genome) {
 			for len((genome.Paths)[hexNumber][phase]) <= step+length-1 {
 				(genome.Paths)[hexNumber][phase] = append((genome.Paths)[hexNumber][phase], -1) // This adds empty (skipped) steps until we reach the right step number.
 			}
-			if len((genome.Paths)[hexNumber][phase]) < step+1 {
-				fmt.Println(len((genome.Paths)[hexNumber][phase]), step)
-			}
 			(genome.Paths)[hexNumber][phase][step] = Step(tilelibrary.TileExists(hexNumber, step, &newTile, genome.Library))
 		}
 	}
@@ -252,6 +248,7 @@ func WriteGenomeToFile(filename string, g *Genome) {
 	bufferedWriter.Flush()
 }
 
+// ReadGenomeFromFile reads a text file containing genome information.
 // Current file suffix is .genome
 func ReadGenomeFromFile(filepath string) [][]Path {
 	var newPaths [][]Path
@@ -292,13 +289,13 @@ func (g *Genome) WriteNumpy(filepath string, path int) {
 	}
 	sliceOfData := make([]int32, 0, 1)
 	for i, value := range g.Paths[path][0] {
-		if !(*g.Library).Paths[path].Variants[i].List[value].Complete {
+		if value >=0 && !(*g.Library).Paths[path].Variants[i].List[value].Complete {
 			sliceOfData = append(sliceOfData, -2)
 		} else {
 			sliceOfData = append(sliceOfData, int32(value))
 		}
 		
-		if !(*g.Library).Paths[path].Variants[i].List[value].Complete {
+		if g.Paths[path][1][i] >=0 && !(*g.Library).Paths[path].Variants[i].List[g.Paths[path][1][i]].Complete {
 			sliceOfData = append(sliceOfData, -2)
 		} else {
 			sliceOfData = append(sliceOfData, int32(g.Paths[path][1][i]))
@@ -310,6 +307,27 @@ func (g *Genome) WriteNumpy(filepath string, path int) {
 	}
 }
 
+// ReadGenomeNumpy reads one path's worth of information from a numpy file.
+// This path should be assigned to a path of a genome.
+func ReadGenomeNumpy(filepath string) []Path {
+	newPaths := make([]Path, 2)
+	newPaths[0] = make([]Step, 0, 1)
+	newPaths[1] = make([]Step, 0, 1)
+	npyreader, err := gonpy.NewFileReader(filepath)
+	if err != nil {
+		log.Fatal(err)
+	}
+	pathInfo, err := npyreader.GetInt32()
+	if err != nil {
+		log.Fatal(err)
+	}
+	for i, index := range pathInfo {
+		newPaths[i%2] = append(newPaths[i%2], Step(index))
+	}
+	return newPaths
+}
+
+// WriteGenomesPathToNumpy writes multiple genomes' worth of path information to a numpy file.
 func WriteGenomesPathToNumpy(genomes []*Genome, filepath string, path int) {
 	if len(genomes) > 0 { // Requires a nonempty list.
 		npywriter, err := gonpy.NewFileWriter(filepath)

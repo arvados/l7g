@@ -1,7 +1,6 @@
 package structures
 /*
 	Structures is a basic package to hold basic structures, methods, and functions for tile libraries and genomes.
-	In addition, it has the OpenGZ function, which is able to read gzipped files and return the data found.
 */
 import (
 	"crypto/md5"
@@ -14,7 +13,7 @@ type TileVariant struct {
 	Annotation string         // Any notes about this tile (by default, no comments)
 	LookupReference int64      // The lookup reference for the bases of this variant in the text file for the corresponding library.
 	Complete bool // Tells if this variant is complete or not (complete meaning no nocalls). Mostly for genomes, to quickly tell which tiles are complete and which are not.
-	ReferenceLibrary interface{} // A way of referencing the library this variant is from. (Will usually be a *Library).
+	ReferenceLibrary interface{} // A way of referencing the library this variant is from. (Will be a *Library).
 }
 
 // TileCreator is a small function to create a new tile given information about it.

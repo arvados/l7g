@@ -19,19 +19,19 @@ func TestExists(t *testing.T) {
 	hash1 := md5.Sum([]byte{1})
 	hash2 := md5.Sum([]byte{2})
 	tile1 := structures.TileVariant{hash1, 1, "", 0, true, &l}
-	tile2 := structures.TileVariant{hash1, 3, "testing", 1, true, &l}
+	tile2 := structures.TileVariant{hash1, 1, "testing", 1, true, &l}
 	tile3 := structures.TileVariant{hash2, 2, "", 2, false, &l}
 	AddTile(0,0,&tile1, &l)
-	test1 := TileExists(0,0,&tile1, &l)
-	if test1==-1 {
+	_, ok := TileExists(0,0,&tile1, &l)
+	if !ok {
 		t.Errorf("Test 1 is false, expected true")
 	}
-	test2 := TileExists(0,0,&tile2, &l)
-	if test2==-1 {
+	_, ok = TileExists(0,0,&tile2, &l)
+	if !ok {
 		t.Errorf("Test 2 is false, expected true") // This is because tile1 and tile2 have the same hash--equality of tiles is only based on hash.
 	}
-	test3 := TileExists(0,0,&tile3,&l)
-	if test3!=-1 {
+	_, ok = TileExists(0,0,&tile3,&l)
+	if ok {
 		t.Errorf("Test 3 is true, expected false")
 	}
 }
@@ -42,7 +42,7 @@ func TestFrequency(t *testing.T) {
 	hash1 := md5.Sum([]byte{1})
 	hash2 := md5.Sum([]byte{2})
 	tile1 := structures.TileVariant{hash1, 1, "", 0, true, &l}
-	tile2 := structures.TileVariant{hash1, 3, "testing", 1, true, &l}
+	tile2 := structures.TileVariant{hash1, 1, "testing", 1, true, &l}
 	tile3 := structures.TileVariant{hash2, 2, "", 2, false, &l}
 	AddTile(0,0,&tile1, &l)
 	AddTile(0,0,&tile1, &l)
@@ -82,7 +82,7 @@ func TestLibrarySorting(t *testing.T) {
 	hash1 := md5.Sum([]byte{1})
 	hash2 := md5.Sum([]byte{2})
 	tile1 := structures.TileVariant{hash1, 1, "", 0, true, &l}
-	tile2 := structures.TileVariant{hash1, 3, "testing", 1, true, &l}
+	tile2 := structures.TileVariant{hash1, 1, "testing", 1, true, &l}
 	tile3 := structures.TileVariant{hash2, 2, "", 2, false, &l}
 	AddTile(0,0,&tile1, &l)
 	AddTile(0,0,&tile1, &l)
@@ -219,7 +219,10 @@ func TestMerging(t *testing.T) {
 	l2 := generateRandomData("b", [][md5.Size]byte{}, tiles)
 	l2.AssignID()
 	SortLibrary(&l2)
-	l3:= MergeLibraries(&l1,&l2)
+	l3, err := MergeLibraries(&l1,&l2)
+	if err != nil {
+		t.Fatalf(err.Error())
+	}
 	l3.AssignID()
 	l4 := InitializeLibrary("c", [][md5.Size]byte{}) // Created as a copy of l3 to check if the count of each tile is correct.
 	libraryCopy(&l4, l3)
@@ -228,7 +231,7 @@ func TestMerging(t *testing.T) {
 		for step, stepList := range l1.Paths[path].Variants {
 			if stepList != nil {
 				for i, variant := range (*stepList).List {
-					if index1 := TileExists(path, step, variant, l3); index1 == -1 {
+					if index1, ok := TileExists(path, step, variant, l3); !ok {
 						t.Fatalf("a tile in library 1 is not in library 3")
 					} else {
 						l4.Paths[path].Lock.Lock()
@@ -245,7 +248,7 @@ func TestMerging(t *testing.T) {
 		for step, stepList := range l2.Paths[path].Variants {
 			if stepList != nil {
 				for i, variant := range (*stepList).List {
-					if index2 := TileExists(path, step, variant, l3); index2 == -1 {
+					if index2, ok := TileExists(path, step, variant, l3); !ok {
 						t.Fatalf("a tile in library 2 is not in library 3")
 					} else {
 						l4.Paths[path].Lock.Lock()
@@ -311,8 +314,14 @@ func TestLiftover(t *testing.T) {
 	l2 := generateRandomData("b", [][md5.Size]byte{}, tiles)
 	SortLibrary(&l2)
 	l2.AssignID()
-	l3 := MergeLibraries(&l1,&l2)
-	newMapping := CreateMapping(&l1, l3)
+	l3, err := MergeLibraries(&l1,&l2)
+	if err != nil {
+		t.Fatalf(err.Error())
+	}
+	newMapping, err := CreateMapping(&l1, l3)
+	if err != nil {
+		t.Fatalf(err.Error())
+	}
 	for path, stepMapping := range newMapping.Mapping {
 		for step, variantMapping := range stepMapping {
 			for oldIndex, newIndex := range variantMapping {
@@ -323,7 +332,10 @@ func TestLiftover(t *testing.T) {
 		}
 	}
 
-	newMapping2 := CreateMapping(&l2, l3)
+	newMapping2, err := CreateMapping(&l2, l3)
+	if err != nil {
+		t.Fatalf(err.Error())
+	}
 	for path, stepMapping := range newMapping2.Mapping {
 		for step, variantMapping := range stepMapping {
 			for oldIndex, newIndex := range variantMapping {
@@ -344,7 +356,10 @@ func BenchmarkLiftover(b *testing.B) {
 	l2 := generateRandomData("b", [][md5.Size]byte{}, tiles)
 	SortLibrary(&l2)
 	l2.AssignID()
-	l3 := MergeLibraries(&l1,&l2)
+	l3, err := MergeLibraries(&l1,&l2)
+	if err != nil {
+		b.Fatalf(err.Error())
+	}
 	b.ResetTimer()
 	for i:=0; i<b.N; i++ {
 		CreateMapping(&l1, l3)
@@ -366,8 +381,8 @@ func BenchmarkID(b *testing.B) {
 func TestParseSGLFv2(t *testing.T) {
 	log.SetFlags(log.Llongfile)
 	l:=InitializeLibrary("/data-sdc/jc/tile-library/test.txt", [][md5.Size]byte{})
-	AddLibraryFastJ("../../../../../keep/home/tile-library-architecture/Copy of Container output for request su92l-xvhdp-qc9aol66z8oo7ws/hu03E3D2_masterVarBeta-GS000038659-ASM", "/data-sdc/jc/tile-library/test.txt",&l)
-	//AddLibraryFastJ("../../../../../keep/home/tile-library-architecture/Copy of Container output for request su92l-xvhdp-qc9aol66z8oo7ws/hu03E3D2_masterVarBeta-GS000037847-ASM", "/data-sdc/jc/tile-library/test.txt",&l)
+	AddLibraryFastJ("../../../../../keep/by_id/su92l-4zz18-2hxdqjw6cbrnr7s/hu03E3D2_masterVarBeta-GS000038659-ASM", "/data-sdc/jc/tile-library/test.txt",&l)
+	//AddLibraryFastJ("../../../../../keep/by_id/su92l-4zz18-2hxdqjw6cbrnr7s/hu03E3D2_masterVarBeta-GS000037847-ASM", "/data-sdc/jc/tile-library/test.txt",&l)
 	SortLibrary(&l)
 	l.AssignID()
 	WriteLibraryToSGLFv2(&l, "/data-sdc/jc/tile-library") // Writes it to disk and gets it back to make sure that the libraries will be the same
@@ -388,17 +403,23 @@ func TestParseSGLFv2(t *testing.T) {
 func TestParseSGLFv2WithMerge(t *testing.T) {
 	log.SetFlags(log.Llongfile)
 	l:=InitializeLibrary("/data-sdc/jc/tile-library/test.txt", [][md5.Size]byte{})
-	AddLibraryFastJ("../../../../../keep/home/tile-library-architecture/Copy of Container output for request su92l-xvhdp-qc9aol66z8oo7ws/hu03E3D2_masterVarBeta-GS000038659-ASM", "/data-sdc/jc/tile-library/test.txt",&l)
+	AddLibraryFastJ("../../../../../keep/by_id/su92l-4zz18-2hxdqjw6cbrnr7s/hu03E3D2_masterVarBeta-GS000038659-ASM", "/data-sdc/jc/tile-library/test.txt",&l)
 	SortLibrary(&l)
 	l.AssignID()
 	l1:=InitializeLibrary("/data-sdc/jc/tile-library/testing/test.txt", [][md5.Size]byte{})
-	AddLibraryFastJ("../../../../../keep/home/tile-library-architecture/Copy of Container output for request su92l-xvhdp-qc9aol66z8oo7ws/hu02C8E3_masterVarBeta-GS000036653-ASM", "/data-sdc/jc/tile-library/testing/test.txt",&l1)
+	AddLibraryFastJ("../../../../../keep/by_id/su92l-4zz18-2hxdqjw6cbrnr7s/hu02C8E3_masterVarBeta-GS000036653-ASM", "/data-sdc/jc/tile-library/testing/test.txt",&l1)
 
 	SortLibrary(&l1)
 	l1.AssignID()
-	l2:=MergeLibraries(&l, &l1)
+	l2, err :=MergeLibraries(&l, &l1)
+	if err != nil {
+		t.Fatalf(err.Error())
+	}
 	(*l2).AssignID()
-	newMapping := CreateMapping(&l, l2)
+	newMapping, err := CreateMapping(&l, l2)
+	if err != nil {
+		t.Fatalf(err.Error())
+	}
 	for path, stepMapping := range newMapping.Mapping {
 		for step, variantMapping := range stepMapping {
 			for oldIndex, newIndex := range variantMapping {
@@ -409,7 +430,10 @@ func TestParseSGLFv2WithMerge(t *testing.T) {
 		}
 	}
 
-	newMapping2 := CreateMapping(&l1, l2)
+	newMapping2, err := CreateMapping(&l1, l2)
+	if err != nil {
+		t.Fatalf(err.Error())
+	}
 	for path, stepMapping := range newMapping2.Mapping {
 		for step, variantMapping := range stepMapping {
 			for oldIndex, newIndex := range variantMapping {
@@ -427,8 +451,8 @@ func TestParseSGLFv2WithMerge(t *testing.T) {
 		t.Errorf("expected second and third libraries to be equal, but they aren't")
 	}
 	l4 := InitializeLibrary("/data-sdc/jc/tile-library/test3/test.txt", [][md5.Size]byte{}) // Comparing a library made from merging to a library made without merging
-	AddLibraryFastJ("../../../../../keep/home/tile-library-architecture/Copy of Container output for request su92l-xvhdp-qc9aol66z8oo7ws/hu03E3D2_masterVarBeta-GS000038659-ASM", "/data-sdc/jc/tile-library/test3/test.txt",&l4)
-	AddLibraryFastJ("../../../../../keep/home/tile-library-architecture/Copy of Container output for request su92l-xvhdp-qc9aol66z8oo7ws/hu02C8E3_masterVarBeta-GS000036653-ASM", "/data-sdc/jc/tile-library/test3/test.txt",&l4)
+	AddLibraryFastJ("../../../../../keep/by_id/su92l-4zz18-2hxdqjw6cbrnr7s/hu03E3D2_masterVarBeta-GS000038659-ASM", "/data-sdc/jc/tile-library/test3/test.txt",&l4)
+	AddLibraryFastJ("../../../../../keep/by_id/su92l-4zz18-2hxdqjw6cbrnr7s/hu02C8E3_masterVarBeta-GS000036653-ASM", "/data-sdc/jc/tile-library/test3/test.txt",&l4)
 	SortLibrary(&l4)
 	l4.AssignID()
 	WriteLibraryToSGLFv2(&l4, "/data-sdc/jc/tile-library/test3")
@@ -447,8 +471,14 @@ func TestIdenticalSort(t *testing.T) {
 	l2 := generateRandomData("b", [][md5.Size]byte{}, tiles)
 	l2.AssignID()
 	SortLibrary(&l2)
-	l3 := MergeLibraries(&l1,&l2)
-	l4 := MergeLibraries(&l2, &l1)
+	l3, err := MergeLibraries(&l1,&l2)
+	if err != nil {
+		t.Fatalf(err.Error())
+	}
+	l4, err := MergeLibraries(&l2, &l1)
+	if err != nil {
+		t.Fatalf(err.Error())
+	}
 	if !l3.Equals(*l4) {
 		t.Errorf("sort is different for different ordering of merge")
 	}
@@ -474,11 +504,20 @@ func TestMapping(t *testing.T) {
 	l2 := generateRandomData("b", [][md5.Size]byte{}, tiles)
 	l2.AssignID()
 	SortLibrary(&l2)
-	l3:= MergeLibraries(&l1,&l2)
+	l3, err := MergeLibraries(&l1,&l2)
+	if err != nil {
+		t.Fatalf(err.Error())
+	}
 	l3.AssignID()
-	newMapping := CreateMapping(&l1, l3)
+	newMapping, err := CreateMapping(&l1, l3)
+	if err != nil {
+		t.Fatalf(err.Error())
+	}
 	WriteMapping("/data-sdc/jc/test.sglfmapping", newMapping)
-	mapping, source, destination := ReadMapping("/data-sdc/jc/test.sglfmapping")
+	mapping, source, destination, err := ReadMapping("/data-sdc/jc/test.sglfmapping")
+	if err != nil {
+		t.Fatalf(err.Error())
+	}
 	for path := range mapping {
 		if len(mapping[path]) != len(newMapping.Mapping[path]) {
 			t.Fatalf("path %v doesn't have same length", path)

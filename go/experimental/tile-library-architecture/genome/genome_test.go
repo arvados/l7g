@@ -19,7 +19,10 @@ func TestWriteToFile(t *testing.T) {
 	g := InitializeGenome(&l)
 	CreateGenome("../../../../../keep/by_id/su92l-4zz18-2hxdqjw6cbrnr7s/hu03E3D2_masterVarBeta-GS000038659-ASM", &g)
 	WriteGenomeToFile("/data-sdc/jc/testGenome.genome", &g)
-	paths := ReadGenomeFromFile("/data-sdc/jc/testGenome.genome")
+	paths, err := ReadGenomeFromFile("/data-sdc/jc/testGenome.genome")
+	if err != nil {
+		t.Fatalf(err.Error())
+	}
 	for i, path := range paths {
 		if len(path) != len(g.Paths[i]) {
 			t.Fatalf("path lengths not equal")
@@ -37,8 +40,8 @@ func TestWriteToFile(t *testing.T) {
 	}
 }
 
-
-// Note: some genomes have different number of steps within a path? (e.g. path 811)
+// Note: some genomes have different number of steps within a path (e.g. path 811), so this test is likely to fail.
+// This also means that writing multiple genomes to the same numpy will likely fail.
 // This test makes sure that genomes have the same path length in all scenarios. Mostly important for writing the path of multiple genomes to a numpy array.
 func TestGenomePathConsistency(t *testing.T) {
 	log.SetFlags(log.Llongfile)
@@ -70,13 +73,48 @@ func TestGenomeNumpy(t *testing.T) {
 	g := InitializeGenome(&l)
 	CreateGenome("../../../../../keep/by_id/su92l-4zz18-2hxdqjw6cbrnr7s/hu03E3D2_masterVarBeta-GS000038659-ASM", &g)
 	g.WriteNumpy("/data-sdc/jc/testGenome.npy", 24)
-	testPath := ReadGenomeNumpy("/data-sdc/jc/testGenome.npy")
+	testPath, err := ReadGenomeNumpy("/data-sdc/jc/testGenome.npy")
+	if err != nil {
+		t.Fatalf(err.Error())
+	}
 	if len(g.Paths[24][0]) != len(testPath[0]) || len(g.Paths[24][1]) != len(testPath[1]) {
 		t.Fatalf("number of steps is not equal")
 	}
 	for i := range g.Paths[24][0] {
 		if (g.Paths[24][0][i] != testPath[0][i] && testPath[0][i] != -2) || (g.Paths[24][1][i] != testPath[1][i] && testPath[1][i] != -2)  {
 			t.Fatalf("a step is not equal")
+		}
+	}
+}
+
+func TestGenomeLiftover(t *testing.T) {
+	log.SetFlags(log.Llongfile)
+	l:=tilelibrary.InitializeLibrary("/data-sdc/jc/tile-library/test.txt", [][md5.Size]byte{})
+	tilelibrary.AddLibraryFastJ("../../../../../keep/by_id/su92l-4zz18-2hxdqjw6cbrnr7s/hu03E3D2_masterVarBeta-GS000038659-ASM", "/data-sdc/jc/tile-library/test.txt",&l)
+	tilelibrary.SortLibrary(&l)
+	l.AssignID()
+	l1:=tilelibrary.InitializeLibrary("/data-sdc/jc/tile-library/testing/test.txt", [][md5.Size]byte{})
+	tilelibrary.AddLibraryFastJ("../../../../../keep/by_id/su92l-4zz18-2hxdqjw6cbrnr7s/hu02C8E3_masterVarBeta-GS000036653-ASM", "/data-sdc/jc/tile-library/testing/test.txt",&l1)
+
+	tilelibrary.SortLibrary(&l1)
+	l1.AssignID()
+	l2, err :=tilelibrary.MergeLibraries(&l, &l1)
+	if err != nil {
+		t.Fatalf(err.Error())
+	}
+	(*l2).AssignID()
+	g := InitializeGenome(&l)
+	CreateGenome("../../../../../keep/by_id/su92l-4zz18-2hxdqjw6cbrnr7s/hu03E3D2_masterVarBeta-GS000038659-ASM", &g)
+	g1 := InitializeGenome(l2)
+	CreateGenome("../../../../../keep/by_id/su92l-4zz18-2hxdqjw6cbrnr7s/hu03E3D2_masterVarBeta-GS000038659-ASM", &g1)
+	LiftoverGenome(&g, l2)
+	for i, path := range g.Paths {
+		for j, phase := range path {
+			for step, value := range phase {
+				if value != g1.Paths[i][j][step] {
+					t.Fatalf("index values not the same")
+				}
+			}
 		}
 	}
 }

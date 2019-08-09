@@ -1,7 +1,9 @@
-package genome
 /*
-	Genome is a package for representing the genome with Go data structures.
+	Package genome is a package for representing the genome, relative to a tile library, with Go data structures.
+	Provided are various functions to export/import the data within genomes, along with creating new Genome data structures in memory.
 */
+package genome
+
 import (
 	"bufio"
 	"compress/gzip"
@@ -9,12 +11,13 @@ import (
 	"encoding/hex"
 	"io/ioutil"
 	"path"
-	//"log"
 	"os"
 	"strconv"
 	"strings"
+
 	"../structures"
 	"../tile-library"
+
 	"github.com/kshedden/gonpy" //To be used later for the creation of numpy arrays.
 )
 
@@ -197,14 +200,6 @@ func InitializeGenome(library *tilelibrary.Library) Genome {
 	return Genome{newPaths, library}
 }
 
-
-/*
-skipped tiles: first value is variant, and then -1 (to show tail spanning tiles)
--2 used for incomplete tiles 
-put in hash of name of creator file
-*/
-
-
 // WriteGenomeToFile writes a genome to a list format of indices relative to its reference library.
 // Will not work if the genome does not have a reference library (nil reference)
 func WriteGenomeToFile(filename string, g *Genome) error {
@@ -260,7 +255,7 @@ func WriteGenomeToFile(filename string, g *Genome) error {
 }
 
 // ReadGenomeFromFile reads a text file containing genome information.
-// Current file suffix is .genome
+// Current file suffix is .genome (make sure all genomes written to disk have this suffix!)
 func ReadGenomeFromFile(filepath string) ([][]Path, error) {
 	var newPaths [][]Path
 	newPaths = make([][]Path, structures.Paths, structures.Paths)
@@ -295,7 +290,6 @@ func ReadGenomeFromFile(filepath string) ([][]Path, error) {
 
 // WriteNumpy writes the values of a path of a genome to a numpy array.
 // It alternate between each phase for each step.
-// writes a path of a genome to a numpy file.
 func (g *Genome) WriteNumpy(filepath string, path int) error {
 	npywriter, err := gonpy.NewFileWriter(filepath)
 	if err != nil {
@@ -405,5 +399,6 @@ func LiftoverGenome(g *Genome, destination *tilelibrary.Library) error {
 			}
 		}
 	}
+	g.Library = destination // Can set the new reference library, since liftover is complete
 	return nil
 }

@@ -1,3 +1,4 @@
+// genome_test is a file for running various tests related to the genome package.
 package genome
 
 import (
@@ -5,6 +6,7 @@ import (
 	"crypto/md5"
 	"log"
 	"testing"
+
 	"../tile-library"
 )
 
@@ -12,8 +14,8 @@ import (
 func TestWriteToFile(t *testing.T) {
 	log.SetFlags(log.Llongfile)
 	l:=tilelibrary.InitializeLibrary("/data-sdc/jc/tile-library/test.txt", [][md5.Size]byte{})
-	tilelibrary.AddLibraryFastJ("../../../../../keep/by_id/su92l-4zz18-2hxdqjw6cbrnr7s/hu03E3D2_masterVarBeta-GS000038659-ASM", "/data-sdc/jc/tile-library/test.txt",&l)
-	tilelibrary.AddLibraryFastJ("../../../../../keep/by_id/su92l-4zz18-2hxdqjw6cbrnr7s/hu03E3D2_masterVarBeta-GS000037847-ASM", "/data-sdc/jc/tile-library/test.txt",&l)
+	tilelibrary.AddLibraryFastJ("../../../../../keep/by_id/su92l-4zz18-2hxdqjw6cbrnr7s/hu03E3D2_masterVarBeta-GS000038659-ASM", &l)
+	tilelibrary.AddLibraryFastJ("../../../../../keep/by_id/su92l-4zz18-2hxdqjw6cbrnr7s/hu03E3D2_masterVarBeta-GS000037847-ASM", &l)
 	tilelibrary.SortLibrary(&l)
 	l.AssignID()
 	g := InitializeGenome(&l)
@@ -46,8 +48,8 @@ func TestWriteToFile(t *testing.T) {
 func TestGenomePathConsistency(t *testing.T) {
 	log.SetFlags(log.Llongfile)
 	l:=tilelibrary.InitializeLibrary("/data-sdc/jc/tile-library/test.txt", [][md5.Size]byte{})
-	tilelibrary.AddLibraryFastJ("../../../../../keep/by_id/su92l-4zz18-2hxdqjw6cbrnr7s/hu03E3D2_masterVarBeta-GS000038659-ASM", "/data-sdc/jc/tile-library/test.txt",&l)
-	tilelibrary.AddLibraryFastJ("../../../../../keep/by_id/su92l-4zz18-2hxdqjw6cbrnr7s/hu03E3D2_masterVarBeta-GS000037847-ASM", "/data-sdc/jc/tile-library/test.txt",&l)
+	tilelibrary.AddLibraryFastJ("../../../../../keep/by_id/su92l-4zz18-2hxdqjw6cbrnr7s/hu03E3D2_masterVarBeta-GS000038659-ASM", &l)
+	tilelibrary.AddLibraryFastJ("../../../../../keep/by_id/su92l-4zz18-2hxdqjw6cbrnr7s/hu03E3D2_masterVarBeta-GS000037847-ASM", &l)
 	tilelibrary.SortLibrary(&l)
 	l.AssignID()
 	g := InitializeGenome(&l)
@@ -63,11 +65,12 @@ func TestGenomePathConsistency(t *testing.T) {
 	}
 }
 
+// This tests reading and writing genomes to and from numpy files.
 func TestGenomeNumpy(t *testing.T) {
 	log.SetFlags(log.Llongfile)
 	l:=tilelibrary.InitializeLibrary("/data-sdc/jc/tile-library/test.txt", [][md5.Size]byte{})
-	tilelibrary.AddLibraryFastJ("../../../../../keep/by_id/su92l-4zz18-2hxdqjw6cbrnr7s/hu03E3D2_masterVarBeta-GS000038659-ASM", "/data-sdc/jc/tile-library/test.txt",&l)
-	tilelibrary.AddLibraryFastJ("../../../../../keep/by_id/su92l-4zz18-2hxdqjw6cbrnr7s/hu03E3D2_masterVarBeta-GS000037847-ASM", "/data-sdc/jc/tile-library/test.txt",&l)
+	tilelibrary.AddLibraryFastJ("../../../../../keep/by_id/su92l-4zz18-2hxdqjw6cbrnr7s/hu03E3D2_masterVarBeta-GS000038659-ASM", &l)
+	tilelibrary.AddLibraryFastJ("../../../../../keep/by_id/su92l-4zz18-2hxdqjw6cbrnr7s/hu03E3D2_masterVarBeta-GS000037847-ASM", &l)
 	tilelibrary.SortLibrary(&l)
 	l.AssignID()
 	g := InitializeGenome(&l)
@@ -87,18 +90,19 @@ func TestGenomeNumpy(t *testing.T) {
 	}
 }
 
+// This tests the liftover of genomes from library to another.
 func TestGenomeLiftover(t *testing.T) {
 	log.SetFlags(log.Llongfile)
 	l:=tilelibrary.InitializeLibrary("/data-sdc/jc/tile-library/test.txt", [][md5.Size]byte{})
-	tilelibrary.AddLibraryFastJ("../../../../../keep/by_id/su92l-4zz18-2hxdqjw6cbrnr7s/hu03E3D2_masterVarBeta-GS000038659-ASM", "/data-sdc/jc/tile-library/test.txt",&l)
+	tilelibrary.AddLibraryFastJ("../../../../../keep/by_id/su92l-4zz18-2hxdqjw6cbrnr7s/hu03E3D2_masterVarBeta-GS000038659-ASM", &l)
 	tilelibrary.SortLibrary(&l)
 	l.AssignID()
 	l1:=tilelibrary.InitializeLibrary("/data-sdc/jc/tile-library/testing/test.txt", [][md5.Size]byte{})
-	tilelibrary.AddLibraryFastJ("../../../../../keep/by_id/su92l-4zz18-2hxdqjw6cbrnr7s/hu02C8E3_masterVarBeta-GS000036653-ASM", "/data-sdc/jc/tile-library/testing/test.txt",&l1)
+	tilelibrary.AddLibraryFastJ("../../../../../keep/by_id/su92l-4zz18-2hxdqjw6cbrnr7s/hu02C8E3_masterVarBeta-GS000036653-ASM",&l1)
 
 	tilelibrary.SortLibrary(&l1)
 	l1.AssignID()
-	l2, err :=tilelibrary.MergeLibraries(&l, &l1)
+	l2, err :=tilelibrary.MergeLibraries(&l, &l1, "/data-sdc/jc/testing.txt")
 	if err != nil {
 		t.Fatalf(err.Error())
 	}

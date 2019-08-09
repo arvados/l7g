@@ -1,7 +1,11 @@
-package structures
 /*
 	Structures is a basic package to hold basic structures, methods, and functions for tile libraries and genomes.
+	Most important is the TileVariant structure, which holds all the necessary data for a tile variant.
+	Equality on TileVariants is defined by hash.
+	In addition, the default number of paths in a genome is provided here for convenience.
 */
+package structures
+
 import (
 	"crypto/md5"
 )

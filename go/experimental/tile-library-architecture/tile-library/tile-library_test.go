@@ -1,37 +1,38 @@
 // tile-library_test.go is the test file for the tilelibrary package.
+// Places where test files and directories would are intentionally left blank--fill them in with wherever data should go.
 package tilelibrary
 
 import (
 	"crypto/md5"
-	"fmt"
 	"log"
 	"math/rand"
 	"sort"
 	"strings"
-	"time"
 	"testing"
+	"time"
 
 	"../structures"
 )
 
 // This is a test of the TileExists function.
 func TestExists(t *testing.T) {
-	l := InitializeLibrary("test", [][md5.Size]byte{[md5.Size]byte{}})
+	testFile := "" // Put your test here.
+	l := InitializeLibrary(testFile, [][md5.Size]byte{[md5.Size]byte{}})
 	hash1 := md5.Sum([]byte("a"))
 	hash2 := md5.Sum([]byte("b"))
 	tile1 := structures.TileVariant{hash1, 1, "", 0, true, &l}
 	tile2 := structures.TileVariant{hash1, 1, "testing", 1, true, &l}
 	tile3 := structures.TileVariant{hash2, 2, "", 2, false, &l}
-	AddTile(0,0,&tile1, "a", &l)
-	_, ok := TileExists(0,0,&tile1, &l)
+	AddTile(0, 0, &tile1, "a", &l)
+	_, ok := TileExists(0, 0, &tile1, &l)
 	if !ok {
 		t.Errorf("Test 1 is false, expected true")
 	}
-	_, ok = TileExists(0,0,&tile2, &l)
+	_, ok = TileExists(0, 0, &tile2, &l)
 	if !ok {
 		t.Errorf("Test 2 is false, expected true") // This is because tile1 and tile2 have the same hash--equality of tiles is only based on hash.
 	}
-	_, ok = TileExists(0,0,&tile3,&l)
+	_, ok = TileExists(0, 0, &tile3, &l)
 	if ok {
 		t.Errorf("Test 3 is true, expected false")
 	}
@@ -39,64 +40,65 @@ func TestExists(t *testing.T) {
 
 // This is a test of the FindFrequency function.
 func TestFrequency(t *testing.T) {
-	l := InitializeLibrary("test", [][md5.Size]byte{})
+	testFile := "" // Put your test file here.
+	l := InitializeLibrary(testFile, nil)
 	hash1 := md5.Sum([]byte("a"))
 	hash2 := md5.Sum([]byte("b"))
 	tile1 := structures.TileVariant{hash1, 1, "", 0, true, &l}
 	tile2 := structures.TileVariant{hash1, 1, "testing", 1, true, &l}
 	tile3 := structures.TileVariant{hash2, 2, "", 2, false, &l}
-	AddTile(0,0,&tile1, "a", &l)
-	AddTile(0,0,&tile1, "a", &l)
-	AddTile(0,0,&tile2, "a", &l)
-	AddTile(0,0,&tile3, "b", &l)
-	AddTile(0,1,&tile1, "a", &l)
-	test1 := FindFrequency(0,0,&tile1,&l)
-	if test1!=3 {
+	AddTile(0, 0, &tile1, "a", &l)
+	AddTile(0, 0, &tile1, "a", &l)
+	AddTile(0, 0, &tile2, "a", &l)
+	AddTile(0, 0, &tile3, "b", &l)
+	AddTile(0, 1, &tile1, "a", &l)
+	test1 := FindFrequency(0, 0, &tile1, &l)
+	if test1 != 3 {
 		t.Errorf("Test 1 was %v, expected 3", test1) // This is because tile1 and tile2 have the same hash--equality of tiles is only based on hash, so tile1 counts the two instances of tile1 and the instance of tile2 in path 0, step 0.
 	}
-	test2 := FindFrequency(0,0,&tile2, &l)
-	if test2!=3 {
+	test2 := FindFrequency(0, 0, &tile2, &l)
+	if test2 != 3 {
 		t.Errorf("Test 2 was %v, expected 3", test2)
 	}
-	test3 := FindFrequency(0,0,&tile3, &l)
-	if test3!=1 {
+	test3 := FindFrequency(0, 0, &tile3, &l)
+	if test3 != 1 {
 		t.Errorf("Test 3 was %v, expected 1", test3)
 	}
-	test4 := FindFrequency(0,1,&tile1, &l)
-	if test4!=1 {
-		t.Errorf("Test 4 was %v, expected 1",test4)
+	test4 := FindFrequency(0, 1, &tile1, &l)
+	if test4 != 1 {
+		t.Errorf("Test 4 was %v, expected 1", test4)
 	}
-	test5 := FindFrequency(0,1,&tile3, &l)
-	if test5!=0 {
-		t.Errorf("Test 5 was %v, expected 0",test5)
+	test5 := FindFrequency(0, 1, &tile3, &l)
+	if test5 != 0 {
+		t.Errorf("Test 5 was %v, expected 0", test5)
 	}
-	test6 := FindFrequency(0,2, &tile2, &l)
-	if test6 !=0 {
+	test6 := FindFrequency(0, 2, &tile2, &l)
+	if test6 != 0 {
 		t.Errorf("Test 6 was %v, expacted 0", test6)
 	}
 }
 
-
 // This is a test of the SortLibrary function.
 func TestLibrarySorting(t *testing.T) {
-	l := InitializeLibrary("test", [][md5.Size]byte{[md5.Size]byte{}})
+	testFile := "" // Put your test file here.
+	l := InitializeLibrary(testFile, nil)
 	hash1 := md5.Sum([]byte("a"))
 	hash2 := md5.Sum([]byte("b"))
 	tile1 := structures.TileVariant{hash1, 1, "", 0, true, &l}
 	tile2 := structures.TileVariant{hash1, 1, "testing", 1, true, &l}
 	tile3 := structures.TileVariant{hash2, 2, "", 2, false, &l}
-	AddTile(0,0,&tile1, "a", &l)
-	AddTile(0,0,&tile1, "a",&l)
-	AddTile(0,0,&tile2, "a",&l)
-	AddTile(0,0,&tile2, "a",&l)
-	AddTile(0,0,&tile3, "b",&l)
-	AddTile(0,0,&tile2, "a",&l)
-	AddTile(0,1,&tile3, "b",&l)
-	AddTile(0,1,&tile1, "a",&l)
-	AddTile(0,1,&tile3, "b",&l)
-	AddTile(0,1,&tile3, "b",&l)
-	AddTile(0,2,&tile3, "b",&l)
-	AddTile(0,2,&tile1, "a",&l)
+	AddTile(0, 0, &tile1, "a", &l)
+	AddTile(0, 0, &tile1, "a", &l)
+	AddTile(0, 0, &tile2, "a", &l)
+	AddTile(0, 0, &tile2, "a", &l)
+	AddTile(0, 0, &tile3, "b", &l)
+	AddTile(0, 0, &tile2, "a", &l)
+	AddTile(0, 1, &tile3, "b", &l)
+	AddTile(0, 1, &tile1, "a", &l)
+	AddTile(0, 1, &tile3, "b", &l)
+	AddTile(0, 1, &tile3, "b", &l)
+	AddTile(0, 2, &tile3, "b", &l)
+	AddTile(0, 2, &tile1, "a", &l)
 	SortLibrary(&l)
 	test1 := sort.IsSorted(sort.Reverse(sort.IntSlice(l.Paths[0].Variants[0].Counts)))
 	if !test1 {
@@ -114,43 +116,44 @@ func TestLibrarySorting(t *testing.T) {
 
 // This is a test on AddTile to make sure it writes tile information to disk properly.
 func TestAddTile(t *testing.T) {
-	l := InitializeLibrary("/data-sdc/jc/testing.txt", [][md5.Size]byte{})
+	testFile := "" // Put your test file here.
+	l := InitializeLibrary(testFile, nil)
 	hash1 := md5.Sum([]byte("a"))
 	hash2 := md5.Sum([]byte("b"))
 	tile1 := structures.TileVariant{hash1, 1, "", 0, true, &l}
 	tile2 := structures.TileVariant{hash1, 1, "testing", 1, true, &l}
 	tile3 := structures.TileVariant{hash2, 2, "", 2, false, &l}
-	AddTile(0,0,&tile1, "a", &l)
-	AddTile(0,0,&tile1, "a",&l)
-	AddTile(0,0,&tile2, "a",&l)
-	AddTile(0,0,&tile2, "a",&l)
-	AddTile(0,0,&tile3, "b",&l)
-	AddTile(0,0,&tile2, "a",&l)
-	AddTile(0,1,&tile3, "b",&l)
-	AddTile(0,1,&tile1, "a",&l)
-	AddTile(0,1,&tile3, "b",&l)
-	AddTile(0,1,&tile3, "b",&l)
-	AddTile(0,2,&tile3, "b",&l)
-	AddTile(0,2,&tile1, "a",&l)
+	AddTile(0, 0, &tile1, "a", &l)
+	AddTile(0, 0, &tile1, "a", &l)
+	AddTile(0, 0, &tile2, "a", &l)
+	AddTile(0, 0, &tile2, "a", &l)
+	AddTile(0, 0, &tile3, "b", &l)
+	AddTile(0, 0, &tile2, "a", &l)
+	AddTile(0, 1, &tile3, "b", &l)
+	AddTile(0, 1, &tile1, "a", &l)
+	AddTile(0, 1, &tile3, "b", &l)
+	AddTile(0, 1, &tile3, "b", &l)
+	AddTile(0, 2, &tile3, "b", &l)
+	AddTile(0, 2, &tile1, "a", &l)
 	SortLibrary(&l)
 	l.AssignID()
-	err := WriteLibraryToSGLFv2(&l, "/data-sdc/jc/tile-library")
+	testDirectory := "" // Put your test directory here.
+	err := WriteLibraryToSGLFv2(&l, testDirectory)
 	if err != nil {
 		t.Fatalf(err.Error())
 	}
-	l1 := InitializeLibrary("/data-sdc/jc/tile-library", [][16]byte{})
+	l1 := InitializeLibrary(testDirectory, nil)
 	AddLibrarySGLFv2(&l1)
-	if !l1.Equals(l) {
+	if !l1.Equals(&l) {
 		t.Fatalf("libraries are not equal")
 	}
 }
-
 
 // Note: some of the following tests and benchmarks use random libraries and random tile generation, so they will have a (slightly) variable amount of time taken.
 
 // tileAndBases is a test struct to group a variant and its bases together.
 type tileAndBases struct {
-	tile *structures.TileVariant
+	tile  *structures.TileVariant
 	bases string
 }
 
@@ -160,16 +163,16 @@ func generateRandomTiles(minTiles, maxTiles, minSteps, maxSteps, minBases, maxBa
 	characters := []byte{'a', 'c', 'g', 't'}
 	var tileLists [][][]tileAndBases
 	tileLists = make([][][]tileAndBases, structures.Paths, structures.Paths)
-	for path:=0; path<structures.Paths; path++ {
+	for path := 0; path < structures.Paths; path++ {
 		numberOfSteps := minSteps + rand.Intn(maxSteps-minSteps)
 		tileLists[path] = make([][]tileAndBases, numberOfSteps, numberOfSteps)
-		for step:=0; step<numberOfSteps; step++ {
+		for step := 0; step < numberOfSteps; step++ {
 			numberOfTiles := minTiles + rand.Intn(maxTiles-minTiles)
-			for i:=0; i<numberOfTiles; i++ {
+			for i := 0; i < numberOfTiles; i++ {
 				tileLength := minBases + rand.Intn(maxBases-minBases)
 				var b strings.Builder
 				b.Reset()
-				for i:=0; i<tileLength; i++ {
+				for i := 0; i < tileLength; i++ {
 					b.WriteByte(characters[rand.Intn(4)])
 				}
 				bases := b.String()
@@ -184,14 +187,15 @@ func generateRandomTiles(minTiles, maxTiles, minSteps, maxSteps, minBases, maxBa
 
 // This benchmarks sorting libraries on a randomly generated library.
 func BenchmarkSort(b *testing.B) {
-	rand.Seed(1) // Seed for randomness can be changed.
+	testFile := ""                                            // Put your test file here.
+	rand.Seed(1)                                              // Seed for randomness can be changed.
 	tiles := generateRandomTiles(10, 15, 500, 1000, 248, 300) // Notice that this only creates around 600000 steps, rather than the more realistic 10 million.
-	l1 := generateRandomData("a", [][md5.Size]byte{}, tiles)
+	l1 := generateRandomData(testFile, nil, tiles)
 	b.ResetTimer()
-	for i:=0; i<b.N; i++ {
+	for i := 0; i < b.N; i++ {
 		SortLibrary(&l1)
 		b.StopTimer()
-		l1 = generateRandomData("a", [][md5.Size]byte{}, tiles)
+		l1 = generateRandomData(testFile, nil, tiles)
 		b.StartTimer()
 	}
 }
@@ -200,14 +204,19 @@ func BenchmarkSort(b *testing.B) {
 func generateRandomData(text string, components [][md5.Size]byte, tileLists [][][]tileAndBases) Library {
 	l := InitializeLibrary(text, components)
 	rand.Seed(time.Now().UnixNano())
-	for path:=0; path<structures.Paths; path++ {
+	for path := 0; path < structures.Paths; path++ {
 		for step, stepList := range tileLists[path] {
 			numberOfTiles := len(stepList)
 			numberOfPhases := 20 + rand.Intn(20) // Anywhere between 10 and 20 genomes worth of data here.
-			for k := 0; k<numberOfPhases; k++ {
+			for k := 0; k < numberOfPhases; k++ {
 				randomTile := rand.Intn(numberOfTiles)
 				randomTileAndBases := tileLists[path][step][randomTile]
-				AddTile(path, step, randomTileAndBases.tile, randomTileAndBases.bases, &l) // The fields marked "test" don't affect anything, so they can be named anything.
+				if _, ok := TileExists(path, step, randomTileAndBases.tile, &l); ok {
+					addTileUnsafe(path, step, randomTileAndBases.tile, &l)
+				}
+				// Above is a silent version of generating random data, which does not write to files.
+				// If you would also like to test the writing of random data to files, uncomment the line below.
+				// AddTile(path, step, randomTileAndBases.tile, randomTileAndBases.bases, &l) // The fields marked "test" don't affect anything, so they can be named anything.
 			}
 		}
 	}
@@ -216,61 +225,70 @@ func generateRandomData(text string, components [][md5.Size]byte, tileLists [][]
 
 // Benchmark to see how fast random tiles can be generated.
 func BenchmarkGenerateTiles(b *testing.B) {
-	for i:=0; i<b.N; i++ {
+	for i := 0; i < b.N; i++ {
 		generateRandomTiles(10, 15, 500, 1000, 248, 300)
 	}
 }
 
 // Benchmark to see how fast random libraries can be generated.
 func BenchmarkGenerateLibraries(b *testing.B) {
+	testFile := "" // Put your test file here.
 	tiles := generateRandomTiles(10, 15, 500, 1000, 248, 300)
 	b.ResetTimer()
-	for i:=0; i<b.N; i++ {
-		generateRandomData("test", [][md5.Size]byte{}, tiles)
+	for i := 0; i < b.N; i++ {
+		generateRandomData(testFile, nil, tiles)
 	}
 }
 
 // Test for the libraryCopy function, which copies libraries.
 func TestCopy(t *testing.T) {
-	rand.Seed(1) // Seed for randomness can be changed.
+	testFile := ""                                            // Put your test file here.
+	testFile2 := ""                                           // Put your test file here.
+	rand.Seed(1)                                              // Seed for randomness can be changed.
 	tiles := generateRandomTiles(10, 15, 500, 1000, 248, 300) // Notice that this only creates around 600000 steps, rather than the more realistic 10 million.
-	l1 := generateRandomData("a", [][md5.Size]byte{}, tiles)
-	l4 := InitializeLibrary("b", [][md5.Size]byte{})
+	l1 := generateRandomData(testFile, nil, tiles)
+	l4 := InitializeLibrary(testFile2, nil)
 	libraryCopy(&l4, &l1)
-	if !l1.Equals(l4) {
+	if !l1.Equals(&l4) {
 		t.Errorf("libraries are not equal, but copy should make them equal.")
 	}
 }
 
 // Benchmark to see how fast a library can be copied.
 func BenchmarkCopy(b *testing.B) {
-	rand.Seed(1) // Seed for randomness can be changed.
+	testFile := ""                                            // Put your test file here.
+	testFile2 := ""                                           // Put your test file here.
+	rand.Seed(1)                                              // Seed for randomness can be changed.
 	tiles := generateRandomTiles(10, 15, 500, 1000, 248, 300) // Notice that this only creates around 600000 steps, rather than the more realistic 10 million.
-	l1 := generateRandomData("a", [][md5.Size]byte{}, tiles)
+	l1 := generateRandomData(testFile, nil, tiles)
 	b.ResetTimer()
-	for i:=0; i<b.N; i++ {
-		l4 := InitializeLibrary("b", [][md5.Size]byte{})
+	for i := 0; i < b.N; i++ {
+		l4 := InitializeLibrary(testFile2, nil)
 		libraryCopy(&l4, &l1)
 	}
 }
 
 // Test for merging two random libraries.
 func TestMerging(t *testing.T) {
+	testFile := ""  // Put your test file here.
+	testFile2 := "" // Put your test file here.
+	testFile3 := "" // Put your test file here.
+	testFile4 := "" // Put your test file here.
 	log.SetFlags(log.Llongfile)
-	rand.Seed(1) // Seed for randomness can be changed.
+	rand.Seed(1)                                              // Seed for randomness can be changed.
 	tiles := generateRandomTiles(10, 15, 500, 1000, 248, 300) // Notice that this only creates around 600000 steps, rather than the more realistic 10 million.
-	l1 := generateRandomData("a", [][md5.Size]byte{}, tiles)
+	l1 := generateRandomData(testFile, nil, tiles)
 	l1.AssignID()
 	SortLibrary(&l1)
-	l2 := generateRandomData("b", [][md5.Size]byte{}, tiles)
+	l2 := generateRandomData(testFile2, nil, tiles)
 	l2.AssignID()
 	SortLibrary(&l2)
-	l3, err := MergeLibraries(&l1,&l2, "/data-sdc/jc/testing.txt")
+	l3, err := MergeLibraries(&l1, &l2, testFile3)
 	if err != nil {
 		t.Fatalf(err.Error())
 	}
 	l3.AssignID()
-	l4 := InitializeLibrary("c", [][md5.Size]byte{}) // Created as a copy of l3 to check if the count of each tile is correct.
+	l4 := InitializeLibrary(testFile4, nil) // Created as a copy of l3 to check if the count of each tile is correct.
 	libraryCopy(&l4, l3)
 	for path := range l1.Paths {
 		l1.Paths[path].Lock.RLock()
@@ -281,7 +299,7 @@ func TestMerging(t *testing.T) {
 						t.Fatalf("a tile in library 1 is not in library 3")
 					} else {
 						l4.Paths[path].Lock.Lock()
-						l4.Paths[path].Variants[step].Counts[index1]-=stepList.Counts[i]
+						l4.Paths[path].Variants[step].Counts[index1] -= stepList.Counts[i]
 						l4.Paths[path].Lock.Unlock()
 					}
 				}
@@ -298,7 +316,7 @@ func TestMerging(t *testing.T) {
 						t.Fatalf("a tile in library 2 is not in library 3")
 					} else {
 						l4.Paths[path].Lock.Lock()
-						l4.Paths[path].Variants[step].Counts[index2]-=stepList.Counts[i]
+						l4.Paths[path].Variants[step].Counts[index2] -= stepList.Counts[i]
 						l4.Paths[path].Lock.Unlock()
 					}
 				}
@@ -337,31 +355,37 @@ func TestMerging(t *testing.T) {
 
 // Benchmark to see how fast the library merging operation is.
 func BenchmarkMerging(b *testing.B) {
-	rand.Seed(1) // Seed for randomness can be changed.
+	testFile := ""                                            // Put your test file here.
+	testFile2 := ""                                           // Put your test file here.
+	testFile3 := ""                                           // Put your test file here.
+	rand.Seed(1)                                              // Seed for randomness can be changed.
 	tiles := generateRandomTiles(10, 15, 500, 1000, 248, 300) // Notice that this only creates around 600000 steps, rather than the more realistic 10 million.
-	l1 := generateRandomData("a", [][md5.Size]byte{}, tiles)
+	l1 := generateRandomData(testFile, nil, tiles)
 	SortLibrary(&l1)
 	l1.AssignID()
-	l2 := generateRandomData("b", [][md5.Size]byte{}, tiles)
+	l2 := generateRandomData(testFile2, nil, tiles)
 	SortLibrary(&l2)
 	l2.AssignID()
 	b.ResetTimer()
-	for i:=0; i<b.N; i++ {
-		MergeLibraries(&l1,&l2, "/data-sdc/jc/testing.txt")
+	for i := 0; i < b.N; i++ {
+		MergeLibraries(&l1, &l2, testFile3)
 	}
 }
 
 // Test for the CreateMapping function, which makes liftover mappings from one library to another.
 func TestLiftover(t *testing.T) {
-	rand.Seed(1) // Seed for randomness can be changed.
+	testFile := ""                                            // Put your test file here.
+	testFile2 := ""                                           // Put your test file here.
+	testFile3 := ""                                           // Put your test file here.
+	rand.Seed(1)                                              // Seed for randomness can be changed.
 	tiles := generateRandomTiles(10, 15, 500, 1000, 248, 300) // Notice that this only creates around 600000 steps, rather than the more realistic 10 million.
-	l1 := generateRandomData("a", [][md5.Size]byte{}, tiles)
+	l1 := generateRandomData(testFile, nil, tiles)
 	SortLibrary(&l1)
 	l1.AssignID()
-	l2 := generateRandomData("b", [][md5.Size]byte{}, tiles)
+	l2 := generateRandomData(testFile2, nil, tiles)
 	SortLibrary(&l2)
 	l2.AssignID()
-	l3, err := MergeLibraries(&l1,&l2,"/data-sdc/jc/testing.txt")
+	l3, err := MergeLibraries(&l1, &l2, testFile3)
 	if err != nil {
 		t.Fatalf(err.Error())
 	}
@@ -375,7 +399,7 @@ func TestLiftover(t *testing.T) {
 				if !(*l1.Paths[path].Variants[step].List[oldIndex]).Equals(*l3.Paths[path].Variants[step].List[newIndex]) {
 					t.Fatalf("variants from liftover in library 1 are not equal.")
 				}
-			} 
+			}
 		}
 	}
 
@@ -389,38 +413,42 @@ func TestLiftover(t *testing.T) {
 				if !(*l2.Paths[path].Variants[step].List[oldIndex]).Equals(*l3.Paths[path].Variants[step].List[newIndex]) {
 					t.Fatalf("variants from liftover in library 2 are not equal.")
 				}
-			} 
+			}
 		}
 	}
 }
 
 // Benchmark to see how quickly LiftoverMappings can be made.
 func BenchmarkLiftover(b *testing.B) {
-	rand.Seed(1) // Seed for randomness can be changed.
+	testFile := ""                                            // Put your test file here.
+	testFile2 := ""                                           // Put your test file here.
+	testFile3 := ""                                           // Put your test file here.
+	rand.Seed(1)                                              // Seed for randomness can be changed.
 	tiles := generateRandomTiles(10, 15, 500, 1000, 248, 300) // Notice that this only creates around 600000 steps, rather than the more realistic 10 million.
-	l1 := generateRandomData("a", [][md5.Size]byte{}, tiles)
+	l1 := generateRandomData(testFile, nil, tiles)
 	SortLibrary(&l1)
 	l1.AssignID()
-	l2 := generateRandomData("b", [][md5.Size]byte{}, tiles)
+	l2 := generateRandomData(testFile2, nil, tiles)
 	SortLibrary(&l2)
 	l2.AssignID()
-	l3, err := MergeLibraries(&l1,&l2,"/data-sdc/jc/testing.txt")
+	l3, err := MergeLibraries(&l1, &l2, testFile3)
 	if err != nil {
 		b.Fatalf(err.Error())
 	}
 	b.ResetTimer()
-	for i:=0; i<b.N; i++ {
+	for i := 0; i < b.N; i++ {
 		CreateMapping(&l1, l3)
 	}
 }
 
 // Benchmark to see how fast a library ID can be given to a random library.
 func BenchmarkID(b *testing.B) {
+	testFile := "" // Put your test file here.
 	rand.Seed(1)
 	tiles := generateRandomTiles(10, 15, 500, 1000, 248, 300)
-	l1 := generateRandomData("a", [][md5.Size]byte{}, tiles)
+	l1 := generateRandomData(testFile, nil, tiles)
 	b.ResetTimer()
-	for i:=0; i<b.N; i++ {
+	for i := 0; i < b.N; i++ {
 		l1.AssignID()
 	}
 }
@@ -428,39 +456,64 @@ func BenchmarkID(b *testing.B) {
 // Tests the ParseSGLFv2 and AddLibrarySGLFv2 functions by writing a library to SGLFv2 files, converting it back, and testing if both libraries are equal.
 // Also tests IDs and references created from AddLibrarySGLFv2.
 func TestParseSGLFv2(t *testing.T) {
+	testFile := ""         // Put your test file here.
+	testFile2 := ""        // Put your test file here.
+	testFile3 := ""        // Put your test file here.
+	genomeDirectory1 := "" // Put your genome directory here.
+	genomeDirectory2 := "" // Put your genome directory here.
 	log.SetFlags(log.Llongfile)
-	l:=InitializeLibrary("/data-sdc/jc/tile-library/test.txt", [][md5.Size]byte{})
-	AddLibraryFastJ("../../../../../keep/by_id/su92l-4zz18-2hxdqjw6cbrnr7s/hu03E3D2_masterVarBeta-GS000038659-ASM", &l)
-	//AddLibraryFastJ("../../../../../keep/by_id/su92l-4zz18-2hxdqjw6cbrnr7s/hu03E3D2_masterVarBeta-GS000037847-ASM",&l)
+	l := InitializeLibrary(testFile, nil)
+	AddLibraryFastJ(genomeDirectory1, &l)
+	AddLibraryFastJ(genomeDirectory2, &l)
 	SortLibrary(&l)
 	l.AssignID()
-	WriteLibraryToSGLFv2(&l, "/data-sdc/jc/tile-library") // Writes it to disk and gets it back to make sure that the libraries will be the same
-	l1:=InitializeLibrary("/data-sdc/jc/tile-library", [][md5.Size]byte{})
+	WriteLibraryToSGLFv2(&l, testFile2) // Writes it to disk and gets it back to make sure that the libraries will be the same
+	l1 := InitializeLibrary(testFile2, nil)
 	AddLibrarySGLFv2(&l1)
-	if !l1.Equals(l) || !l.Equals(l1) || l1.ID != l.ID {
+	if !l1.Equals(&l) || !l.Equals(&l1) || l1.ID != l.ID {
 		t.Errorf("expected both libraries to be equal, but they aren't")
 	}
-	WriteLibraryToSGLFv2(&l1, "/data-sdc/jc/tile-library/test") // Writes it to disk again to test that writing from a directory of sglfv2 files works.
-	l2:=InitializeLibrary("/data-sdc/jc/tile-library/test", [][md5.Size]byte{})
+	WriteLibraryToSGLFv2(&l1, testFile3) // Writes it to disk again to test that writing from a directory of sglfv2 files works.
+	l2 := InitializeLibrary(testFile3, nil)
 	AddLibrarySGLFv2(&l2)
-	if !l1.Equals(l2) || !l2.Equals(l1) || l1.ID != l2.ID {
+	if !l1.Equals(&l2) || !l2.Equals(&l1) || l1.ID != l2.ID {
 		t.Errorf("expected second and third libraries to be equal, but they aren't")
 	}
 }
 
-// Test for merging libraries, based on real data.
-func TestParseSGLFv2WithMerge(t *testing.T) {
-	log.SetFlags(log.Llongfile)
-	l:=InitializeLibrary("/data-sdc/jc/tile-library/test.txt", [][md5.Size]byte{})
-	AddLibraryFastJ("../../../../../keep/by_id/su92l-4zz18-2hxdqjw6cbrnr7s/hu03E3D2_masterVarBeta-GS000038659-ASM",&l)
+func TestLibraryCreation(t *testing.T) {
+	l := InitializeLibrary("/data-sdc/jc/tile-library/test.txt", nil)
+	AddLibraryFastJ("../../../../../keep/by_id/su92l-4zz18-2hxdqjw6cbrnr7s/hu03E3D2_masterVarBeta-GS000038659-ASM", &l)
+	AddLibraryFastJ("../../../../../keep/by_id/su92l-4zz18-2hxdqjw6cbrnr7s/hu03E3D2_masterVarBeta-GS000037847-ASM", &l)
+	AddLibraryFastJ("../../../../../keep/by_id/su92l-4zz18-2hxdqjw6cbrnr7s/hu01F73B_masterVarBeta-GS000037833-ASM", &l)
+	AddLibraryFastJ("../../../../../keep/by_id/su92l-4zz18-2hxdqjw6cbrnr7s/hu02C8E3_masterVarBeta-GS000036653-ASM", &l)
+	AddLibraryFastJ("../../../../../keep/by_id/su92l-4zz18-2hxdqjw6cbrnr7s/hu0486D6_masterVarBeta-GS000037846-ASM", &l)
 	SortLibrary(&l)
 	l.AssignID()
-	l1:=InitializeLibrary("/data-sdc/jc/tile-library/testing/test.txt", [][md5.Size]byte{})
-	AddLibraryFastJ("../../../../../keep/by_id/su92l-4zz18-2hxdqjw6cbrnr7s/hu02C8E3_masterVarBeta-GS000036653-ASM", &l1)
+	WriteLibraryToSGLFv2(&l, "/data-sdc/jc/tile-library/test1")
+}
+
+// Test for merging libraries, based on real data.
+func TestParseSGLFv2WithMerge(t *testing.T) {
+	testFile := ""         // Put your test file here.
+	testFile2 := ""        // Put your test file here.
+	testFile3 := ""        // Put your test file here.
+	testFile4 := ""        // Put your test file here.
+	testDirectory1 := ""   // Put your test directory here.
+	testDirectory2 := ""   // Put your test directory here.
+	genomeDirectory1 := "" // Put your genome directory here.
+	genomeDirectory2 := "" // Put your genome directory here.
+	log.SetFlags(log.Llongfile)
+	l := InitializeLibrary(testFile, nil)
+	AddLibraryFastJ(genomeDirectory1, &l)
+	SortLibrary(&l)
+	l.AssignID()
+	l1 := InitializeLibrary(testFile2, nil)
+	AddLibraryFastJ(genomeDirectory2, &l1)
 
 	SortLibrary(&l1)
 	l1.AssignID()
-	l2, err :=MergeLibraries(&l, &l1, "/data-sdc/jc/testing.txt")
+	l2, err := MergeLibraries(&l, &l1, testFile3)
 	if err != nil {
 		t.Fatalf(err.Error())
 	}
@@ -475,7 +528,7 @@ func TestParseSGLFv2WithMerge(t *testing.T) {
 				if !(*l.Paths[path].Variants[step].List[oldIndex]).Equals(*l2.Paths[path].Variants[step].List[newIndex]) {
 					t.Fatalf("variants from liftover in library 1 are not equal.")
 				}
-			} 
+			}
 		}
 	}
 
@@ -489,40 +542,44 @@ func TestParseSGLFv2WithMerge(t *testing.T) {
 				if !(*l1.Paths[path].Variants[step].List[oldIndex]).Equals(*l2.Paths[path].Variants[step].List[newIndex]) {
 					t.Fatalf("variants from liftover in library 2 are not equal.")
 				}
-			} 
+			}
 		}
 	}
-	fmt.Println("verified that merged library is valid")
-	WriteLibraryToSGLFv2(l2, "/data-sdc/jc/tile-library/test2")
-	l3:=InitializeLibrary("/data-sdc/jc/tile-library/test2", [][md5.Size]byte{})
+	WriteLibraryToSGLFv2(l2, testDirectory1)
+	l3 := InitializeLibrary(testDirectory1, nil)
 	AddLibrarySGLFv2(&l3) // Verification that the library is written correctly.
-	if !l3.Equals(*l2) || !l2.Equals(l3) || l3.ID != l2.ID {
+	if !l3.Equals(l2) || !l2.Equals(&l3) || l3.ID != l2.ID {
 		t.Errorf("expected second and third libraries to be equal, but they aren't")
 	}
-	l4 := InitializeLibrary("/data-sdc/jc/tile-library/test3/test.txt", [][md5.Size]byte{}) // Comparing a library made from merging to a library made without merging
-	AddLibraryFastJ("../../../../../keep/by_id/su92l-4zz18-2hxdqjw6cbrnr7s/hu03E3D2_masterVarBeta-GS000038659-ASM", &l4)
-	AddLibraryFastJ("../../../../../keep/by_id/su92l-4zz18-2hxdqjw6cbrnr7s/hu02C8E3_masterVarBeta-GS000036653-ASM", &l4)
+	l4 := InitializeLibrary(testFile4, nil) // Comparing a library made from merging to a library made without merging
+	AddLibraryFastJ(genomeDirectory1, &l4)
+	AddLibraryFastJ(genomeDirectory2, &l4)
 	SortLibrary(&l4)
 	l4.AssignID()
-	WriteLibraryToSGLFv2(&l4, "/data-sdc/jc/tile-library/test3")
-	if !l4.Equals(*l2) || !l2.Equals(l4) || l4.ID != l2.ID {
+	WriteLibraryToSGLFv2(&l4, testDirectory2)
+	if !l4.Equals(l2) || !l2.Equals(&l4) || l4.ID != l2.ID {
 		t.Errorf("expected merged and unmerged libraries to be equal, but they aren't") // check why test is failing here.
 	}
 }
 
 // Test for merging libraries without creating a new library, based on real data.
 func TestParseSGLFv2WithMergeWithoutCreation(t *testing.T) {
+	testFile := ""         // Put your test file here.
+	testFile2 := ""        // Put your test file here.
+	testDirectory1 := ""   // Put your test directory here.
+	genomeDirectory1 := "" // Put your genome directory here.
+	genomeDirectory2 := "" // Put your genome directory here.
 	log.SetFlags(log.Llongfile)
-	l:=InitializeLibrary("/data-sdc/jc/tile-library/test.txt", [][md5.Size]byte{})
-	AddLibraryFastJ("../../../../../keep/by_id/su92l-4zz18-2hxdqjw6cbrnr7s/hu03E3D2_masterVarBeta-GS000038659-ASM",&l)
+	l := InitializeLibrary(testFile, nil)
+	AddLibraryFastJ(genomeDirectory1, &l)
 	SortLibrary(&l)
 	l.AssignID()
-	l1:=InitializeLibrary("/data-sdc/jc/tile-library/testing/test.txt", [][md5.Size]byte{})
-	AddLibraryFastJ("../../../../../keep/by_id/su92l-4zz18-2hxdqjw6cbrnr7s/hu02C8E3_masterVarBeta-GS000036653-ASM", &l1)
+	l1 := InitializeLibrary(testFile2, nil)
+	AddLibraryFastJ(genomeDirectory2, &l1)
 
 	SortLibrary(&l1)
 	l1.AssignID()
-	l2, err :=MergeLibrariesWithoutCreation(&l, &l1)
+	l2, err := MergeLibrariesWithoutCreation(&l, &l1)
 	if err != nil {
 		t.Fatalf(err.Error())
 	}
@@ -537,63 +594,61 @@ func TestParseSGLFv2WithMergeWithoutCreation(t *testing.T) {
 				if !(*l.Paths[path].Variants[step].List[oldIndex]).Equals(*l2.Paths[path].Variants[step].List[newIndex]) {
 					t.Fatalf("variants from liftover in library 1 are not equal.")
 				}
-			} 
+			}
 		}
 	}
 
-	WriteLibraryToSGLFv2(l2, "/data-sdc/jc/tile-library/test2")
-	l3:=InitializeLibrary("/data-sdc/jc/tile-library/test2", [][md5.Size]byte{})
+	WriteLibraryToSGLFv2(l2, testDirectory1)
+	l3 := InitializeLibrary(testDirectory1, nil)
 	AddLibrarySGLFv2(&l3) // Verification that the library is written correctly.
-	if !l3.Equals(*l2) || !l2.Equals(l3) || l3.ID != l2.ID {
+	if !l3.Equals(l2) || !l2.Equals(&l3) || l3.ID != l2.ID {
 		t.Errorf("expected second and third libraries to be equal, but they aren't")
 	}
 }
 
 // Test to determine if sorting is not dependent on the order of libraries given.
 func TestIdenticalSort(t *testing.T) {
-	rand.Seed(1) // Seed for randomness can be changed.
+	testFile := ""                                            // Put your test file here.
+	testFile2 := ""                                           // Put your test file here.
+	testFile3 := ""                                           // Put your test file here.
+	testFile4 := ""                                           // Put your test file here.
+	rand.Seed(1)                                              // Seed for randomness can be changed.
 	tiles := generateRandomTiles(10, 15, 500, 1000, 248, 300) // Notice that this only creates around 600000 steps, rather than the more realistic 10 million.
-	l1 := generateRandomData("a", [][md5.Size]byte{}, tiles)
+	l1 := generateRandomData(testFile, nil, tiles)
 	l1.AssignID()
 	SortLibrary(&l1)
-	l2 := generateRandomData("b", [][md5.Size]byte{}, tiles)
+	l2 := generateRandomData(testFile2, nil, tiles)
 	l2.AssignID()
 	SortLibrary(&l2)
-	l3, err := MergeLibraries(&l1,&l2,"/data-sdc/jc/testing.txt")
+	l3, err := MergeLibraries(&l1, &l2, testFile3)
 	if err != nil {
 		t.Fatalf(err.Error())
 	}
-	l4, err := MergeLibraries(&l2, &l1,"/data-sdc/jc/testing2.txt")
+	l4, err := MergeLibraries(&l2, &l1, testFile4)
 	if err != nil {
 		t.Fatalf(err.Error())
 	}
-	if !l3.Equals(*l4) {
+	if !l3.Equals(l4) {
 		t.Errorf("sort is different for different ordering of merge")
-	}
-}
-
-func BenchmarkMD5(b *testing.B) {
-	rand.Seed(time.Now().UnixNano())
-	lst := make([]byte, 6000000000, 6000000000)
-	rand.Read(lst)
-	b.ResetTimer()
-	for i:=0; i<b.N; i++ {
-		md5.Sum(lst)
 	}
 }
 
 // Test to create liftover mappings on random libraries.
 func TestMapping(t *testing.T) {
+	testFile := ""    // Put your test file here.
+	testFile2 := ""   // Put your test file here.
+	testFile3 := ""   // Put your test file here.
+	mappingFile := "" // Put the name of the mapping here.
 	log.SetFlags(log.Llongfile)
-	rand.Seed(1) // Seed for randomness can be changed.
+	rand.Seed(1)                                              // Seed for randomness can be changed.
 	tiles := generateRandomTiles(10, 15, 500, 1000, 248, 300) // Notice that this only creates around 600000 steps, rather than the more realistic 10 million.
-	l1 := generateRandomData("a", [][md5.Size]byte{}, tiles)
+	l1 := generateRandomData(testFile, nil, tiles)
 	l1.AssignID()
 	SortLibrary(&l1)
-	l2 := generateRandomData("b", [][md5.Size]byte{}, tiles)
+	l2 := generateRandomData(testFile2, nil, tiles)
 	l2.AssignID()
 	SortLibrary(&l2)
-	l3, err := MergeLibraries(&l1,&l2,"/data-sdc/jc/testing.txt")
+	l3, err := MergeLibraries(&l1, &l2, testFile3)
 	if err != nil {
 		t.Fatalf(err.Error())
 	}
@@ -602,8 +657,8 @@ func TestMapping(t *testing.T) {
 	if err != nil {
 		t.Fatalf(err.Error())
 	}
-	WriteMapping("/data-sdc/jc/test.sglfmapping", newMapping)
-	mapping, source, destination, err := ReadMapping("/data-sdc/jc/test.sglfmapping")
+	WriteMapping(mappingFile, newMapping)
+	mapping, source, destination, err := ReadMapping(mappingFile)
 	if err != nil {
 		t.Fatalf(err.Error())
 	}

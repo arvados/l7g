@@ -1,9 +1,7 @@
-/*
-	Structures is a basic package to hold basic structures, methods, and functions for tile libraries and genomes.
-	Most important is the TileVariant structure, which holds all the necessary data for a tile variant.
-	Equality on TileVariants is defined by hash.
-	In addition, the default number of paths in a genome is provided here for convenience.
-*/
+/*Package structures is a basic package to hold basic structures, methods, and functions for tile libraries and genomes.
+Most important is the TileVariant structure, which holds all the necessary data for a tile variant.
+Equality on TileVariants is defined by hash.
+In addition, the default number of paths in a genome is provided here for convenience.*/
 package structures
 
 import (
@@ -12,11 +10,11 @@ import (
 
 // TileVariant is a struct for representing a tile variant using the hash, length, and any annotation(s) on the variant.
 type TileVariant struct {
-	Hash       VariantHash 	  // The hash of the tile variant's bases.
-	Length     int            // The length (span) of the tile
-	Annotation string         // Any notes about this tile (by default, no comments)
-	LookupReference int64      // The lookup reference for the bases of this variant in the text file for the corresponding library.
-	Complete bool // Tells if this variant is complete or not (complete meaning no nocalls). Mostly for genomes, to quickly tell which tiles are complete and which are not.
+	Hash             VariantHash // The hash of the tile variant's bases.
+	Length           int         // The length (span) of the tile
+	Annotation       string      // Any notes about this tile (by default, no comments)
+	LookupReference  int64       // The lookup reference for the bases of this variant in the text file for the corresponding library.
+	Complete         bool        // Tells if this variant is complete or not (complete meaning no nocalls). Mostly for genomes, to quickly tell which tiles are complete and which are not.
 	ReferenceLibrary interface{} // A way of referencing the library this variant is from. (Will be a *Library).
 }
 

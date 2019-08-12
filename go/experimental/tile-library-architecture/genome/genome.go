@@ -1,25 +1,31 @@
-/*
-	Package genome is a package for representing the genome, relative to a tile library, with Go data structures.
-	Provided are various functions to export/import the data within genomes, along with creating new Genome data structures in memory.
-*/
+/*Package genome is a package for representing the genome, relative to a tile library, with Go data structures.
+Provided are various functions to export/import the data within genomes, along with creating new Genome data structures in memory.*/
 package genome
 
 import (
 	"bufio"
 	"compress/gzip"
-	"errors"
 	"encoding/hex"
+	"errors"
 	"io/ioutil"
-	"path"
 	"os"
+	"path"
 	"strconv"
 	"strings"
 
 	"../structures"
 	"../tile-library"
 
-	"github.com/kshedden/gonpy" //To be used later for the creation of numpy arrays.
+	"github.com/kshedden/gonpy"
 )
+
+// The following are errors that may be useful to return.
+
+// ErrInvalidGenome is an error for when a file that is expected to be a .genome file is not one.
+var ErrInvalidGenome = errors.New("not a valid genome file")
+
+// ErrNoLibraryAttached is an error for when a genome does not have a library in its Library field but needs one.
+var ErrNoLibraryAttached = errors.New("genome has no library attached")
 
 // openFile is a method to get the data of a file and return the corresponding slice of bytes.
 // Available mostly as a way to be flexible with files, since with openGZ a gzipped file or a non-gzipped file can be read and used.
@@ -39,7 +45,7 @@ func openFile(filepath string) ([]byte, error) {
 
 // Genome is a struct to represent a genome. It contains a pointer to its reference library, which allows for easy tiling.
 type Genome struct {
-	Paths [][]Path // Paths represents a genome through its paths. Two phases are present here (path and counterpart path).
+	Paths   [][]Path             // Paths represents a genome through its paths. Two phases are present here (path and counterpart path).
 	Library *tilelibrary.Library // This is the reference library for this Genome.
 }
 
@@ -82,19 +88,19 @@ func ParseFastJGenome(filepath string, genome *Genome) error {
 	if genome == nil || genome.Library == nil {
 		return errors.New("genome is nil or genome library is nil, cannot parse FastJ")
 	}
-	file := path.Base(filepath) // The name of the file.
+	file := path.Base(filepath)           // The name of the file.
 	splitpath := strings.Split(file, ".") // This is used to make sure the file is in the right format.
 	if len(splitpath) != 3 && len(splitpath) != 2 {
-		return errors.New("error: Not a valid file "+file) // Makes sure that the filepath goes to a valid file
+		return errors.New("error: Not a valid file " + file) // Makes sure that the filepath goes to a valid file
 	}
-	if splitpath[1] != "fj" || (len(splitpath)==3 && splitpath[2] != "gz") {
+	if splitpath[1] != "fj" || (len(splitpath) == 3 && splitpath[2] != "gz") {
 		return errors.New("error: not a valid FastJ file") // Makes sure that the file is a FastJ file
 	}
 	pathHex, hexErr := hex.DecodeString(splitpath[0])
 	if len(pathHex) != 2 || hexErr != nil {
 		return errors.New("invalid hex file name") // Makes sure the file title is four digits of hexadecimal
 	}
-	hexNumber := 256*int(pathHex[0])+int(pathHex[1]) // Conversion from hex into decimal--this is the path
+	hexNumber := 256*int(pathHex[0]) + int(pathHex[1]) // Conversion from hex into decimal--this is the path
 	var data []byte
 	var err error
 	if len(splitpath) == 3 {
@@ -114,7 +120,7 @@ func ParseFastJGenome(filepath string, genome *Genome) error {
 			if err != nil {
 				return err
 			}
-			step := 256 * int(stepBytes[0]) + int(stepBytes[1])
+			step := 256*int(stepBytes[0]) + int(stepBytes[1])
 			hashString := line[40:72]
 			hash, err := hex.DecodeString(hashString)
 			if err != nil {
@@ -129,15 +135,15 @@ func ParseFastJGenome(filepath string, genome *Genome) error {
 					commaCounter++
 				}
 				if commaCounter == 6 { // This is dependent on the location of the length field.
-					k:=1 // This accounts for the possibility of the length of a tile spanning at least 16 tiles.
+					k := 1                 // This accounts for the possibility of the length of a tile spanning at least 16 tiles.
 					for line[i-k] != ':' { // Goes back a few characters until it knows the string of the tile length.
 						k++
 					}
-					lengthString=line[(i-k+1):i]
+					lengthString = line[(i - k + 1):i]
 					break
 				}
 			}
-			
+
 			length, err := strconv.Atoi(lengthString)
 			if err != nil {
 				return err
@@ -166,7 +172,7 @@ func ParseFastJGenome(filepath string, genome *Genome) error {
 			(genome.Paths)[hexNumber][phase][step] = Step(index)
 		}
 	}
-	splitpath, data, tiles=  nil, nil, nil // Clears most things in memory that were used here.
+	splitpath, data, tiles = nil, nil, nil // Clears most things in memory that were used here.
 	return nil
 }
 
@@ -203,7 +209,10 @@ func InitializeGenome(library *tilelibrary.Library) Genome {
 // WriteGenomeToFile writes a genome to a list format of indices relative to its reference library.
 // Will not work if the genome does not have a reference library (nil reference)
 func WriteGenomeToFile(filename string, g *Genome) error {
-	f, err := os.OpenFile(filename, os.O_APPEND | os.O_CREATE | os.O_WRONLY, 0644)
+	if !strings.HasSuffix(filename, ".genome") {
+		return ErrInvalidGenome
+	}
+	f, err := os.OpenFile(filename, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 	defer f.Close()
 	if err != nil {
 		return err
@@ -230,7 +239,7 @@ func WriteGenomeToFile(filename string, g *Genome) error {
 		for i, value := range g.Paths[path][0][1:] {
 			if (*g.Library).Paths[path].Variants[i+1] != nil {
 				bufferedWriter.WriteString(",")
-				if value >=0 && !(*g.Library).Paths[path].Variants[i+1].List[int(value)].Complete {
+				if value >= 0 && !(*g.Library).Paths[path].Variants[i+1].List[int(value)].Complete {
 					bufferedWriter.WriteString("-2")
 				} else {
 					bufferedWriter.WriteString(strconv.Itoa(int(value)))
@@ -266,7 +275,7 @@ func ReadGenomeFromFile(filepath string) ([][]Path, error) {
 	}
 	splitpath := strings.Split(filepath, ".")
 	if len(splitpath) != 2 || splitpath[1] != "genome" {
-		return nil, errors.New("not a valid genome file")
+		return nil, ErrInvalidGenome
 	}
 	info, err := openFile(filepath)
 	if err != nil {
@@ -281,7 +290,7 @@ func ReadGenomeFromFile(filepath string) ([][]Path, error) {
 				if err != nil {
 					return nil, err
 				}
-				newPaths[i][j % 2] = append(newPaths[i][j % 2], Step(indexInt))
+				newPaths[i][j%2] = append(newPaths[i][j%2], Step(indexInt))
 			}
 		}
 	}
@@ -297,13 +306,13 @@ func (g *Genome) WriteNumpy(filepath string, path int) error {
 	}
 	sliceOfData := make([]int32, 0, 1)
 	for i, value := range g.Paths[path][0] {
-		if value >=0 && !(*g.Library).Paths[path].Variants[i].List[value].Complete {
+		if value >= 0 && !(*g.Library).Paths[path].Variants[i].List[value].Complete {
 			sliceOfData = append(sliceOfData, -2)
 		} else {
 			sliceOfData = append(sliceOfData, int32(value))
 		}
-		
-		if g.Paths[path][1][i] >=0 && !(*g.Library).Paths[path].Variants[i].List[g.Paths[path][1][i]].Complete {
+
+		if g.Paths[path][1][i] >= 0 && !(*g.Library).Paths[path].Variants[i].List[g.Paths[path][1][i]].Complete {
 			sliceOfData = append(sliceOfData, -2)
 		} else {
 			sliceOfData = append(sliceOfData, int32(g.Paths[path][1][i]))
@@ -356,7 +365,7 @@ func WriteGenomesPathToNumpy(genomes []*Genome, filepath string, path int) error
 				return errors.New("path lengths within each genome are not equal")
 			}
 		}
-		sliceOfData := make([]int32, len(genomes) * lengthOfPath)
+		sliceOfData := make([]int32, len(genomes)*lengthOfPath)
 		npywriter.Shape = []int{lengthOfPath, len(genomes)}
 		for _, g := range genomes {
 			for i, value := range g.Paths[path][0] {
@@ -365,7 +374,7 @@ func WriteGenomesPathToNumpy(genomes []*Genome, filepath string, path int) error
 				} else {
 					sliceOfData = append(sliceOfData, int32(value))
 				}
-				
+
 				if !(*g.Library).Paths[path].Variants[i].List[value].Complete {
 					sliceOfData = append(sliceOfData, -2)
 				} else {
@@ -384,7 +393,7 @@ func WriteGenomesPathToNumpy(genomes []*Genome, filepath string, path int) error
 // LiftoverGenome runs a liftover operation on a genome.
 func LiftoverGenome(g *Genome, destination *tilelibrary.Library) error {
 	if g.Library == nil {
-		return errors.New("genome has no library attached")
+		return ErrNoLibraryAttached
 	}
 	mapping, err := tilelibrary.CreateMapping(g.Library, destination)
 	if err != nil {

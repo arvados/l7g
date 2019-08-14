@@ -47,7 +47,7 @@ ifnInitial=`basename $gffInitial`
 stripped_name=`basename $ifnInitial .gff.gz`
 export gff=$gffInitial
 
-for chrom in $chroms; do
+for chrom in ${chroms[@]}; do
 
   echo $stripped_name processing $chrom
 

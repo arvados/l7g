@@ -50,7 +50,7 @@ ifnInitial=`basename $gvcfInitial`
 stripped_name=`basename $ifnInitial .vcf.gz`
 export gvcf=$gvcfInitial
 
-for chrom in $chroms; do
+for chrom in ${chroms[@]}; do
 
    if [[ "$VERBOSE" -eq 1 ]] ; then
      echo "gvcfInitial: $gvcfInitial"

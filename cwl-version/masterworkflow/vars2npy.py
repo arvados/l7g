@@ -36,7 +36,8 @@ tagset:
   location: keep:%s\n''' % (REFFA[ref], AFN[ref], TAGSET)
     chroms_prefix = chr1.replace("1", "")
     chroms_list = ["\"" + chroms_prefix + str(c) + "\"" for c in range(1, 23)]
-    chroms_list.append("\"" + chrM + "\"")
+    chroms_list.extend(["\"" + chroms_prefix + "X\"", "\"" + chroms_prefix + "Y\"",
+                        "\"" + chrM + "\""])
     chroms = "[" + ", ".join(chroms_list) + "]"
     yml_text += 'chroms: %s\n' % chroms
     yml_text += '''pathmin: "%d"

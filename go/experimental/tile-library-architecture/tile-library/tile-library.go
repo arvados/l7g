@@ -477,7 +477,7 @@ func bufferedBaseWrite(libraryTextFile string, channel chan baseInfo, writeChann
 // writePathToSGLF writes an SGLF for an entire path given a library.
 // This assumes that the library has been sorted beforehand.
 // Will return any error encountered.
-func writePathToSGLF(library *Library, genomePath int, directoryToWriteTo, directoryToGetFrom, textFilename string) error {
+func writePathToSGLF(library *Library, genomePath int, directoryToWriteTo string) error {
 	pathFileMap := make(map[string]*os.File, 0)
 	var b strings.Builder
 	b.WriteString(fmt.Sprintf("%04x", genomePath))
@@ -571,9 +571,9 @@ func writePathToSGLF(library *Library, genomePath int, directoryToWriteTo, direc
 
 // WriteLibraryToSGLF writes the contents of a library to SGLF files.
 // Will return any error encountered.
-func WriteLibraryToSGLF(library *Library, directoryToWriteTo, directoryToGetFrom, textFile string) error {
+func WriteLibraryToSGLF(library *Library, directoryToWriteTo string) error {
 	for path := 0; path < structures.Paths; path++ {
-		err := writePathToSGLF(library, path, directoryToWriteTo, directoryToGetFrom, textFile)
+		err := writePathToSGLF(library, path, directoryToWriteTo)
 		if err != nil {
 			return err
 		}
@@ -614,8 +614,10 @@ func writePathToSGLFv2(library *Library, genomePath int, directoryToWriteTo stri
 	bufferedWriter.WriteString(";Components:")
 	if len(library.Components) > 0 {
 		bufferedWriter.WriteString(hex.EncodeToString(library.Components[0][:]))
-		bufferedWriter.WriteString(",")
-		bufferedWriter.WriteString(hex.EncodeToString(library.Components[1][:]))
+		for _, id := range library.Components[1:] {
+			bufferedWriter.WriteString(",")
+			bufferedWriter.WriteString(hex.EncodeToString(id[:]))
+		}
 	}
 	bufferedWriter.WriteString("\n")
 
@@ -769,30 +771,36 @@ func AddByDirectories(library *Library, directories []string, gzipped bool) erro
 // CompileDirectoriesToLibrary creates a new Library based on the directories given, sorts it, and gives it its ID (so this library is ready for use).
 // Returns the library pointer and an error, if any (nil if no error was encounted)
 func CompileDirectoriesToLibrary(directories []string, libraryTextFile string, gzipped bool) (*Library, error) {
-	l := InitializeLibrary(libraryTextFile, nil)
-	err := AddByDirectories(&l, directories, gzipped)
+	l, err := InitializeLibrary(libraryTextFile, nil)
 	if err != nil {
 		return nil, err
 	}
-	SortLibrary(&l)
-	(&l).AssignID()
-	return &l, nil
+	err = AddByDirectories(l, directories, gzipped)
+	if err != nil {
+		return nil, err
+	}
+	SortLibrary(l)
+	(l).AssignID()
+	return l, nil
 }
 
 // SequentialCompileDirectoriesToLibrary creates a new Library based on the directories given, sorts it, and gives it its ID (so this library is ready for use).
 // This adds each directory sequentially (so each genome is done one at a time, rather than doing one path of all genomes all at once)
 // Returns the library pointer and an error, if any (nil if no error was encounted)
 func SequentialCompileDirectoriesToLibrary(directories []string, libraryTextFile string) (*Library, error) {
-	l := InitializeLibrary(libraryTextFile, nil)
+	l, err := InitializeLibrary(libraryTextFile, nil)
+	if err != nil {
+		return nil, err
+	}
 	for _, directory := range directories {
-		err := AddLibraryFastJ(directory, &l)
+		err := AddLibraryFastJ(directory, l)
 		if err != nil {
 			return nil, err
 		}
 	}
-	SortLibrary(&l)
-	(&l).AssignID()
-	return &l, nil
+	SortLibrary(l)
+	(l).AssignID()
+	return l, nil
 }
 
 // RemoveIntermediateFile removes the file specified by library.Text.
@@ -814,14 +822,22 @@ func RemoveIntermediateFile(library *Library) error {
 
 // InitializeLibrary sets up the basic structure for a library.
 // For consistency, it's best to use an absolute path for the text file. Relative paths will still work, but they are not recommended.
-func InitializeLibrary(textFile string, componentLibraries [][md5.Size]byte) Library {
+func InitializeLibrary(textFile string, componentLibraries [][md5.Size]byte) (*Library, error) {
 	var newLibraryPaths []concurrentPath
 	newLibraryPaths = make([]concurrentPath, structures.Paths, structures.Paths)
 	for i := range newLibraryPaths {
 		var newLock sync.RWMutex
 		newLibraryPaths[i] = concurrentPath{newLock, make([]*KnownVariants, 0, 1)} // Lock is copied, but hasn't been used yet, so this is fine.
 	}
-	return Library{Paths: newLibraryPaths, Text: textFile, Components: componentLibraries}
+	_, err := os.Stat(textFile) // Test if the file exists.
+	if err != nil {             // File probably doesn't exist.
+		file, err := os.OpenFile(textFile, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+		if err != nil {
+			return nil, err
+		}
+		defer file.Close()
+	}
+	return &Library{Paths: newLibraryPaths, Text: textFile, Components: componentLibraries}, nil
 }
 
 // Function to copy the contents of the source library into the new library.
@@ -839,7 +855,7 @@ func libraryCopy(destination, source *Library) {
 				copy(destination.Paths[i].Variants[step].Counts, source.Paths[i].Variants[step].Counts)
 				for j, variant := range source.Paths[i].Variants[step].List {
 					variantCopy := *variant // copies variants without reusing, so variants in source still have a pointer to source while variants in destination point to destination.
-					variantCopy.ReferenceLibrary = destination
+					//variantCopy.ReferenceLibrary = destination
 					destination.Paths[i].Variants[step].List[j] = &variantCopy
 				}
 				// copying List and Counts manually instead of copying Variants[step] makes sure the pointers for List and Counts aren't reused.
@@ -849,9 +865,10 @@ func libraryCopy(destination, source *Library) {
 	}
 }
 
-// pointVariantsToLibrary points ALL variants of a library to another library.
+// pointVariantsToOriginalLibrary points variants of a library to another library.
+// It does not move them if the current reference pointer is already at the original library.
 // Mainly used for merging libraries, since variants need to point to their original libraries.
-func pointVariantsToLibrary(library *Library, newLibrary *Library) {
+func pointVariantsToOriginalLibrary(library *Library, newLibrary *Library) {
 	for i := range library.Paths {
 		library.Paths[i].Lock.RLock()
 		for step := range library.Paths[i].Variants {
@@ -871,19 +888,23 @@ func pointVariantsToLibrary(library *Library, newLibrary *Library) {
 func MergeLibraries(libraryToMerge *Library, mainLibrary *Library, textFile string) (*Library, error) {
 	allComponents := append([][md5.Size]byte{libraryToMerge.ID, mainLibrary.ID}, libraryToMerge.Components...)
 	allComponents = append(allComponents, mainLibrary.Components...)
-	newLibrary := InitializeLibrary(textFile, allComponents)
-	libraryCopy(&newLibrary, mainLibrary)
-	pointVariantsToLibrary(&newLibrary, mainLibrary)
+	newLibrary, err := InitializeLibrary(textFile, allComponents)
+	if err != nil {
+		return nil, err
+	}
+	libraryCopy(newLibrary, mainLibrary)
+	//pointVariantsToOriginalLibrary(&newLibrary, mainLibrary)
 	for i := range (*libraryToMerge).Paths {
 		for j := range (*libraryToMerge).Paths[i].Variants {
-			err := mergeKnownVariants(i, j, (*libraryToMerge).Paths[i].Variants[j], &newLibrary)
+			err := mergeKnownVariants(i, j, (*libraryToMerge).Paths[i].Variants[j], newLibrary)
 			if err != nil {
 				return nil, err
 			}
 		}
 	}
-	SortLibrary(&newLibrary)
-	return &newLibrary, nil
+	SortLibrary(newLibrary)
+	newLibrary.AssignID()
+	return newLibrary, nil
 }
 
 // MergeKnownVariants puts the contents of a KnownVariants at a specific path and step into another library.
@@ -1139,7 +1160,7 @@ func ParseSGLFv2(filepath string, library *Library) error {
 			}
 			// Adding count-1 instead of count since AddTile will already add 1 to the count of the new tile.
 			referenceCounter += len(line) + 1 // +1 to account for the newline.
-		} else if line != "" { // This refers to the first line, which contains ID and Component information.
+		} else if line != "" && len(library.Components) == 0 { // This refers to the first line, which contains ID and Component information.
 			idSlice := strings.Split(line, ";")
 			idString := strings.Split(idSlice[0], ":")[1]
 			libraryHash, err := hex.DecodeString(idString)
@@ -1152,19 +1173,15 @@ func ParseSGLFv2(filepath string, library *Library) error {
 			components := strings.Split(idSlice[1], ":")[1]
 			if components != "" {
 				componentStrings := strings.Split(components, ",")
-				component1Hash, err := hex.DecodeString(componentStrings[0])
-				if err != nil {
-					return err
+				for _, component := range componentStrings {
+					componentHash, err := hex.DecodeString(component)
+					if err != nil {
+						return err
+					}
+					var componentHashArray [md5.Size]byte
+					copy(componentHashArray[:], componentHash)
+					library.Components = append(library.Components, componentHashArray)
 				}
-				component2Hash, err := hex.DecodeString(componentStrings[1])
-				if err != nil {
-					return err
-				}
-				var component1HashArray [md5.Size]byte
-				var component2HashArray [md5.Size]byte
-				copy(component1HashArray[:], component1Hash)
-				copy(component2HashArray[:], component2Hash)
-				library.Components = append(library.Components, component1HashArray, component2HashArray)
 			}
 		}
 	}

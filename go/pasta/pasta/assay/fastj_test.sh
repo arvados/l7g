@@ -182,4 +182,51 @@ diff <( ./pasta -action rotini-ref -i $odir/inp_$path.pa ) <( ./pasta -action ro
 diff <( ./pasta -action rotini-alt0 -i $odir/inp_$path.pa ) <( ./pasta -action rotini-alt0 -i $odir/out_$path.pa ) || _q "error: alt0 difference"
 diff <( ./pasta -action rotini-alt1 -i $odir/inp_$path.pa ) <( ./pasta -action rotini-alt1 -i $odir/out_$path.pa ) || _q "error: alt1 difference"
 
+
+###
+###
+###
+
+x="$( ./pasta -a rotini-fastj \
+  -i assay-data/fj-startTag-test.pa \
+  -r assay-data/fj-startTag-test.refstream \
+  -A assay-data/fj-startTag-test.assembly \
+  -T assay-data/fj-startTag-test.tag | \
+  egrep '^>' | sed 's/^>//' | jq '.startTile' | \
+  sort -u | egrep -v 'true' )"
+
+if [[ "$x" != "" ]] ; then
+  _q "error FastJ: startTile check failed"
+  exit -1
+fi
+
+ipa="assay-data/hu034DB1-GS00253-DNA_A02-0000.pa.gz"
+
+./pasta -action rotini-fastj \
+  -start 0 \
+  -tilepath 0000 \
+  -chrom chr1 \
+  -build hg19 \
+  -i <( zcat $ipa ) \
+  -assembly <( zcat assay-data/assembly-hg19-0000.gz ) \
+  -tag <( zcat assay-data/tagset-0000.gz ) | \
+  fjt -t -T
+r=$?
+
+if [[ "$r" -ne 0 ]] ; then _q "error: FastJ end tile error" ; fi
+
+./pasta -action rotini-fastj \
+  -start 0 \
+  -tilepath 0000 \
+  -chrom chr1 \
+  -build hg19 \
+  -i <( zcat $ipa ) \
+  -assembly <( zcat assay-data/assembly-hg19-0000.gz ) \
+  -tag <( cat <( zcat assay-data/tagset-0000.gz ) <( echo "") ) | \
+  fjt -t -T
+r=$?
+
+if [[ "$r" -ne 0 ]] ; then _q "error: FastJ end tile error" ; fi
+
+
 echo ok

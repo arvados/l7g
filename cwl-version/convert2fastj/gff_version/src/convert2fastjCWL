@@ -141,7 +141,7 @@ for chrom in ${chroms[@]}; do
     $pasta -action rotini-fastj -start $ref_start0 -tilepath $path -chrom $chrom -build $ref \
       -i $odir/$path.pa \
       -assembly <( $l7g assembly $afn $path ) \
-      -tag <( cat <( samtools faidx $tagset $path.00 | egrep -v '^>' | tr -d '\n' | fold -w 24 ) <( echo "" ) ) > $odir/$path.fj
+      -tag <( samtools faidx $tagset $path.00 | egrep -v '^>' | tr -d '\n' | fold -w 24 ) ) > $odir/$path.fj
 
     rm $odir/$path.pa
     bgzip -f $odir/$path.fj

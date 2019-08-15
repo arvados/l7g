@@ -18,7 +18,7 @@ import "github.com/curoverse/l7g/go/pasta"
 
 import "github.com/curoverse/l7g/go/pasta/gvcf"
 
-var VERSION_STR string = "0.2.6"
+var VERSION_STR string = "0.2.8"
 var gVerboseFlag bool
 
 var gProfileFlag bool

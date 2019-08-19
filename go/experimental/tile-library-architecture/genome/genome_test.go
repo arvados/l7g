@@ -15,14 +15,17 @@ func TestWriteToFile(t *testing.T) {
 	genomeDirectory1 := "" // Put your genome directory here.
 	genomeDirectory2 := "" // Put your genome directory here.
 	log.SetFlags(log.Llongfile)
-	l := tilelibrary.InitializeLibrary(testFile, nil)
-	tilelibrary.AddLibraryFastJ(genomeDirectory1, &l)
-	tilelibrary.AddLibraryFastJ(genomeDirectory2, &l)
-	tilelibrary.SortLibrary(&l)
+	l, err := tilelibrary.New(testFile, nil)
+	if err != nil {
+		log.Fatal(err)
+	}
+	l.AddLibraryFastJ(genomeDirectory1)
+	l.AddLibraryFastJ(genomeDirectory2)
+	l.SortLibrary()
 	l.AssignID()
-	g := InitializeGenome(&l)
-	CreateGenome(genomeDirectory1, &g)
-	WriteGenomeToFile(testGenomeFile1, &g)
+	g := New(l)
+	g.Add(genomeDirectory1)
+	g.WriteToFile(testGenomeFile1)
 	paths, err := ReadGenomeFromFile(testGenomeFile1)
 	if err != nil {
 		t.Fatalf(err.Error())
@@ -50,15 +53,18 @@ func TestGenomeNumpy(t *testing.T) {
 	testNumpy1 := ""       // Put your test numpy file here.
 	genomeDirectory1 := "" // Put your genome directory here.
 	genomeDirectory2 := "" // Put your genome directory here.
-	path := 0              // Put your test path number here
+	path := 0              // Put your test path number here.
 	log.SetFlags(log.Llongfile)
-	l := tilelibrary.InitializeLibrary(testFile, nil)
-	tilelibrary.AddLibraryFastJ(genomeDirectory1, &l)
-	tilelibrary.AddLibraryFastJ(genomeDirectory2, &l)
-	tilelibrary.SortLibrary(&l)
+	l, err := tilelibrary.New(testFile, nil)
+	if err != nil {
+		log.Fatal(err)
+	}
+	l.AddLibraryFastJ(genomeDirectory1)
+	l.AddLibraryFastJ(genomeDirectory2)
+	l.SortLibrary()
 	l.AssignID()
-	g := InitializeGenome(&l)
-	CreateGenome(genomeDirectory1, &g)
+	g := New(l)
+	g.Add(genomeDirectory1)
 	g.WriteNumpy(testNumpy1, path)
 	testPath, err := ReadGenomeNumpy(testNumpy1)
 	if err != nil {
@@ -82,25 +88,31 @@ func TestGenomeLiftover(t *testing.T) {
 	genomeDirectory1 := "" // Put your genome directory here.
 	genomeDirectory2 := "" // Put your genome directory here.
 	log.SetFlags(log.Llongfile)
-	l := tilelibrary.InitializeLibrary(testFile, nil)
-	tilelibrary.AddLibraryFastJ(genomeDirectory1, &l)
-	tilelibrary.SortLibrary(&l)
+	l, err := tilelibrary.New(testFile, nil)
+	if err != nil {
+		log.Fatal(err)
+	}
+	l.AddLibraryFastJ(genomeDirectory1)
+	l.SortLibrary()
 	l.AssignID()
-	l1 := tilelibrary.InitializeLibrary(testFile2, nil)
-	tilelibrary.AddLibraryFastJ(genomeDirectory2, &l1)
+	l1, err := tilelibrary.New(testFile2, nil)
+	if err != nil {
+		log.Fatal(err)
+	}
+	l.AddLibraryFastJ(genomeDirectory2)
 
-	tilelibrary.SortLibrary(&l1)
+	l.SortLibrary()
 	l1.AssignID()
-	l2, err := tilelibrary.MergeLibraries(&l, &l1, testFile3)
+	l2, err := l1.MergeLibraries(l, testFile3)
 	if err != nil {
 		t.Fatalf(err.Error())
 	}
 	(*l2).AssignID()
-	g := InitializeGenome(&l)
-	CreateGenome(genomeDirectory1, &g)
-	g1 := InitializeGenome(l2)
-	CreateGenome(genomeDirectory1, &g1)
-	LiftoverGenome(&g, l2)
+	g := New(l)
+	g.Add(genomeDirectory1)
+	g1 := New(l2)
+	g1.Add(genomeDirectory1)
+	g.Liftover(l2)
 	for i, path := range g.Paths {
 		for j, phase := range path {
 			for step, value := range phase {

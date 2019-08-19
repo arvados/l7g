@@ -9,6 +9,10 @@ import (
 )
 
 // TileVariant is a struct for representing a tile variant using the hash, length, and any annotation(s) on the variant.
+// In this case, a tile variant
+
+// Note: no explicit TileVariant constructor is provided. However, all fields are exported, so other packages can construct and modify TileVariants freely without the need for a constructor.
+// explain more about what a tile variant is
 type TileVariant struct {
 	Hash             VariantHash // The hash of the tile variant's bases.
 	Length           int         // The length (span) of the tile
@@ -16,11 +20,6 @@ type TileVariant struct {
 	LookupReference  int64       // The lookup reference for the bases of this variant in the text file for the corresponding library.
 	Complete         bool        // Tells if this variant is complete or not (complete meaning no nocalls). Mostly for genomes, to quickly tell which tiles are complete and which are not.
 	ReferenceLibrary interface{} // A way of referencing the library this variant is from. (Will be a *Library).
-}
-
-// TileCreator is a small function to create a new tile given information about it.
-func TileCreator(hash VariantHash, length int, annotation string, reference int64) TileVariant {
-	return TileVariant{Hash: hash, Length: length, Annotation: annotation, LookupReference: reference}
 }
 
 // VariantHash is a hash for the bases of a tile variant.
@@ -33,5 +32,5 @@ func (t TileVariant) Equals(t2 TileVariant) bool {
 	return (t.Hash == t2.Hash)
 }
 
-// Paths is the number of paths a genome has.
+// Paths is the number of paths a genome has, for convenience.
 const Paths int = 863 // Constant because we know that the number of paths is always the same.

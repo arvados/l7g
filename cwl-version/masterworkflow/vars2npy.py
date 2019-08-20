@@ -6,7 +6,8 @@ import os
 import subprocess
 
 RUNNER_RAM = "50000"
-EVAL_TIMEOUT = "2000"
+EVAL_TIMEOUT = "10000"
+THREAD_COUNT = "8"
 
 PATHMIN = 0
 PATHMAX = 862
@@ -48,14 +49,15 @@ checknum: %d''' % (PATHMIN, PATHMAX, nchunks, SGLFTHRESHOLD, CHECKNUM)
 
     print("Input yml file:")
     print(yml_text)
-    
+
     yml = "yml/%s_%s.yml" % (varstype, inputpdh)
     with open(yml, 'w') as f:
         f.write(yml_text)
     command = ["arvados-cwl-runner", "--api", "containers",
                "--submit", "--no-wait",
                "--submit-runner-ram", RUNNER_RAM,
-               "--eval-timeout", EVAL_TIMEOUT]
+               "--eval-timeout", EVAL_TIMEOUT,
+               "--thread-count", THREAD_COUNT]
     if project_uuid:
         command.extend(["--project-uuid", project_uuid])
     command.extend(["%s2npy-wf.cwl" % varstype, yml])

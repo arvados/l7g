@@ -1,14 +1,19 @@
-gff:
-  class: File
-  location: keep:9f05ccb9e7e779f4fbed0f47c7dceda2+413/hu826751-GS03052-DNA_B01.gff.gz
-ref: "hg19"
+gvcfdir:
+  class: Directory
+  location: keep:4983898697fdc0890f26c87413f883f3+14420
+ref: "hg38"
 reffa:
   class: File
-  location: keep:ef70506d71ee761b1ec28d67290216a0+1252/hg19.fa.gz
+  location: keep:ee5b90cf2d5f3573e6d455ab56e15cdf+761/hg38.fa.gz
 afn:
   class: File
-  location: keep:98c5e71956730c36cc89bb25b99fe58b+965/assembly.00.hg19.fw.gz
+  location: keep:7deca98a5827e1991bf49a96a0087318+233/assembly.00.hg38.fw.gz
 tagset:
   class: File
   location: keep:cd9ada494bd979a8bc74e6d59d3e8710+174/tagset.fa.gz
 chroms: ["chr1", "chr2", "chr3", "chr4", "chr5", "chr6", "chr7", "chr8", "chr9", "chr10", "chr11", "chr12", "chr13", "chr14", "chr15", "chr16", "chr17", "chr18", "chr19", "chr20", "chr21", "chr22", "chrX", "chrY", "chrM"]
+pathmin: "0"
+pathmax: "862"
+nchunks: "15"
+sglfthreshold: 4000
+checknum: 2

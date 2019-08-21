@@ -1,6 +1,6 @@
 gvcf:
   class: File
-  location: keep:6461ddeb0841728ad439897eb0e4538f+14264/A-CUHS-CU010093-BL-COL-44045BL1.vcf.gz
+  location: keep:4983898697fdc0890f26c87413f883f3+14420/A-CUHS-CU010093-BL-COL-44045BL1.vcf.gz
 ref: "hg38"
 reffa:
   class: File

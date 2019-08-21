@@ -1,17 +1,11 @@
 /*Package tilelibrary is a package for implementing tile libraries in Go.
-It is assumed that the tile information provided beforehand is imputed--the library does not check for completeness of tiles before writing them to files.
+It is assumed that the tile information provided beforehand is imputed, or that having nocalls is okay in SGLF files.
+The library does check for completeness of tiles, but doesn't modify them to be complete or imputed before writing them to files.
 Various functions to merge, liftover, import, export, and modify libraries are provided.
+Should be used in conjunction with the structures package.
 Note: Do not add tiles to libraries made from SGLFv2 files (since it's not clear how the tile information would be included)
 Note: adding tiles to a library at any point will require sorting that library before writing it to a file.*/
 package tilelibrary
-
-// add some examples for documentation
-// use reader pointers instead of file names
-// validate data instead of file name
-// make some of these functions methods on libraries instead
-// explanation about IDs
-// consistency with expectations of user
-// explain structures more
 
 import (
 	"bufio"
@@ -34,9 +28,6 @@ import (
 )
 
 // The following are various possible errors that can occur.
-
-// ErrRemoveIntermediateDirectory is an error returned when an intermediate directory of SGLFv2 files is attempted to be removed.
-var ErrRemoveIntermediateDirectory = errors.New("intermediate files are sglfv2 files; nothing removed")
 
 // ErrInconsistentHash is an error for when the hash of a set of bases does not match the TileVariant hash.
 var ErrInconsistentHash = errors.New("bases and hash do not match")
@@ -88,19 +79,21 @@ type KnownVariants struct {
 }
 
 // concurrentPath is a type to represent a path, while also being safe for concurrent use.
+// It contains a Variants field, where Variants[i] is a pointer to the set of known variants at step i of this path.
 type concurrentPath struct {
 	Lock     sync.RWMutex     // The read/write lock used for concurrency within a path.
 	Variants []*KnownVariants // The list of steps, where each entry contains the known variants at that step.
 }
 
 /*
-Library is a struct to represent a library of tile variants.
+Library is a struct to represent a library of tile variants from a set of genomes.
 
-Libraries have IDs for easy discussion and reference. Currently, the IDs are calculated by the MD5 hash algorithm
+A Library is separated into paths, in the Paths field, represented as a slice of concurrentPaths. This makes Libraries safe for concurrent use in terms of modification of tiles.
+
+Libraries have IDs for easy discussion and reference. Currently, the IDs are calculated by the MD5 hash algorithm.
 It hashes all of the location and tile information (except annotations) in order, by path, then step, then in the order of variants by increasing variant number.
 Upon reaching a new path or step, the uint32 form, separated into 4 bytes, of the path/step is added to the hash.
-Then, for each variant, infomation is added to the list of bytes to hashed in the following order:
-
+Then, for each variant, infomation is added to the list of bytes to be hashed in the following order:
 	-Variant number, in uint32 form, separated into bytes
 	-Total count of this variant
 	-Tile length, in terms of steps.
@@ -108,11 +101,13 @@ Then, for each variant, infomation is added to the list of bytes to hashed in th
 
 Hashing everything including location infomation ensures that two libraries with the same tiles and counts but with some tiles in different locations would not be considered the same libraries.
 
-The components of a library determine specifically which libraries are allowed to liftover to the current library (since without being part of the components, it's impossible to know easily if you can make a liftover mapping)
+The Components of a library determine specifically which libraries are allowed to liftover to that library (since without being part of the components, it's impossible to know easily if you can make a liftover mapping)
 
 In terms of usage, create a new library using New, which will set up the Paths of the Library for you, and will set the reference text file and any component libraries.
 
-Note: files and directories of tile libraries will not be automatically deleted. If files or directories must be deleted, you must add this functionality (e.g. by using os.Remove).
+Notes: files and directories of tile libraries will not be automatically deleted. If files or directories must be deleted, you must add this functionality (e.g. by using os.Remove).
+In addition, the ID is not automatically updated when using AddTile, since AssignID is not quick.
+The caller must use AssignID on the library to update its ID after adding all tiles.
 */
 type Library struct {
 	Paths      []concurrentPath // The paths of the library.
@@ -136,7 +131,7 @@ func uint32ToByteSlice(integer uint32) []byte {
 func (l *Library) AssignID() {
 	var byteList []byte
 	byteList = make([]byte, 0, 9000000000) // Allocation of 9 gigabytes, a little over the size of what would be expected of a library with 10 tiles per step.
-	// While this is costly, in most cases this saves time by not needed to reallocate much.
+	// While this is costly, in most cases this saves time by not needing to reallocate much.
 	for path := range l.Paths {
 		byteList = append(byteList, uint32ToByteSlice(uint32(path))...)
 		l.Paths[path].Lock.RLock()
@@ -236,6 +231,7 @@ func (l *Library) SortLibrary() {
 
 // TileExists is a function to check if a specific tile exists at a specific path and step in a library.
 // Returns the index of the variant and the boolean true, if found--otherwise, returns 0 and false, meaning not found.
+// It creates more room for new steps and variants, if necessary.
 func (l *Library) TileExists(path, step int, toCheck *structures.TileVariant) (int, bool) {
 	(*l).Paths[path].Lock.Lock()
 	defer (*l).Paths[path].Lock.Unlock()
@@ -258,6 +254,7 @@ func (l *Library) TileExists(path, step int, toCheck *structures.TileVariant) (i
 // AddTile is a function to add a tile (without sorting).
 // Safe to use without checking existence of the tile beforehand (since the function will do that for you).
 // Will return any error encountered.
+// Note: AddTile will write any new tiles to disk in an intermediate file.
 func (l *Library) AddTile(genomePath, step int, new *structures.TileVariant, bases string) error {
 	index, ok := l.TileExists(genomePath, step, new)
 	if !ok { // If the tile doesn't exist, add it and write it to a file.
@@ -270,7 +267,6 @@ func (l *Library) AddTile(genomePath, step int, new *structures.TileVariant, bas
 		(*l).Paths[genomePath].Variants[step].List = append((*l).Paths[genomePath].Variants[step].List, new)
 		(*l).Paths[genomePath].Variants[step].Counts = append((*l).Paths[genomePath].Variants[step].Counts, 1)
 		// Added new tile--write the hash and bases to a file.
-
 		info, err := os.Stat(l.text)
 		if err != nil {
 			file, err := os.Create(l.text)
@@ -283,7 +279,7 @@ func (l *Library) AddTile(genomePath, step int, new *structures.TileVariant, bas
 				return err
 			}
 		}
-		if info.IsDir() {
+		if l.isDir {
 			return ErrCannotAddTile
 		}
 		new.LookupReference = info.Size()
@@ -348,9 +344,10 @@ type baseInfo struct {
 	variant *(structures.TileVariant)
 }
 
+// A Builder for readFastJ to use repeatedly without needing to create more Builders.
 var tileBuilder strings.Builder
 
-// bufferedTileRead reads a FastJ file and adds its tiles to the provided library.
+// readFastJ reads a FastJ file and adds its tiles to the provided library.
 // Allows for gzipped FastJ files and regular FastJ files.
 // Will return any error encountered.
 func (l *Library) readFastJ(fastJFilepath string) error {
@@ -362,12 +359,6 @@ func (l *Library) readFastJ(fastJFilepath string) error {
 	go writeTileBases(l.text, baseChannel, writeChannel, &wg)
 	file := path.Base(fastJFilepath)      // The name of the file.
 	splitpath := strings.Split(file, ".") // This is used to make sure the file is in the right format.
-	if len(splitpath) != 3 && len(splitpath) != 2 {
-		return errors.New("error: Not a valid file " + file) // Makes sure that the filepath goes to a valid file
-	}
-	if splitpath[1] != "fj" || (len(splitpath) == 3 && splitpath[2] != "gz") {
-		return errors.New("error: not a valid FastJ file") // Makes sure that the file is a FastJ file
-	}
 	pathHex, hexErr := hex.DecodeString(splitpath[0])
 	if len(pathHex) != 2 || hexErr != nil {
 		return errors.New("invalid hex file name") // Makes sure the file title is four digits of hexadecimal
@@ -375,7 +366,7 @@ func (l *Library) readFastJ(fastJFilepath string) error {
 	pathNumber := 256*int(pathHex[0]) + int(pathHex[1]) // Conversion from hex into decimal--this is the path
 	var data []byte
 	var err error
-	if len(splitpath) == 3 {
+	if strings.HasSuffix(file, ".gz") {
 		data, err = readAllGZ(fastJFilepath)
 	} else {
 		data, err = ioutil.ReadFile(fastJFilepath)
@@ -407,7 +398,7 @@ func (l *Library) readFastJ(fastJFilepath string) error {
 				if character == ',' {
 					commaCounter++
 				}
-				if commaCounter == 6 { // This is dependent on the location of the length field.
+				if commaCounter == 6 { // This is dependent on the location of the length field. In FastJs, the tile length is before the 6th comma.
 					k := 1                 // This accounts for the possibility of the length of a tile spanning at least 16 tiles.
 					for line[i-k] != ':' { // Goes back a few characters until it knows the string of the tile length.
 						k++
@@ -450,8 +441,8 @@ func (l *Library) readFastJ(fastJFilepath string) error {
 	return nil
 }
 
-// bufferedBaseWrite writes bases and hashes of tiles to the given text file.
-// To be used in conjunction with bufferedTileRead.
+// writeTileBases writes bases and hashes of tiles to the given text file.
+// To be used in conjunction with readFastJ.
 // Will return any error encountered.
 func writeTileBases(libraryTextFile string, channel chan baseInfo, writeChannel chan bool, group *sync.WaitGroup) error {
 	err := os.MkdirAll(path.Dir(libraryTextFile), os.ModePerm)
@@ -487,7 +478,7 @@ func writeTileBases(libraryTextFile string, channel chan baseInfo, writeChannel 
 	return nil
 }
 
-// writePathToSGLF writes an SGLF for an entire path given a library.
+// writePathToSGLF writes an SGLF for an entire path given a library to a specific directory.
 // This assumes that the library has been sorted beforehand.
 // Will return any error encountered.
 func (l *Library) writePathToSGLF(genomePath int, directoryToWriteTo string) error {
@@ -499,7 +490,7 @@ func (l *Library) writePathToSGLF(genomePath int, directoryToWriteTo string) err
 	if err != nil {
 		return err
 	}
-	sglfFile, err := os.OpenFile(path.Join(directoryToWriteTo, b.String()), os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	sglfFile, err := os.OpenFile(path.Join(directoryToWriteTo, b.String()), os.O_APPEND|os.O_CREATE|os.O_EXCL|os.O_WRONLY, 0644)
 	if err != nil {
 		return err
 	}
@@ -518,12 +509,8 @@ func (l *Library) writePathToSGLF(genomePath int, directoryToWriteTo string) err
 
 				file, fileOk := pathFileMap[referenceLibrary.text]
 				if !fileOk {
-					info, err := os.Stat(referenceLibrary.text)
-					if err != nil {
-						return err
-					}
 					var fileToOpen string
-					if info.IsDir() {
+					if l.isDir {
 						fileToOpen = path.Join(referenceLibrary.text, fmt.Sprintf("%04x.sglfv2", genomePath)) // If the reference is a directory, point to the corresponding SGLFv2 file as a reference.
 					} else {
 						fileToOpen = path.Join(referenceLibrary.text)
@@ -582,7 +569,7 @@ func (l *Library) writePathToSGLF(genomePath int, directoryToWriteTo string) err
 	return nil
 }
 
-// WriteLibraryToSGLF writes the contents of a library to SGLF files.
+// WriteLibraryToSGLF writes the contents of a library to SGLF files to a specified directory.
 // Will return any error encountered.
 func (l *Library) WriteLibraryToSGLF(directoryToWriteTo string) error {
 	var emptyID [16]byte
@@ -604,7 +591,7 @@ func isComplete(bases string) bool {
 	return !strings.ContainsRune(bases, 'n')
 }
 
-// writePathToSGLFv2 writes an SGLFv2 for an entire path given a library.
+// writePathToSGLFv2 writes an SGLFv2 for an entire path given a library to a specific directory.
 // This assumes that the library has been sorted beforehand.
 // Will return any error encountered.
 func (l *Library) writePathToSGLFv2(genomePath int, directoryToWriteTo string) error {
@@ -616,7 +603,7 @@ func (l *Library) writePathToSGLFv2(genomePath int, directoryToWriteTo string) e
 	if err != nil {
 		return err
 	}
-	sglfFile, err := os.OpenFile(path.Join(directoryToWriteTo, b.String()), os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	sglfFile, err := os.OpenFile(path.Join(directoryToWriteTo, b.String()), os.O_APPEND|os.O_CREATE|os.O_EXCL|os.O_WRONLY, 0644)
 	if err != nil {
 		return err
 	}
@@ -647,12 +634,8 @@ func (l *Library) writePathToSGLFv2(genomePath int, directoryToWriteTo string) e
 
 				file, fileOk := pathFileMap[referenceLibrary.text]
 				if !fileOk {
-					info, err := os.Stat(referenceLibrary.text)
-					if err != nil {
-						return err
-					}
 					var fileToOpen string
-					if info.IsDir() {
+					if l.isDir {
 						fileToOpen = path.Join(referenceLibrary.text, fmt.Sprintf("%04x.sglfv2", genomePath)) // If the reference is a directory, point to the corresponding SGLFv2 file as a reference.
 					} else {
 						fileToOpen = path.Join(referenceLibrary.text)
@@ -713,7 +696,7 @@ func (l *Library) writePathToSGLFv2(genomePath int, directoryToWriteTo string) e
 	return nil
 }
 
-// WriteLibraryToSGLFv2 writes the contents of a library to SGLFv2 files.
+// WriteLibraryToSGLFv2 writes the contents of a library to SGLFv2 files to a specified directory.
 // Will return any error encountered.
 func (l *Library) WriteLibraryToSGLFv2(directoryToWriteTo string) error {
 	var emptyID [16]byte
@@ -738,7 +721,7 @@ func (l *Library) AddLibraryFastJ(directory string) error {
 		return err
 	}
 	for _, file := range fastJFiles {
-		if strings.HasSuffix(file.Name(), ".gz") { // Checks if a file is a gz file.
+		if strings.HasSuffix(file.Name(), ".gz") || strings.HasSuffix(file.Name(), ".fj") { // Checks the directory for the right file types.
 			err = l.readFastJ(path.Join(directory, file.Name()))
 			if err != nil {
 				return err
@@ -822,15 +805,19 @@ func New(textFile string, componentLibraries [][md5.Size]byte) (*Library, error)
 		var newLock sync.RWMutex
 		newLibraryPaths[i] = concurrentPath{newLock, make([]*KnownVariants, 0, 1)} // Lock is copied, but hasn't been used yet, so this is fine.
 	}
-	_, err := os.Stat(textFile) // Test if the file exists.
-	if err != nil {             // File probably doesn't exist.
+	info, err := os.Stat(textFile)
+	if err != nil {
 		file, err := os.OpenFile(textFile, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 		if err != nil {
 			return nil, err
 		}
 		defer file.Close()
+		info, err = os.Stat(textFile)
+		if err != nil {
+			return nil, err
+		}
 	}
-	return &Library{Paths: newLibraryPaths, text: textFile, Components: componentLibraries}, nil
+	return &Library{Paths: newLibraryPaths, text: textFile, isDir: info.IsDir(), Components: componentLibraries}, nil
 }
 
 // Function to copy the contents of the source library into the new library.
@@ -858,27 +845,17 @@ func libraryCopy(destination, source *Library) {
 	}
 }
 
-// pointVariantsToOriginalLibrary points variants of a library to another library.
-// It does not move them if the current reference pointer is already at the original library.
-// Mainly used for merging libraries, since variants need to point to their original libraries.
-func pointVariantsToOriginalLibrary(library *Library, newLibrary *Library) {
-	for i := range library.Paths {
-		library.Paths[i].Lock.RLock()
-		for step := range library.Paths[i].Variants {
-			if library.Paths[i].Variants[step] != nil {
-				for _, variant := range library.Paths[i].Variants[step].List {
-					variant.ReferenceLibrary = newLibrary
-				}
-			}
-		}
-		library.Paths[i].Lock.RUnlock()
-	}
-}
-
 // MergeLibraries is a function to merge the library given with the base library.
 // This version creates a new library.
 // Returns the library pointer and an error, if any (nil if no error was encounted)
 func (l *Library) MergeLibraries(libraryToMerge *Library, textFile string) (*Library, error) {
+	var emptyID [16]byte
+	if l.ID == emptyID { // If the ID for either library has not been assigned, assign the IDs now.
+		l.AssignID()
+	}
+	if libraryToMerge.ID == emptyID {
+		libraryToMerge.AssignID()
+	}
 	allComponents := append([][md5.Size]byte{libraryToMerge.ID, l.ID}, libraryToMerge.Components...)
 	allComponents = append(allComponents, l.Components...)
 	newLibrary, err := New(textFile, allComponents)
@@ -886,7 +863,6 @@ func (l *Library) MergeLibraries(libraryToMerge *Library, textFile string) (*Lib
 		return nil, err
 	}
 	libraryCopy(newLibrary, l)
-	//pointVariantsToOriginalLibrary(&newLibrary, mainLibrary)
 	for i := range (*libraryToMerge).Paths {
 		for j := range (*libraryToMerge).Paths[i].Variants {
 			err := newLibrary.mergeKnownVariants(i, j, (*libraryToMerge).Paths[i].Variants[j])
@@ -924,6 +900,13 @@ func (l *Library) mergeKnownVariants(genomePath, step int, variantsToMerge *Know
 // MergeLibrariesWithoutCreation merges libraries without creating a new one, using the "mainLibrary" instead.
 // Returns the library pointer and an error, if any (nil if no error was encounted)
 func (l *Library) MergeLibrariesWithoutCreation(libraryToMerge *Library) (*Library, error) {
+	var emptyID [16]byte
+	if l.ID == emptyID { // If the ID for either library has not been assigned, assign the IDs now.
+		l.AssignID()
+	}
+	if libraryToMerge.ID == emptyID {
+		libraryToMerge.AssignID()
+	}
 	l.Components = append(l.Components, libraryToMerge.ID, l.ID) // This is okay since this involves the mainLibrary's old ID.
 	l.Components = append(l.Components, libraryToMerge.Components...)
 	for i := range (*libraryToMerge).Paths {
@@ -939,8 +922,8 @@ func (l *Library) MergeLibrariesWithoutCreation(libraryToMerge *Library) (*Libra
 	return l, nil
 }
 
-// LiftoverMapping is a representation of a liftover from one library to another.
-// If a = LiftoverMapping.Mapping[b][c][d], then in path b, step c, variant d in the first library maps to variant a in the second.
+// LiftoverMapping is a representation of a liftover from one library to another, essentially becoming a translation of variants from the source to the destination.
+// If a = LiftoverMapping.Mapping[b][c][d], then in path b, step c, variant d in the first library maps to variant a in path b and step c in the second.
 type LiftoverMapping struct {
 	Mapping            [][][]int // The actual mapping between the two libraries
 	SourceLibrary      *Library  // The source library to map from.
@@ -987,7 +970,7 @@ func CreateMapping(source, destination *Library) (LiftoverMapping, error) {
 // Current suffix for mappings: .sglfmapping (make sure all filenames end with this suffix)
 // Returns any error encountered, or nil if there's no error.
 func WriteMapping(filename string, mapping LiftoverMapping) error {
-	textFile, err := os.OpenFile(filename, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	textFile, err := os.OpenFile(filename, os.O_APPEND|os.O_CREATE|os.O_EXCL|os.O_WRONLY, 0644)
 	if err != nil {
 		return err
 	}
@@ -1023,10 +1006,6 @@ func WriteMapping(filename string, mapping LiftoverMapping) error {
 // ReadMapping gets the information from a mapping given its filepath.
 // It also returns the hashes for the source and destination libraries, in that order.
 func ReadMapping(filepath string) (mapping [][][]int, sourceID, destinationID [md5.Size]byte, err error) {
-	splitpath := strings.Split(filepath, ".")
-	if len(splitpath) < 2 || splitpath[1] != "sglfmapping" {
-		return nil, [16]byte{}, [16]byte{}, ErrBadLiftover
-	}
 	info, err := ioutil.ReadFile(filepath)
 	if err != nil {
 		return nil, [16]byte{}, [16]byte{}, err
@@ -1077,25 +1056,19 @@ func ReadMapping(filepath string) (mapping [][][]int, sourceID, destinationID [m
 	return newMapping, sourceHash, destinationHash, nil
 }
 
-// ParseSGLFv2 is a function to put SGLFv2 data back into a library.
+// addSGLFv2 is a function to put SGLFv2 data back into a library.
 // Allows for gzipped SGLFv2 files and regular SGLFv2 files.
 // The following bug is believed to be fixed, but just in case it is not and an error occurs here:
 // Note: the creation of an SGLFv2 may be incorrect and may put a series of bases before the hash, when the input tile from the FastJ file
 // was extremely long (e.g. a couple million bases). This will result in an error here when decoding the hash. To fix this, you can instruct
-// the tileBuilder in bufferedTileRead to Grow before constructing the tiles in that path. So far, this error is known to happen for path 811,
+// the tileBuilder in readFastJ to Grow before constructing the tiles in that path. So far, this error is known to happen for path 811,
 // which will create 032b.sglfv2 and 032c.sglfv2 incorrectly.
 // It's also possible that the cause is that the two goroutines for reading and writing end too early, leaving some tiles with
-// LookupReferences of -1, which results in the incorrect results. This could happen if bufferedTileRead ended first.
+// LookupReferences of -1, which results in the incorrect results. This could happen if readFastJ ended first.
 // Returns any error encountered, or nil if there's no error.
 func (l *Library) addSGLFv2(filepath string) error {
 	file := path.Base(filepath)
 	splitpath := strings.Split(file, ".")
-	if len(splitpath) != 2 && len(splitpath) != 3 {
-		return errors.New("error: Not a valid file") // Makes sure that the filepath goes to a valid file
-	}
-	if splitpath[1] != "sglfv2" || (len(splitpath) == 3 && splitpath[2] != ".gz") {
-		return errors.New("error: not an sglfv2 file") // Makes sure that the file is an SGLFv2 file
-	}
 	pathHex, hexErr := hex.DecodeString(splitpath[0])
 	if len(pathHex) != 2 || hexErr != nil {
 		return errors.New("invalid hex file name") // Makes sure the title of the file is four digits of hexadecimal
@@ -1103,10 +1076,10 @@ func (l *Library) addSGLFv2(filepath string) error {
 	pathNumber := 256*int(pathHex[0]) + int(pathHex[1]) // conversion into an integer--this is the path number
 	var data []byte
 	var err error
-	if len(splitpath) == 2 {
-		data, err = ioutil.ReadFile(filepath)
-	} else {
+	if strings.HasSuffix(file, ".gz") {
 		data, err = readAllGZ(filepath)
+	} else {
+		data, err = ioutil.ReadFile(filepath)
 	}
 	if err != nil {
 		return err
@@ -1186,11 +1159,8 @@ func (l *Library) addSGLFv2(filepath string) error {
 // Library should be initialized with this directory as the Text field, so that text files of bases and directories aren't mixed together.
 // Returns any error encountered, or nil if there's no error.
 func (l *Library) AddLibrarySGLFv2() error {
-	info, err := os.Stat(l.text)
-	if err != nil {
-		return err
-	}
-	if !info.IsDir() {
+
+	if !l.isDir {
 		return ErrIncorrectSourceText
 	}
 
@@ -1199,7 +1169,7 @@ func (l *Library) AddLibrarySGLFv2() error {
 		return err
 	}
 	for _, file := range sglfv2Files {
-		if strings.HasSuffix(file.Name(), ".sglfv2") { // Checks if a file is an sglfv2 file.
+		if strings.HasSuffix(file.Name(), ".sglfv2") || strings.HasSuffix(file.Name(), ".gz") { // Checks if a file is an sglfv2 file.
 			err = l.addSGLFv2(path.Join(l.text, file.Name()))
 			if err != nil {
 				return err

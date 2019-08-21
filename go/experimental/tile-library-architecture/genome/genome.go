@@ -1,5 +1,6 @@
 /*Package genome is a package for representing the genome, relative to a tile library, with Go data structures.
-Provided are various functions to export/import the data within genomes, along with creating new Genome data structures in memory.*/
+Provided are various functions to export/import the data within genomes, along with creating new Genome data structures in memory.
+Should be used in conjunction with the tilelibrary and structures packages.*/
 package genome
 
 import (
@@ -7,6 +8,7 @@ import (
 	"compress/gzip"
 	"encoding/hex"
 	"errors"
+	"fmt"
 	"io/ioutil"
 	"os"
 	"path"
@@ -27,17 +29,22 @@ var ErrInvalidGenome = errors.New("not a valid genome file")
 // ErrNoLibraryAttached is an error for when a genome does not have a library in its Library field but needs one.
 var ErrNoLibraryAttached = errors.New("genome has no library attached")
 
-// Genome is a struct to represent a genome. It contains a pointer to its reference library, which allows for easy tiling.
+// Step is a type to represent a step within a path, which can take on a specific tile variant.
+type Step int // -1 for a skipped step, and any other integer refers to the tile variant number in the reference library.
+
+// Path is a type to represent a path of the genome, as a slice of steps.
+type Path []Step
+
+/*
+Genome is a struct to represent a genome. It contains a pointer to its reference library, which allows for easy tiling.
+The genome is split into paths, phases, and steps, and at each step there is potentially a tile variant of bases.
+If Paths[a][b][c] = d, then in the genome at path a, phase b, and step c, the variant is variant number d in the Library at path a and step c.
+Using the reference library, we can refer to the tile variant at each step using its tile variant number in the library, or using -1 to represent that there's no tile there due to a spanning tile variant.
+*/
 type Genome struct {
 	Paths   [][]Path             // Paths represents a genome through its paths. Two phases are present here (path and counterpart path).
 	Library *tilelibrary.Library // This is the reference library for this Genome.
 }
-
-// Path is a type to represent a path, through its steps.
-type Path []Step
-
-// Step is a type to represent a step within a path, which can take on a specific tile variant.
-type Step int // -1 for a skipped step, and any other integer refers to the tile variant number in the reference library.
 
 // isComplete determines if a set of bases is complete (has no nocalls).
 // This is only a helper function for AddFastJ.
@@ -177,9 +184,8 @@ func (g *Genome) Add(directory string) error {
 	return nil
 }
 
-// InitializeGenome is a function to initialize a Genome.
+// New is a function to initialize a Genome.
 // nil is allowed for the library if the library shouldn't be set yet. It can be set manually later.
-// rename to New()
 func New(library *tilelibrary.Library) *Genome {
 	var newPaths [][]Path
 	newPaths = make([][]Path, structures.Paths, structures.Paths)
@@ -191,12 +197,11 @@ func New(library *tilelibrary.Library) *Genome {
 	return &Genome{newPaths, library}
 }
 
-// WriteGenomeToFile writes a genome to a list format of indices relative to its reference library.
-// Will not work if the genome does not have a reference library (nil reference)
-// method on *Genome
+// WriteToFile writes a genome to a list format of indices relative to its reference library.
+// Will not work if the genome does not have a reference library (nil reference).
 func (g *Genome) WriteToFile(filename string) error {
-	if !strings.HasSuffix(filename, ".genome") {
-		return ErrInvalidGenome
+	if g.Library == nil {
+		return ErrNoLibraryAttached
 	}
 	f, err := os.OpenFile(filename, os.O_APPEND|os.O_CREATE|os.O_EXCL|os.O_WRONLY, 0644)
 	defer f.Close()
@@ -262,10 +267,6 @@ func ReadGenomeFromFile(filepath string) ([][]Path, error) {
 		newPaths[i][0] = make([]Step, 0)
 		newPaths[i][1] = make([]Step, 0)
 	}
-	splitpath := strings.Split(filepath, ".")
-	if len(splitpath) != 2 || splitpath[1] != "genome" {
-		return nil, ErrInvalidGenome
-	}
 	info, err := ioutil.ReadFile(filepath)
 	if err != nil {
 		return nil, err
@@ -287,24 +288,26 @@ func ReadGenomeFromFile(filepath string) ([][]Path, error) {
 }
 
 // WriteNumpy writes the values of a path of a genome to a numpy array.
-// It alternate between each phase for each step.
-func (g *Genome) WriteNumpy(filepath string, path int) error {
-	npywriter, err := gonpy.NewFileWriter(filepath)
+// It alternates between each phase for each step.
+// For example, if path 24 had two steps (0 and 1) all with complete tiles, and on phase 0 the step values were 0 and 2, and on phase 1 the step values were 1 and 1,
+// the numpy array would be [0 1 2 1], since it writes out the data for step 0 first, and then writes out the values for step 1.
+func (g *Genome) WriteNumpy(directory string, genomePath int) error {
+	npywriter, err := gonpy.NewFileWriter(path.Join(directory, fmt.Sprintf("%04x", genomePath)))
 	if err != nil {
 		return err
 	}
 	sliceOfData := make([]int32, 0, 1)
-	for i, value := range g.Paths[path][0] {
-		if value >= 0 && !(*g.Library).Paths[path].Variants[i].List[value].Complete {
+	for i, value := range g.Paths[genomePath][0] {
+		if value >= 0 && !(*g.Library).Paths[genomePath].Variants[i].List[value].Complete {
 			sliceOfData = append(sliceOfData, -2)
 		} else {
 			sliceOfData = append(sliceOfData, int32(value))
 		}
 
-		if g.Paths[path][1][i] >= 0 && !(*g.Library).Paths[path].Variants[i].List[g.Paths[path][1][i]].Complete {
+		if g.Paths[genomePath][1][i] >= 0 && !(*g.Library).Paths[genomePath].Variants[i].List[g.Paths[genomePath][1][i]].Complete {
 			sliceOfData = append(sliceOfData, -2)
 		} else {
-			sliceOfData = append(sliceOfData, int32(g.Paths[path][1][i]))
+			sliceOfData = append(sliceOfData, int32(g.Paths[genomePath][1][i]))
 		}
 	}
 	err = npywriter.WriteInt32(sliceOfData)
@@ -314,73 +317,79 @@ func (g *Genome) WriteNumpy(filepath string, path int) error {
 	return nil
 }
 
-// ReadGenomeNumpy reads one path's worth of information from a numpy file.
+// ReadGenomePathNumpy reads one path's worth of information from a numpy file.
 // This path should be assigned to a path of a genome.
-func ReadGenomeNumpy(filepath string) ([]Path, error) {
+func (g *Genome) ReadGenomePathNumpy(filepath string) error {
+	filename := path.Base(filepath)
+	pathNumber, err := strconv.ParseInt(filename, 16, 0)
+	if err != nil {
+		return err
+	}
 	newPaths := make([]Path, 2)
 	newPaths[0] = make([]Step, 0, 1)
 	newPaths[1] = make([]Step, 0, 1)
 	npyreader, err := gonpy.NewFileReader(filepath)
 	if err != nil {
-		return nil, err
+		return err
 	}
 	pathInfo, err := npyreader.GetInt32()
 	if err != nil {
-		return nil, err
+		return err
 	}
 	for i, index := range pathInfo {
 		newPaths[i%2] = append(newPaths[i%2], Step(index))
 	}
-	return newPaths, nil
+	g.Paths[int(pathNumber)] = newPaths
+	return nil
 }
 
 // WriteGenomesPathToNumpy writes multiple genomes' worth of path information to a numpy file.
 func WriteGenomesPathToNumpy(genomes []*Genome, filepath string, path int) error {
-	if len(genomes) > 0 { // Requires a nonempty list.
-		// use the opposite condition: if length of genomes is 0, then give an error
-		npywriter, err := gonpy.NewFileWriter(filepath)
-		if err != nil {
-			return err
+	if len(genomes) == 0 { // Requires a nonempty list.
+		return errors.New("list of genomes is empty--nothing written to numpy")
+	}
+	npywriter, err := gonpy.NewFileWriter(filepath)
+	if err != nil {
+		return err
+	}
+	lengthOfPath := 0
+	for _, value := range genomes[0].Paths[path] {
+		lengthOfPath += len(value)
+	}
+	for _, genome := range genomes {
+		genomeLengthOfPath := 0
+		for _, value := range genome.Paths[path] {
+			genomeLengthOfPath += len(value)
 		}
-		lengthOfPath := 0
-		for _, value := range genomes[0].Paths[path] {
-			lengthOfPath += len(value)
-		}
-		for _, genome := range genomes {
-			genomeLengthOfPath := 0
-			for _, value := range genome.Paths[path] {
-				genomeLengthOfPath += len(value)
-			}
-			if genomeLengthOfPath != lengthOfPath {
-				return errors.New("path lengths within each genome are not equal")
-			}
-		}
-		sliceOfData := make([]int32, len(genomes)*lengthOfPath)
-		npywriter.Shape = []int{lengthOfPath, len(genomes)}
-		for _, g := range genomes {
-			for i, value := range g.Paths[path][0] {
-				if !(*g.Library).Paths[path].Variants[i].List[value].Complete {
-					sliceOfData = append(sliceOfData, -2)
-				} else {
-					sliceOfData = append(sliceOfData, int32(value))
-				}
-
-				if !(*g.Library).Paths[path].Variants[i].List[value].Complete {
-					sliceOfData = append(sliceOfData, -2)
-				} else {
-					sliceOfData = append(sliceOfData, int32(g.Paths[path][1][i]))
-				}
-			}
-		}
-		err = npywriter.WriteInt32(sliceOfData)
-		if err != nil {
-			return err
+		if genomeLengthOfPath != lengthOfPath {
+			return errors.New("path lengths within each genome are not equal")
 		}
 	}
-	return nil // return an error or say that nothing was run
+	sliceOfData := make([]int32, len(genomes)*lengthOfPath)
+	npywriter.Shape = []int{lengthOfPath, len(genomes)}
+	for _, g := range genomes {
+		for i, value := range g.Paths[path][0] {
+			if !(*g.Library).Paths[path].Variants[i].List[value].Complete {
+				sliceOfData = append(sliceOfData, -2)
+			} else {
+				sliceOfData = append(sliceOfData, int32(value))
+			}
+
+			if !(*g.Library).Paths[path].Variants[i].List[value].Complete {
+				sliceOfData = append(sliceOfData, -2)
+			} else {
+				sliceOfData = append(sliceOfData, int32(g.Paths[path][1][i]))
+			}
+		}
+	}
+	err = npywriter.WriteInt32(sliceOfData)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
-// LiftoverGenome runs a liftover operation on a genome.
+// Liftover runs a liftover operation on a genome by changing what library the genome is attached to.
 func (g *Genome) Liftover(destination *tilelibrary.Library) error {
 	if g.Library == nil {
 		return ErrNoLibraryAttached

@@ -26,9 +26,9 @@ func main() {
 		log.Fatal(err)
 	}
 	if *version == 1 {
-		err = tilelibrary.WriteLibraryToSGLFv2(l, *directoryToWrite)
+		err = l.WriteLibraryToSGLFv2(*directoryToWrite)
 	} else if *version == 0 {
-		err = tilelibrary.WriteLibraryToSGLF(l, *directoryToWrite)
+		err = l.WriteLibraryToSGLF(*directoryToWrite)
 	} else {
 		log.Fatalf("invalid version number")
 	}

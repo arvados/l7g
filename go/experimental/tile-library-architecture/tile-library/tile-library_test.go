@@ -1,5 +1,6 @@
 // tile-library_test.go is the test file for the tilelibrary package.
-// Places where test files and directories would normally be are intentionally left blank--fill them in with wherever data should go in your file system.
+// Places where test files and directories would normally be are intentionally left blank.
+// Fill them in with wherever data should go.
 package tilelibrary
 
 import (

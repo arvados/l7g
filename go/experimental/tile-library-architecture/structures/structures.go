@@ -1,5 +1,5 @@
 /*Package structures is a basic package to hold basic structures, methods, and functions for tile libraries and genomes.
-Most important is the TileVariant structure, which holds all the necessary data for a tile variant.
+Most important is the TileVariant structure, which holds all the necessary data to represent a tile variant.
 Equality on TileVariants is defined by hash.
 In addition, the default number of paths in a genome is provided here for convenience.*/
 package structures
@@ -9,10 +9,14 @@ import (
 )
 
 // TileVariant is a struct for representing a tile variant using the hash, length, and any annotation(s) on the variant.
-// In this case, a tile variant
-
-// Note: no explicit TileVariant constructor is provided. However, all fields are exported, so other packages can construct and modify TileVariants freely without the need for a constructor.
-// explain more about what a tile variant is
+// In this case, a tile variant is a set of a bases that could exist in between two tags on the genome, spanning any number of steps.
+// We use the hash of the bases as a standin for the actual bases, to save space. We also keep the span of the tile, since it tells us how many steps are in the path of the genome.
+// The Annotation field holds a string for any notes about this tile.
+// The LookupReference field tells at what location in the reference text file that this tile can be found. This is majorly for the use of the tilelibrary package.
+// Complete is a field that determines whether the tile variant contains nocalls or not. Used for convenience in both the genome and tilelibrary packages.
+// ReferenceLibrary is a field that holds a *Library, used in package tilelibrary. It is an interface{} to avoid circular imports.
+// Putting any other type into ReferenceLibrary may result in errors.
+// Note: no explicit TileVariant constructor is provided. However, all fields are exported, so other packages can construct and modify TileVariants freely.
 type TileVariant struct {
 	Hash             VariantHash // The hash of the tile variant's bases.
 	Length           int         // The length (span) of the tile
@@ -22,7 +26,7 @@ type TileVariant struct {
 	ReferenceLibrary interface{} // A way of referencing the library this variant is from. (Will be a *Library).
 }
 
-// VariantHash is a hash for the bases of a tile variant.
+// VariantHash is a type hash for the bases of a tile variant.
 // Currently, the hash algorithm is MD5.
 type VariantHash [md5.Size]byte
 

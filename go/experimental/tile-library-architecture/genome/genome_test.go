@@ -1,4 +1,6 @@
 // genome_test is a file for running various tests related to the genome package.
+// Places where files and directories should be are left blank as variables.
+// Fill them in with wherever files and directories should be made.
 package genome
 
 import (
@@ -65,8 +67,9 @@ func TestGenomeNumpy(t *testing.T) {
 	l.AssignID()
 	g := New(l)
 	g.Add(genomeDirectory1)
+	testPath := g.Paths[path]
 	g.WriteNumpy(testNumpy1, path)
-	testPath, err := ReadGenomeNumpy(testNumpy1)
+	err = g.ReadGenomePathNumpy(testNumpy1)
 	if err != nil {
 		t.Fatalf(err.Error())
 	}

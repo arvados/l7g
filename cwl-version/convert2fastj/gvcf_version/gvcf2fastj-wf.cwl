@@ -8,9 +8,6 @@ requirements:
   DockerRequirement:
     dockerPull: arvados/l7g
   ScatterFeatureRequirement: {}
-hints:
-  arv:RuntimeConstraints:
-    keep_cache: 4096
 inputs:
   gvcfdir:
     type: Directory

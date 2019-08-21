@@ -138,3 +138,4 @@ Tests are provided for the `genome` and the `tilelibrary` packages, under the fi
 ---
 
 - Parallelization of merging. This will speed up the merge process considerably, especially when merging more than two libraries together.
+- Parallelization by path in library creation.

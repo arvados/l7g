@@ -8,11 +8,11 @@ requirements:
   DockerRequirement:
     dockerPull: arvados/l7g
   ResourceRequirement:
-    coresMin: 16
-    ramMin: 120000
+    coresMin: 8
+    ramMin: 32000
 hints:
   arv:RuntimeConstraints:
-    keep_cache: 4096
+    keep_cache: 20000
   cwltool:LoadListingRequirement:
     loadListing: shallow_listing
 inputs:

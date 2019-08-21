@@ -12,7 +12,7 @@ import (
 
 // This tests writing and reading genomes to and from files.
 func TestWriteToFile(t *testing.T) {
-	testFile := ""         // Put your test file here.
+	testFile := ""         // Put your test tile library file here.
 	testGenomeFile1 := ""  // Put your test genome file here.
 	genomeDirectory1 := "" // Put your genome directory here.
 	genomeDirectory2 := "" // Put your genome directory here.
@@ -28,11 +28,14 @@ func TestWriteToFile(t *testing.T) {
 	g := New(l)
 	g.Add(genomeDirectory1)
 	g.WriteToFile(testGenomeFile1)
-	paths, err := ReadGenomeFromFile(testGenomeFile1)
+	newGenome, err := ReadGenomeFromFile(testGenomeFile1)
 	if err != nil {
 		t.Fatalf(err.Error())
 	}
-	for i, path := range paths {
+	if newGenome.libraryID != g.libraryID {
+		t.Fatalf("IDs are not equal")
+	}
+	for i, path := range newGenome.Paths {
 		if len(path) != len(g.Paths[i]) {
 			t.Fatalf("path lengths not equal")
 		}

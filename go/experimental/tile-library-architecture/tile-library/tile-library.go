@@ -1125,7 +1125,7 @@ func (l *Library) addSGLFv2(filepath string) error {
 			} else {
 				return ErrTileContradiction
 			}
-			// Adding count-1 instead of count since AddTile will already add 1 to the count of the new tile.
+			// Adding count-1 instead of count since addTileUnsafe will already add 1 to the count of the new tile.
 			referenceCounter += len(line) + 1 // +1 to account for the newline.
 		} else if line != "" && len(l.Components) == 0 { // This refers to the first line, which contains ID and Component information.
 			idSlice := strings.Split(line, ";")

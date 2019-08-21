@@ -6,6 +6,7 @@ package genome
 import (
 	"bufio"
 	"compress/gzip"
+	"crypto/md5"
 	"encoding/hex"
 	"errors"
 	"fmt"
@@ -42,8 +43,22 @@ If Paths[a][b][c] = d, then in the genome at path a, phase b, and step c, the va
 Using the reference library, we can refer to the tile variant at each step using its tile variant number in the library, or using -1 to represent that there's no tile there due to a spanning tile variant.
 */
 type Genome struct {
-	Paths   [][]Path             // Paths represents a genome through its paths. Two phases are present here (path and counterpart path).
-	Library *tilelibrary.Library // This is the reference library for this Genome.
+	Paths     [][]Path             // Paths represents a genome through its paths. Two phases are present here (path and counterpart path).
+	libraryID [md5.Size]byte       // The ID of the underlying library, for verfication purposes.
+	library   *tilelibrary.Library // This is the reference library for this Genome.
+}
+
+// AssignLibrary assigns an existing genome to a library. This library must match the ID found in the libraryID field of g.
+func (g *Genome) AssignLibrary(library *tilelibrary.Library) error {
+	var emptyID [md5.Size]byte
+	if library.ID == emptyID {
+		library.AssignID()
+	}
+	if library.ID != g.libraryID {
+		return errors.New("genome's library ID and new library ID do not match")
+	}
+	g.library = library
+	return nil
 }
 
 // isComplete determines if a set of bases is complete (has no nocalls).
@@ -76,7 +91,7 @@ func readAllGZ(filepath string) ([]byte, error) {
 // AddFastJ puts the contents of a FastJ into a Genome.
 // Works with both gzipped and non-gzipped FastJ files.
 func (g *Genome) AddFastJ(filepath string) error {
-	if g == nil || g.Library == nil {
+	if g == nil || g.library == nil {
 		return errors.New("genome is nil or genome library is nil, cannot parse FastJ")
 	}
 	file := path.Base(filepath)           // The name of the file.
@@ -151,9 +166,9 @@ func (g *Genome) AddFastJ(filepath string) error {
 				}
 			}
 			bases := b.String()
-			newTile := structures.TileVariant{Hash: hashArray, Length: length, Annotation: "", LookupReference: -1, Complete: isComplete(bases), ReferenceLibrary: g.Library}
+			newTile := structures.TileVariant{Hash: hashArray, Length: length, Annotation: "", LookupReference: -1, Complete: isComplete(bases), ReferenceLibrary: g.library}
 			// In the case of newTile, -1 is a value used to complete the creation of the tile, and has no meaning otherwise.
-			index, ok := g.Library.TileExists(pathNumber, step, &newTile)
+			index, ok := g.library.TileExists(pathNumber, step, &newTile)
 			if !ok {
 				return errors.New("this FastJ is not part of the library")
 			}
@@ -194,13 +209,20 @@ func New(library *tilelibrary.Library) *Genome {
 		newPaths[i][0] = make([]Step, 0)
 		newPaths[i][1] = make([]Step, 0)
 	}
-	return &Genome{newPaths, library}
+	var emptyID [md5.Size]byte
+	if library != nil && library.ID == emptyID {
+		library.AssignID()
+	}
+	return &Genome{newPaths, library.ID, library}
 }
 
 // WriteToFile writes a genome to a list format of indices relative to its reference library.
+// It alternates between each phase for each step.
+// For example, if path 24 had two steps (0 and 1) all with complete tiles, and on phase 0 the step values were 0 and 2, and on phase 1 the step values were 1 and 1,
+// the numpy array would be [0 1 2 1], since it writes out the data for step 0 first, and then writes out the values for step 1.
 // Will not work if the genome does not have a reference library (nil reference).
 func (g *Genome) WriteToFile(filename string) error {
-	if g.Library == nil {
+	if g.library == nil {
 		return ErrNoLibraryAttached
 	}
 	f, err := os.OpenFile(filename, os.O_APPEND|os.O_CREATE|os.O_EXCL|os.O_WRONLY, 0644)
@@ -209,15 +231,17 @@ func (g *Genome) WriteToFile(filename string) error {
 		return err
 	}
 	bufferedWriter := bufio.NewWriter(f)
+	bufferedWriter.WriteString(hex.EncodeToString(g.libraryID[:]))
+	bufferedWriter.WriteString("\n")
 	for path := range g.Paths {
-		if (*g.Library).Paths[path].Variants[0] != nil {
-			if g.Paths[path][0][0] >= 0 && !(*g.Library).Paths[path].Variants[0].List[int(g.Paths[path][0][0])].Complete {
+		if (*g.library).Paths[path].Variants[0] != nil {
+			if g.Paths[path][0][0] >= 0 && !(*g.library).Paths[path].Variants[0].List[int(g.Paths[path][0][0])].Complete {
 				bufferedWriter.WriteString("-2")
 			} else {
 				bufferedWriter.WriteString(strconv.Itoa(int(g.Paths[path][0][0])))
 			}
 			bufferedWriter.WriteString(",")
-			if g.Paths[path][1][0] >= 0 && !(*g.Library).Paths[path].Variants[0].List[int(g.Paths[path][1][0])].Complete {
+			if g.Paths[path][1][0] >= 0 && !(*g.library).Paths[path].Variants[0].List[int(g.Paths[path][1][0])].Complete {
 				bufferedWriter.WriteString("-2")
 			} else {
 				bufferedWriter.WriteString(strconv.Itoa(int(g.Paths[path][1][0])))
@@ -228,15 +252,15 @@ func (g *Genome) WriteToFile(filename string) error {
 			bufferedWriter.WriteString(strconv.Itoa(int(g.Paths[path][1][0])))
 		}
 		for i, value := range g.Paths[path][0][1:] {
-			if (*g.Library).Paths[path].Variants[i+1] != nil {
+			if (*g.library).Paths[path].Variants[i+1] != nil {
 				bufferedWriter.WriteString(",")
-				if value >= 0 && !(*g.Library).Paths[path].Variants[i+1].List[int(value)].Complete {
+				if value >= 0 && !(*g.library).Paths[path].Variants[i+1].List[int(value)].Complete {
 					bufferedWriter.WriteString("-2")
 				} else {
 					bufferedWriter.WriteString(strconv.Itoa(int(value)))
 				}
 				bufferedWriter.WriteString(",")
-				if g.Paths[path][1][i+1] >= 0 && !(*g.Library).Paths[path].Variants[i+1].List[int(g.Paths[path][1][i+1])].Complete {
+				if g.Paths[path][1][i+1] >= 0 && !(*g.library).Paths[path].Variants[i+1].List[int(g.Paths[path][1][i+1])].Complete {
 					bufferedWriter.WriteString("-2")
 				} else {
 					bufferedWriter.WriteString(strconv.Itoa(int(g.Paths[path][1][i+1])))
@@ -259,7 +283,7 @@ func (g *Genome) WriteToFile(filename string) error {
 
 // ReadGenomeFromFile reads a text file containing genome information.
 // Current file suffix is .genome (make sure all genomes written to disk have this suffix!)
-func ReadGenomeFromFile(filepath string) ([][]Path, error) {
+func ReadGenomeFromFile(filepath string) (*Genome, error) {
 	var newPaths [][]Path
 	newPaths = make([][]Path, structures.Paths, structures.Paths)
 	for i := range newPaths {
@@ -272,7 +296,13 @@ func ReadGenomeFromFile(filepath string) ([][]Path, error) {
 		return nil, err
 	}
 	lines := strings.Split(string(info), "\n")
-	for i, line := range lines {
+	libraryID, err := hex.DecodeString(lines[0])
+	if err != nil {
+		return nil, err
+	}
+	var libraryIDArray [md5.Size]byte
+	copy(libraryIDArray[:], libraryID)
+	for i, line := range lines[1:] {
 		indices := strings.Split(line, ",")
 		for j, index := range indices {
 			if index != "" {
@@ -284,7 +314,7 @@ func ReadGenomeFromFile(filepath string) ([][]Path, error) {
 			}
 		}
 	}
-	return newPaths, nil
+	return &Genome{newPaths, libraryIDArray, nil}, nil
 }
 
 // WriteNumpy writes the values of a path of a genome to a numpy array.
@@ -298,13 +328,13 @@ func (g *Genome) WriteNumpy(directory string, genomePath int) error {
 	}
 	sliceOfData := make([]int32, 0, 1)
 	for i, value := range g.Paths[genomePath][0] {
-		if value >= 0 && !(*g.Library).Paths[genomePath].Variants[i].List[value].Complete {
+		if value >= 0 && !(*g.library).Paths[genomePath].Variants[i].List[value].Complete {
 			sliceOfData = append(sliceOfData, -2)
 		} else {
 			sliceOfData = append(sliceOfData, int32(value))
 		}
 
-		if g.Paths[genomePath][1][i] >= 0 && !(*g.Library).Paths[genomePath].Variants[i].List[g.Paths[genomePath][1][i]].Complete {
+		if g.Paths[genomePath][1][i] >= 0 && !(*g.library).Paths[genomePath].Variants[i].List[g.Paths[genomePath][1][i]].Complete {
 			sliceOfData = append(sliceOfData, -2)
 		} else {
 			sliceOfData = append(sliceOfData, int32(g.Paths[genomePath][1][i]))
@@ -366,16 +396,16 @@ func WriteGenomesPathToNumpy(genomes []*Genome, filepath string, path int) error
 		}
 	}
 	sliceOfData := make([]int32, len(genomes)*lengthOfPath)
-	npywriter.Shape = []int{lengthOfPath, len(genomes)}
+	npywriter.Shape = []int{len(genomes), lengthOfPath}
 	for _, g := range genomes {
 		for i, value := range g.Paths[path][0] {
-			if !(*g.Library).Paths[path].Variants[i].List[value].Complete {
+			if !(*g.library).Paths[path].Variants[i].List[value].Complete {
 				sliceOfData = append(sliceOfData, -2)
 			} else {
 				sliceOfData = append(sliceOfData, int32(value))
 			}
 
-			if !(*g.Library).Paths[path].Variants[i].List[value].Complete {
+			if !(*g.library).Paths[path].Variants[i].List[value].Complete {
 				sliceOfData = append(sliceOfData, -2)
 			} else {
 				sliceOfData = append(sliceOfData, int32(g.Paths[path][1][i]))
@@ -391,10 +421,10 @@ func WriteGenomesPathToNumpy(genomes []*Genome, filepath string, path int) error
 
 // Liftover runs a liftover operation on a genome by changing what library the genome is attached to.
 func (g *Genome) Liftover(destination *tilelibrary.Library) error {
-	if g.Library == nil {
+	if g.library == nil {
 		return ErrNoLibraryAttached
 	}
-	mapping, err := tilelibrary.CreateMapping(g.Library, destination)
+	mapping, err := tilelibrary.CreateMapping(g.library, destination)
 	if err != nil {
 		return err
 	}
@@ -407,6 +437,7 @@ func (g *Genome) Liftover(destination *tilelibrary.Library) error {
 			}
 		}
 	}
-	g.Library = destination // Can set the new reference library, since liftover is complete
+	g.libraryID = destination.ID
+	g.library = destination // Can set the new reference library, since liftover is complete
 	return nil
 }

@@ -17,22 +17,20 @@ In addition, a couple programs are provided to create and merge libraries direct
 
 Once this project is on GitHub, use the `go get` command like with any other Go package on GitHub. Make sure to get every package, since `tilelibrary` and `genome` rely on `structures`, and `genome` relies on `tilelibrary`.
 
-## MergeFastJ Program Usage
+## CreateLibrary Program Usage
 
 ---
 
-The `mergefastj` program has the functionality to combine a series of directories of genome files containing FastJs and write the resulting library to disk.
+The `createlibrary` program has the functionality to combine a series of directories of genome files containing FastJs and write the resulting library to disk.
 
-Within the `mergefastj` folder, the command to run the program is `./mergefastj`. Outside of this directory, the command will be the filepath to the `mergefastj` program in the `mergefastj` folder. All non-flag arguments given to the command should be directories of FastJ files to add to the library.
-
-In the docker container `jchen/golangmergefastj`, the command `mergefastj` will work without needing to use the path to the program (useful for CWL workflows).
+Within the `createlibrary` folder, the command to run the program is `./createlibrary`. Outside of this directory, the command will be the filepath to the `createlibrary` program in the `createlibrary` folder. All non-flag arguments given to the command should be after all flags, and should be directories of FastJ files to add to the library.
 
 The following flags apply:
 - `-version`: specifies the version of the SGLF to be outputted. A value 0 outputs regular SGLF files, and 1 outputs SGLFv2 files. Behavior is not defined when the `-version` flag is given any other number. Default behavior is 0 (regular SGLF files).
 - `-textfile`: specifies the location and name of the text file where the command is allowed to write intermediate data. Default behavior is to write the intermediate data to a text file called `test.txt` in the current directory. Files are created if they do not exist.
 - `-dir`: specifies the directory to write the output files to. If the directory does not exist, it will be created. Default behavior is to write the output files to the current directory.
 
-A successful run will print out the directory that was written to as an absolute path. This is useful for other programs that need to access the created files.
+A successful run will print out the directory that was written to as an absolute path, if other programs need to access the created files.
 
 ## MergeLibraries Program Usage
 
@@ -40,13 +38,45 @@ A successful run will print out the directory that was written to as an absolute
 
 The `mergelibraries` program has the functionality to merge libraries written to disk the in the form of SGLFv2 files, and output either SGLF or SGLFv2 files from the merging.
 
-Within the `mergelibraries` folder, the command to run the program is `./mergelibraries`. Outside of this directory, the command will be the filepath to the `mergelibraries` program in the `mergelibraries` folder. All non-flag arguments given to the command should be directories of FastJ files to add to the library.
+Within the `mergelibraries` folder, the command to run the program is `./mergelibraries`. Outside of this directory, the command will be the filepath to the `mergelibraries` program in the `mergelibraries` folder. All non-flag arguments given to the command should be after all flags, and should be directories of SGLFv2 files to add to the library.
 
 The following flags apply:
 - `-version`: specifies the version of the SGLF to be outputted. A value 0 outputs regular SGLF files, and 1 outputs SGLFv2 files. Behavior is not defined when the `-version` flag is given any other number. Default behavior is 0 (regular SGLF files).
 - `-dir`: specifies the directory to write the output files to. If the directory does not exist, it will be created. Default behavior is to write the output files to the current directory.
 
 A successful run will create files silently. Any errors that are encountered will exit the program and be printed out.
+
+## LiftoverGenome Program Usage
+
+---
+
+The `liftovergenome` program has the functionality to liftover a genome from a source library to a destination library and write out a text file or numpy files to disk.
+
+Within the `liftovergenome` folder, the command to run the program is `./liftovergenome`. Outside of this directory, the command will be the filepath to the `liftovergenome` program in the `liftovergenome` folder.
+
+The following flags apply:
+- `-genome`: specifies the location of the **text file** of the genome.
+- `-source`: specifies the directory of the SGLFv2 files for the source library. Uses the current directory by default.
+- `-destination`: specifies the directory of the SGLFv2 files for the destination library. Uses the current directory by default.
+- `-path`: specifies the location where the file should be outputted. If `npy` is true, this must be a directory. Writes a textfile called newgenome.txt in the current directory by default.
+- `-npy`: specifies what type of files to output. True outputs a numpy array for each path--false will output one text file for the genome. Default is false.
+
+A successful run will print out the path that was written to as an absolute path, if other programs need to access the created files.
+
+## GenomesToNumpy Program Usage
+
+---
+
+The `genomestonumpy` program will take a series of genomes, a source library, a directory, and a path number, and map those genomes to the library, and write the numpy array for that path for all genomes (if the path number is given), or writes out all numpy arrays for all paths, if no specified path number is given.
+
+Within the `genomestonumpy` folder, the command to run the program is `./genomestonumpy`. Outside of this directory, the command will be the filepath to the `genomestonumpy` program in the `genomestonumpy` folder. All non-flag arguments given to the command should be after all flags, and should be directories of FastJ files for each genome that should be included.
+
+The following flags apply:
+- `-dir`: specifies the directory to output files to. Uses the current directory by default.
+- `-source`: specifies the directory of the SGLFv2 files for the source library. Uses the current directory by default.
+- `-path`: specifies the path number of the numpy array that should be outputted. Outputs all numpy arrays instead by default.
+
+A successful run will print out the path that was written to as an absolute path, if other programs need to access the created files.
 
 ## Go package descriptions
 
@@ -84,7 +114,7 @@ The current hash algorithm for determining IDs and for hashing tile variants is 
 
 ---
 
-Once this project is on GitHub, documentation of the packages should appear on Godoc (godoc.org). For now, documentation can be found within the .go files.
+Once this project is on GitHub, documentation of the packages should appear on Godoc (godoc.org). For now, documentation for Go packages can be found within the .go files, and documentation for programs can be found here or by using the help flag (-h).
 
 ## Tests
 
@@ -102,3 +132,9 @@ Tests are provided for the `genome` and the `tilelibrary` packages, under the fi
 - TileVariants are compared by **hash only**. Even if two TileVariants might have different fields elsewhere (for example, different annotations), equality is determined only by the hash of both variants.
 - Adding tiles directly to a library created from SGLFv2 files is not valid, since adding to an SGLFv2 file directly would cause all lookup reference numbers for tiles to be shifted over. One workaround is by merging this library with an empty library, as adding tiles to merged libraries is allowed.
 - In genomes, the number -1 represents a skipped step location because of a spanning tile. The number -2, which appears in text file and numpy array representations of genomes, represents an incomplete tile (that is, it contains a nocall).
+
+## Future goals/features
+
+---
+
+- Parallelization of merging. This will speed up the merge process considerably, especially when merging more than two libraries together.

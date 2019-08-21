@@ -1,4 +1,4 @@
-// Main is a command line function that parses directories of FastJ files into a tile library and writes files to a specified directory.
+// Createlibrary is a command line function that parses directories of FastJ files into a tile library and writes files to a specified directory.
 // It can write SGLF or SGLFv2 files, and also allows a choice of where the intermediate data can go.
 package main
 

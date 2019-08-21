@@ -12,7 +12,7 @@ requirements:
     ramMin: 8000
 hints:
   arv:RuntimeConstraints:
-    keep_cache: 4096
+    keep_cache: 4000
 inputs:
   bashscript:
     type: File

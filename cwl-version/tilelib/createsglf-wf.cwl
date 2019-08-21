@@ -9,8 +9,6 @@ requirements:
     dockerPull: arvados/l7g
   ScatterFeatureRequirement: {}
 hints:
-  arv:RuntimeConstraints:
-    keep_cache: 16384
   cwltool:LoadListingRequirement:
     loadListing: shallow_listing
 

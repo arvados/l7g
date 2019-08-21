@@ -7,6 +7,7 @@ requirements:
 hints:
   ResourceRequirement:
     coresMin: 8
+    ramMin: 26000
 inputs:
   bashscript:
     type: File

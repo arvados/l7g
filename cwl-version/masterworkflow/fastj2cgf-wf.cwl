@@ -11,7 +11,7 @@ requirements:
   StepInputExpressionRequirement: {}
 hints:
   cwltool:LoadListingRequirement:
-    loadListing: shallow_listing
+    loadListing: no_listing
 
 inputs:
   fjdir:

@@ -8,6 +8,9 @@ requirements:
   DockerRequirement:
     dockerPull: arvados/l7g
   ScatterFeatureRequirement: {}
+hints:
+  cwltool:LoadListingRequirement:
+    loadListing: shallow_listing
 inputs:
   gvcfdir:
     type: Directory

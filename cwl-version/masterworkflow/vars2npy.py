@@ -21,7 +21,7 @@ AFN = {"hg19": "98c5e71956730c36cc89bb25b99fe58b+965/assembly.00.hg19.fw.gz",
        "hg38": "7deca98a5827e1991bf49a96a0087318+233/assembly.00.hg38.fw.gz",
        "human_g1k_v37": "96fe7d3fdc5b0bd82128131a23117635+269/assembly.00.human_g1k_v37.fw.gz"}
 
-def make_yml_and_run(project_uuid, varstype, inputpdh, ref, chr1, chrM, nchunks):
+def make_yml_and_run(project_uuid, varstype, inputpdh, ref, chr1, chrM, nchunks, srclibpdh):
     yml_text = '''%sdir:
   class: Directory
   location: keep:%s\n''' % (varstype, inputpdh)
@@ -45,7 +45,11 @@ tagset:
 pathmax: "%d"
 nchunks: "%d"
 sglfthreshold: %d
-checknum: %d''' % (PATHMIN, PATHMAX, nchunks, SGLFTHRESHOLD, CHECKNUM)
+checknum: %d\n''' % (PATHMIN, PATHMAX, nchunks, SGLFTHRESHOLD, CHECKNUM)
+    if srclibpdh:
+        yml_text += '''srclib:
+  class: Directory
+  location: keep:%s\n''' % srclibpdh
 
     print("Input yml file:")
     print(yml_text)
@@ -62,7 +66,7 @@ checknum: %d''' % (PATHMIN, PATHMAX, nchunks, SGLFTHRESHOLD, CHECKNUM)
         command.extend(["--project-uuid", project_uuid])
     command.extend(["%s2npy-wf.cwl" % varstype, yml])
 
-    print("\nRunning:")
+    print("Running:")
     print(" ".join(command))
     subprocess.check_call(command)
     os.remove(yml)
@@ -82,9 +86,10 @@ def main():
     parser.add_argument('--project-uuid', help='arvados project-uuid to run workflow.')
     parser.add_argument('--nchunks', type=int, default=15,
         help='number of chunks of tile paths when creating tile library, default is 15.')
+    parser.add_argument('--srclibpdh', help='portable data hash of existing tile library to be merged.')
 
     args = parser.parse_args()
-    make_yml_and_run(args.project_uuid, args.varstype, args.inputpdh, args.ref, args.chr1, args.chrM, args.nchunks)
+    make_yml_and_run(args.project_uuid, args.varstype, args.inputpdh, args.ref, args.chr1, args.chrM, args.nchunks, args.srclibpdh)
 
 if __name__ == '__main__':
     main()

@@ -40,15 +40,25 @@
 
 //#define FASTJ_TOOL_DEBUG 1
 
-#define FASTJ_TOOL_VERSION "0.1.4"
+#define FASTJ_TOOL_VERSION "0.1.5"
 
+// structures of this type will be populated with the info about each tile
+//
 typedef struct fj_tile_type {
   cJSON *hdr;
   std::string seq;
   uint64_t tileid;
   int span;
+  int n;
+  int nocall;
+  std::string startTag, endTag;
+  std::string seqHash;
+  int startTile;
+  int endTile;
 } fj_tile_t;
 
+// these are used to indicate which command line option was specified
+//
 enum FJT_ACTION {
  FJT_NOOP = 0,
  FJT_CSV,
@@ -56,7 +66,8 @@ enum FJT_ACTION {
  FJT_FILTER,
  FJT_BAND,
  FJT_BAND_CONVERT,
- FJT_BAND_BATCH_HASH
+ FJT_BAND_BATCH_HASH,
+ FJT_TEST,
 };
 
 typedef struct band_info_type {
@@ -80,6 +91,8 @@ static struct option long_options[] = {
   {"input", required_argument, NULL, 'i'},
   {"input-file-list", required_argument, NULL, 'I'},
   {"unsorted", no_argument, NULL, 'U'},
+  {"test", no_argument, NULL, 'T'},
+  {"test-tileid", no_argument, NULL, 't'},
   {0,0,0,0}
 };
 
@@ -101,6 +114,8 @@ void show_help() {
   printf("  [-I ifn_list]   file containing gziped list of FastJ files to convert\n");
   printf("  [-p tilepath]   Tile path (in decimal)\n");
   printf("  [-U]            do not sort output (for use with -C option)\n");
+  printf("  [-T]            Check fastj file for integrity.\n");
+  printf("  [-t]            Check fastj tileIDs for consistency.\n");
   printf("  [-v]            Verbose\n");
   printf("  [-V]            Version\n");
   printf("  [-h]            Help\n");
@@ -120,7 +135,6 @@ void md5str(std::string &s, std::string &seq) {
     sprintf(buf, "%02x", (unsigned char)m[i]);
     s += buf;
   }
-
 }
 
 
@@ -142,7 +156,6 @@ void print_tileid(uint64_t tileid) {
     if (curpos>0) { printf("."); }
     printf( ofmt[curpos].c_str(), (unsigned int)u64 );
   }
-
 }
 
 int read_bands(FILE *ifp, std::vector< band_info_t > &band_info_v) {
@@ -509,7 +522,6 @@ int read_tiles_and_print_csv(FILE *ifp) {
   }
 
   return 0;
-
 }
 
 int read_tiles_gz(gzFile gz_fp, std::vector< fj_tile_t > &fj_tile) {
@@ -618,10 +630,11 @@ int read_tiles_gz(gzFile gz_fp, std::vector< fj_tile_t > &fj_tile) {
   }
 
   std::sort( fj_tile.begin(), fj_tile.end(), sortTileCmp );
-
 }
 
 
+// "reading" means populating fj_tile_t struct with json header and sequence
+//
 int read_tiles(FILE *ifp, std::vector< fj_tile_t > &fj_tile) {
   int i, j,k ;
   int line_no=0, char_no=0;
@@ -721,6 +734,66 @@ int read_tiles(FILE *ifp, std::vector< fj_tile_t > &fj_tile) {
       } else {
         return -1;
       }
+
+      cJSON *n = cjson_obj(fj_tile[i].hdr, "n");
+      if (cJSON_IsNumber(n)) {
+        fj_tile[i].n = (int)(n->valuedouble);
+      } else {
+        return -1;
+      }
+
+      cJSON *nocall = cjson_obj(fj_tile[i].hdr, "nocallCount");
+      if (cJSON_IsNumber(nocall)) {
+        fj_tile[i].nocall = (int)(nocall->valuedouble);
+      } else {
+        return -1;
+      }
+
+      cJSON *startTag = cjson_obj(fj_tile[i].hdr, "startTag");
+      if (cJSON_IsString(startTag)) {
+        fj_tile[i].startTag = startTag->valuestring;
+      } else {
+        return -1;
+      }
+
+      cJSON *endTag = cjson_obj(fj_tile[i].hdr, "endTag");
+      if (cJSON_IsString(endTag)) {
+        fj_tile[i].endTag = endTag->valuestring;
+      } else {
+        return -1;
+      }
+
+      cJSON *seqHash = cjson_obj(fj_tile[i].hdr, "md5sum");
+      if (cJSON_IsString(seqHash)) {
+        fj_tile[i].seqHash = seqHash->valuestring;
+      } else {
+        return -1;
+      }
+
+      cJSON *startTile = cjson_obj(fj_tile[i].hdr, "startTile");
+      if (cJSON_IsBool(startTile)) {
+        if ( cJSON_IsTrue(startTile) ) {
+          fj_tile[i].startTile = 1;
+        }
+        else {
+          fj_tile[i].startTile = 0;
+        }
+      } else {
+        return -1;
+      }
+
+      cJSON *endTile = cjson_obj(fj_tile[i].hdr, "endTile");
+      if (cJSON_IsBool(endTile)) {
+        if ( cJSON_IsTrue(endTile) ) {
+          fj_tile[i].endTile = 1;
+        }
+        else {
+          fj_tile[i].endTile = 0;
+        }
+      } else {
+        return -1;
+      }
+
     } else {
       //printf("ERROR, element %i does not have tileID\n", i);
       return -4;
@@ -728,7 +801,6 @@ int read_tiles(FILE *ifp, std::vector< fj_tile_t > &fj_tile) {
   }
 
   std::sort( fj_tile.begin(), fj_tile.end(), sortTileCmp );
-
 }
 
 void concatenate_tiles(std::vector< fj_tile_t > &fj_tile, uint16_t variantid, std::string &seq) {
@@ -745,7 +817,6 @@ void concatenate_tiles(std::vector< fj_tile_t > &fj_tile, uint16_t variantid, st
     seq += (fj_tile[i].seq.c_str() + offset);
     offset=24;
   }
-
 }
 
 void cleanup_tiles(std::vector< fj_tile_t > &fj_tile) {
@@ -987,8 +1058,6 @@ void band_print(band_info_t &band_info) {
     }
     printf("]\n");
   }
-
-
 }
 
 void print_bands(std::vector< band_info_t > &band_info_v) {
@@ -1298,9 +1367,88 @@ int batch_fastj_to_band(FILE *ifp_stream, FILE *sglf_fp) {
   return 0;
 }
 
+int fastj_check (std::vector< fj_tile_t > &fj_tile) {
+  int i, j, k;
+  int count = 0;
+  int seqSize;
+  int tagSize;
+  std::string seqHash;
+
+  for (i = 0; i<fj_tile.size(); i++){
+    if ( (int)fj_tile[i].seq.size() != fj_tile[i].n ) { return -1; }
+    count = 0;
+    for (j = 0; j<fj_tile[i].seq.size(); j++) {
+      if ( (fj_tile[i].seq[j] == 'n') || (fj_tile[i].seq[j] == 'N') ) { count++; }
+    }
+    if ( count != fj_tile[i].nocall ) { return -2; }
+
+    if ( fj_tile[i].startTag.size() > fj_tile[i].seq.size() ) { return -3; }
+    for (j = 0; j<fj_tile[i].startTag.size(); j++) {
+      if ( !((fj_tile[i].startTag[j] == fj_tile[i].seq[j]) ||
+            (fj_tile[i].seq[j] == 'n') ||
+            (fj_tile[i].seq[j] == 'N') )) { return -4; } // -3 already used
+    }
+
+    // Get sequence size and endTag size for convenience, then work backward
+    // through string comparing them. endTag should be 24 or 0, but we can't
+    // assume it. No calls are acceptable.
+    //
+    seqSize = fj_tile[i].seq.size();
+    tagSize = fj_tile[i].endTag.size();
+    if ( tagSize > seqSize ) { return -5; }
+    for (j = 0; j<tagSize; j++) {
+      if ( ! ((fj_tile[i].endTag[j] == fj_tile[i].seq[seqSize - tagSize + j])
+           || (fj_tile[i].seq[seqSize - tagSize + j] == 'n')
+           || (fj_tile[i].seq[seqSize - tagSize + j] == 'N') )) { return -6; }
+    }
+
+    md5str( seqHash, fj_tile[i].seq );
+    if ( seqHash != fj_tile[i].seqHash ) { return -7; }
+
+    if ( fj_tile[i].span <= 0 ) { return -8; }
+
+
+  }
+  return 0;
+}
+
+int fastj_check_tileid (std::vector< fj_tile_t > &fj_tile) {
+  int i, j, k;
+  int count = 0;
+  int expectedTileStep[2] = {0,0};
+  int expectedEndTileStep = -1;
+  int endCount = 0;
+  uint16_t ts, tv;
+
+  // If the size is zero, there will be a out-of-bounds error
+  //
+  if ( fj_tile.size() == 0 ) { return -9; }
+
+  ts = tileid_part(fj_tile[fj_tile.size()-1].tileid, 1);
+  expectedEndTileStep = (int)ts + fj_tile[fj_tile.size()-1].span;
+
+  for (i = 0; i<fj_tile.size(); i++){
+    tv = tileid_part(fj_tile[i].tileid, 0);
+    ts = tileid_part(fj_tile[i].tileid, 1);
+    if (! ((tv == 0) || (tv == 1)) ) { return -10; }
+    if ( ts != (uint16_t)expectedTileStep[tv] ) { return -11; }
+    if ( (ts == 0) && (fj_tile[i].startTile != 1) ) { return -12; }
+    expectedTileStep[tv] += fj_tile[i].span;
+    if ( expectedTileStep[tv] == expectedEndTileStep ) {
+      endCount++;
+      if ( fj_tile[i].endTile != 1 ) { return -13; }
+    }
+  }
+  if ( endCount != 2 ) { return -14; }
+
+  return 0;
+}
+
 int main(int argc, char **argv) {
   int i, ret;
   int ch, opt, option_index;
+  int check_tileid_option = 0;
+
   std::string ifn = "-", sglf_fn;
 
   int ifn_stream=0;
@@ -1326,16 +1474,27 @@ int main(int argc, char **argv) {
 
   FJT_ACTION action = FJT_NOOP;
 
-  while ((opt=getopt_long(argc, argv, "vVhc:CL:i:p:BbHUI:", long_options, &option_index))!=-1) switch(opt) {
+  while ((opt=getopt_long(argc, argv, "vVhc:CL:i:p:BbHUI:Tt", long_options, &option_index))!=-1) switch(opt) {
     case 0:
       fprintf(stderr, "invalid option, exiting\n");
       exit(-1);
+      break;
+
+    case 'T':
+      show_help_flag=0;
+      action = FJT_TEST;
+      break;
+
+    case 't':
+      show_help_flag=0;
+      check_tileid_option = 1;
       break;
 
     case 'C':
       show_help_flag=0;
       action = FJT_CSV;
       break;
+
     case 'U':
       unsorted_flag = 1;
       break;
@@ -1481,6 +1640,32 @@ int main(int argc, char **argv) {
     printf("\n");
   }
 
+  else if (action == FJT_TEST) {
+    ret = fastj_check(fj_tile);
+    if ( ret >= 0 ) {
+      if ( verbose_flag ) {
+        printf("fastj check: OK\n");
+      }
+    }
+    else {
+      fprintf(stderr, "fastj check error: %d\n", ret);
+      exit(-1);
+    }
+
+    if (check_tileid_option) {
+      ret = fastj_check_tileid(fj_tile);
+      if ( ret >= 0 ) {
+        if ( verbose_flag ) {
+          printf("fastj tileid check: OK\n");
+        }
+      }
+      else {
+        fprintf(stderr, "fastj tileid check error: %d\n", ret);
+        exit(-1);
+      }
+    }
+  }
+
   else if (action == FJT_BAND) {
 
     if (sglf_fn.size()==0) {
@@ -1587,9 +1772,12 @@ int main(int argc, char **argv) {
   }
 
   else if (action == FJT_FILTER) {
-    printf("not implemented...\n");
+    fprintf(stderr, "not implemented...\n");
+    exit(-1);
   }
 
   cleanup_tiles(fj_tile);
   if (ifp!=stdin) { fclose(ifp); }
+
+  exit(0);
 }

@@ -9,7 +9,7 @@ requirements:
   - class: DockerRequirement
     dockerPull: l7g/preprocess-vcfbed
   - class: ResourceRequirement
-    ramMin: 13000
+    ramMin: 12000
 inputs:
   vcf:
     type: File

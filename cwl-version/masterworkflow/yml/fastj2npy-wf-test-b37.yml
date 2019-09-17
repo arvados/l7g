@@ -1,0 +1,22 @@
+fjdir:
+  class: Directory
+  location: keep:6a3b88d7cde57054971eeabe15639cf8+263878
+tagset:
+  class: File
+  location: keep:cd9ada494bd979a8bc74e6d59d3e8710+174/tagset.fa.gz
+pathmin: "0"
+pathmax: "862"
+nchunks: "15"
+sglfthreshold: 4000
+gvcfdir:
+  class: Directory
+  location: keep:a7f54f723eaa4fb1b021150be80028fe+1343
+checknum: 2
+chroms: ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "X", "Y", "M"]
+tileassembly:
+  class: File
+  location: keep:96fe7d3fdc5b0bd82128131a23117635+269/assembly.00.human_g1k_v37.fw.gz
+ref: "human_g1k_v37"
+reffa:
+  class: File
+  location: keep:5a42cfaddd3a9cfc4fac89b3fe73c6f6+751/human_g1k_v37.fasta.gz

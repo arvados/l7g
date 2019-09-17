@@ -1,0 +1,6 @@
+vcf:
+  class: File
+  location: keep:8452af084a85eb3b49ab5d77137b7e0a+4903477/LP6005441-DNA_A01.annotated.nh.vcf.gz
+sample: "LP6005441-DNA_A01"
+qualcutoff: 20
+gqcutoff: 20

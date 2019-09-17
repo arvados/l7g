@@ -9,10 +9,10 @@ requirements:
     dockerPull: arvados/l7g
   ResourceRequirement:
     coresMin: 2
-    ramMin: 13000
+    ramMin: 8000
 hints:
   arv:RuntimeConstraints:
-    keep_cache: 1046
+    keep_cache: 4000
   cwltool:LoadListingRequirement:
     loadListing: shallow_listing
 inputs:
@@ -36,6 +36,9 @@ inputs:
   lib:
     type: Directory
     label: Tile library directory
+  skippaths:
+    type: File
+    label: Paths to skip
 outputs:
   cgf:
     type: File
@@ -49,3 +52,4 @@ arguments:
   - $(inputs.cgft)
   - $(inputs.fjt)
   - $(inputs.lib)
+  - $(inputs.skippaths)

@@ -14,17 +14,14 @@
 export cgft=$1
 export indir=$2
 export band2matrix=$3
-export cnvrt2hiq=$4
-export makelist=$5
-export nthreads=$6
+export makelist=$4
+export nthreads=$5
 
 export odir="./npy"
-export odir2="./npy-hiq"
 export SHELL=/bin/bash
 
-mkdir -p tmp
+export tmpdir=`mktemp -d`
 mkdir -p $odir
-mkdir -p $odir2
 
 find $indir/*.cgf > cgf_list
 
@@ -34,18 +31,18 @@ function process_tile {
   printf '%03x\n' $tilepath
   h=`printf '%03x' $tilepath`
 
-  rm -f tmp/$h.tmp
+  rm -f $tmpdir/$h.tmp
 
   for ifn in `cat cgf_list` ; do
 
     #echo $ifn
     #$cgb -i $ifn -k -p $tilepath -s 0 -L >> tmp/$h.tmp
-    $cgft -b $tilepath $ifn >> tmp/$h.tmp
+    $cgft -b $tilepath $ifn >> $tmpdir/$h.tmp
 
   done
 
   #cat tmp/$h.tmp | LD_LIBRARY_PATH=`pwd`/lib/cnpy $band2matrix $h $odir/$h
-  cat tmp/$h.tmp | $band2matrix $h $odir/$h
+  cat $tmpdir/$h.tmp | $band2matrix $h $odir/$h
 
 }
 export -f process_tile
@@ -56,7 +53,3 @@ done | parallel --max-procs $nthreads process_tile {}
 
 $makelist cgf_list $odir/names.npy
 mv $odir/names.npy $odir/names
-
-# Filtering out hiq and writing tile variant matrix and 1-hot matrix
-
-$cnvrt2hiq $odir/names $odir $odir2

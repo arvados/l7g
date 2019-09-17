@@ -3,6 +3,7 @@ $namespaces:
   cwltool: "http://commonwl.org/cwltool#"
 requirements:
   InlineJavascriptRequirement: {}
+hints:
   cwltool:LoadListingRequirement:
     loadListing: deep_listing
 cwlVersion: v1.0

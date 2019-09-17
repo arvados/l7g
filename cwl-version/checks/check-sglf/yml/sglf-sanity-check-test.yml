@@ -1,5 +1,3 @@
-sglfDir:
+sglfdir:
   class: Directory
-  path: keep:c5583087a866b1ef2cce5d1f477f2c99+34173
-
-outFileName: "out.txt"
+  path: keep:81faa6967b4f2b6a085670220b8f832c+29234

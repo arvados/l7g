@@ -13,12 +13,18 @@ hints:
     loadListing: shallow_listing
 
 inputs:
+  waitsignal:
+    type: Any?
+    label: Wait signal to start workflow
   fjdir:
     type: Directory
     label: Input directory of FastJs
   lib:
     type: Directory
     label: Tile library directory
+  skippaths:
+    type: File
+    label: Paths to skip
 
 outputs:
   cgfs:
@@ -39,4 +45,5 @@ steps:
     in:
       fjdir: getdirs/fjdirs
       lib: lib
+      skippaths: skippaths
     out: [cgf]

@@ -1,0 +1,8 @@
+variantsvcfdir:
+  class: Directory
+  location: keep:c43692b61030dc10d24d84ffc97ff888+157254
+fullvcfdir:
+  class: Directory
+  location: keep:8452af084a85eb3b49ab5d77137b7e0a+4903477
+qualcutoff: 20
+gqcutoff: 20

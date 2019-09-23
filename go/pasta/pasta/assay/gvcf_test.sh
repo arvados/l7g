@@ -168,13 +168,13 @@ echo 'ok-snippet5'
 
 gvcf_snippet="chrY 18000000 . C A,<NON_REF> 0.2 . . GT ./."
 
-t5s_a=`pasta -full-sequence \
+t5s_a=`./pasta -full-sequence \
   -action gvcf-rotini \
   -i <( echo "$gvcf_snippet" | tr ' ' '\t' ) \
   -r "assay-data/ref-snippet6.seq" \
   -start 17999990 | \
-  pasta -a filter-rotini -start 17999995 -n 10 | \
-  pasta -a rotini-ref | tr -d '\n' | \
+  ./pasta -a filter-rotini -start 17999995 -n 10 | \
+  ./pasta -a rotini-ref | tr -d '\n' | \
   md5sum | cut -f1 -d' '`
 
 t5s_b=`cat assay-data/ref-snippet6.seq | \

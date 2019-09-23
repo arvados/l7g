@@ -222,6 +222,7 @@ for chrom in ${chroms[@]}; do
 
     if [[ "$VERBOSE" -eq 1 ]] ; then
       echo "$pasta -action gvcf-rotini -start $window_start0 -chrom $chrom \
+        -full-sequence \
         -refstream $tdir/$tilepath.ref \
         -i $tdir/$tilepath.gvcf | \
         $pasta -action filter-rotini -start $tilepath_start0 -n $tilepath_len > $odir/$tilepath.pa"
@@ -241,13 +242,13 @@ for chrom in ${chroms[@]}; do
       echo "$pasta -action rotini-fastj -start $tilepath_start0 -tilepath $tilepath -chrom $chrom -build $ref \
         -i $odir/$tilepath.pa \
         -assembly <( $l7g assembly $afn $tilepath ) \
-        -tag <( cat <( samtools faidx $tagset $tilepath.00 | egrep -v '^>' | tr -d '\n' | fold -w 24 ) <( echo ) ) > $odir/$tilepath.fj"
+        -tag <( samtools faidx $tagset $tilepath.00 | egrep -v '^>' | tr -d '\n' | fold -w 24 ) > $odir/$tilepath.fj"
     fi
 
     $pasta -action rotini-fastj -start $tilepath_start0 -tilepath $tilepath -chrom $chrom -build $ref \
       -i $odir/$tilepath.pa \
       -assembly <( $l7g assembly $afn $tilepath ) \
-      -tag <( cat <( samtools faidx $tagset $tilepath.00 | egrep -v '^>' | tr -d '\n' | fold -w 24 ) <( echo ) ) > $odir/$tilepath.fj
+      -tag <( samtools faidx $tagset $tilepath.00 | egrep -v '^>' | tr -d '\n' | fold -w 24 ) > $odir/$tilepath.fj
 
     rm -f $odir/$tilepath.pa
     bgzip -f $odir/$tilepath.fj

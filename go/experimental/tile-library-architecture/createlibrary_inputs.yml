@@ -1,0 +1,8 @@
+directory:
+  class: Directory
+  path: "" # Point this to the directory where SGLF/SGLFv2 files should go.
+version: 1
+temporaryText: 
+  class: File
+  path: "" # Point this to an empty text file. Note: CWL may not work without setting up an empty text file beforehand.
+genomes: [] # Put an array of directories here.

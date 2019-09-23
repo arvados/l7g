@@ -1,0 +1,3 @@
+directory: "" # Put any directory name here.
+version: 1 # Switch to 0 if SGLF files are needed rather than SGLFv2 files.
+genomesList: [[]] # Put an array of arrays of directories here.

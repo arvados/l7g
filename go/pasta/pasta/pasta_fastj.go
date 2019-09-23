@@ -141,7 +141,13 @@ func (g *FastJInfo) ReadTag(tag_stream *bufio.Reader) error {
       continue
     }
 
-    g.EndTagBuffer = append(g.EndTagBuffer, strings.Trim(l, " \t\n"))
+    ltrim := strings.Trim(l, " \t\n")
+    if len(ltrim)==0 { continue; }
+    g.EndTagBuffer = append(g.EndTagBuffer, ltrim)
+
+
+    //DEBUG
+    //fmt.Printf("## adding EndTagBuffer: %s\n", ltrim)
 
     if (g.StepStartTag < 0) && (g.StepEndTag >= 0) {
       g.StepStartTag = g.StepEndTag
@@ -152,8 +158,6 @@ func (g *FastJInfo) ReadTag(tag_stream *bufio.Reader) error {
     } else {
       g.StepEndTag ++
     }
-
-    //fmt.Printf(">>>>>>>>>>>>>>>>> %s\n", l)
 
     return nil
   }
@@ -506,9 +510,7 @@ func (g *FastJInfo) Convert(pasta_stream *bufio.Reader, tag_stream *bufio.Reader
           g.AssemblyPrevStep, g.AssemblyPrevEndPos) )
       }
 
-
     }
-
 
     // If we've hit the end of the tile assebly, we can
     // emit a FastJ tile
@@ -518,8 +520,6 @@ func (g *FastJInfo) Convert(pasta_stream *bufio.Reader, tag_stream *bufio.Reader
 
 
       for (!g.TagFinished) && (g.StepEndTag < (g.AssemblyStep+g.AssemblySpan-1)) {
-      //if !g.TagFinished {
-
 
         e = g.ReadTag(tag_stream)
         if e!=nil {
@@ -529,11 +529,10 @@ func (g *FastJInfo) Convert(pasta_stream *bufio.Reader, tag_stream *bufio.Reader
         seed_tile_length[0]++
         seed_tile_length[1]++
 
-      //} else {
       }
-      if g.TagFinished {
 
-        end_tile_flag = true
+      if g.TagFinished {
+        //end_tile_flag = true
       }
 
       if loc_debug {
@@ -549,29 +548,36 @@ func (g *FastJInfo) Convert(pasta_stream *bufio.Reader, tag_stream *bufio.Reader
       e_spos := len(alt_seq[0])-24
       if e_spos < 0 { e_spos=0 }
 
-      if end_tile_flag || g.EndTagMatch(alt_seq[0]) {
+      //if end_tile_flag || g.EndTagMatch(alt_seq[0]) {
+      if g.EndTagMatch(alt_seq[0]) {
 
         start_tile_flag := false
         beg_tag := ""
         idx_end := len(g.EndTagBuffer)-1
+
+        /*
         if end_tile_flag {
-          //idx := idx_end - seed_tile_length[0] + 1
+
           idx := idx_end - seed_tile_length[0]
-          //if idx_end>=0 {
           if idx>=0 {
-            //beg_tag = g.EndTagBuffer[idx_end]
             beg_tag = g.EndTagBuffer[idx]
+          } else {
+            start_tile_flag = true
           }
-        } else if (idx_end-seed_tile_length[0])>=0 {
+
+        } else
+        */
+
+        if (idx_end-seed_tile_length[0])>=0 {
           beg_tag = g.EndTagBuffer[idx_end-seed_tile_length[0]]
         } else {
           start_tile_flag = true
         }
 
-        end_tag := ""
-        if !end_tile_flag {
-          end_tag = g.EndTagBuffer[idx_end]
-        }
+        //end_tag := ""
+        //if !end_tile_flag { end_tag = g.EndTagBuffer[idx_end] }
+
+        end_tag := g.EndTagBuffer[idx_end]
 
         d_beg := -24
         if start_tile_flag { d_beg = 0 }
@@ -623,30 +629,34 @@ func (g *FastJInfo) Convert(pasta_stream *bufio.Reader, tag_stream *bufio.Reader
       e_spos = len(alt_seq[1])-24
       if e_spos < 0 { e_spos=1 }
 
-      if end_tile_flag || g.EndTagMatch(alt_seq[1]) {
+      //if end_tile_flag || g.EndTagMatch(alt_seq[1]) {
+      if g.EndTagMatch(alt_seq[1]) {
 
         start_tile_flag := false
         beg_tag := ""
         idx_end := len(g.EndTagBuffer)-1
 
-        if end_tile_flag {
-          //idx := idx_end - seed_tile_length[1] + 1
-          idx := idx_end - seed_tile_length[1]
-          //if idx_end>=0 {
-          if idx>=0 {
-            //beg_tag = g.EndTagBuffer[idx_end]
-            beg_tag = g.EndTagBuffer[idx]
-          }
-        } else if (idx_end-seed_tile_length[1])>=0 {
+//        if end_tile_flag {
+//
+//          idx := idx_end - seed_tile_length[1]
+//          if idx>=0 {
+//            beg_tag = g.EndTagBuffer[idx]
+//          } else {
+//            start_tile_flag = true
+//          }
+//
+//        } else
+
+        if (idx_end-seed_tile_length[1])>=0 {
           beg_tag = g.EndTagBuffer[idx_end-seed_tile_length[1]]
         } else {
           start_tile_flag = true
         }
 
-        end_tag := ""
-        if !end_tile_flag {
-          end_tag = g.EndTagBuffer[idx_end]
-        }
+        //end_tag := ""
+        //if !end_tile_flag { end_tag = g.EndTagBuffer[idx_end] }
+
+        end_tag := g.EndTagBuffer[idx_end]
 
         d_beg := -24
         if start_tile_flag { d_beg = 0 }
@@ -809,9 +819,6 @@ func (g *FastJInfo) Convert(pasta_stream *bufio.Reader, tag_stream *bufio.Reader
 
   // Final tile so take special consideration
   //
-  //seed_tile_length[0]++
-  //seed_tile_length[1]++
-
   seed_tile_length[0]+=g.AssemblySpan
   seed_tile_length[1]+=g.AssemblySpan
 
@@ -826,6 +833,10 @@ func (g *FastJInfo) Convert(pasta_stream *bufio.Reader, tag_stream *bufio.Reader
 
       e = g.ReadTag(tag_stream)
       if e==io.EOF {
+
+        //DEBUG
+        //fmt.Printf("## B cond\n");
+
         break
       }
       if e!=nil {
@@ -833,17 +844,6 @@ func (g *FastJInfo) Convert(pasta_stream *bufio.Reader, tag_stream *bufio.Reader
       }
 
     }
-
-
-    //DEBUG
-    /*
-    out.WriteString( fmt.Sprintf("### ref_pos %d, assemblyendpos %d\n", ref_pos, g.AssemblyEndPos) )
-    out.WriteString( fmt.Sprintf("###   seed_tile_length %v\n", seed_tile_length))
-    out.WriteString( fmt.Sprintf("###   AssemblySpan %d\n", g.AssemblySpan) )
-    out.WriteString( fmt.Sprintf("###   AssemblyStep %d\n", g.AssemblyStep) )
-    out.WriteString( fmt.Sprintf("###   AssemblyPrevStep %d\n", g.AssemblyPrevStep) )
-    out.WriteString( fmt.Sprintf("###\n") )
-    */
 
     // Emit final FastJ sequences
     //
@@ -854,12 +854,13 @@ func (g *FastJInfo) Convert(pasta_stream *bufio.Reader, tag_stream *bufio.Reader
       idx_end := len(g.EndTagBuffer)-1
 
       if idx_end >= 0 {
-        //beg_tag = g.EndTagBuffer[idx_end]
+
         idx := idx_end - seed_tile_length[aa] + 1
-        //idx := idx_end - seed_tile_length[aa]
 
         if idx >= 0 {
           beg_tag = g.EndTagBuffer[idx]
+        } else {
+          start_tile_flag = true
         }
 
       } else {

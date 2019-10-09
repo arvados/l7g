@@ -10,7 +10,7 @@ requirements:
   ScatterFeatureRequirement: {}
 hints:
   cwltool:LoadListingRequirement:
-    loadListing: shallow_listing
+    loadListing: no_listing
 
 inputs:
   waitsignal:

@@ -4,9 +4,6 @@ $namespaces:
 cwlVersion: v1.0
 class: Workflow
 label: Create NumPy arrays by tile path from cgfs, merge all NumPy arrays into single array
-requirements:
-  DockerRequirement:
-    dockerPull: arvados/l7g
 hints:
   cwltool:LoadListingRequirement:
     loadListing: no_listing

@@ -13,8 +13,6 @@ requirements:
 hints:
   arv:RuntimeConstraints:
     keep_cache: 4000
-  cwltool:LoadListingRequirement:
-    loadListing: shallow_listing
 inputs:
   bashscript:
     type: File

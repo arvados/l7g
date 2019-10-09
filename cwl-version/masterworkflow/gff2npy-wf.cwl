@@ -49,6 +49,9 @@ inputs:
   checknum:
     type: int
     label: Number of samples to check
+  checkchroms:
+    type: string[]
+    label: Chromosomes to validate
 
 outputs:
   lib:

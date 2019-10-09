@@ -49,6 +49,9 @@ inputs:
   checknum:
     type: int
     label: Number of samples to check
+  checkchroms:
+    type: string[]
+    label: Chromosomes to validate
 
 outputs:
   lib:
@@ -115,7 +118,7 @@ steps:
       sglfdir: fastj2cgf-wf/lib
       gvcfdir: gvcfdir
       checknum: checknum
-      chroms: chroms
+      chroms: checkchroms
       tileassembly: afn
       ref: ref
       reffa: reffa

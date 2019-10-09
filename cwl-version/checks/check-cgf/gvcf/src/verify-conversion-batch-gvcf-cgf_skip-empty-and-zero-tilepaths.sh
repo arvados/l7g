@@ -64,9 +64,8 @@ if [[ "$VERBOSE" -eq 1 ]] ; then
   echo "## tilepath range: 0x$beg_hxp to 0x$end_hxp_inc inclusive [$beg_p-$end_p_inc]"
 fi
 
-band_fn=`mktemp`
+mkdir band_hash_dir
 band_hash="band_hash_file"
-gvcf_hash="gvcf_hash_file"
 
 if [[ "$VERBOSE" == "1" ]] ; then
   echo "rep_cgf: $rep_cgf"
@@ -116,6 +115,8 @@ for p in `seq $beg_p $end_p_inc` ; do
     continue
   fi
 
+  export band_fn="band_hash_dir/$hxp.band"
+
   for cgf_fn in $cgf_fns; do
     if [[ "$VERBOSE" -eq 1 ]] ; then
       echo "## cgft -b $p $cgf_fn >> $band_fn"
@@ -125,17 +126,14 @@ for p in `seq $beg_p $end_p_inc` ; do
   done
 
   if [[ "$VERBOSE" -eq 1 ]] ; then
-    echo "## tileband-hash -L <( zcat $sglf_dir/$hxp.sglf.gz ) \
-      -T $p \
-      $band_fn >> $band_hash"
+    echo "## fjt -H -L <( zcat $sglf_dir/$hxp.sglf.gz ) $band_fn >> $band_hash"
   fi
 
-  tileband-hash -L <( zcat $sglf_dir/$hxp.sglf.gz ) \
-    -T $p \
-    $band_fn >> $band_hash
+  fjt -H -L <( zcat $sglf_dir/$hxp.sglf.gz ) $band_fn >> $band_hash
 
-  rm -f $band_fn
 done
+
+rm -rf band_hash_dir
 
 ###
 ### create sequence hashes derived from gVCF files
@@ -144,6 +142,10 @@ done
 ## we do the same 'batching' for the gvcf to sequence (to hash)
 ## conersion so we can easily compare the list tof hashes
 ##
+
+mkdir gvcf_hash_dir
+gvcf_hash="gvcf_hash_file"
+
 while read line ; do
 
   for cgf_fn in $cgf_fns; do
@@ -243,40 +245,40 @@ while read line ; do
       echo "## window_end1_inc: $window_end1_inc"
     fi
 
-    export tdir=`mktemp -d`
-
     export window_len=`expr "$window_end1_inc" "-" "$window_start1" + 1` || true
 
     if [[ "$VERBOSE" == "1" ]] ; then
-      echo "## refstream $ref_fa "$chrom:$window_start1+$window_len" > $tdir/$tilepath.ref"
+      echo "## refstream $ref_fa "$chrom:$window_start1+$window_len" > gvcf_hash_dir/$tilepath.ref"
     fi
 
-    refstream $ref_fa "$chrom:$window_start1+$window_len" > $tdir/$tilepath.ref
+    refstream $ref_fa "$chrom:$window_start1+$window_len" > gvcf_hash_dir/$tilepath.ref
 
-    cat <( echo -e '\n\n\n' ) <( tabix $gvcf $chrom:$window_start1-$window_end1_inc ) > $tdir/$tilepath.gvcf
+    cat <( echo -e '\n\n\n' ) <( tabix $gvcf $chrom:$window_start1-$window_end1_inc ) > gvcf_hash_dir/$tilepath.gvcf
 
     if [[ "$VERBOSE" == "1" ]] ; then
       echo "## pasta -action gvcf-rotini -start $window_start0 -chrom $chrom \
         -full-sequence \
-        -refstream $tdir/$tilepath.ref \
-        -i $tdir/$tilepath.gvcf | \
-        pasta -action filter-rotini -start $tilepath_start0 -n $tilepath_len > $tdir/$tilepath.pa"
+        -refstream gvcf_hash_dir/$tilepath.ref \
+        -i gvcf_hash_dir/$tilepath.gvcf | \
+        pasta -action filter-rotini -start $tilepath_start0 -n $tilepath_len > gvcf_hash_dir/$tilepath.pa"
     fi
 
     pasta -action gvcf-rotini -start $window_start0 -chrom $chrom \
       -full-sequence \
-      -refstream $tdir/$tilepath.ref \
-      -i $tdir/$tilepath.gvcf | \
-      pasta -action filter-rotini -start $tilepath_start0 -n $tilepath_len > $tdir/$tilepath.pa
+      -refstream gvcf_hash_dir/$tilepath.ref \
+      -i gvcf_hash_dir/$tilepath.gvcf | \
+      pasta -action filter-rotini -start $tilepath_start0 -n $tilepath_len > gvcf_hash_dir/$tilepath.pa
 
-		h0=`pasta -action rotini-alt0 -i $tdir/$tilepath.pa | tr -d '\n' | md5sum | cut -f1 -d' '`
-		h1=`pasta -action rotini-alt1 -i $tdir/$tilepath.pa | tr -d '\n' | md5sum | cut -f1 -d' '`
+		h0=`pasta -action rotini-alt0 -i gvcf_hash_dir/$tilepath.pa | tr -d '\n' | md5sum | cut -f1 -d' '`
+		h1=`pasta -action rotini-alt1 -i gvcf_hash_dir/$tilepath.pa | tr -d '\n' | md5sum | cut -f1 -d' '`
 
     echo "$h0 $h1" >> $gvcf_hash
 
   done
 
 done < <( egrep '^'$ref':'$chrom':' $aidx )
+
+rm -rf gvcf_hash_dir
 
 x=`cat $band_hash | md5sum | cut -f1 -d' '`
 y=`cat $gvcf_hash | md5sum | cut -f1 -d' '`

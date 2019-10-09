@@ -5,8 +5,6 @@ cwlVersion: v1.0
 class: Workflow
 label: Create a tile library (SGLF) for a given set of FastJ files
 requirements:
-  DockerRequirement:
-    dockerPull: arvados/l7g
   ScatterFeatureRequirement: {}
 hints:
   cwltool:LoadListingRequirement:

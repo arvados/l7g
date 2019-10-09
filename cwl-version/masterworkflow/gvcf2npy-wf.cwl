@@ -5,8 +5,6 @@ cwlVersion: v1.0
 class: Workflow
 label: Convert gVCFs to npy arrays
 requirements:
-  DockerRequirement:
-    dockerPull: arvados/l7g
   SubworkflowFeatureRequirement: {}
   StepInputExpressionRequirement: {}
 hints:

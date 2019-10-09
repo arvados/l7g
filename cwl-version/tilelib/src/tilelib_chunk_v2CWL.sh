@@ -6,14 +6,10 @@ export tilepathmin="$1"
 export tilepathmax="$2"
 export fjcsv2sglf="$3"
 export datadir="$4"
-#export verbose_tagset="$5"
 export fjt="$5"
 export tagset="$6"
 
-export dstdir="lib"
-
-
-mkdir -p $dstdir
+export dstdir="."
 
 
 for tilepath_dec in `seq $tilepathmin $tilepathmax` ; 

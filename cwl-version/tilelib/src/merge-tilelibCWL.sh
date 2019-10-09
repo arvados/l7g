@@ -19,8 +19,7 @@ if [[ "$newdir" == "" ]] ; then
   exit
 fi
 
-export dstdir="lib-merge"
-mkdir -p $dstdir
+export dstdir="."
 
 function process {
   tpath=$1
@@ -64,3 +63,5 @@ else
 
   done | parallel --max-procs $nthreads process {}
 fi
+
+rm -rf .parallel

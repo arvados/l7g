@@ -1,2 +1,0 @@
-cat compilescript.sh | docker run -v /data-sdd/cwl_tiling/convert/buildArvados/scripts:/scripts -v /data-sdd/cwl_tiling/convert/buildArvados/dest:/dest -v /data-sdd/cwl_tiling/convert/buildArvados/src:/src --rm -i pythontoolsbuild sh 
-

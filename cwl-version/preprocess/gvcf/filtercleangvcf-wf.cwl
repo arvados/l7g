@@ -5,8 +5,6 @@ cwlVersion: v1.0
 class: Workflow
 label: Filters gVCFs by a specified quality cutoff and cleans
 requirements:
-  DockerRequirement:
-    dockerPull: arvados/l7g
   ScatterFeatureRequirement: {}
 hints:
   arv:RuntimeConstraints:

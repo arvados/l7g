@@ -45,7 +45,7 @@ outputs:
     type: File[]
     label: Output SGLF files
     outputBinding:
-      glob: "lib/*sglf.gz*"
+      glob: "*sglf.gz*"
 baseCommand: bash
 arguments:
   - $(inputs.bashscript)

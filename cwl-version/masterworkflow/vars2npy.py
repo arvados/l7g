@@ -36,10 +36,12 @@ tagset:
   class: File
   location: keep:%s\n''' % (REFFA[ref], AFN[ref], TAGSET)
     chroms_prefix = chr1.replace("1", "")
-    chroms_list = ["\"" + chroms_prefix + str(c) + "\"" for c in range(1, 23)]
-    chroms_list.extend(["\"" + chroms_prefix + "X\"", "\"" + chroms_prefix + "Y\"",
-                        "\"" + chrM + "\""])
+    checkchroms_list = ["\"" + chroms_prefix + str(c) + "\"" for c in range(1, 23)]
+    chroms_list = checkchroms_list + ["\"" + chroms_prefix + "X\"", "\"" + chroms_prefix + "Y\"",
+                        "\"" + chrM + "\""]
+    checkchroms = "[" + ", ".join(checkchroms_list) + "]"
     chroms = "[" + ", ".join(chroms_list) + "]"
+    yml_text += 'checkchroms: %s\n' % checkchroms
     yml_text += 'chroms: %s\n' % chroms
     yml_text += '''pathmin: "%d"
 pathmax: "%d"

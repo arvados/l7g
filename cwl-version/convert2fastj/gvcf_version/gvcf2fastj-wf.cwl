@@ -5,12 +5,11 @@ cwlVersion: v1.0
 class: Workflow
 label: Convert gVCFs to FastJ
 requirements:
-  DockerRequirement:
-    dockerPull: arvados/l7g
   ScatterFeatureRequirement: {}
 hints:
   cwltool:LoadListingRequirement:
     loadListing: shallow_listing
+
 inputs:
   gvcfdir:
     type: Directory

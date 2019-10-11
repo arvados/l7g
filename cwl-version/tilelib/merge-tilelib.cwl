@@ -35,7 +35,7 @@ outputs:
     type: Directory
     label: Directory of merged tile library
     outputBinding:
-      glob: "*merge*"
+      glob: "."
 baseCommand: bash
 arguments:
   - $(inputs.bashscript)

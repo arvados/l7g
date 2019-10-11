@@ -5,8 +5,6 @@ cwlVersion: v1.0
 class: Workflow
 label: Convert FastJs to cgfs
 requirements:
-  DockerRequirement:
-    dockerPull: arvados/l7g
   SubworkflowFeatureRequirement: {}
   StepInputExpressionRequirement: {}
 hints:

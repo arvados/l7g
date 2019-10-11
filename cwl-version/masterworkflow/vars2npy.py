@@ -6,7 +6,8 @@ import os
 import subprocess
 
 RUNNER_RAM = "50000"
-EVAL_TIMEOUT = "2000"
+EVAL_TIMEOUT = "10000"
+THREAD_COUNT = "8"
 
 PATHMIN = 0
 PATHMAX = 862
@@ -20,10 +21,10 @@ AFN = {"hg19": "98c5e71956730c36cc89bb25b99fe58b+965/assembly.00.hg19.fw.gz",
        "hg38": "7deca98a5827e1991bf49a96a0087318+233/assembly.00.hg38.fw.gz",
        "human_g1k_v37": "96fe7d3fdc5b0bd82128131a23117635+269/assembly.00.human_g1k_v37.fw.gz"}
 
-def make_yml_and_run(project_uuid, varstype, inputpdh, ref, chr1, chrM, nchunks):
+def make_yml_and_run(project_uuid, varstype, inputdir, ref, chr1, chrM, nchunks, srclib):
     yml_text = '''%sdir:
   class: Directory
-  location: keep:%s\n''' % (varstype, inputpdh)
+  location: keep:%s\n''' % (varstype, inputdir)
     yml_text += 'ref: "%s"\n' % ref
     yml_text += '''reffa:
   class: File
@@ -44,23 +45,28 @@ tagset:
 pathmax: "%d"
 nchunks: "%d"
 sglfthreshold: %d
-checknum: %d''' % (PATHMIN, PATHMAX, nchunks, SGLFTHRESHOLD, CHECKNUM)
+checknum: %d\n''' % (PATHMIN, PATHMAX, nchunks, SGLFTHRESHOLD, CHECKNUM)
+    if srclib:
+        yml_text += '''srclib:
+  class: Directory
+  location: keep:%s\n''' % srclib
 
     print("Input yml file:")
     print(yml_text)
-    
-    yml = "yml/%s_%s.yml" % (varstype, inputpdh)
+
+    yml = "yml/%s_%s.yml" % (varstype, inputdir)
     with open(yml, 'w') as f:
         f.write(yml_text)
     command = ["arvados-cwl-runner", "--api", "containers",
                "--submit", "--no-wait",
                "--submit-runner-ram", RUNNER_RAM,
-               "--eval-timeout", EVAL_TIMEOUT]
+               "--eval-timeout", EVAL_TIMEOUT,
+               "--thread-count", THREAD_COUNT]
     if project_uuid:
         command.extend(["--project-uuid", project_uuid])
     command.extend(["%s2npy-wf.cwl" % varstype, yml])
 
-    print("\nRunning:")
+    print("Running:")
     print(" ".join(command))
     subprocess.check_call(command)
     os.remove(yml)
@@ -70,7 +76,7 @@ def main():
         run workflow on arvados to generate npy arrays.')
     parser.add_argument("varstype", choices=['gvcf', 'gff'],
         help='file type of input variant files.')
-    parser.add_argument('inputpdh', help='portable data hash of input directory.')
+    parser.add_argument('inputdir', help='keep reference of input directory.')
     parser.add_argument('ref', choices=['hg19', 'hg38', 'human_g1k_v37'],
         help='reference name.')
     parser.add_argument('chr1', choices=['chr1', '1'],
@@ -80,9 +86,10 @@ def main():
     parser.add_argument('--project-uuid', help='arvados project-uuid to run workflow.')
     parser.add_argument('--nchunks', type=int, default=15,
         help='number of chunks of tile paths when creating tile library, default is 15.')
+    parser.add_argument('--srclib', help='keep reference of existing tile library to be merged.')
 
     args = parser.parse_args()
-    make_yml_and_run(args.project_uuid, args.varstype, args.inputpdh, args.ref, args.chr1, args.chrM, args.nchunks)
+    make_yml_and_run(args.project_uuid, args.varstype, args.inputdir, args.ref, args.chr1, args.chrM, args.nchunks, args.srclib)
 
 if __name__ == '__main__':
     main()

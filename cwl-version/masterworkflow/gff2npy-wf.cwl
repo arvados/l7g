@@ -10,8 +10,8 @@ requirements:
   SubworkflowFeatureRequirement: {}
   StepInputExpressionRequirement: {}
 hints:
- cwltool:LoadListingRequirement:
-   loadListing: shallow_listing
+  cwltool:LoadListingRequirement:
+    loadListing: no_listing
 
 inputs:
   gffdir:

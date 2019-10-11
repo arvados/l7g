@@ -7,6 +7,9 @@ label: Create NumPy arrays by tile path from cgfs, merge all NumPy arrays into s
 requirements:
   DockerRequirement:
     dockerPull: arvados/l7g
+hints:
+  cwltool:LoadListingRequirement:
+    loadListing: no_listing
 
 inputs:
   waitsignal:

@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -a
+set -aeo pipefail
 
 DEBUG=0
 export VERBOSE=1
@@ -135,7 +135,7 @@ for chrom in ${chroms[@]}; do
       gvcf_start0=`expr "$gvcf_start1" - 1` || true
     fi
 
-    gvcf_tok_end1_inc=`tabix $gvcf $chrom:$tilepath_start1-$tilepath_end1_inc | grep END | tail -n1 | cut -f8 | cut -f2 -d'='`
+    gvcf_tok_end1_inc=`tabix $gvcf $chrom:$tilepath_start1-$tilepath_end1_inc | grep END | tail -n1 | cut -f8 | cut -f2 -d'='` || true
     if [[ "$gvcf_tok_end1_inc" != "" ]] && [[ "$gvcf_tok_end1_inc" -gt "$gvf_end1_inc" ]] ; then
       gvcf_end1_inc="$gvcf_tok_end1_inc"
     fi
@@ -248,7 +248,7 @@ for chrom in ${chroms[@]}; do
     $pasta -action rotini-fastj -start $tilepath_start0 -tilepath $tilepath -chrom $chrom -build $ref \
       -i $odir/$tilepath.pa \
       -assembly <( $l7g assembly $afn $tilepath ) \
-      -tag <( samtools faidx $tagset $tilepath.00 | egrep -v '^>' | tr -d '\n' | fold -w 24 ) > $odir/$tilepath.fj
+      -tag <( samtools faidx $tagset $tilepath.00 2>/dev/null | egrep -v '^>' | tr -d '\n' | fold -w 24 ) > $odir/$tilepath.fj
 
     rm -f $odir/$tilepath.pa
     bgzip -f $odir/$tilepath.fj

@@ -1,0 +1,3 @@
+vcf:
+  class: File
+  location: keep:35e1d520788da317b9e51ebb52047eeb+28239/filtered_PGPC_0001_S1.genome.vcf.gz

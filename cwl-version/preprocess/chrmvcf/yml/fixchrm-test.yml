@@ -1,0 +1,6 @@
+vcf:
+  class: File
+  location: keep:61ee4a11243384b7f7dfc76291edcab8+85964/filtered_hu01F73B_var-GS000037833-ASM.vcf.gz
+filterjs:
+  class: File
+  location: ../change_gt_M.js

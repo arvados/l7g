@@ -21,10 +21,13 @@ AFN = {"hg19": "98c5e71956730c36cc89bb25b99fe58b+965/assembly.00.hg19.fw.gz",
        "hg38": "7deca98a5827e1991bf49a96a0087318+233/assembly.00.hg38.fw.gz",
        "human_g1k_v37": "96fe7d3fdc5b0bd82128131a23117635+269/assembly.00.human_g1k_v37.fw.gz"}
 
-def make_yml_and_run(project_uuid, varstype, inputdir, ref, chr1, chrM, nchunks, srclib):
-    yml_text = '''%sdir:
+def make_yml_and_run(project_uuid, inputdir, fjdir, ref, chr1, chrM, nchunks, srclib):
+    yml_text = '''gvcfdir:
   class: Directory
-  location: keep:%s\n''' % (varstype, inputdir)
+  location: keep:%s\n''' % inputdir
+    yml_text += '''fjdir:
+  class: Directory
+  location: keep:%s\n''' % fjdir
     yml_text += 'ref: "%s"\n' % ref
     yml_text += '''reffa:
   class: File
@@ -37,8 +40,7 @@ tagset:
   location: keep:%s\n''' % (REFFA[ref], AFN[ref], TAGSET)
     chroms_prefix = chr1.replace("1", "")
     checkchroms_list = ["\"" + chroms_prefix + str(c) + "\"" for c in range(1, 23)]
-    chroms_list = checkchroms_list + ["\"" + chroms_prefix + "X\"", "\"" + chroms_prefix + "Y\"",
-                        "\"" + chrM + "\""]
+    chroms_list = checkchroms_list + ["\"" + chrM + "\""]
     checkchroms = "[" + ", ".join(checkchroms_list) + "]"
     chroms = "[" + ", ".join(chroms_list) + "]"
     yml_text += 'checkchroms: %s\n' % checkchroms
@@ -56,7 +58,7 @@ checknum: %d\n''' % (PATHMIN, PATHMAX, nchunks, SGLFTHRESHOLD, CHECKNUM)
     print("Input yml file:")
     print(yml_text)
 
-    yml = "yml/%s_%s.yml" % (varstype, inputdir)
+    yml = "yml/%s.yml" % inputdir
     with open(yml, 'w') as f:
         f.write(yml_text)
     command = ["arvados-cwl-runner", "--api", "containers",
@@ -66,7 +68,7 @@ checknum: %d\n''' % (PATHMIN, PATHMAX, nchunks, SGLFTHRESHOLD, CHECKNUM)
                "--thread-count", THREAD_COUNT]
     if project_uuid:
         command.extend(["--project-uuid", project_uuid])
-    command.extend(["%s2npy-wf.cwl" % varstype, yml])
+    command.extend(["fastj2npy-wf.cwl", yml])
 
     print("Running:")
     print(" ".join(command))
@@ -76,9 +78,8 @@ checknum: %d\n''' % (PATHMIN, PATHMAX, nchunks, SGLFTHRESHOLD, CHECKNUM)
 def main():
     parser = argparse.ArgumentParser(description='Make input yml file and \
         run workflow on arvados to generate npy arrays.')
-    parser.add_argument("varstype", choices=['gvcf', 'gff'],
-        help='file type of input variant files.')
     parser.add_argument('inputdir', help='keep reference of input directory.')
+    parser.add_argument('fjdir', help='keep reference of fastj directory.')
     parser.add_argument('ref', choices=['hg19', 'hg38', 'human_g1k_v37'],
         help='reference name.')
     parser.add_argument('chr1', choices=['chr1', '1'],
@@ -91,7 +92,7 @@ def main():
     parser.add_argument('--srclib', help='keep reference of existing tile library to be merged.')
 
     args = parser.parse_args()
-    make_yml_and_run(args.project_uuid, args.varstype, args.inputdir, args.ref, args.chr1, args.chrM, args.nchunks, args.srclib)
+    make_yml_and_run(args.project_uuid, args.inputdir, args.fjdir, args.ref, args.chr1, args.chrM, args.nchunks, args.srclib)
 
 if __name__ == '__main__':
     main()

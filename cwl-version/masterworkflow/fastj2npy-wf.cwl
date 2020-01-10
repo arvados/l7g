@@ -3,7 +3,7 @@ $namespaces:
   cwltool: "http://commonwl.org/cwltool#"
 cwlVersion: v1.0
 class: Workflow
-label: Convert GFFs to npy arrays
+label: Convert FastJs to npy arrays for gVCF input
 requirements:
   SubworkflowFeatureRequirement: {}
   StepInputExpressionRequirement: {}
@@ -12,9 +12,12 @@ hints:
     loadListing: no_listing
 
 inputs:
-  gffdir:
+  gvcfdir:
     type: Directory
-    label: Input GFF directory
+    label: Input gVCF directory
+  fjdir:
+    type: Directory
+    label: Directory of FastJ files
   ref:
     type: string
     label: Reference genome
@@ -80,29 +83,10 @@ outputs:
     outputSource: createnpy-wf/names
 
 steps:
-  gff2fastj-wf:
-    run: ../convert2fastj/gff_version/gff2fastj-wf.cwl
-    in:
-      gffdir: gffdir
-      ref: ref
-      reffa: reffa
-      afn: afn
-      tagset: tagset
-      chroms: chroms
-    out: [fjdirs]
-
-  handle-fjdirs:
-    run: expressiontool/array-to-dir.cwl
-    in:
-      arr: gff2fastj-wf/fjdirs
-      dirname:
-        valueFrom: "fjdir"
-    out: [dir]
-
   fastj2cgf-wf:
     run: fastj2cgf-wf.cwl
     in:
-      fjdir: handle-fjdirs/dir
+      fjdir: fjdir
       tagset: tagset
       pathmin: pathmin
       pathmax: pathmax
@@ -111,8 +95,22 @@ steps:
       srclib: srclib
     out: [lib, sglfsize, skippaths, cgfdir]
 
+  check-cgf-gvcf-wf:
+    run: ../checks/check-cgf/gvcf/check-cgf-gvcf-wf.cwl
+    in:
+      cgfdir: fastj2cgf-wf/cgfdir
+      sglfdir: fastj2cgf-wf/lib
+      gvcfdir: gvcfdir
+      checknum: checknum
+      chroms: checkchroms
+      tileassembly: afn
+      ref: ref
+      reffa: reffa
+    out: [gvcfhashes]
+
   createnpy-wf:
     run: ../npy/createnpy-wf.cwl
     in:
+      waitsignal: check-cgf-gvcf-wf/gvcfhashes
       cgfdir: fastj2cgf-wf/cgfdir
     out: [consolnpydir, names]

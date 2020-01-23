@@ -1,0 +1,6 @@
+vcfdir:
+  class: Directory
+  location: keep:61ee4a11243384b7f7dfc76291edcab8+85964
+filterjs:
+  class: File
+  location: ../change_gt_M.js

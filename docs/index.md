@@ -4,7 +4,7 @@ This website presents the concepts, architecture, specifications, and general do
 
 ## Table of Contents
 
-[Lightning Concept](https://github.com/curoverse/l7g/blob/master/docs/Lightning-Concepts.md) : A brief overview of the Lightning System, it's purpose, and construction
+[Lightning Concept](https://github.com/curoverse/l7g/blob/master/docs/Lightning-Concepts.md) : A brief overview of the Lightning System, its purpose, and construction
 
 [Lightning Architecture](https://github.com/curoverse/l7g/blob/master/docs/Lightning-Architecture.md) : Technical specifications for the architectual parts that make up Lightning
 

@@ -1,7 +1,7 @@
 $namespaces:
   arv: "http://arvados.org/cwl#"
   cwltool: "http://commonwl.org/cwltool#"
-cwlVersion: v1.0
+cwlVersion: v1.1
 class: CommandLineTool
 label: Convert GFF to FastJ
 requirements:

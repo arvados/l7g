@@ -1,4 +1,4 @@
-cwlVersion: v1.0
+cwlVersion: v1.1
 class: CommandLineTool
 label: Get unzipped sglf size and find paths above a given threshold
 requirements:

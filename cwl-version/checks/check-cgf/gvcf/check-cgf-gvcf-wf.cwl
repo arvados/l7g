@@ -1,13 +1,13 @@
 $namespaces:
   arv: "http://arvados.org/cwl#"
   cwltool: "http://commonwl.org/cwltool#"
-cwlVersion: v1.0
+cwlVersion: v1.1
 class: Workflow
 label: Workflow to validate the the gVCF to cgf conversion
 requirements:
   ScatterFeatureRequirement: {}
 hints:
-  cwltool:LoadListingRequirement:
+  LoadListingRequirement:
     loadListing: no_listing
 
 inputs:

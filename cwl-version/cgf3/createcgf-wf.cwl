@@ -1,7 +1,7 @@
 $namespaces:
   arv: "http://arvados.org/cwl#"
   cwltool: "http://commonwl.org/cwltool#"
-cwlVersion: v1.0
+cwlVersion: v1.1
 class: Workflow
 label: Creates a cgf for each FastJ file
 requirements:
@@ -9,7 +9,7 @@ requirements:
     dockerPull: arvados/l7g
   ScatterFeatureRequirement: {}
 hints:
-  cwltool:LoadListingRequirement:
+  LoadListingRequirement:
     loadListing: no_listing
 
 inputs:

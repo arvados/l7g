@@ -1,5 +1,5 @@
 class: ExpressionTool
-cwlVersion: v1.0
+cwlVersion: v1.1
 requirements:
   InlineJavascriptRequirement: {}
 inputs:

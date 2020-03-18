@@ -1,13 +1,13 @@
 $namespaces:
   arv: "http://arvados.org/cwl#"
   cwltool: "http://commonwl.org/cwltool#"
-cwlVersion: v1.0
+cwlVersion: v1.1
 class: Workflow
 label: Create a tile library (SGLF) for a given set of FastJ files
 requirements:
   ScatterFeatureRequirement: {}
 hints:
-  cwltool:LoadListingRequirement:
+  LoadListingRequirement:
     loadListing: no_listing
 
 inputs:

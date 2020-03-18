@@ -1,7 +1,7 @@
 $namespaces:
   arv: "http://arvados.org/cwl#"
   cwltool: "http://commonwl.org/cwltool#"
-cwlVersion: v1.0
+cwlVersion: v1.1
 class: CommandLineTool
 label: Process and create cgf files from FastJ files
 requirements:

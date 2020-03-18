@@ -1,11 +1,11 @@
 $namespaces:
   arv: "http://arvados.org/cwl#"
   cwltool: "http://commonwl.org/cwltool#"
-cwlVersion: v1.0
+cwlVersion: v1.1
 class: Workflow
 label: Create NumPy arrays by tile path from cgfs, merge all NumPy arrays into single array
 hints:
-  cwltool:LoadListingRequirement:
+  LoadListingRequirement:
     loadListing: no_listing
 
 inputs:

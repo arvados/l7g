@@ -1,13 +1,13 @@
 $namespaces:
   arv: "http://arvados.org/cwl#"
   cwltool: "http://commonwl.org/cwltool#"
-cwlVersion: v1.0
+cwlVersion: v1.1
 class: Workflow
 label: Convert gVCFs to FastJ
 requirements:
   ScatterFeatureRequirement: {}
 hints:
-  cwltool:LoadListingRequirement:
+  LoadListingRequirement:
     loadListing: shallow_listing
 
 inputs:

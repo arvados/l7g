@@ -2,9 +2,9 @@ $namespaces:
   arv: "http://arvados.org/cwl#"
   cwltool: "http://commonwl.org/cwltool#"
 class: ExpressionTool
-cwlVersion: v1.0
+cwlVersion: v1.1
 hints:
-  cwltool:LoadListingRequirement:
+  LoadListingRequirement:
     loadListing: shallow_listing
 inputs:
   nestedarr:

@@ -1,4 +1,4 @@
-cwlVersion: v1.0
+cwlVersion: v1.1
 class: CommandLineTool
 label: Check tile library for correct formatting and spurious characters
 $namespaces:

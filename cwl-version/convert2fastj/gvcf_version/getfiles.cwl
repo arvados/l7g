@@ -2,11 +2,11 @@ $namespaces:
   cwltool: "http://commonwl.org/cwltool#"
 class: ExpressionTool
 label: Create list of gVCFs from directory
-cwlVersion: v1.0
+cwlVersion: v1.1
 requirements:
   InlineJavascriptRequirement: {}
 hints:
-  cwltool:LoadListingRequirement:
+  LoadListingRequirement:
     loadListing: shallow_listing
 inputs:
   gvcfdir:

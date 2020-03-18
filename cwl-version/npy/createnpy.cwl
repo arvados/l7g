@@ -1,7 +1,7 @@
 $namespaces:
   arv: "http://arvados.org/cwl#"
   cwltool: "http://commonwl.org/cwltool#"
-cwlVersion: v1.0
+cwlVersion: v1.1
 class: CommandLineTool
 label: Create NumPy vectors from cgfs by tile path
 requirements:
@@ -10,6 +10,7 @@ requirements:
   ResourceRequirement:
     coresMin: 16
     ramMin: 100000
+    tmpdirMin: 360000
 hints:
   arv:RuntimeConstraints:
     keep_cache: 4096

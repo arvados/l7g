@@ -2,12 +2,12 @@ $namespaces:
   arv: "http://arvados.org/cwl#"
   cwltool: "http://commonwl.org/cwltool#"
 class: ExpressionTool
-cwlVersion: v1.0
+cwlVersion: v1.1
 label: Create list of directories to process
 requirements:
   InlineJavascriptRequirement: {}
 hints:
-  cwltool:LoadListingRequirement:
+  LoadListingRequirement:
     loadListing: shallow_listing
 inputs:
   fjdir:

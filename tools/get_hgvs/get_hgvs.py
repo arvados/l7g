@@ -163,14 +163,14 @@ def annotate_tilelib(path, tagver, step, ref, tilelib, tilevars, assembly, tagle
         windowdict[span] = window
 
         rawreffasta = subprocess.check_output(["samtools", "faidx", ref, "{}:{}-{}".format(window.chrom, window.start, window.end)])
-        reffasta = ''.join(rawreffasta.split('\n')[1:]).lower()
+        reffasta = ''.join(rawreffasta.split('\n')[1:]).upper()
         reffastadict[span] = reffasta
 
     # derive HGVS
     for sglfline in sglflines:
         span = sglfline.split(',')[0].split('+')[1]
         window = windowdict[span]
-        samplefasta = sglfline.split(',')[2].lower()
+        samplefasta = sglfline.split(',')[2].upper()
         prefix = ncbi_prefix[refname][window.chrom]
         hgvs = fasta_to_hgvs(reffastadict[span], samplefasta, window.start, prefix)
         annotationline = ','.join(sglfline.split(',')[:-1] + [hgvs])

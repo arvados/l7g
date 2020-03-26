@@ -17,7 +17,6 @@ RUN apt-get install -qy wget \
         vcftools \
         gcc \
         libperl-dev \
-        liblzma-dev \
         dtrx \
         autoconf \
         make \

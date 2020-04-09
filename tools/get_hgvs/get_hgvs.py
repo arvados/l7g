@@ -72,8 +72,8 @@ def fasta_to_hgvs(ref, sample, seqstart, prefix):
     """Get HGVS using mutalyzer description-extractor."""
     allele = describe_dna(ref, sample)
     for var in allele:
-        var.start += seqstart
-        var.end += seqstart
+        var.start += seqstart - 1
+        var.end += seqstart - 1
     hgvs = "{}{}".format(prefix, allele)
     return hgvs
 

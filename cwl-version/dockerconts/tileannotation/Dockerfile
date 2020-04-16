@@ -4,7 +4,7 @@ USER root
 
 # Install necessary dependencies
 
-RUN apt-get update -qy
+RUN apt-get update --fix-missing -qy
 
 RUN apt-get install -qy wget \
         build-essential \
@@ -20,15 +20,19 @@ RUN apt-get install -qy wget \
         dtrx \
         autoconf \
         make \
+        libpq-dev \
         python \
         python-pip \
+        python3 \
+        python3-pip \
         libmysqlclient-dev \
         git \
         curl \
         g++ \
         libgsl0-dev \
         swig \
-        perl
+        perl \
+        default-jdk
 
 # Getting HTSLIB 1.9 for tabix/bgzip
 
@@ -61,3 +65,20 @@ WORKDIR /
 # Installing mutalyzer description-extractor
 
 RUN pip install description-extractor
+
+# Install HGVS
+
+RUN pip3 install --upgrade setuptools && \
+    pip3 install Cython && pip3 install hgvs
+
+# Installing counsyl
+
+RUN git clone https://github.com/counsyl/hgvs.git && \
+    cd hgvs && python setup.py install
+
+WORKDIR /
+
+# Getting snpEff
+
+RUN wget http://sourceforge.net/projects/snpeff/files/snpEff_v4_3t_core.zip && \
+    unzip snpEff_v4_3t_core.zip

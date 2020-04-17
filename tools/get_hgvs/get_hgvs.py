@@ -6,6 +6,7 @@ import collections
 import subprocess
 import os
 import argparse
+import re
 
 Window = collections.namedtuple('Window', ['chrom', 'start', 'end'])
 
@@ -101,7 +102,7 @@ def get_tile_window(path, step, assembly, span, taglen):
         ps.wait()
     except subprocess.CalledProcessError:
         raise Exception("No such step as {} with span {} in path {}".format(step, span, path))
-    end = int(assemblyline.split('\t')[1]) + 1
+    end = int(assemblyline.split('\t')[1])
 
     # calculate previous tile to derive start position
     if stepdec != 0:
@@ -143,16 +144,22 @@ def annotate_tilelib(path, tagver, step, ref, tilelib, tilevars, assembly, tagle
         raise Exception("No such reference as {}".format(refname))
 
     sglf = os.path.join(tilelib, "{}.sglf.gz".format(path))
+    try:
+        stepsglf = subprocess.check_output(["zgrep", "{}.{}.{}".format(path, tagver, step), sglf]).strip()
+    except subprocess.CalledProcessError:
+        # stop if no such step is found is sglf
+        return
+
     sglflines = []
     for tilevar in tilevars:
-        try:
-            sglfline = subprocess.check_output(["zgrep", "{}.{}.{}.{}+".format(path, tagver, step, tilevar), sglf]).strip()
-        except subprocess.CalledProcessError:
-            # skip tile variants not found in the library
-            continue
-        # skip empty tile variants too
-        if sglfline.split(',')[-1] != "":
-            sglflines.append(sglfline)
+        pattern = r'{}\.{}\.{}\.{}\+.*'.format(path, tagver, step, tilevar)
+        match = re.search(pattern, stepsglf)
+        if match:
+            sglfline = match.group()
+            # skip empty tile variants
+            if sglfline.split(',')[-1]:
+                sglflines.append(sglfline)
+
     spanset = set([sglfline.split(',')[0].split('+')[1] for sglfline in sglflines])
 
     # store ref fastas with given span

@@ -137,7 +137,7 @@ def get_tile_window(path, step, assembly, span, taglen):
 
     return Window(chrom, start, end)
 
-def annotate_tilelib(path, tagver, step, ref, tilelib, tilevars, assembly, taglen):
+def annotate_tilelib(path, step, ref, tilelib, tilevars, assembly, taglen):
     """Annotate given tile variants."""
     refname = os.path.basename(ref).split('.')[0]
     if refname not in ncbi_prefix:
@@ -145,14 +145,14 @@ def annotate_tilelib(path, tagver, step, ref, tilelib, tilevars, assembly, tagle
 
     sglf = os.path.join(tilelib, "{}.sglf.gz".format(path))
     try:
-        stepsglf = subprocess.check_output(["zgrep", "{}.{}.{}".format(path, tagver, step), sglf]).strip()
+        stepsglf = subprocess.check_output(["zgrep", "{}\..*\.{}".format(path, step), sglf]).strip()
     except subprocess.CalledProcessError:
         # stop if no such step is found is sglf
         return
 
     sglflines = []
     for tilevar in tilevars:
-        pattern = r'{}\.{}\.{}\.{}\+.*'.format(path, tagver, step, tilevar)
+        pattern = r'{}\..*\.{}\.{}\+.*'.format(path, step, tilevar)
         match = re.search(pattern, stepsglf)
         if match:
             sglfline = match.group()
@@ -194,14 +194,12 @@ def main():
         only the first VARNUM variants in the given position are considered')
     parser.add_argument('assembly', metavar='ASSEMBLY', help='assembly file')
 
-    parser.add_argument('--tagver', type=str, default="00",
-        help='tag version, default is "00".')
     parser.add_argument('--taglen', type=int, default=24,
         help='tag length, default is 24.')
 
     args = parser.parse_args()
     tilevars = [format(i, '03x') for i in range(args.varnum)]
-    annotate_tilelib(args.path, args.tagver, args.step, args.ref, args.tilelib, tilevars, args.assembly, args.taglen)
+    annotate_tilelib(args.path, args.step, args.ref, args.tilelib, tilevars, args.assembly, args.taglen)
 
 if __name__ == '__main__':
     main()

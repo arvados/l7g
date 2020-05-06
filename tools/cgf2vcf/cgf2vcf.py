@@ -1,12 +1,12 @@
 #!/usr/bin/env python
 
 from __future__ import print_function
+from pyfaidx import Fasta
 import pyhgvs
 import subprocess
 import os
 import argparse
 import re
-from pyfaidx import Fasta
 
 # NCBI references:
 # https://www.ncbi.nlm.nih.gov/assembly/GCF_000001405.26/

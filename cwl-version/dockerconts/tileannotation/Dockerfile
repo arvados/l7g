@@ -66,7 +66,7 @@ WORKDIR /
 
 RUN pip install description-extractor
 
-# Install HGVS
+# Installing HGVS
 
 RUN pip3 install --upgrade setuptools && \
     pip3 install Cython && pip3 install hgvs
@@ -78,7 +78,25 @@ RUN git clone https://github.com/counsyl/hgvs.git && \
 
 WORKDIR /
 
+# Installing counsyl
+
+RUN pip install pyfaidx
+
 # Getting snpEff
 
 RUN wget http://sourceforge.net/projects/snpeff/files/snpEff_v4_3t_core.zip && \
     unzip snpEff_v4_3t_core.zip
+
+# Installing sdsl
+
+RUN git clone https://github.com/simongog/sdsl-lite && \
+    cd sdsl-lite && ./install.sh /usr/local
+
+WORKDIR /
+
+# Installing cgft
+
+RUN git clone https://github.com/curoverse/l7g && \
+    cd l7g/tools/cgft && make && cp cgft /usr/local/bin
+
+WORKDIR /

@@ -133,7 +133,7 @@ def get_tile_window(path, step, assembly, span, taglen):
                                   stdout=subprocess.PIPE)
             assemblyline = subprocess.check_output(["tail", "-n", "1"], stdin=ps.stdout)
             ps.wait()
-            start = int(assemblyline.split('\t')[1]) + 1 - taglen
+            start = int(assemblyline.split('\t')[1]) + 1
 
     return Window(chrom, start, end)
 

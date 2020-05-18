@@ -141,12 +141,12 @@ def get_vcflines(band, hgvstext, path, ref):
         if band[0][stepdec] != -1 and band[1][stepdec] != -1:
             if blockstart_stepdec != None:
                 # reporting previous block
-                blockdec = range(blockstart_stepdec, stepdec)
-                block = [format(d, '04x') for d in blockdec]
+                span = stepdec - blockstart_stepdec
+                stepoutput = "{}+{}\n".format(format(blockstart_stepdec, '04x'), span)
                 if is_uncalled:
-                    out["uncalled"] += ('\n'.join(block) + '\n')
+                    out["uncalled"] += stepoutput
                 elif is_unannotated:
-                    out["unannotated"] += ('\n'.join(block) + '\n')
+                    out["unannotated"] += stepoutput
                 else:
                     print(vcfblock, end = '')
 
@@ -191,12 +191,12 @@ def get_vcflines(band, hgvstext, path, ref):
                             vcfblock = make_vcfblock(haplotypes)
     else:
         # reporting the last block
-        blockdec = range(blockstart_stepdec, pathlen)
-        block = [format(d, '04x') for d in blockdec]
+        span = stepdec - blockstart_stepdec
+        stepoutput = "{}+{}\n".format(format(blockstart_stepdec, '04x'), span)
         if is_uncalled:
-            out["uncalled"] += ('\n'.join(block) + '\n')
+            out["uncalled"] += stepoutput
         elif is_unannotated:
-            out["unannotated"] += ('\n'.join(block) + '\n')
+            out["unannotated"] += stepoutput
         else:
             print(vcfblock, end = '')
 

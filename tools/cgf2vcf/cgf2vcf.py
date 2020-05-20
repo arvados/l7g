@@ -148,6 +148,7 @@ def get_vcflines(band, hgvstext, path, ref):
                 elif is_unannotated:
                     out["unannotated"] += stepoutput
                 else:
+                    vcfblock = make_vcfblock(haplotypes)
                     print(vcfblock, end = '')
 
             is_uncalled = (band[0][stepdec] == -2 or band[1][stepdec] == -2)
@@ -164,7 +165,6 @@ def get_vcflines(band, hgvstext, path, ref):
                     haplotype0 = hgvs_to_haplotype(hgvs0, refname, genome)
                     haplotype1 = hgvs_to_haplotype(hgvs1, refname, genome)
                     haplotypes = [haplotype0, haplotype1]
-                    vcfblock = make_vcfblock(haplotypes)
 
             blockstart_stepdec = stepdec
         else:
@@ -185,10 +185,9 @@ def get_vcflines(band, hgvstext, path, ref):
                             hgvs = match.group().split(',')[-1]
                             haplotype = hgvs_to_haplotype(hgvs, refname, genome)
                             if band[0][stepdec] != -1:
-                                haplotypes = [haplotype, []]
+                                haplotypes[0].extend(haplotype)
                             else:
-                                haplotypes = [[], haplotype]
-                            vcfblock = make_vcfblock(haplotypes)
+                                haplotypes[1].extend(haplotype)
     else:
         # reporting the last block
         span = stepdec - blockstart_stepdec
@@ -198,6 +197,7 @@ def get_vcflines(band, hgvstext, path, ref):
         elif is_unannotated:
             out["unannotated"] += stepoutput
         else:
+            vcfblock = make_vcfblock(haplotypes)
             print(vcfblock, end = '')
 
     return out

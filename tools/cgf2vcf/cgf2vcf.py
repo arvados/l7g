@@ -69,13 +69,24 @@ counsyl_prefix = {
 
 def parse_band(bandtext):
     """Parse band text to a list of two lists."""
-    bandlines = bandtext.split('\n')[:2]
+    bandlines = bandtext.strip().split('\n')
     band = []
-    for bandline in bandlines:
-        bandstr = bandline.replace('[', '').replace(']', '').strip().split(' ')
+    for bandline in bandlines[:2]:
+        bandstr = bandline[2:-1].split(' ')
         bandsingle = map(int, bandstr)
         band.append(bandsingle)
+    for bandline in bandlines[2:]:
+        bandstr = bandline[2:-2].split('][')
+        bandsingle = map(lambda x: x.strip(), bandstr)
+        band.append(bandsingle)
     return band
+
+def check_nocall(band, hapindex, stepdec):
+    """Determine whether a position in a band is nocall."""
+    if hapindex not in (0, 1):
+        raise ValueError("hapindex {} should be either 0 or 1.".format(hapindex))
+    else:
+        return (band[hapindex+2][stepdec] != '')
 
 def parse_hgvs(hgvs, refname):
     """Parse HGVS to a format admissible to the counsyl hgvs tool."""
@@ -126,8 +137,8 @@ def hgvs_to_haplotype(hgvs, refname, genome):
         haplotype.append(singlehap)
     return haplotype
 
-def get_vcflines(band, hgvstext, path, ref):
-    """Given the HGVS text, get the vcf lines of a band, along with nocall steps and unannotated steps."""
+def get_vcflines(band, hgvstext, path, ref, outputvcf_nocall_steps):
+    """Given the HGVS text, get the vcf lines of a band, along with nocall, unannotated, and homref steps."""
     refname = os.path.basename(ref).split('.')[0]
     genome = Fasta(ref)
     out = {"nocall": "",
@@ -144,66 +155,70 @@ def get_vcflines(band, hgvstext, path, ref):
                 # reporting previous block
                 span = stepdec - blockstart_stepdec
                 stepoutput = "{}+{}\n".format(format(blockstart_stepdec, '04x'), span)
-                if is_nocall:
-                    out["nocall"] += stepoutput
-                elif is_unannotated:
+                if is_unannotated:
                     out["unannotated"] += stepoutput
                 else:
                     vcfblock = make_vcfblock(haplotypes)
-                    if vcfblock == "":
-                        out["homref"] += stepoutput
                     print(vcfblock, end = '')
+                    if is_nocall:
+                        out["nocall"] += stepoutput
+                    elif vcfblock == "":
+                        out["homref"] += stepoutput
 
-            is_nocall = (band[0][stepdec] == -2 or band[1][stepdec] == -2)
-            if not is_nocall:
-                # determine whether the tile variants are in the annotated library
-                pattern0 = r'{}\..*\.{}\.{}\+.*'.format(path, step, format(band[0][stepdec], '03x'))
-                pattern1 = r'{}\..*\.{}\.{}\+.*'.format(path, step, format(band[1][stepdec], '03x'))
-                match0 = re.search(pattern0, hgvstext)
-                match1 = re.search(pattern1, hgvstext)
-                is_unannotated = not (match0 and match1)
-                if not is_unannotated:
+            # determine whether the tile variants are in the annotated library
+            pattern0 = r'{}\..*\.{}\.{}\+.*'.format(path, step, format(band[0][stepdec], '03x'))
+            pattern1 = r'{}\..*\.{}\.{}\+.*'.format(path, step, format(band[1][stepdec], '03x'))
+            match0 = re.search(pattern0, hgvstext)
+            match1 = re.search(pattern1, hgvstext)
+            is_unannotated = not (match0 and match1)
+            if not is_unannotated:
+                is_nocall = (check_nocall(band, 0, stepdec) or check_nocall(band, 1, stepdec))
+                if outputvcf_nocall_steps or not is_nocall:
                     hgvs0 = match0.group().split(',')[-1]
                     hgvs1 = match1.group().split(',')[-1]
                     haplotype0 = hgvs_to_haplotype(hgvs0, refname, genome)
                     haplotype1 = hgvs_to_haplotype(hgvs1, refname, genome)
                     haplotypes = [haplotype0, haplotype1]
+                else:
+                    haplotypes = [[], []]
 
             blockstart_stepdec = stepdec
         else:
-            if not is_nocall:
-                # update whether the block is nocall
-                is_nocall = (band[0][stepdec] == -2 or band[1][stepdec] == -2)
-            if not is_nocall:
-                if not is_unannotated:
-                    # update whether the block is unannotated
-                    if band[0][stepdec] != -1 or band[1][stepdec] != -1:
-                        if band[0][stepdec] != -1:
-                            pattern = r'{}\..*\.{}\.{}\+.*'.format(path, step, format(band[0][stepdec], '03x'))
-                        else:
-                            pattern = r'{}\..*\.{}\.{}\+.*'.format(path, step, format(band[1][stepdec], '03x'))
-                        match = re.search(pattern, hgvstext)
-                        is_unannotated = not match
-                        if not is_unannotated:
+            if not is_unannotated:
+                # update whether the block is unannotated
+                if band[0][stepdec] != -1 or band[1][stepdec] != -1:
+                    if band[0][stepdec] != -1:
+                        pattern = r'{}\..*\.{}\.{}\+.*'.format(path, step, format(band[0][stepdec], '03x'))
+                    else:
+                        pattern = r'{}\..*\.{}\.{}\+.*'.format(path, step, format(band[1][stepdec], '03x'))
+                    match = re.search(pattern, hgvstext)
+                    is_unannotated = not match
+                    if not is_unannotated:
+                        if not is_nocall:
+                            # update whether the block is nocall
+                            is_nocall = (check_nocall(band, 0, stepdec) or check_nocall(band, 1, stepdec))
+                        if outputvcf_nocall_steps or not is_nocall:
                             hgvs = match.group().split(',')[-1]
                             haplotype = hgvs_to_haplotype(hgvs, refname, genome)
                             if band[0][stepdec] != -1:
                                 haplotypes[0].extend(haplotype)
                             else:
                                 haplotypes[1].extend(haplotype)
+                        else:
+                            haplotypes = [[], []]
     else:
         # reporting the last block
         span = stepdec - blockstart_stepdec
         stepoutput = "{}+{}\n".format(format(blockstart_stepdec, '04x'), span)
-        if is_nocall:
-            out["nocall"] += stepoutput
-        elif is_unannotated:
+        if is_unannotated:
             out["unannotated"] += stepoutput
         else:
             vcfblock = make_vcfblock(haplotypes)
-            if vcfblock == "":
-                out["homref"] += stepoutput
             print(vcfblock, end = '')
+            if is_nocall:
+                out["nocall"] += stepoutput
+            elif vcfblock == "":
+                out["homref"] += stepoutput
 
     return out
 
@@ -215,18 +230,20 @@ def main():
     parser.add_argument('hgvs', metavar='HGVS', help='HGVS annotation of a tile library')
     parser.add_argument('cgf', metavar='CGF', help='CGF file')
 
+    parser.add_argument('--outputvcf_nocall_steps', action='store_true',
+        help='output vcf lines on nocall steps')
     parser.add_argument('--nocall', help='output file of nocall steps')
     parser.add_argument('--unannotated', help='output file of unannotated steps')
     parser.add_argument('--homref', help='output file of homref steps')
 
     args = parser.parse_args()
 
-    bandtext = subprocess.check_output(["cgft", "-q", "-b", args.path, "-i", args.cgf])
+    bandtext = subprocess.check_output(["cgft", "-b", args.path, "-i", args.cgf])
     band = parse_band(bandtext)
     with open(args.hgvs) as f:
         hgvstext = f.read()
 
-    out = get_vcflines(band, hgvstext, args.path, args.ref)
+    out = get_vcflines(band, hgvstext, args.path, args.ref, args.outputvcf_nocall_steps)
     if args.nocall:
         with open(args.nocall, 'w') as f:
             f.write(out["nocall"])

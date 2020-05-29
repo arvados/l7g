@@ -1,0 +1,89 @@
+2020-05-29 19:09:54 serial = 27182818284
+2020-05-29 19:09:54 email = anon
+2020-05-29 19:09:54 RTG version = RTG Tools 3.11 / Core 6e08b60e18 (2020-02-26)
+2020-05-29 19:09:54 awt.toolkit = sun.awt.X11.XToolkit
+2020-05-29 19:09:54 file.encoding = UTF-8
+2020-05-29 19:09:54 file.encoding.pkg = sun.io
+2020-05-29 19:09:54 file.separator = /
+2020-05-29 19:09:54 host.name = lightning-dev1.shell.su92l.arvadosapi.com
+2020-05-29 19:09:54 java.awt.graphicsenv = sun.awt.X11GraphicsEnvironment
+2020-05-29 19:09:54 java.awt.printerjob = sun.print.PSPrinterJob
+2020-05-29 19:09:54 java.class.path = /home/jiayong/tools/rtg-tools-3.11/RTG.jar
+2020-05-29 19:09:54 java.class.version = 52.0
+2020-05-29 19:09:54 java.endorsed.dirs = /home/jiayong/tools/rtg-tools-3.11/jre/lib/endorsed
+2020-05-29 19:09:54 java.ext.dirs = /home/jiayong/tools/rtg-tools-3.11/jre/lib/ext:/usr/java/packages/lib/ext
+2020-05-29 19:09:54 java.home = /home/jiayong/tools/rtg-tools-3.11/jre
+2020-05-29 19:09:54 java.io.tmpdir = /tmp
+2020-05-29 19:09:54 java.library.path = /home/jiayong/tools/rtg-tools-3.11
+2020-05-29 19:09:54 java.runtime.name = OpenJDK Runtime Environment
+2020-05-29 19:09:54 java.runtime.version = 1.8.0_242-b20
+2020-05-29 19:09:54 java.specification.name = Java Platform API Specification
+2020-05-29 19:09:54 java.specification.vendor = Oracle Corporation
+2020-05-29 19:09:54 java.specification.version = 1.8
+2020-05-29 19:09:54 java.vendor = Azul Systems, Inc.
+2020-05-29 19:09:54 java.vendor.url = http://www.azulsystems.com/
+2020-05-29 19:09:54 java.vendor.url.bug = http://www.azulsystems.com/support/
+2020-05-29 19:09:54 java.version = 1.8.0_242
+2020-05-29 19:09:54 java.vm.info = mixed mode
+2020-05-29 19:09:54 java.vm.name = OpenJDK 64-Bit Server VM
+2020-05-29 19:09:54 java.vm.specification.name = Java Virtual Machine Specification
+2020-05-29 19:09:54 java.vm.specification.vendor = Oracle Corporation
+2020-05-29 19:09:54 java.vm.specification.version = 1.8
+2020-05-29 19:09:54 java.vm.vendor = Azul Systems, Inc.
+2020-05-29 19:09:54 java.vm.version = 25.242-b20
+2020-05-29 19:09:54 lang.version = 1.8.0_242
+2020-05-29 19:09:54 line.separator = 
+
+2020-05-29 19:09:54 models.dir = /home/jiayong/tools/rtg-tools-3.11/models
+2020-05-29 19:09:54 nashorn.option.no.deprecation.warning = true
+2020-05-29 19:09:54 os.arch = amd64
+2020-05-29 19:09:54 os.freememory = 39240597504
+2020-05-29 19:09:54 os.name = Linux
+2020-05-29 19:09:54 os.totalmemory = 135176007680
+2020-05-29 19:09:54 os.version = 4.15.0-88-generic
+2020-05-29 19:09:54 path.separator = :
+2020-05-29 19:09:54 processor.arch = amd64
+2020-05-29 19:09:54 processor.count = 16
+2020-05-29 19:09:54 references.dir = /home/jiayong/tools/rtg-tools-3.11/references
+2020-05-29 19:09:54 runtime.freememory = 1920151456
+2020-05-29 19:09:54 runtime.maxmemory = 108140691456
+2020-05-29 19:09:54 runtime.totalMemory = 2025848832
+2020-05-29 19:09:54 sun.arch.data.model = 64
+2020-05-29 19:09:54 sun.boot.class.path = /home/jiayong/tools/rtg-tools-3.11/jre/lib/resources.jar:/home/jiayong/tools/rtg-tools-3.11/jre/lib/rt.jar:/home/jiayong/tools/rtg-tools-3.11/jre/lib/sunrsasign.jar:/home/jiayong/tools/rtg-tools-3.11/jre/lib/jsse.jar:/home/jiayong/tools/rtg-tools-3.11/jre/lib/jce.jar:/home/jiayong/tools/rtg-tools-3.11/jre/lib/charsets.jar:/home/jiayong/tools/rtg-tools-3.11/jre/lib/jfr.jar:/home/jiayong/tools/rtg-tools-3.11/jre/classes
+2020-05-29 19:09:54 sun.boot.library.path = /home/jiayong/tools/rtg-tools-3.11/jre/lib/amd64
+2020-05-29 19:09:54 sun.cpu.endian = little
+2020-05-29 19:09:54 sun.cpu.isalist = 
+2020-05-29 19:09:54 sun.io.unicode.encoding = UnicodeLittle
+2020-05-29 19:09:54 sun.java.command = /home/jiayong/tools/rtg-tools-3.11/RTG.jar vcfeval -b HG00403_0001_original.vcf.gz -c HG00403_0001_cgfconverted_with_nocall_steps.vcf.gz -t /data-sdd/jiayong/hg38/hg38 --bed-regions=HG00403_0001_original.bed -o HG00403_comparecgf_0001_originalbed
+2020-05-29 19:09:54 sun.java.launcher = SUN_STANDARD
+2020-05-29 19:09:54 sun.jnu.encoding = UTF-8
+2020-05-29 19:09:54 sun.management.compiler = HotSpot 64-Bit Tiered Compilers
+2020-05-29 19:09:54 sun.os.patch.level = unknown
+2020-05-29 19:09:54 talkback = true
+2020-05-29 19:09:54 usage = true
+2020-05-29 19:09:54 usage.log.hostname = true
+2020-05-29 19:09:54 usage.log.username = true
+2020-05-29 19:09:54 user.country = US
+2020-05-29 19:09:54 user.dir = /data-sdd/jiayong/data/cgf2vcf
+2020-05-29 19:09:54 user.home = /home/jiayong
+2020-05-29 19:09:54 user.language = en
+2020-05-29 19:09:54 user.name = jiayong
+2020-05-29 19:09:54 user.timezone = Etc/UTC
+2020-05-29 19:09:54 vendor = Azul Systems, Inc.
+2020-05-29 19:09:54 gzipfix.enabled = true
+2020-05-29 19:09:54 Command line arguments: rtg vcfeval -b HG00403_0001_original.vcf.gz -c HG00403_0001_cgfconverted_with_nocall_steps.vcf.gz -t /data-sdd/jiayong/hg38/hg38 --bed-regions=HG00403_0001_original.bed -o HG00403_comparecgf_0001_originalbed
+2020-05-29 19:09:54 Run Id: 48c31534-628e-43fe-8d26-2b026bc43ec3
+2020-05-29 19:09:54 Referenced SDF-ID: 60fb690f-1f04-4193-9909-3f8f0c9d2569 Type: DNA Sequences: 455 Max-Length: 248956422 Min-Length: 970 Arm: UNKNOWN
+2020-05-29 19:09:54 VCF header does not contain a FORMAT field named GQ
+2020-05-29 19:09:55 Reference chr1 baseline contains 6660 variants.
+2020-05-29 19:09:55 Reference chr1 calls contains 4684 variants.
+2020-05-29 19:09:56 Reference chr1 had maximum path complexity of 23 at chr1:3663695-3664009
+2020-05-29 19:09:57 There were 4684 variants not thresholded in ROC data files due to missing or invalid GQ (FORMAT) values.
+2020-05-29 19:09:57 Representation bias correction factor for SNP 4149/4098.0 = 1.0124450951683748
+2020-05-29 19:09:57 Representation bias correction factor for NON_SNP 82/133.0 = 0.6165413533834586
+2020-05-29 19:09:57 Could not select maximized F-measure threshold from ROC data, only un-thresholded statistics will be shown. Consider selecting a different scoring attribute with --vcf-score-field
+2020-05-29 19:09:57 Threshold  True-pos-baseline  True-pos-call  False-pos  False-neg  Precision  Sensitivity  F-measure
+----------------------------------------------------------------------------------------------------
+     None               4231           4199        485       2429     0.8965       0.6353     0.7436
+
+2020-05-29 19:09:57 Finished successfully in 3 s.

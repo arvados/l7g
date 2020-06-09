@@ -166,7 +166,7 @@ def annotate_tilelib(path, step, ref, tilelib, tilevars, assembly, taglen):
     windowdict = {}
     reffastadict = {}
     for span in spanset:
-        window = get_tile_window(path, step, assembly, int(span), taglen)
+        window = get_tile_window(path, step, assembly, int(span, 16), taglen)
         windowdict[span] = window
 
         rawreffasta = subprocess.check_output(["samtools", "faidx", ref, "{}:{}-{}".format(window.chrom, window.start, window.end)])

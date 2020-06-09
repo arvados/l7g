@@ -65,7 +65,7 @@ def make_bed_steps(path, stepsfile, assembly):
         for line in f:
             linestrip = line.strip()
             step = linestrip.split('+')[0]
-            span = int(linestrip.split('+')[1])
+            span = int(linestrip.split('+')[1], 16)
             stepdec = int(step, 16)
             spanningtile_stepdec = stepdec + span - 1
             spanningtile_step = format(spanningtile_stepdec, '04x')

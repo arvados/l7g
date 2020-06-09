@@ -154,7 +154,7 @@ def get_vcflines(band, hgvstext, path, ref, outputvcf_nocall_steps):
             if blockstart_stepdec != None:
                 # reporting previous block
                 span = stepdec - blockstart_stepdec
-                stepoutput = "{}+{}\n".format(format(blockstart_stepdec, '04x'), span)
+                stepoutput = "{}+{}\n".format(format(blockstart_stepdec, '04x'), format(span, '01x'))
                 if is_unannotated:
                     out["unannotated"] += stepoutput
                 else:
@@ -209,7 +209,7 @@ def get_vcflines(band, hgvstext, path, ref, outputvcf_nocall_steps):
     else:
         # reporting the last block
         span = stepdec - blockstart_stepdec
-        stepoutput = "{}+{}\n".format(format(blockstart_stepdec, '04x'), span)
+        stepoutput = "{}+{}\n".format(format(blockstart_stepdec, '04x'), format(span, '01x'))
         if is_unannotated:
             out["unannotated"] += stepoutput
         else:

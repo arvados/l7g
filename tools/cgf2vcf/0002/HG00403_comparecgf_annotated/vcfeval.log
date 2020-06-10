@@ -1,0 +1,543 @@
+2020-06-10 22:29:05 serial = 27182818284
+2020-06-10 22:29:05 email = anon
+2020-06-10 22:29:05 RTG version = RTG Tools 3.11 / Core 6e08b60e18 (2020-02-26)
+2020-06-10 22:29:05 awt.toolkit = sun.awt.X11.XToolkit
+2020-06-10 22:29:05 file.encoding = UTF-8
+2020-06-10 22:29:05 file.encoding.pkg = sun.io
+2020-06-10 22:29:05 file.separator = /
+2020-06-10 22:29:05 host.name = lightning-dev1.shell.su92l.arvadosapi.com
+2020-06-10 22:29:05 java.awt.graphicsenv = sun.awt.X11GraphicsEnvironment
+2020-06-10 22:29:05 java.awt.printerjob = sun.print.PSPrinterJob
+2020-06-10 22:29:05 java.class.path = /home/jiayong/tools/rtg-tools-3.11/RTG.jar
+2020-06-10 22:29:05 java.class.version = 52.0
+2020-06-10 22:29:05 java.endorsed.dirs = /home/jiayong/tools/rtg-tools-3.11/jre/lib/endorsed
+2020-06-10 22:29:05 java.ext.dirs = /home/jiayong/tools/rtg-tools-3.11/jre/lib/ext:/usr/java/packages/lib/ext
+2020-06-10 22:29:05 java.home = /home/jiayong/tools/rtg-tools-3.11/jre
+2020-06-10 22:29:05 java.io.tmpdir = /tmp
+2020-06-10 22:29:05 java.library.path = /home/jiayong/tools/rtg-tools-3.11
+2020-06-10 22:29:05 java.runtime.name = OpenJDK Runtime Environment
+2020-06-10 22:29:05 java.runtime.version = 1.8.0_242-b20
+2020-06-10 22:29:05 java.specification.name = Java Platform API Specification
+2020-06-10 22:29:05 java.specification.vendor = Oracle Corporation
+2020-06-10 22:29:05 java.specification.version = 1.8
+2020-06-10 22:29:05 java.vendor = Azul Systems, Inc.
+2020-06-10 22:29:05 java.vendor.url = http://www.azulsystems.com/
+2020-06-10 22:29:05 java.vendor.url.bug = http://www.azulsystems.com/support/
+2020-06-10 22:29:05 java.version = 1.8.0_242
+2020-06-10 22:29:05 java.vm.info = mixed mode
+2020-06-10 22:29:05 java.vm.name = OpenJDK 64-Bit Server VM
+2020-06-10 22:29:05 java.vm.specification.name = Java Virtual Machine Specification
+2020-06-10 22:29:05 java.vm.specification.vendor = Oracle Corporation
+2020-06-10 22:29:05 java.vm.specification.version = 1.8
+2020-06-10 22:29:05 java.vm.vendor = Azul Systems, Inc.
+2020-06-10 22:29:05 java.vm.version = 25.242-b20
+2020-06-10 22:29:05 lang.version = 1.8.0_242
+2020-06-10 22:29:05 line.separator = 
+
+2020-06-10 22:29:05 models.dir = /home/jiayong/tools/rtg-tools-3.11/models
+2020-06-10 22:29:05 nashorn.option.no.deprecation.warning = true
+2020-06-10 22:29:05 os.arch = amd64
+2020-06-10 22:29:05 os.freememory = 22710132736
+2020-06-10 22:29:05 os.name = Linux
+2020-06-10 22:29:05 os.totalmemory = 135176007680
+2020-06-10 22:29:05 os.version = 4.15.0-88-generic
+2020-06-10 22:29:05 path.separator = :
+2020-06-10 22:29:05 processor.arch = amd64
+2020-06-10 22:29:05 processor.count = 16
+2020-06-10 22:29:05 references.dir = /home/jiayong/tools/rtg-tools-3.11/references
+2020-06-10 22:29:05 runtime.freememory = 1920151872
+2020-06-10 22:29:05 runtime.maxmemory = 108140691456
+2020-06-10 22:29:05 runtime.totalMemory = 2025848832
+2020-06-10 22:29:05 sun.arch.data.model = 64
+2020-06-10 22:29:05 sun.boot.class.path = /home/jiayong/tools/rtg-tools-3.11/jre/lib/resources.jar:/home/jiayong/tools/rtg-tools-3.11/jre/lib/rt.jar:/home/jiayong/tools/rtg-tools-3.11/jre/lib/sunrsasign.jar:/home/jiayong/tools/rtg-tools-3.11/jre/lib/jsse.jar:/home/jiayong/tools/rtg-tools-3.11/jre/lib/jce.jar:/home/jiayong/tools/rtg-tools-3.11/jre/lib/charsets.jar:/home/jiayong/tools/rtg-tools-3.11/jre/lib/jfr.jar:/home/jiayong/tools/rtg-tools-3.11/jre/classes
+2020-06-10 22:29:05 sun.boot.library.path = /home/jiayong/tools/rtg-tools-3.11/jre/lib/amd64
+2020-06-10 22:29:05 sun.cpu.endian = little
+2020-06-10 22:29:05 sun.cpu.isalist = 
+2020-06-10 22:29:05 sun.io.unicode.encoding = UnicodeLittle
+2020-06-10 22:29:05 sun.java.command = /home/jiayong/tools/rtg-tools-3.11/RTG.jar vcfeval -b HG00403_0002_original_annotated.vcf.gz -c HG00403_0002_cgfconverted.vcf.gz -t /data-sdd/jiayong/hg38/hg38 -o HG00403_comparecgf_annotated
+2020-06-10 22:29:05 sun.java.launcher = SUN_STANDARD
+2020-06-10 22:29:05 sun.jnu.encoding = UTF-8
+2020-06-10 22:29:05 sun.management.compiler = HotSpot 64-Bit Tiered Compilers
+2020-06-10 22:29:05 sun.os.patch.level = unknown
+2020-06-10 22:29:05 talkback = true
+2020-06-10 22:29:05 usage = true
+2020-06-10 22:29:05 usage.log.hostname = true
+2020-06-10 22:29:05 usage.log.username = true
+2020-06-10 22:29:05 user.country = US
+2020-06-10 22:29:05 user.dir = /home/jiayong/git/l7g-backup2/tools/cgf2vcf/0002
+2020-06-10 22:29:05 user.home = /home/jiayong
+2020-06-10 22:29:05 user.language = en
+2020-06-10 22:29:05 user.name = jiayong
+2020-06-10 22:29:05 user.timezone = Etc/UTC
+2020-06-10 22:29:05 vendor = Azul Systems, Inc.
+2020-06-10 22:29:05 gzipfix.enabled = true
+2020-06-10 22:29:05 Command line arguments: rtg vcfeval -b HG00403_0002_original_annotated.vcf.gz -c HG00403_0002_cgfconverted.vcf.gz -t /data-sdd/jiayong/hg38/hg38 -o HG00403_comparecgf_annotated
+2020-06-10 22:29:05 Run Id: 57a23b79-b0f0-4207-b22e-1c731bf321ff
+2020-06-10 22:29:05 Referenced SDF-ID: 60fb690f-1f04-4193-9909-3f8f0c9d2569 Type: DNA Sequences: 455 Max-Length: 248956422 Min-Length: 970 Arm: UNKNOWN
+2020-06-10 22:29:05 Skipping reference sequence chr10 that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr11 that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr11_KI270721v1_random that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr12 that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr13 that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr14 that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr14_GL000009v2_random that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr14_GL000225v1_random that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr14_KI270722v1_random that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr14_GL000194v1_random that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr14_KI270723v1_random that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr14_KI270724v1_random that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr14_KI270725v1_random that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr14_KI270726v1_random that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr15 that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr15_KI270727v1_random that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr16 that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr16_KI270728v1_random that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr17 that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr17_GL000205v2_random that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr17_KI270729v1_random that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr17_KI270730v1_random that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr18 that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr19 that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr1_KI270706v1_random that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr1_KI270707v1_random that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr1_KI270708v1_random that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr1_KI270709v1_random that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr1_KI270710v1_random that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr1_KI270711v1_random that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr1_KI270712v1_random that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr1_KI270713v1_random that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr1_KI270714v1_random that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr2 that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr20 that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr21 that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr22 that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr22_KI270731v1_random that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr22_KI270732v1_random that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr22_KI270733v1_random that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr22_KI270734v1_random that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr22_KI270735v1_random that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr22_KI270736v1_random that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr22_KI270737v1_random that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr22_KI270738v1_random that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr22_KI270739v1_random that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr2_KI270715v1_random that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr2_KI270716v1_random that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr3 that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr3_GL000221v1_random that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr4 that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr4_GL000008v2_random that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr5 that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr5_GL000208v1_random that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr6 that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr7 that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr8 that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr9 that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr9_KI270717v1_random that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr9_KI270718v1_random that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr9_KI270719v1_random that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr9_KI270720v1_random that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr1_KI270762v1_alt that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr1_KI270766v1_alt that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr1_KI270760v1_alt that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr1_KI270765v1_alt that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr1_GL383518v1_alt that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr1_GL383519v1_alt that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr1_GL383520v2_alt that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr1_KI270764v1_alt that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr1_KI270763v1_alt that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr1_KI270759v1_alt that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr1_KI270761v1_alt that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr2_KI270770v1_alt that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr2_KI270773v1_alt that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr2_KI270774v1_alt that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr2_KI270769v1_alt that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr2_GL383521v1_alt that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr2_KI270772v1_alt that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr2_KI270775v1_alt that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr2_KI270771v1_alt that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr2_KI270768v1_alt that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr2_GL582966v2_alt that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr2_GL383522v1_alt that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr2_KI270776v1_alt that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr2_KI270767v1_alt that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr3_JH636055v2_alt that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr3_KI270783v1_alt that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr3_KI270780v1_alt that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr3_GL383526v1_alt that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr3_KI270777v1_alt that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr3_KI270778v1_alt that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr3_KI270781v1_alt that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr3_KI270779v1_alt that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr3_KI270782v1_alt that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr3_KI270784v1_alt that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr4_KI270790v1_alt that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr4_GL383528v1_alt that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr4_KI270787v1_alt that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr4_GL000257v2_alt that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr4_KI270788v1_alt that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr4_GL383527v1_alt that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr4_KI270785v1_alt that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr4_KI270789v1_alt that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr4_KI270786v1_alt that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr5_KI270793v1_alt that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr5_KI270792v1_alt that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr5_KI270791v1_alt that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr5_GL383532v1_alt that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr5_GL949742v1_alt that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr5_KI270794v1_alt that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr5_GL339449v2_alt that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr5_GL383530v1_alt that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr5_KI270796v1_alt that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr5_GL383531v1_alt that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr5_KI270795v1_alt that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr6_GL000250v2_alt that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr6_KI270800v1_alt that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr6_KI270799v1_alt that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr6_GL383533v1_alt that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr6_KI270801v1_alt that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr6_KI270802v1_alt that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr6_KB021644v2_alt that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr6_KI270797v1_alt that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr6_KI270798v1_alt that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr7_KI270804v1_alt that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr7_KI270809v1_alt that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr7_KI270806v1_alt that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr7_GL383534v2_alt that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr7_KI270803v1_alt that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr7_KI270808v1_alt that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr7_KI270807v1_alt that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr7_KI270805v1_alt that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr8_KI270818v1_alt that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr8_KI270812v1_alt that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr8_KI270811v1_alt that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr8_KI270821v1_alt that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr8_KI270813v1_alt that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr8_KI270822v1_alt that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr8_KI270814v1_alt that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr8_KI270810v1_alt that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr8_KI270819v1_alt that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr8_KI270820v1_alt that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr8_KI270817v1_alt that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr8_KI270816v1_alt that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr8_KI270815v1_alt that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr9_GL383539v1_alt that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr9_GL383540v1_alt that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr9_GL383541v1_alt that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr9_GL383542v1_alt that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr9_KI270823v1_alt that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr10_GL383545v1_alt that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr10_KI270824v1_alt that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr10_GL383546v1_alt that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr10_KI270825v1_alt that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr11_KI270832v1_alt that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr11_KI270830v1_alt that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr11_KI270831v1_alt that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr11_KI270829v1_alt that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr11_GL383547v1_alt that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr11_JH159136v1_alt that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr11_JH159137v1_alt that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr11_KI270827v1_alt that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr11_KI270826v1_alt that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr12_GL877875v1_alt that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr12_GL877876v1_alt that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr12_KI270837v1_alt that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr12_GL383549v1_alt that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr12_KI270835v1_alt that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr12_GL383550v2_alt that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr12_GL383552v1_alt that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr12_GL383553v2_alt that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr12_KI270834v1_alt that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr12_GL383551v1_alt that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr12_KI270833v1_alt that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr12_KI270836v1_alt that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr13_KI270840v1_alt that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr13_KI270839v1_alt that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr13_KI270843v1_alt that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr13_KI270841v1_alt that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr13_KI270838v1_alt that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr13_KI270842v1_alt that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr14_KI270844v1_alt that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr14_KI270847v1_alt that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr14_KI270845v1_alt that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr14_KI270846v1_alt that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr15_KI270852v1_alt that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr15_KI270851v1_alt that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr15_KI270848v1_alt that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr15_GL383554v1_alt that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr15_KI270849v1_alt that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr15_GL383555v2_alt that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr15_KI270850v1_alt that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr16_KI270854v1_alt that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr16_KI270856v1_alt that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr16_KI270855v1_alt that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr16_KI270853v1_alt that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr16_GL383556v1_alt that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr16_GL383557v1_alt that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr17_GL383563v3_alt that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr17_KI270862v1_alt that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr17_KI270861v1_alt that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr17_KI270857v1_alt that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr17_JH159146v1_alt that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr17_JH159147v1_alt that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr17_GL383564v2_alt that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr17_GL000258v2_alt that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr17_GL383565v1_alt that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr17_KI270858v1_alt that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr17_KI270859v1_alt that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr17_GL383566v1_alt that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr17_KI270860v1_alt that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr18_KI270864v1_alt that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr18_GL383567v1_alt that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr18_GL383570v1_alt that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr18_GL383571v1_alt that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr18_GL383568v1_alt that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr18_GL383569v1_alt that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr18_GL383572v1_alt that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr18_KI270863v1_alt that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr19_KI270868v1_alt that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr19_KI270865v1_alt that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr19_GL383573v1_alt that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr19_GL383575v2_alt that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr19_GL383576v1_alt that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr19_GL383574v1_alt that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr19_KI270866v1_alt that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr19_KI270867v1_alt that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr19_GL949746v1_alt that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr20_GL383577v2_alt that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr20_KI270869v1_alt that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr20_KI270871v1_alt that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr20_KI270870v1_alt that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr21_GL383578v2_alt that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr21_KI270874v1_alt that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr21_KI270873v1_alt that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr21_GL383579v2_alt that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr21_GL383580v2_alt that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr21_GL383581v2_alt that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr21_KI270872v1_alt that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr22_KI270875v1_alt that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr22_KI270878v1_alt that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr22_KI270879v1_alt that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr22_KI270876v1_alt that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr22_KI270877v1_alt that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr22_GL383583v2_alt that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr22_GL383582v2_alt that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chrX_KI270880v1_alt that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chrX_KI270881v1_alt that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr19_KI270882v1_alt that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr19_KI270883v1_alt that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr19_KI270884v1_alt that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr19_KI270885v1_alt that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr19_KI270886v1_alt that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr19_KI270887v1_alt that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr19_KI270888v1_alt that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr19_KI270889v1_alt that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr19_KI270890v1_alt that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr19_KI270891v1_alt that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr1_KI270892v1_alt that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr2_KI270894v1_alt that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr2_KI270893v1_alt that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr3_KI270895v1_alt that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr4_KI270896v1_alt that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr5_KI270897v1_alt that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr5_KI270898v1_alt that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr6_GL000251v2_alt that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr7_KI270899v1_alt that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr8_KI270901v1_alt that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr8_KI270900v1_alt that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr11_KI270902v1_alt that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr11_KI270903v1_alt that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr12_KI270904v1_alt that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr15_KI270906v1_alt that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr15_KI270905v1_alt that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr17_KI270907v1_alt that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr17_KI270910v1_alt that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr17_KI270909v1_alt that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr17_JH159148v1_alt that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr17_KI270908v1_alt that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr18_KI270912v1_alt that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr18_KI270911v1_alt that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr19_GL949747v2_alt that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr22_KB663609v1_alt that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chrX_KI270913v1_alt that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr19_KI270914v1_alt that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr19_KI270915v1_alt that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr19_KI270916v1_alt that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr19_KI270917v1_alt that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr19_KI270918v1_alt that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr19_KI270919v1_alt that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr19_KI270920v1_alt that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr19_KI270921v1_alt that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr19_KI270922v1_alt that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr19_KI270923v1_alt that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr3_KI270924v1_alt that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr4_KI270925v1_alt that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr6_GL000252v2_alt that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr8_KI270926v1_alt that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr11_KI270927v1_alt that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr19_GL949748v2_alt that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr22_KI270928v1_alt that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr19_KI270929v1_alt that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr19_KI270930v1_alt that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr19_KI270931v1_alt that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr19_KI270932v1_alt that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr19_KI270933v1_alt that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr19_GL000209v2_alt that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr3_KI270934v1_alt that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr6_GL000253v2_alt that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr19_GL949749v2_alt that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr3_KI270935v1_alt that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr6_GL000254v2_alt that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr19_GL949750v2_alt that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr3_KI270936v1_alt that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr6_GL000255v2_alt that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr19_GL949751v2_alt that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr3_KI270937v1_alt that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr6_GL000256v2_alt that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr19_GL949752v1_alt that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr6_KI270758v1_alt that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr19_GL949753v2_alt that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chr19_KI270938v1_alt that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chrM that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chrUn_KI270302v1 that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chrUn_KI270304v1 that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chrUn_KI270303v1 that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chrUn_KI270305v1 that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chrUn_KI270322v1 that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chrUn_KI270320v1 that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chrUn_KI270310v1 that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chrUn_KI270316v1 that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chrUn_KI270315v1 that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chrUn_KI270312v1 that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chrUn_KI270311v1 that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chrUn_KI270317v1 that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chrUn_KI270412v1 that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chrUn_KI270411v1 that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chrUn_KI270414v1 that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chrUn_KI270419v1 that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chrUn_KI270418v1 that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chrUn_KI270420v1 that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chrUn_KI270424v1 that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chrUn_KI270417v1 that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chrUn_KI270422v1 that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chrUn_KI270423v1 that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chrUn_KI270425v1 that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chrUn_KI270429v1 that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chrUn_KI270442v1 that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chrUn_KI270466v1 that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chrUn_KI270465v1 that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chrUn_KI270467v1 that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chrUn_KI270435v1 that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chrUn_KI270438v1 that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chrUn_KI270468v1 that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chrUn_KI270510v1 that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chrUn_KI270509v1 that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chrUn_KI270518v1 that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chrUn_KI270508v1 that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chrUn_KI270516v1 that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chrUn_KI270512v1 that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chrUn_KI270519v1 that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chrUn_KI270522v1 that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chrUn_KI270511v1 that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chrUn_KI270515v1 that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chrUn_KI270507v1 that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chrUn_KI270517v1 that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chrUn_KI270529v1 that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chrUn_KI270528v1 that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chrUn_KI270530v1 that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chrUn_KI270539v1 that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chrUn_KI270538v1 that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chrUn_KI270544v1 that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chrUn_KI270548v1 that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chrUn_KI270583v1 that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chrUn_KI270587v1 that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chrUn_KI270580v1 that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chrUn_KI270581v1 that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chrUn_KI270579v1 that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chrUn_KI270589v1 that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chrUn_KI270590v1 that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chrUn_KI270584v1 that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chrUn_KI270582v1 that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chrUn_KI270588v1 that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chrUn_KI270593v1 that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chrUn_KI270591v1 that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chrUn_KI270330v1 that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chrUn_KI270329v1 that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chrUn_KI270334v1 that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chrUn_KI270333v1 that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chrUn_KI270335v1 that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chrUn_KI270338v1 that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chrUn_KI270340v1 that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chrUn_KI270336v1 that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chrUn_KI270337v1 that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chrUn_KI270363v1 that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chrUn_KI270364v1 that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chrUn_KI270362v1 that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chrUn_KI270366v1 that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chrUn_KI270378v1 that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chrUn_KI270379v1 that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chrUn_KI270389v1 that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chrUn_KI270390v1 that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chrUn_KI270387v1 that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chrUn_KI270395v1 that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chrUn_KI270396v1 that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chrUn_KI270388v1 that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chrUn_KI270394v1 that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chrUn_KI270386v1 that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chrUn_KI270391v1 that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chrUn_KI270383v1 that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chrUn_KI270393v1 that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chrUn_KI270384v1 that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chrUn_KI270392v1 that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chrUn_KI270381v1 that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chrUn_KI270385v1 that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chrUn_KI270382v1 that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chrUn_KI270376v1 that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chrUn_KI270374v1 that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chrUn_KI270372v1 that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chrUn_KI270373v1 that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chrUn_KI270375v1 that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chrUn_KI270371v1 that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chrUn_KI270448v1 that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chrUn_KI270521v1 that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chrUn_GL000195v1 that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chrUn_GL000219v1 that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chrUn_GL000220v1 that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chrUn_GL000224v1 that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chrUn_KI270741v1 that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chrUn_GL000226v1 that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chrUn_GL000213v1 that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chrUn_KI270743v1 that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chrUn_KI270744v1 that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chrUn_KI270745v1 that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chrUn_KI270746v1 that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chrUn_KI270747v1 that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chrUn_KI270748v1 that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chrUn_KI270749v1 that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chrUn_KI270750v1 that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chrUn_KI270751v1 that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chrUn_KI270752v1 that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chrUn_KI270753v1 that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chrUn_KI270754v1 that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chrUn_KI270755v1 that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chrUn_KI270756v1 that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chrUn_KI270757v1 that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chrUn_GL000214v1 that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chrUn_KI270742v1 that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chrUn_GL000216v2 that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chrUn_GL000218v1 that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chrX that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chrY that is used by neither baseline or calls.
+2020-06-10 22:29:05 Skipping reference sequence chrY_KI270740v1_random that is used by neither baseline or calls.
+2020-06-10 22:29:05 VCF header does not contain a FORMAT field named GQ
+2020-06-10 22:29:05 Reference chr1 baseline contains 1975 variants.
+2020-06-10 22:29:05 Reference chr1 calls contains 1370 variants.
+2020-06-10 22:29:07 Reference chr1 had maximum path complexity of 12 at chr1:5689165-5689689
+2020-06-10 22:29:07 There were 1370 variants not thresholded in ROC data files due to missing or invalid GQ (FORMAT) values.
+2020-06-10 22:29:07 Representation bias correction factor for SNP 1372/1360.0 = 1.0088235294117647
+2020-06-10 22:29:07 Representation bias correction factor for NON_SNP 0/12.0 = 0.0
+2020-06-10 22:29:07 Could not select maximized F-measure threshold from ROC data, only un-thresholded statistics will be shown. Consider selecting a different scoring attribute with --vcf-score-field
+2020-06-10 22:29:07 Threshold  True-pos-baseline  True-pos-call  False-pos  False-neg  Precision  Sensitivity  F-measure
+----------------------------------------------------------------------------------------------------
+     None               1372           1366          4        603     0.9971       0.6947     0.8189
+
+2020-06-10 22:29:07 Finished successfully in 2 s.

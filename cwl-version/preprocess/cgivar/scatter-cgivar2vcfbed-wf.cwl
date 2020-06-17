@@ -8,7 +8,7 @@ requirements:
   ScatterFeatureRequirement: {}
 hints:
   DockerRequirement:
-    dockerPull: process-cgi
+    dockerPull: cgivar2vcfbed
 inputs:
   cgivarsdir:
     type: Directory

@@ -1,12 +1,14 @@
 #!/usr/bin/env python
 
 from __future__ import print_function
-from extractor import describe_dna
 import collections
 import subprocess
 import os
+import tempfile
+import time
 import argparse
 import re
+import sys
 
 Window = collections.namedtuple('Window', ['chrom', 'start', 'end'])
 
@@ -71,12 +73,19 @@ ncbi_prefix = {
 
 def fasta_to_hgvs(ref, sample, seqstart, prefix):
     """Get HGVS using mutalyzer description-extractor."""
-    allele = describe_dna(ref, sample)
-    for var in allele:
-        var.start += seqstart - 1
-        var.end += seqstart - 1
-    hgvs = "{}{}".format(prefix, allele)
-    return hgvs
+    path_ref = tempfile.mkstemp()[1]
+    path_sample = tempfile.mkstemp()[1]
+    try:
+        with open(path_ref, 'w') as tmp:
+            tmp.write(ref)
+        with open(path_sample, 'w') as tmp:
+            tmp.write(sample)
+        subprocess.check_call(["lightning", "diff-fasta", "-timeout=100ms",
+                "-offset", str(seqstart-1), "-sequence", prefix, path_ref, path_sample])
+        sys.stdout.flush()
+    finally:
+        os.remove(path_ref)
+        os.remove(path_sample)
 
 def get_tile_window(path, step, assembly, span, taglen):
     """Derive tile window."""
@@ -137,7 +146,7 @@ def get_tile_window(path, step, assembly, span, taglen):
 
     return Window(chrom, start, end)
 
-def annotate_tilelib(path, step, ref, tilelib, tilevars, assembly, taglen):
+def annotate_tilelib(path, step, ref, tilelib, assembly, taglen):
     """Annotate given tile variants."""
     refname = os.path.basename(ref).split('.')[0]
     if refname not in ncbi_prefix:
@@ -150,16 +159,7 @@ def annotate_tilelib(path, step, ref, tilelib, tilevars, assembly, taglen):
         # stop if no such step is found is sglf
         return
 
-    sglflines = []
-    for tilevar in tilevars:
-        pattern = r'{}\..*\.{}\.{}\+.*'.format(path, step, tilevar)
-        match = re.search(pattern, stepsglf)
-        if match:
-            sglfline = match.group()
-            # skip empty tile variants
-            if sglfline.split(',')[-1]:
-                sglflines.append(sglfline)
-
+    sglflines = stepsglf.split('\n')
     spanset = set([sglfline.split(',')[0].split('+')[1] for sglfline in sglflines])
 
     # store ref fastas with given span
@@ -170,18 +170,19 @@ def annotate_tilelib(path, step, ref, tilelib, tilevars, assembly, taglen):
         windowdict[span] = window
 
         rawreffasta = subprocess.check_output(["samtools", "faidx", ref, "{}:{}-{}".format(window.chrom, window.start, window.end)])
-        reffasta = ''.join(rawreffasta.split('\n')[1:]).upper()
+        reffasta = ''.join(rawreffasta.split('\n')[1:])
         reffastadict[span] = reffasta
 
     # derive HGVS
     for sglfline in sglflines:
         span = sglfline.split(',')[0].split('+')[1]
         window = windowdict[span]
-        samplefasta = sglfline.split(',')[2].upper()
-        prefix = ncbi_prefix[refname][window.chrom]
-        hgvs = fasta_to_hgvs(reffastadict[span], samplefasta, window.start, prefix)
-        annotationline = ','.join(sglfline.split(',')[:-1] + [hgvs])
-        print(annotationline)
+        samplefasta = sglfline.split(',')[2]
+        annotationline = ','.join(sglfline.split(',')[:-1])
+        start_time = time.time()
+        fasta_to_hgvs(reffastadict[span], samplefasta, window.start, window.chrom)
+        elapsed_time = time.time() - start_time
+        print("{},{}".format(sglfline.split(',')[0], elapsed_time))
 
 def main():
     parser = argparse.ArgumentParser(description='Output HGVS annotations\
@@ -190,16 +191,13 @@ def main():
     parser.add_argument('step', metavar='STEP', help='tile step')
     parser.add_argument('ref', metavar='REF', help='reference fasta file')
     parser.add_argument('tilelib', metavar='TILELIB', help='tile library directory')
-    parser.add_argument('varnum', metavar='VARNUM', type=int, help='the number of tile variants to be annotated,\
-        only the first VARNUM variants in the given position are considered')
     parser.add_argument('assembly', metavar='ASSEMBLY', help='assembly file')
 
     parser.add_argument('--taglen', type=int, default=24,
         help='tag length, default is 24.')
 
     args = parser.parse_args()
-    tilevars = [format(i, '03x') for i in range(args.varnum)]
-    annotate_tilelib(args.path, args.step, args.ref, args.tilelib, tilevars, args.assembly, args.taglen)
+    annotate_tilelib(args.path, args.step, args.ref, args.tilelib, args.assembly, args.taglen)
 
 if __name__ == '__main__':
     main()

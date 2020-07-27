@@ -6,7 +6,7 @@ class: CommandLineTool
 label: Get HGVS annotation for a given path
 requirements:
   DockerRequirement:
-    dockerPull: tileannotation
+    dockerPull: diff-fasta
   ResourceRequirement:
     coresMin: 2
     ramMin: 8000
@@ -35,9 +35,6 @@ inputs:
   tilelib:
     type: Directory
     label: Input tile library
-  varnum:
-    type: int
-    label: The number of tile variants to be annotated per step
   assembly:
     type: File
     label: Compressed assembly fixed width file
@@ -55,5 +52,4 @@ arguments:
   - $(inputs.pathstr)
   - $(inputs.ref)
   - $(inputs.tilelib)
-  - $(inputs.varnum)
   - $(inputs.assembly)

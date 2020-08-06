@@ -5,7 +5,6 @@ ref:
 tilelib:
   class: Directory
   location: keep:b2d02d904beb9bd55d382372eb4a6486+43062
-varnum: 5
 assembly:
   class: File
   location: keep:7deca98a5827e1991bf49a96a0087318+233/assembly.00.hg38.fw.gz

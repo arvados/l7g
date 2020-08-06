@@ -5,12 +5,13 @@ import collections
 import subprocess
 import os
 import tempfile
-import time
 import argparse
 import re
 import sys
+import gzip
+import time
 
-Window = collections.namedtuple('Window', ['chrom', 'start', 'end'])
+Window = collections.namedtuple('Window', ['start', 'end'])
 
 # NCBI references:
 # https://www.ncbi.nlm.nih.gov/assembly/GCF_000001405.26/
@@ -71,133 +72,119 @@ ncbi_prefix = {
         "Y": "NC_000024.9:g.",
         "M": "NC_012920.1:m."}}
 
-def fasta_to_hgvs(ref, sample, seqstart, prefix):
-    """Get HGVS using mutalyzer description-extractor."""
-    path_ref = tempfile.mkstemp()[1]
-    path_sample = tempfile.mkstemp()[1]
-    try:
-        with open(path_ref, 'w') as tmp:
-            tmp.write(ref)
-        with open(path_sample, 'w') as tmp:
-            tmp.write(sample)
-        subprocess.check_call(["lightning", "diff-fasta", "-timeout=100ms",
-                "-offset", str(seqstart-1), "-sequence", prefix, path_ref, path_sample])
-        sys.stdout.flush()
-    finally:
-        os.remove(path_ref)
-        os.remove(path_sample)
+def make_refdict(ref):
+    """Make reference dictionary from reference fasta file."""
+    refdict = {}
+    chrom = None
+    with gzip.open(ref) as f:
+        for line in f:
+            if line.startswith('>'):
+                if chrom != None:
+                    refdict[chrom] = ''.join(fasta_list)
+                chrom = line.strip().split(' ')[0].replace('>', '')
+                fasta_list = []
+            else:
+                fasta_list.append(line.strip())
+    return refdict
 
-def get_tile_window(path, step, assembly, span, taglen):
+def fasta_to_hgvs(ref, sample, seqstart, prefix, bashscript):
+    """Get HGVS using diff-fasta."""
+    subprocess.check_call([bashscript, ref, sample, str(seqstart-1), prefix])
+    sys.stdout.flush()
+
+def get_tile_window(path, step, span, pathassembly, pathstart, taglen):
     """Derive tile window."""
-    assemblyindex = os.path.splitext(assembly)[0] + ".fwi"
     pathdec = int(path, 16)
     stepdec = int(step, 16)
-
-    try:
-        indexline = subprocess.check_output(["grep", "-P", ":{}\t".format(path), assemblyindex])
-    except subprocess.CalledProcessError:
-        raise Exception("No such path as {}".format(path))
-    chrom = indexline.split('\t')[0].split(':')[1]
-    length = indexline.split('\t')[1]
-    offset = indexline.split('\t')[2]
 
     spanningtile_stepdec = stepdec + span - 1
     spanningtile_step = format(spanningtile_stepdec, '04x')
 
-    try:
-        ps = subprocess.Popen(["bgzip", "-b", offset, "-s", length, assembly],
-                          stdout=subprocess.PIPE)
-        assemblyline = subprocess.check_output(["grep", "-P", "^{}\t".format(spanningtile_step)], stdin=ps.stdout)
-        ps.wait()
-    except subprocess.CalledProcessError:
+    pattern = re.compile(r'^{}\t.*'.format(spanningtile_step), re.MULTILINE)
+    match = re.search(pattern, pathassembly)
+    if match:
+        end = int(match.group().split('\t')[1].strip())
+    else:
         raise Exception("No such step as {} with span {} in path {}".format(step, span, path))
-    end = int(assemblyline.split('\t')[1])
 
     # calculate previous tile to derive start position
     if stepdec != 0:
         previous_stepdec = stepdec - 1
         previous_step = format(previous_stepdec, '04x')
-
-        ps = subprocess.Popen(["bgzip", "-b", offset, "-s", length, assembly],
-                              stdout=subprocess.PIPE)
-        assemblyline = subprocess.check_output(["grep", "-P", "^{}\t".format(previous_step)], stdin=ps.stdout)
-        ps.wait()
-        start = int(assemblyline.split('\t')[1]) + 1 - taglen
-    elif pathdec == 0:
-        start = 1
+        pattern = re.compile(r'^{}\t.*'.format(previous_step), re.MULTILINE)
+        match = re.search(pattern, pathassembly)
+        start = int(match.group().split('\t')[1].strip()) + 1 - taglen
     else:
-        previous_pathdec = pathdec - 1
-        previous_path = format(previous_pathdec, '04x')
+        start = pathstart
 
-        indexline = subprocess.check_output(["grep", "-P", ":{}\t".format(previous_path), assemblyindex])
-        previous_chrom = indexline.split('\t')[0].split(':')[1]
+    return Window(start, end)
 
-        if previous_chrom != chrom:
-            start = 1
-        else:
-            previous_length = indexline.split('\t')[1]
-            previous_offset = indexline.split('\t')[2]
-
-            ps = subprocess.Popen(["bgzip", "-b", previous_offset, "-s", previous_length, assembly],
-                                  stdout=subprocess.PIPE)
-            assemblyline = subprocess.check_output(["tail", "-n", "1"], stdin=ps.stdout)
-            ps.wait()
-            start = int(assemblyline.split('\t')[1]) + 1
-
-    return Window(chrom, start, end)
-
-def annotate_tilelib(path, step, ref, tilelib, assembly, taglen):
+def annotate_tilelib(path, ref, tilelib, assembly, bashscript, taglen):
     """Annotate given tile variants."""
+    pathdec = int(path, 16)
     refname = os.path.basename(ref).split('.')[0]
     if refname not in ncbi_prefix:
         raise Exception("No such reference as {}".format(refname))
+    refdict = make_refdict(ref)
+
+    # prepare pathassembly and pathstart for get_tile_window
+    assemblyindex = os.path.splitext(assembly)[0] + ".fwi"
+    with open(assemblyindex) as f:
+        assemblyindextext = f.read()
+    pattern = r'.*:{}\t.*'.format(path)
+    match = re.search(pattern, assemblyindextext)
+    if match:
+        indexline = match.group()
+    else:
+        raise Exception("No such path as {}".format(path))
+    chrom = indexline.split('\t')[0].split(':')[1]
+    size = indexline.split('\t')[1]
+    offset = indexline.split('\t')[2]
+    pathassembly = subprocess.check_output(["bgzip", "-b", offset, "-s", size, assembly]).strip()
+    if pathdec == 0:
+        pathstart = 1
+    else:
+        previous_path = format(pathdec-1, '04x')
+        pattern = r'.*:{}\t.*'.format(previous_path)
+        match = re.search(pattern, assemblyindextext)
+        previous_indexline = match.group()
+        previous_chrom = previous_indexline.split('\t')[0].split(':')[1]
+        if chrom != previous_chrom:
+            pathstart = 1
+        else:
+            previous_size = previous_indexline.split('\t')[1]
+            previous_offset = previous_indexline.split('\t')[2]
+            previous_pathassembly = subprocess.check_output(["bgzip", "-b",
+                            previous_offset, "-s", previous_size, assembly]).strip()
+            lastline = previous_pathassembly.split('\n')[-1]
+            pathstart = int(lastline.split('\t')[1].strip()) + 1
 
     sglf = os.path.join(tilelib, "{}.sglf.gz".format(path))
-    try:
-        stepsglf = subprocess.check_output(["zgrep", "{}\..*\.{}".format(path, step), sglf]).strip()
-    except subprocess.CalledProcessError:
-        # stop if no such step is found is sglf
-        return
-
-    sglflines = stepsglf.split('\n')
-    spanset = set([sglfline.split(',')[0].split('+')[1] for sglfline in sglflines])
-
-    # store ref fastas with given span
-    windowdict = {}
-    reffastadict = {}
-    for span in spanset:
-        window = get_tile_window(path, step, assembly, int(span, 16), taglen)
-        windowdict[span] = window
-
-        rawreffasta = subprocess.check_output(["samtools", "faidx", ref, "{}:{}-{}".format(window.chrom, window.start, window.end)])
-        reffasta = ''.join(rawreffasta.split('\n')[1:])
-        reffastadict[span] = reffasta
-
-    # derive HGVS
-    for sglfline in sglflines:
-        span = sglfline.split(',')[0].split('+')[1]
-        window = windowdict[span]
-        samplefasta = sglfline.split(',')[2]
-        annotationline = ','.join(sglfline.split(',')[:-1])
-        start_time = time.time()
-        fasta_to_hgvs(reffastadict[span], samplefasta, window.start, window.chrom)
-        elapsed_time = time.time() - start_time
-        print("{},{}".format(sglfline.split(',')[0], elapsed_time))
+    with gzip.open(sglf) as f:
+        for sglfline in f:
+            step = sglfline.split(',')[0].split('.')[2]
+            span = int(sglfline.split(',')[0].split('+')[1], 16)
+            window = get_tile_window(path, step, span, pathassembly, pathstart, taglen)
+            reffasta = refdict[chrom][window.start-1:window.end]
+            samplefasta = sglfline.split(',')[2].strip()
+            annotationline = ','.join(sglfline.split(',')[:-1])
+            print(annotationline)
+            fasta_to_hgvs(reffasta, samplefasta, window.start, chrom, bashscript)
 
 def main():
     parser = argparse.ArgumentParser(description='Output HGVS annotations\
         of tile variants.')
     parser.add_argument('path', metavar='PATH', help='tile path')
-    parser.add_argument('step', metavar='STEP', help='tile step')
     parser.add_argument('ref', metavar='REF', help='reference fasta file')
     parser.add_argument('tilelib', metavar='TILELIB', help='tile library directory')
     parser.add_argument('assembly', metavar='ASSEMBLY', help='assembly file')
+    parser.add_argument('bashscript', metavar='BASHSCRIPT', help='bashscript for diff-fasta')
 
     parser.add_argument('--taglen', type=int, default=24,
         help='tag length, default is 24.')
 
     args = parser.parse_args()
-    annotate_tilelib(args.path, args.step, args.ref, args.tilelib, args.assembly, args.taglen)
+    annotate_tilelib(args.path, args.ref, args.tilelib, args.assembly, args.bashscript, args.taglen)
 
 if __name__ == '__main__':
     main()

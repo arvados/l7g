@@ -1,10 +1,10 @@
-pathstr: "0000"
+pathstr: "0001"
 ref:
   class: File
   location: keep:ee5b90cf2d5f3573e6d455ab56e15cdf+761/hg38.fa.gz
 tilelib:
   class: Directory
-  location: keep:b2d02d904beb9bd55d382372eb4a6486+43062
+  location: keep:25600bbdd87544fd04e678c857c085f5+129096
 assembly:
   class: File
   location: keep:7deca98a5827e1991bf49a96a0087318+233/assembly.00.hg38.fw.gz

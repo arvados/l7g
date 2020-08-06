@@ -14,12 +14,6 @@ hints:
   arv:RuntimeConstraints:
     keep_cache: 4000
 inputs:
-  bashscript:
-    type: File
-    label: Master script to get HGVS
-    default:
-      class: File
-      location: src/annotate_hgvs.sh
   get_hgvs:
     type: File
     label: Python script to get HGVS
@@ -39,17 +33,21 @@ inputs:
     type: File
     label: Compressed assembly fixed width file
     secondaryFiles: [^.fwi, .gzi]
+  bashscript:
+    type: File
+    label: Bashscript for diff-fasta
+    default:
+      class: File
+      location: src/diff-fasta.sh
 outputs:
   annotation:
-    type: File
+    type: stdout
     label: HGVS annotation in csv format
-    outputBinding:
-      glob: "*csv"
-baseCommand: bash
 arguments:
-  - $(inputs.bashscript)
   - $(inputs.get_hgvs)
   - $(inputs.pathstr)
   - $(inputs.ref)
   - $(inputs.tilelib)
   - $(inputs.assembly)
+  - $(inputs.bashscript)
+stdout: $(inputs.pathstr).csv

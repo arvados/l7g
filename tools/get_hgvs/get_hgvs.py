@@ -4,12 +4,10 @@ from __future__ import print_function
 import collections
 import subprocess
 import os
-import tempfile
 import argparse
 import re
 import sys
 import gzip
-import time
 
 Window = collections.namedtuple('Window', ['start', 'end'])
 

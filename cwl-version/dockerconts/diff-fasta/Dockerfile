@@ -28,7 +28,7 @@ ENV PATH $PATH:/usr/local/go/bin
 
 # Getting lightning (diff-fasta)
 
-RUN go get -v github.com/arvados/lightning
+RUN go get github.com/lijiayong/lightning
 
 ENV PATH $PATH:/root/go/bin
 

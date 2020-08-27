@@ -6,7 +6,6 @@ import subprocess
 import os
 import argparse
 import re
-import sys
 import gzip
 
 Window = collections.namedtuple('Window', ['start', 'end'])
@@ -85,10 +84,9 @@ def make_refdict(ref):
                 fasta_list.append(line.strip())
     return refdict
 
-def fasta_to_hgvs(ref, sample, seqstart, prefix, bashscript):
+def fasta_to_hgvs(ref, sample, seqstart, bashscript):
     """Get HGVS using diff-fasta."""
-    subprocess.check_call([bashscript, ref, sample, str(seqstart-1), prefix])
-    sys.stdout.flush()
+    return subprocess.check_output([bashscript, ref, sample, str(seqstart-1)])
 
 def get_tile_window(path, step, span, pathassembly, pathstart, taglen):
     """Derive tile window."""
@@ -162,12 +160,17 @@ def annotate_tilelib(path, ref, tilelib, assembly, bashscript, taglen):
         for sglfline in f:
             step = sglfline.split(',')[0].split('.')[2]
             span = int(sglfline.split(',')[0].split('+')[1], 16)
-            window = get_tile_window(path, step, span, pathassembly, pathstart, taglen)
-            reffasta = refdict[chrom][window.start-1:window.end]
-            samplefasta = sglfline.split(',')[2].strip()
-            annotationline = ','.join(sglfline.split(',')[:-1])
-            print(annotationline)
-            fasta_to_hgvs(reffasta, samplefasta, window.start, chrom, bashscript)
+            try:
+                window = get_tile_window(path, step, span, pathassembly, pathstart, taglen)
+                reffasta = refdict[chrom][window.start-1:window.end]
+                samplefasta = sglfline.split(',')[2].strip()
+                if len(samplefasta) >= 7000:
+                    continue
+                annotationline = ','.join(sglfline.split(',')[:-1])
+                print(annotationline,
+                    fasta_to_hgvs(reffasta, samplefasta, window.start, bashscript), sep=',', end='')
+            except:
+                continue
 
 def main():
     parser = argparse.ArgumentParser(description='Output HGVS annotations\

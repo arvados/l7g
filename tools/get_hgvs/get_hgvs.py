@@ -115,7 +115,7 @@ def get_tile_window(path, step, span, pathassembly, pathstart, taglen):
 
     return Window(start, end)
 
-def annotate_tilelib(path, ref, tilelib, assembly, bashscript, taglen):
+def annotate_tilelib(path, ref, tilelib, assembly, bashscript, taglen, samplefastalimit):
     """Annotate given tile variants."""
     pathdec = int(path, 16)
     refname = os.path.basename(ref).split('.')[0]
@@ -164,7 +164,7 @@ def annotate_tilelib(path, ref, tilelib, assembly, bashscript, taglen):
                 window = get_tile_window(path, step, span, pathassembly, pathstart, taglen)
                 reffasta = refdict[chrom][window.start-1:window.end]
                 samplefasta = sglfline.split(',')[2].strip()
-                if len(samplefasta) >= 7000:
+                if samplefastalimit != None and len(samplefasta) >= samplefastalimit:
                     continue
                 annotationline = ','.join(sglfline.split(',')[:-1])
                 print(annotationline,
@@ -183,9 +183,11 @@ def main():
 
     parser.add_argument('--taglen', type=int, default=24,
         help='tag length, default is 24.')
+    parser.add_argument('--samplefastalimit', type=int,
+        help='sample fasta limit, skip if exceeds.')
 
     args = parser.parse_args()
-    annotate_tilelib(args.path, args.ref, args.tilelib, args.assembly, args.bashscript, args.taglen)
+    annotate_tilelib(args.path, args.ref, args.tilelib, args.assembly, args.bashscript, args.taglen, args.samplefastalimit)
 
 if __name__ == '__main__':
     main()

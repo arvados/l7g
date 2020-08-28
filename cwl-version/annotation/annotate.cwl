@@ -39,6 +39,10 @@ inputs:
     default:
       class: File
       location: src/diff-fasta.sh
+  samplefastalimit:
+    type: int
+    label: Sample FASTA limit
+    default: 7000
 outputs:
   annotation:
     type: stdout
@@ -50,4 +54,6 @@ arguments:
   - $(inputs.tilelib)
   - $(inputs.assembly)
   - $(inputs.bashscript)
+  - prefix: "--samplefastalimit"
+    valueFrom: $(inputs.samplefastalimit)
 stdout: $(inputs.pathstr).csv

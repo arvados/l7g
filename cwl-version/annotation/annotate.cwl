@@ -42,7 +42,7 @@ inputs:
   samplefastalimit:
     type: int
     label: Sample FASTA limit
-    default: 7000
+    default: 5000
 outputs:
   annotation:
     type: stdout

@@ -1,115 +1,105 @@
 #!/usr/bin/env python
 
 from __future__ import print_function
+import collections
 import subprocess
 import os
 import argparse
 import re
 
+PathInfo = collections.namedtuple("PathInfo", ["chrom", "firstend", "lastend"])
+
+def get_pathinfo(path, assembly, assemblyindextext):
+    """Geth PathInfo of a path from the assembly"""
+    pattern = r'.*:{}\t.*'.format(path)
+    match = re.search(pattern, assemblyindextext)
+    if match:
+        indexline = match.group()
+    else:
+        raise Exception("No such path as {}".format(path))
+    fields = indexline.split('\t')
+    chrom = fields[0].split(':')[1]
+    length = fields[1]
+    offset = fields[2]
+    pathassembly = subprocess.check_output(["bgzip", "-b", offset, "-s", length, assembly]).strip()
+    assemblylines = pathassembly.split('\n')
+    firstend = int(assemblylines[0].split('\t')[1])
+    lastend = int(assemblylines[-1].split('\t')[1])
+    return PathInfo(chrom, firstend, lastend)
+
 def make_bed_path(path, assembly):
     """Make the bed file of a path"""
     assemblyindex = os.path.splitext(assembly)[0] + ".fwi"
-    pathdec = int(path, 16)
-
-    try:
-        indexline = subprocess.check_output(["grep", "-P", ":{}\t".format(path), assemblyindex])
-    except subprocess.CalledProcessError:
-        raise Exception("No such path as {}".format(path))
-    chrom = indexline.split('\t')[0].split(':')[1]
-    length = indexline.split('\t')[1]
-    offset = indexline.split('\t')[2]
-
-    ps = subprocess.Popen(["bgzip", "-b", offset, "-s", length, assembly],
-                      stdout=subprocess.PIPE)
-    assemblyline = subprocess.check_output(["tail", "-n", "1"], stdin=ps.stdout)
-    ps.wait()
-    end = int(assemblyline.split('\t')[1])
-
-    if pathdec == 0:
+    with open(assemblyindex) as f:
+        assemblyindextext = f.read()
+    pathinfo = get_pathinfo(path, assembly, assemblyindextext)
+    if path == "0000":
         start = 0
     else:
-        previous_pathdec = pathdec - 1
-        previous_path = format(previous_pathdec, '04x')
-
-        indexline = subprocess.check_output(["grep", "-P", ":{}\t".format(previous_path), assemblyindex])
-        previous_chrom = indexline.split('\t')[0].split(':')[1]
-
-        if previous_chrom != chrom:
-            start = 0
+        previous_path = format(int(path, 16) - 1, '04x')
+        previous_pathinfo = get_pathinfo(previous_path, assembly, assemblyindextext)
+        while (previous_pathinfo.lastend >= pathinfo.firstend and previous_pathinfo.chrom == pathinfo.chrom):
+            previous_path = format(int(previous_path, 16) - 1, '04x')
+            previous_pathinfo = get_pathinfo(previous_path, assembly, assemblyindextext)
         else:
-            previous_length = indexline.split('\t')[1]
-            previous_offset = indexline.split('\t')[2]
-
-            ps = subprocess.Popen(["bgzip", "-b", previous_offset, "-s", previous_length, assembly],
-                                  stdout=subprocess.PIPE)
-            assemblyline = subprocess.check_output(["tail", "-n", "1"], stdin=ps.stdout)
-            ps.wait()
-            start = int(assemblyline.split('\t')[1])
-
-    print("{}\t{}\t{}".format(chrom, start, end))
+            if previous_pathinfo.chrom != pathinfo.chrom:
+                start = 0
+            else:
+                start = previous_pathinfo.lastend
+    print("{}\t{}\t{}".format(pathinfo.chrom, start, pathinfo.lastend))
 
 def make_bed_steps(path, stepsfile, assembly):
     """Make the bed file of a list of steps in a path"""
     assemblyindex = os.path.splitext(assembly)[0] + ".fwi"
-    pathdec = int(path, 16)
-
-    try:
-        indexline = subprocess.check_output(["grep", "-P", ":{}\t".format(path), assemblyindex])
-    except subprocess.CalledProcessError:
+    with open(assemblyindex) as f:
+        assemblyindextext = f.read()
+    pattern = r'.*:{}\t.*'.format(path)
+    match = re.search(pattern, assemblyindextext)
+    if match:
+        indexline = match.group()
+    else:
         raise Exception("No such path as {}".format(path))
-    chrom = indexline.split('\t')[0].split(':')[1]
-    length = indexline.split('\t')[1]
-    offset = indexline.split('\t')[2]
+    fields = indexline.split('\t')
+    chrom = fields[0].split(':')[1]
+    length = fields[1]
+    offset = fields[2]
+    pathassembly = subprocess.check_output(["bgzip", "-b", offset, "-s", length, assembly]).strip()
+    assemblylines = pathassembly.split('\n')
 
     with open(stepsfile) as f:
         for line in f:
             linestrip = line.strip()
             step = linestrip.split('+')[0]
             span = int(linestrip.split('+')[1], 16)
-            stepdec = int(step, 16)
-            spanningtile_stepdec = stepdec + span - 1
-            spanningtile_step = format(spanningtile_stepdec, '04x')
-
-            try:
-                ps = subprocess.Popen(["bgzip", "-b", offset, "-s", length, assembly],
-                                  stdout=subprocess.PIPE)
-                assemblyline = subprocess.check_output(["grep", "-P", "^{}\t".format(spanningtile_step)], stdin=ps.stdout)
-                ps.wait()
-            except subprocess.CalledProcessError:
+            spanningtile_step = format(int(step, 16) + span - 1, '04x')
+            pattern = re.compile(r'^{}\t.*'.format(spanningtile_step), re.MULTILINE)
+            match = re.search(pattern, pathassembly)
+            if match:
+                end = int(match.group().split('\t')[1].strip())
+            else:
                 raise Exception("No such step as {} with span {} in path {}".format(step, span, path))
-            end = int(assemblyline.split('\t')[1])
 
             # calculate previous tile to derive start position
-            if stepdec != 0:
-                previous_stepdec = stepdec - 1
-                previous_step = format(previous_stepdec, '04x')
-
-                ps = subprocess.Popen(["bgzip", "-b", offset, "-s", length, assembly],
-                                      stdout=subprocess.PIPE)
-                assemblyline = subprocess.check_output(["grep", "-P", "^{}\t".format(previous_step)], stdin=ps.stdout)
-                ps.wait()
-                start = int(assemblyline.split('\t')[1])
-            elif pathdec == 0:
+            # calculate previous tile when the step is not the first one in the path
+            if step != "0000":
+                previous_step = format(int(step, 16) - 1, '04x')
+                previous_pattern = re.compile(r'^{}\t.*'.format(previous_step), re.MULTILINE)
+                previous_match = re.search(previous_pattern, pathassembly)
+                start = int(previous_match.group().split('\t')[1].strip())
+            elif path == "0000":
                 start = 0
+            # calculate previous tile when the step is the first one in the path
             else:
-                previous_pathdec = pathdec - 1
-                previous_path = format(previous_pathdec, '04x')
-
-                indexline = subprocess.check_output(["grep", "-P", ":{}\t".format(previous_path), assemblyindex])
-                previous_chrom = indexline.split('\t')[0].split(':')[1]
-
-                if previous_chrom != chrom:
-                    start = 0
+                previous_path = format(int(path, 16) - 1, '04x')
+                previous_pathinfo = get_pathinfo(previous_path, assembly, assemblyindextext)
+                while (previous_pathinfo.lastend >= end and previous_pathinfo.chrom == chrom):
+                    previous_path = format(int(previous_path, 16) - 1, '04x')
+                    previous_pathinfo = get_pathinfo(previous_path, assembly, assemblyindextext)
                 else:
-                    previous_length = indexline.split('\t')[1]
-                    previous_offset = indexline.split('\t')[2]
-
-                    ps = subprocess.Popen(["bgzip", "-b", previous_offset, "-s", previous_length, assembly],
-                                          stdout=subprocess.PIPE)
-                    assemblyline = subprocess.check_output(["tail", "-n", "1"], stdin=ps.stdout)
-                    ps.wait()
-                    start = int(assemblyline.split('\t')[1])
-
+                    if previous_pathinfo.chrom != chrom:
+                        start = 0
+                    else:
+                        start = previous_pathinfo.lastend
             print("{}\t{}\t{}".format(chrom, start, end))
 
 def main():

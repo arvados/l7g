@@ -166,9 +166,10 @@ def annotate_tilelib(path, ref, tilelib, assembly, bashscript, taglen, samplefas
                 samplefasta = sglfline.split(',')[2].strip()
                 if samplefastalimit != None and len(samplefasta) >= samplefastalimit:
                     continue
-                annotationline = ','.join(sglfline.split(',')[:-1])
-                print(annotationline,
-                    fasta_to_hgvs(reffasta, samplefasta, window.start, bashscript), sep=',', end='')
+                if reffasta!= "" and samplefasta != "":
+                    annotationline = ','.join(sglfline.split(',')[:-1])
+                    print(annotationline,
+                        fasta_to_hgvs(reffasta, samplefasta, window.start, bashscript), sep=',', end='')
             except:
                 continue
 

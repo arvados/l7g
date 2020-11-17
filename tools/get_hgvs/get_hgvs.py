@@ -115,7 +115,7 @@ def get_tile_window(path, step, span, pathassembly, pathstart, taglen):
 
     return Window(start, end)
 
-def annotate_tilelib(path, ref, tilelib, assembly, bashscript, taglen, samplefastalimit):
+def annotate_tilelib(path, ref, tilelib, assembly, bashscript, taglen, samplefastalimit=None):
     """Annotate given tile variants."""
     pathdec = int(path, 16)
     refname = os.path.basename(ref).split('.')[0]

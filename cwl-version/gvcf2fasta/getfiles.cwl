@@ -25,7 +25,7 @@ expression: |
       var file = inputs.dir.listing[i];
       if (file.nameext == ".gz") {
         vcfs.push(file);
-        var sample = file.basename.split(".")[0];
+        var sample = file.basename.split(".").slice(0, -2).join(".");
         samples.push(sample);
       }
     }

@@ -1,0 +1,11 @@
+sampleid: "HG00551.haplotypeCalls.er.raw"
+vcf:
+  class: File
+  location: keep:ae8975b43e2b9f1ab9e3d09395f3c0f6+604/HG00551.haplotypeCalls.er.raw_varonly.vcf.gz
+ref:
+  class: File
+  location: keep:ee5b90cf2d5f3573e6d455ab56e15cdf+761/hg38.fa.gz
+haplotype: 1
+mask:
+  class: File
+  location: keep:ae8975b43e2b9f1ab9e3d09395f3c0f6+604/HG00551.haplotypeCalls.er.raw_nocall.bed

@@ -1,0 +1,10 @@
+sampleid: "LP6005441-DNA_A01"
+vcf:
+  class: File
+  location: keep:865a18acdb12f8d41b76a1bff76b2211+89722/LP6005441-DNA_A01.vcf.gz
+genomebed:
+  class: File
+  location: keep:1310f01a495c81d3c7d3154f1a73527f+63/human_g1k_v37.bed
+ref:
+  class: File
+  location: keep:5a42cfaddd3a9cfc4fac89b3fe73c6f6+751/human_g1k_v37.fasta.gz

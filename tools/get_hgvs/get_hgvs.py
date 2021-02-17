@@ -120,7 +120,7 @@ def annotate_tilelib(path, ref, tilelib, assembly, bashscript, taglen, samplefas
     pathdec = int(path, 16)
     refname = os.path.basename(ref).split('.')[0]
     if refname not in ncbi_prefix:
-        raise Exception("No such reference as {}".format(refname))
+        raise Exception("Reference {} not supported".format(refname))
     refdict = make_refdict(ref)
 
     # prepare pathassembly and pathstart for get_tile_window

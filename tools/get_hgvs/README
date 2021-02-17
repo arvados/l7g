@@ -1,6 +1,10 @@
-Example run inside docker:
+* Build docker image from docker file
+* Run docker interactively with all the arguments mounted
+* Run tilesearcher script inside docker
+
+Example run:
 $ ./tilesearcher.py 0001.00.0000.00b+1 /mnt/keep/by_id/ee5b90cf2d5f3573e6d455ab56e15cdf+761/hg38.fa.gz /mnt/keep/by_id/25600bbdd87544fd04e678c857c085f5+129096 /mnt/keep/by_id/7deca98a5827e1991bf49a96a0087318+233/assembly.00.hg38.fw.gz
-[2368473T>C;2368520G>A;2368614_2368615del;2368616_2368617insGA;2368642C>T;2368718C>A]
+NC_000001.11:g.[2368473T>C;2368520G>A;2368614_2368615del;2368616_2368617insGA;2368642C>T;2368718C>A]
 
 Arguements in the above command:
 tileid: 0001.00.0000.00b+1

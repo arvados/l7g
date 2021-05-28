@@ -1,0 +1,8 @@
+sampleid: "A-WCAP-WC000711-BL-COL-39141BL1"
+vcftar:
+  class: File
+  location: keep:9b09803eb9ccd2b31d4db4ce80ed7a03+5003343/A-WCAP-WC000711-BL-COL-39141BL1_vcpa1.0_gatk_GRU-IRB-PUB.gvcf.tar.gz
+gqcutoff: 20
+genomebed:
+  class: File
+  location: keep:67b4d7e55e61cef7343f3928af97e197+54/hg38.bed

@@ -1,10 +1,11 @@
 cwlVersion: v1.1
 class: CommandLineTool
-label: Run Variant Effect Predictor given HGVS
+label: Run Variant Effect Predictor given VCF
 requirements:
   DockerRequirement:
     dockerPull: ensemblorg/ensembl-vep:release_103
   ResourceRequirement:
+    ramMin: 8000
     tmpdirMin: 16000
 inputs:
   vcf:

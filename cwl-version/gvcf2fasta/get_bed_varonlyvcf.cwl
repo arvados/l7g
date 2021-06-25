@@ -8,6 +8,7 @@ hints:
     dockerPull: vcfutil
   ResourceRequirement:
     ramMin: 5000
+    outdirMin: 40000
 inputs:
   sampleid:
     type: string
@@ -15,6 +16,9 @@ inputs:
   vcf:
     type: File
     label: Input gVCF
+  gqcutoff:
+    type: int
+    label: GQ (Genotype Quality) cutoff for filtering  
   genomebed:
     type: File
     label: Whole genome BED
@@ -32,6 +36,8 @@ outputs:
     secondaryFiles: [.tbi]
 baseCommand: /gvcf_regions/gvcf_regions.py
 arguments:
+  - prefix: "--min_GQ"
+    valueFrom: $(inputs.gqcutoff)
   - $(inputs.vcf)
   - shellQuote: False
     valueFrom: ">"

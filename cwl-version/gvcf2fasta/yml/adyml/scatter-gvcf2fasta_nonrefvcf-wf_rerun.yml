@@ -1,0 +1,144 @@
+gqcutoff: 20
+genomebed:
+  class: File
+  location: keep:67b4d7e55e61cef7343f3928af97e197+54/hg38.bed
+ref:
+  class: File
+  location: keep:ee5b90cf2d5f3573e6d455ab56e15cdf+761/hg38.fa.gz
+sampleids:
+  - "ADNI_002_S_0413"
+  - "ADNI_002_S_1261"
+  - "ADNI_002_S_1280"
+  - "ADNI_003_S_0908"
+  - "ADNI_003_S_4119"
+  - "ADNI_003_S_4288"
+  - "ADNI_006_S_4515"
+  - "ADNI_007_S_0068"
+  - "ADNI_007_S_0101"
+  - "ADNI_007_S_2058"
+  - "ADNI_007_S_2394"
+  - "ADNI_007_S_4272"
+  - "ADNI_007_S_4611"
+  - "ADNI_009_S_2208"
+  - "ADNI_009_S_2381"
+  - "ADNI_009_S_4337"
+  - "ADNI_009_s_4543"
+  - "ADNI_011_S_0023"
+  - "ADNI_011_S_1080"
+  - "ADNI_011_S_4366"
+  - "ADNI_012_S_4094"
+  - "ADNI_014_S_0169"
+  - "ADNI_014_S_0563"
+  - "ADNI_014_S_2185"
+  - "ADNI_014_S_4058"
+  - "ADNI_014_S_4401"
+  - "ADNI_014_S_4576"
+  - "ADNI_014_s_4615"
+  - "ADNI_016_S_0702"
+  - "ADNI_016_S_4591"
+  - "ADNI_018_S_0142"
+  - "ADNI_018_S_2180"
+  - "ADNI_018_S_4313"
+  - "ADNI_018_S_4696"
+  - "ADNI_019_S_4293"
+  - "ADNI_020_S_1288"
+  - "ADNI_021_S_0159"
+  - "ADNI_021_S_0337"
+  - "ADNI_021_S_0984"
+  - "ADNI_021_S_2100"
+  - "ADNI_021_S_2142"
+  - "ADNI_021_S_4276"
+  - "A-WCAP-WC000766-BL-COL-46944BL1"
+  - "A-WCAP-WC000788-BL-COL-48310BL1"
+  - "A-WCAP-WC001359-BL-COL-49266BL1"
+vcfs:
+  - class: File
+    location: keep:3eead47d28a9cfb1fb1dc4fde1d38af0+4961919/ADNI_002_S_0413_vcpa1.1.allchr_g.vcf.gz
+  - class: File
+    location: keep:3eead47d28a9cfb1fb1dc4fde1d38af0+4961919/ADNI_002_S_1261_vcpa1.1.allchr_g.vcf.gz
+  - class: File
+    location: keep:3eead47d28a9cfb1fb1dc4fde1d38af0+4961919/ADNI_002_S_1280_vcpa1.1.allchr_g.vcf.gz
+  - class: File
+    location: keep:3eead47d28a9cfb1fb1dc4fde1d38af0+4961919/ADNI_003_S_0908_vcpa1.1.allchr_g.vcf.gz
+  - class: File
+    location: keep:3eead47d28a9cfb1fb1dc4fde1d38af0+4961919/ADNI_003_S_4119_vcpa1.1.allchr_g.vcf.gz
+  - class: File
+    location: keep:3eead47d28a9cfb1fb1dc4fde1d38af0+4961919/ADNI_003_S_4288_vcpa1.1.allchr_g.vcf.gz
+  - class: File
+    location: keep:3eead47d28a9cfb1fb1dc4fde1d38af0+4961919/ADNI_006_S_4515_vcpa1.1.allchr_g.vcf.gz
+  - class: File
+    location: keep:3eead47d28a9cfb1fb1dc4fde1d38af0+4961919/ADNI_007_S_0068_vcpa1.1.allchr_g.vcf.gz
+  - class: File
+    location: keep:3eead47d28a9cfb1fb1dc4fde1d38af0+4961919/ADNI_007_S_0101_vcpa1.1.allchr_g.vcf.gz
+  - class: File
+    location: keep:3eead47d28a9cfb1fb1dc4fde1d38af0+4961919/ADNI_007_S_2058_vcpa1.1.allchr_g.vcf.gz
+  - class: File
+    location: keep:3eead47d28a9cfb1fb1dc4fde1d38af0+4961919/ADNI_007_S_2394_vcpa1.1.allchr_g.vcf.gz
+  - class: File
+    location: keep:3eead47d28a9cfb1fb1dc4fde1d38af0+4961919/ADNI_007_S_4272_vcpa1.1.allchr_g.vcf.gz
+  - class: File
+    location: keep:3eead47d28a9cfb1fb1dc4fde1d38af0+4961919/ADNI_007_S_4611_vcpa1.1.allchr_g.vcf.gz
+  - class: File
+    location: keep:3eead47d28a9cfb1fb1dc4fde1d38af0+4961919/ADNI_009_S_2208_vcpa1.1.allchr_g.vcf.gz
+  - class: File
+    location: keep:3eead47d28a9cfb1fb1dc4fde1d38af0+4961919/ADNI_009_S_2381_vcpa1.1.allchr_g.vcf.gz
+  - class: File
+    location: keep:3eead47d28a9cfb1fb1dc4fde1d38af0+4961919/ADNI_009_S_4337_vcpa1.1.allchr_g.vcf.gz
+  - class: File
+    location: keep:3eead47d28a9cfb1fb1dc4fde1d38af0+4961919/ADNI_009_s_4543_vcpa1.1.allchr_g.vcf.gz
+  - class: File
+    location: keep:3eead47d28a9cfb1fb1dc4fde1d38af0+4961919/ADNI_011_S_0023_vcpa1.1.allchr_g.vcf.gz
+  - class: File
+    location: keep:3eead47d28a9cfb1fb1dc4fde1d38af0+4961919/ADNI_011_S_1080_vcpa1.1.allchr_g.vcf.gz
+  - class: File
+    location: keep:3eead47d28a9cfb1fb1dc4fde1d38af0+4961919/ADNI_011_S_4366_vcpa1.1.allchr_g.vcf.gz
+  - class: File
+    location: keep:3eead47d28a9cfb1fb1dc4fde1d38af0+4961919/ADNI_012_S_4094_vcpa1.1.allchr_g.vcf.gz
+  - class: File
+    location: keep:3eead47d28a9cfb1fb1dc4fde1d38af0+4961919/ADNI_014_S_0169_vcpa1.1.allchr_g.vcf.gz
+  - class: File
+    location: keep:3eead47d28a9cfb1fb1dc4fde1d38af0+4961919/ADNI_014_S_0563_vcpa1.1.allchr_g.vcf.gz
+  - class: File
+    location: keep:3eead47d28a9cfb1fb1dc4fde1d38af0+4961919/ADNI_014_S_2185_vcpa1.1.allchr_g.vcf.gz
+  - class: File
+    location: keep:3eead47d28a9cfb1fb1dc4fde1d38af0+4961919/ADNI_014_S_4058_vcpa1.1.allchr_g.vcf.gz
+  - class: File
+    location: keep:3eead47d28a9cfb1fb1dc4fde1d38af0+4961919/ADNI_014_S_4401_vcpa1.1.allchr_g.vcf.gz
+  - class: File
+    location: keep:3eead47d28a9cfb1fb1dc4fde1d38af0+4961919/ADNI_014_S_4576_vcpa1.1.allchr_g.vcf.gz
+  - class: File
+    location: keep:3eead47d28a9cfb1fb1dc4fde1d38af0+4961919/ADNI_014_s_4615_vcpa1.1.allchr_g.vcf.gz
+  - class: File
+    location: keep:3eead47d28a9cfb1fb1dc4fde1d38af0+4961919/ADNI_016_S_0702_vcpa1.1.allchr_g.vcf.gz
+  - class: File
+    location: keep:3eead47d28a9cfb1fb1dc4fde1d38af0+4961919/ADNI_016_S_4591_vcpa1.1.allchr_g.vcf.gz
+  - class: File
+    location: keep:3eead47d28a9cfb1fb1dc4fde1d38af0+4961919/ADNI_018_S_0142_vcpa1.1.allchr_g.vcf.gz
+  - class: File
+    location: keep:3eead47d28a9cfb1fb1dc4fde1d38af0+4961919/ADNI_018_S_2180_vcpa1.1.allchr_g.vcf.gz
+  - class: File
+    location: keep:3eead47d28a9cfb1fb1dc4fde1d38af0+4961919/ADNI_018_S_4313_vcpa1.1.allchr_g.vcf.gz
+  - class: File
+    location: keep:3eead47d28a9cfb1fb1dc4fde1d38af0+4961919/ADNI_018_S_4696_vcpa1.1.allchr_g.vcf.gz
+  - class: File
+    location: keep:3eead47d28a9cfb1fb1dc4fde1d38af0+4961919/ADNI_019_S_4293_vcpa1.1.allchr_g.vcf.gz
+  - class: File
+    location: keep:3eead47d28a9cfb1fb1dc4fde1d38af0+4961919/ADNI_020_S_1288_vcpa1.1.allchr_g.vcf.gz
+  - class: File
+    location: keep:3eead47d28a9cfb1fb1dc4fde1d38af0+4961919/ADNI_021_S_0159_vcpa1.1.allchr_g.vcf.gz
+  - class: File
+    location: keep:3eead47d28a9cfb1fb1dc4fde1d38af0+4961919/ADNI_021_S_0337_vcpa1.1.allchr_g.vcf.gz
+  - class: File
+    location: keep:3eead47d28a9cfb1fb1dc4fde1d38af0+4961919/ADNI_021_S_0984_vcpa1.1.allchr_g.vcf.gz
+  - class: File
+    location: keep:3eead47d28a9cfb1fb1dc4fde1d38af0+4961919/ADNI_021_S_2100_vcpa1.1.allchr_g.vcf.gz
+  - class: File
+    location: keep:3eead47d28a9cfb1fb1dc4fde1d38af0+4961919/ADNI_021_S_2142_vcpa1.1.allchr_g.vcf.gz
+  - class: File
+    location: keep:3eead47d28a9cfb1fb1dc4fde1d38af0+4961919/ADNI_021_S_4276_vcpa1.1.allchr_g.vcf.gz
+  - class: File
+    location: keep:3eead47d28a9cfb1fb1dc4fde1d38af0+4961919/A-WCAP-WC000766-BL-COL-46944BL1_vcpa1.1.allchr_g.vcf.gz
+  - class: File
+    location: keep:3eead47d28a9cfb1fb1dc4fde1d38af0+4961919/A-WCAP-WC000788-BL-COL-48310BL1_vcpa1.1.allchr_g.vcf.gz
+  - class: File
+    location: keep:3eead47d28a9cfb1fb1dc4fde1d38af0+4961919/A-WCAP-WC001359-BL-COL-49266BL1_vcpa1.1.allchr_g.vcf.gz

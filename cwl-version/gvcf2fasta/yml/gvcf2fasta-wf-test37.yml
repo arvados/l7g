@@ -2,6 +2,7 @@ sampleid: "LP6005441-DNA_A01"
 vcf:
   class: File
   location: keep:865a18acdb12f8d41b76a1bff76b2211+89722/LP6005441-DNA_A01.vcf.gz
+gqcutoff: 20
 genomebed:
   class: File
   location: keep:1310f01a495c81d3c7d3154f1a73527f+63/human_g1k_v37.bed

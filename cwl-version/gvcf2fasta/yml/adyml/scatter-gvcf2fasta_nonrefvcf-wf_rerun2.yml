@@ -1,0 +1,24 @@
+gqcutoff: 20
+genomebed:
+  class: File
+  location: keep:67b4d7e55e61cef7343f3928af97e197+54/hg38.bed
+ref:
+  class: File
+  location: keep:ee5b90cf2d5f3573e6d455ab56e15cdf+761/hg38.fa.gz
+sampleids:
+  - "ADNI_016_S_1117"
+  - "ADNI_018_S_0055"
+  - "ADNI_018_S_2155"
+  - "ADNI_018_S_4597"
+  - "ADNI_021_S_0276"
+vcfs:
+  - class: File
+    location: keep:3eead47d28a9cfb1fb1dc4fde1d38af0+4961919/ADNI_016_S_1117_vcpa1.1.allchr_g.vcf.gz
+  - class: File
+    location: keep:3eead47d28a9cfb1fb1dc4fde1d38af0+4961919/ADNI_018_S_0055_vcpa1.1.allchr_g.vcf.gz
+  - class: File
+    location: keep:3eead47d28a9cfb1fb1dc4fde1d38af0+4961919/ADNI_018_S_2155_vcpa1.1.allchr_g.vcf.gz
+  - class: File
+    location: keep:3eead47d28a9cfb1fb1dc4fde1d38af0+4961919/ADNI_018_S_4597_vcpa1.1.allchr_g.vcf.gz
+  - class: File
+    location: keep:3eead47d28a9cfb1fb1dc4fde1d38af0+4961919/ADNI_021_S_0276_vcpa1.1.allchr_g.vcf.gz

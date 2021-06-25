@@ -42,7 +42,7 @@ arguments:
   - $(inputs.vcf)
   - shellQuote: False
     valueFrom: "|"
-  - "gzip"
+  - "bgzip"
   - "-c"
   - shellQuote: False
     valueFrom: ">"

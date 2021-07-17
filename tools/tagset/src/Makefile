@@ -1,4 +1,4 @@
-OPT=-O3
+CXXFLAGS+=-O3
 
 tiletagFa: tagset-fa.cpp
-	g++ ${OPT} tagset-fa.cpp -o tagsetFa -lhts
+	$(CXX) $(LDFLAGS) $(CPPFLAGS) $(CXXFLAGS) tagset-fa.cpp -o tagsetFa -lhts

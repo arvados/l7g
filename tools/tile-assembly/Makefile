@@ -1,6 +1,7 @@
 
-CC=g++
-CC_FLAGS=-O3 -std=c++11 -msse4.2 -lhts
+CXX:=g++
+CXXFLAGS+=-O3 -std=c++11
+LDLIBS+=-lhts
 
 all: tile-assembly
 
@@ -10,6 +11,6 @@ clean:
 	rm -f tile-assembly
 
 tile-assembly: *.cpp
-	$(CC)  $^ -o tile-assembly $(CC_FLAGS)
+	$(CXX) $(LDFLAGS) $(CPPFLAGS) $(CXXFLAGS)  $^ -o tile-assembly $(LDLIBS)
 
 

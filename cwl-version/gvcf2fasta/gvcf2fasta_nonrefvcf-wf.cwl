@@ -1,13 +1,11 @@
 cwlVersion: v1.1
 class: Workflow
-label: Convert gVCF to FASTA
+label: Convert gVCF to FASTA for gVCF with NON_REF
 requirements:
   ScatterFeatureRequirement: {}
 hints:
   DockerRequirement:
     dockerPull: vcfutil
-  ResourceRequirement:
-    ramMin: 5000
 
 inputs:
   sampleid:
@@ -37,8 +35,8 @@ outputs:
     outputSource: bcftools-consensus/fa
 
 steps:
-  get_bed_varonlyvcf:
-    run: get_bed_varonlyvcf.cwl
+  fixvcf-get_bed_varonlyvcf:
+    run: fixvcf-get_bed_varonlyvcf.cwl
     in:
       sampleid: sampleid
       vcf: vcf
@@ -51,8 +49,8 @@ steps:
     scatter: haplotype
     in:
       sampleid: sampleid
-      vcf: get_bed_varonlyvcf/varonlyvcf
+      vcf: fixvcf-get_bed_varonlyvcf/varonlyvcf
       ref: ref
       haplotype: haplotypes
-      mask: get_bed_varonlyvcf/nocallbed
+      mask: fixvcf-get_bed_varonlyvcf/nocallbed
     out: [fa]

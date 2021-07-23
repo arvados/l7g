@@ -1,7 +1,7 @@
-sampleid: "HG00551.haplotypeCalls.er.raw"
+sampleid: "A-WCAP-WC000711-BL-COL-39141BL1"
 vcf:
   class: File
-  location: keep:3c41c90c022a9307ffa905426b04096b+5179901/HG00551.haplotypeCalls.er.raw.vcf.gz
+  location: keep:3eead47d28a9cfb1fb1dc4fde1d38af0+4961919/A-WCAP-WC000711-BL-COL-39141BL1_vcpa1.1.allchr_g.vcf.gz
 gqcutoff: 20
 genomebed:
   class: File

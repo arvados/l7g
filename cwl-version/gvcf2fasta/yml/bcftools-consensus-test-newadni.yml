@@ -1,0 +1,11 @@
+sampleid: "A-WCAP-WC000711-BL-COL-39141BL1"
+vcf:
+  class: File
+  location: keep:97686398b32cd680c674e0e5174078e3+6243/A-WCAP-WC000711-BL-COL-39141BL1_varonly.vcf.gz
+ref:
+  class: File
+  location: keep:ee5b90cf2d5f3573e6d455ab56e15cdf+761/hg38.fa.gz
+haplotype: 1
+mask:
+  class: File
+  location: keep:97686398b32cd680c674e0e5174078e3+6243/A-WCAP-WC000711-BL-COL-39141BL1_nocall.bed

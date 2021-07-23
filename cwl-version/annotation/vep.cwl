@@ -2,15 +2,22 @@ cwlVersion: v1.1
 class: CommandLineTool
 label: Run Variant Effect Predictor given VCF
 requirements:
+  ShellCommandRequirement: {}
   DockerRequirement:
     dockerPull: ensemblorg/ensembl-vep:release_103
+hints:
   ResourceRequirement:
-    ramMin: 8000
+    coresMin: 4
+    ramMin: 20000
     tmpdirMin: 16000
 inputs:
   vcf:
     type: File
     label: Input VCF
+    secondaryFiles: [.tbi]
+  sample:
+    type: string
+    label: Sample name
   vepcache:
     type: Directory
     label: Cache directory for Variant Effect Predictor
@@ -18,9 +25,12 @@ inputs:
     type: string
     label: Assembly version
 outputs:
-  consequence:
-    type: stdout
-    label: Consequence of the mutation
+  consequencevcf:
+    type: File
+    label: Consequence vcf
+    outputBinding:
+      glob: "*.vcf.gz"
+    secondaryFiles: [.tbi]
 baseCommand: vep
 arguments:
   - "--cache"
@@ -30,8 +40,17 @@ arguments:
   - prefix: "--input_file"
     valueFrom: $(inputs.vcf)
   - "--check_existing"
-  - prefix: "-o"
-    valueFrom: stdout
   - prefix: "--assembly"
     valueFrom: $(inputs.assembly)
-stdout: $(inputs.vcf.nameroot)_consequence.txt
+  - prefix: "--fork"
+    valueFrom: "4"
+  - "af_gnomad"
+  - prefix: "--compress_output"
+    valueFrom: "bgzip"
+  - "--vcf"
+  - prefix: "-o"
+    valueFrom: $(inputs.sample)_csq.vcf.gz
+  - shellQuote: False
+    valueFrom: "&&"
+  - "tabix"
+  - $(inputs.sample)_csq.vcf.gz

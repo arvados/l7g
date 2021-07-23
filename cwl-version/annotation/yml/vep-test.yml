@@ -1,0 +1,7 @@
+vcf:
+  class: File
+  location: keep:96ee10b81bfc7c48f2f8b4a28942bd65+53/test4.vcf
+vepcache:
+  class: Directory
+  location: keep:26921d80316e9dca971f9d0772a9bf6a+652490
+assembly: "GRCh38"

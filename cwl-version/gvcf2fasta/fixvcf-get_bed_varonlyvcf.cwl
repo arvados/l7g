@@ -5,7 +5,7 @@ hints:
   DockerRequirement:
     dockerPull: vcfutil
   ResourceRequirement:
-    ramMin: 8000
+    ramMin: 15000
 inputs:
   bashscript:
     type: File

@@ -2,26 +2,29 @@ $namespaces:
   arv: "http://arvados.org/cwl#"
 cwlVersion: v1.1
 class: CommandLineTool
+requirements:
+  NetworkAccess:
+    networkAccess: true
 hints:
   DockerRequirement:
     dockerPull: lightning
   ResourceRequirement:
     coresMin: 96
-    ramMin: 640000
+    ramMin: 670000
   arv:RuntimeConstraints:
-    keep_cache: 6500
+    keep_cache: 6200
+    outputDirType: keep_output_dir
 inputs:
   saveincomplete:
     type: string
   tagset:
     type: File
-  fastadir:
-    type: Directory
+  fastadirs:
+    type:
+      - Directory
+      - type: array
+        items: Directory
 outputs:
-  stats:
-    type: File
-    outputBinding:
-      glob: "*json"
   lib:
     type: File
     outputBinding:
@@ -29,6 +32,7 @@ outputs:
 baseCommand: [lightning, import]
 arguments:
   - "-local=true"
+  - "-loglevel=info"
   - "-skip-ooo=true"
   - "-output-tiles=true"
   - "-batches=1"
@@ -44,4 +48,4 @@ arguments:
     valueFrom: $(inputs.tagset)
   - prefix: "-o"
     valueFrom: "library.gob.gz"
-  - $(inputs.fastadir)
+  - $(inputs.fastadirs)

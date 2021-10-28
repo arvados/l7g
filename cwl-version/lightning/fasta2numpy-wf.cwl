@@ -1,50 +1,67 @@
 cwlVersion: v1.1
 class: Workflow
 requirements:
+  ScatterFeatureRequirement: {}
+  MultipleInputFeatureRequirement: {}
   StepInputExpressionRequirement: {}
 
 inputs:
   tagset:
     type: File
-  fastadir:
-    type: Directory
+  fastadirs:
+    type:
+      type: array
+      items: Directory
   refdir:
     type: Directory
-  chunks:
+  batchsize:
     type: int
 
 outputs:
-  mergedlib:
-    type: File
-  outdir:
+  libdir:
     type: Directory
+    outputSource: lightning-slice/libdir
+  npydir:
+    type: Directory
+    outputSource: lightning-slice-numpy/npydir
 
 steps:
+  batch-dirs:
+    run: batch-dirs.cwl
+    in:
+      dirs: fastadirs
+      batchsize: batchsize
+    out: [batches]
+
   lightning-import_data:
     run: lightning-import.cwl
+    scatter: fastadirs
     in:
       saveincomplete:
         valueFrom: "false"
       tagset: tagset
-      fastadir: fastadir
-    out: [stats, lib]
+      fastadirs: batch-dirs/batches
+    out: [lib]
+
   lightning-import_ref:
     run: lightning-import.cwl
     in:
       saveincomplete:
         valueFrom: "true"
       tagset: tagset
-      fastadir: refdir
-    out: [stats, lib]
-  lightning-merge:
-    run: lightning-merge.cwl
+      fastadirs: refdir
+    out: [lib]
+
+  lightning-slice:
+    run: lightning-slice.cwl
     in:
-      lib1: lightning-import_data/lib
-      lib2: lightning-import_ref/lib
-    out: [mergedlib]
-  lightning-export-numpy:
-    run: lightning-export-numpy.cwl
+      libs:
+        source: [lightning-import_data/lib, lightning-import_ref/lib]
+        linkMerge: merge_flattened
+    out: [libdir]
+
+  lightning-slice-numpy:
+    run: lightning-slice-numpy.cwl
     in:
-      lib: lightning-merge/mergedlib
-      chunks: chunks
-    out: [outdir]
+      libdir: lightning-slice/libdir
+    out: [npydir]

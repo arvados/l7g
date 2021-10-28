@@ -2,42 +2,37 @@ $namespaces:
   arv: "http://arvados.org/cwl#"
 cwlVersion: v1.1
 class: CommandLineTool
+requirements:
+  NetworkAccess:
+    networkAccess: true
 hints:
   DockerRequirement:
     dockerPull: lightning
   ResourceRequirement:
-    coresMin: 32
-    ramMin: 720000
+    coresMin: 64
+    ramMin: 660000
   arv:RuntimeConstraints:
-    keep_cache: 2000
+    keep_cache: 83000
+    outputDirType: keep_output_dir
 inputs:
-  lib:
-    type: File
-  chunks:
-    type: int
+  libdir:
+    type: Directory
 outputs:
-  outdir:
+  npydir:
     type: Directory
     outputBinding:
       glob: "."
-baseCommand: [lightning, export-numpy]
+baseCommand: [lightning, slice-numpy]
 arguments:
   - "-local=true"
-  - "-one-hot=false"
   - prefix: "-input-dir"
-    valueFrom: $(inputs.lib)
+    valueFrom: $(inputs.libdir)
   - prefix: "-output-dir"
     valueFrom: $(runtime.outdir)
-  - prefix: "-output-annotations"
-    valueFrom: "annotations.csv"
-  - prefix: "-output-onehot2tilevar"
-    valueFrom: "onehot2tilevar.csv"
-  - prefix: "-output-labels"
-    valueFrom: "labels.csv"
+  - prefix: "-threads"
+    valueFrom: "10"
   - prefix: "-expand-regions"
     valueFrom: "0"
-  - prefix: "-chunks"
-    valueFrom: $(inputs.chunks)
   - "-max-variants=-1"
   - "-min-coverage=0.000000"
   - "-max-tag=-1"

@@ -1,0 +1,14 @@
+vcf:
+  class: File
+  location: keep:0f0a172c371fddeee3c3d1a500bbcf66+4438/annotations.chr22.vcf.gz
+sample: "annotations.chr22"
+snpeffdatadir:
+  class: Directory
+  location: keep:66c966928931de252274772c76f73025+52054
+genomeversion: "GRCh38.86"
+dbsnp:
+  class: File
+  location: keep:a088b297d614e4c63cbb23f8ad404438+12313/00-All.vcf.gz_renamed.bcf
+gnomad:
+  class: File
+  location: keep:3b02d9312ad6bc1dcf526d66ce02ed59+10572/gnomad.genomes.v3.1.2.sites.chr22.bcf

@@ -1,0 +1,20 @@
+matchgenome_array: ["ACT", "ACT|ADC", ""]
+libdir_array:
+  - class: Directory
+    location: keep:0eb748be8b4ce392eb405b71199a2ef1+54032
+  - class: Directory
+    location: keep:1dbd4ab36070b4b119397c8db6d97ae9+53993
+regions_nestedarray:
+  - - class: File
+      location: keep:bc2a62baf6698c2d58e6224f851884b8+224/gencode.v37lift37.annotation.gff3.gz
+    - class: File
+      location: keep:0b74ce016766e93f7b7292fe28ea8e25+70/PMC3896259.gff3.gz
+    - null
+  - - class: File
+      location: keep:bc2a62baf6698c2d58e6224f851884b8+224/gencode.v37.annotation.gff3.gz
+    - class: File
+      location: keep:dd5ab297413d698a39541aeadfa0f26f+70/PMC3896259.gff3.gz
+    - null
+threads_array: [80, 10, 10]
+mergeoutput_array: ["true", "true", "false"]
+expandregions_array: [1000000, 1000000, 0]

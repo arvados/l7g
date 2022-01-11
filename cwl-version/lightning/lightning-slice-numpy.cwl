@@ -15,8 +15,18 @@ hints:
     keep_cache: 83000
     outputDirType: keep_output_dir
 inputs:
+  matchgenome:
+    type: string
   libdir:
     type: Directory
+  regions:
+    type: File?
+  threads:
+    type: int
+  mergeoutput:
+    type: string
+  expandregions:
+    type: int
 outputs:
   npydir:
     type: Directory
@@ -25,14 +35,24 @@ outputs:
 baseCommand: [lightning, slice-numpy]
 arguments:
   - "-local=true"
-  - prefix: "-input-dir"
+  - prefix: "-input-dir="
     valueFrom: $(inputs.libdir)
-  - prefix: "-output-dir"
+    separate: false
+  - prefix: "-output-dir="
     valueFrom: $(runtime.outdir)
-  - prefix: "-threads"
-    valueFrom: "10"
-  - prefix: "-expand-regions"
-    valueFrom: "0"
-  - "-max-variants=-1"
-  - "-min-coverage=0.000000"
-  - "-max-tag=-1"
+    separate: false
+  - prefix: "-match-genome="
+    valueFrom: $(inputs.matchgenome)
+    separate: false
+  - prefix: "-regions="
+    valueFrom: $(inputs.regions)
+    separate: false
+  - prefix: "-threads="
+    valueFrom: $(inputs.threads)
+    separate: false
+  - prefix: "-merge-output="
+    valueFrom: $(inputs.mergeoutput)
+    separate: false
+  - prefix: "-expand-regions="
+    valueFrom: $(inputs.expandregions)
+    separate: false

@@ -15,10 +15,12 @@ hints:
     keep_cache: 6200
     outputDirType: keep_output_dir
 inputs:
-  libs:
+  datalibs:
     type:
       type: array
       items: File
+  reflib:
+    type: File
 outputs:
   libdir:
     type: Directory
@@ -29,4 +31,5 @@ arguments:
   - "-local=true"
   - prefix: "-output-dir"
     valueFrom: $(runtime.outdir)
-  - $(inputs.libs)
+  - $(inputs.datalibs)
+  - $(inputs.reflib)

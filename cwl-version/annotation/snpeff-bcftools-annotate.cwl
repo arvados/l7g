@@ -14,7 +14,6 @@ inputs:
   vcf:
     type: File
     label: Input VCF
-    secondaryFiles: [.tbi]
   sample:
     type: string
     label: Sample name

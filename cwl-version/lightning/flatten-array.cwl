@@ -1,4 +1,4 @@
-cwlVersion: v1.1
+cwlVersion: v1.2
 class: ExpressionTool
 requirements:
   InlineJavascriptRequirement: {}
@@ -8,7 +8,9 @@ inputs:
       type: array
       items:
         type: array
-        items: Directory
+        items:
+          - "null"
+          - Directory
 outputs:
   flattenedarray:
     type:
@@ -19,7 +21,9 @@ expression: |
     var flattenedarray = [];
     for (var i = 0; i < inputs.nestedarray.length; i++) {
       for (var j = 0; j < inputs.nestedarray[i].length; j++) {
-        flattenedarray.push(inputs.nestedarray[i][j]);
+        if (inputs.nestedarray[i][j] != null) {
+          flattenedarray.push(inputs.nestedarray[i][j]);
+        }
       }
     }
     return {"flattenedarray": flattenedarray};

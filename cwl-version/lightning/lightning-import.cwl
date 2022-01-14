@@ -1,6 +1,6 @@
 $namespaces:
   arv: "http://arvados.org/cwl#"
-cwlVersion: v1.1
+cwlVersion: v1.2
 class: CommandLineTool
 requirements:
   NetworkAccess:

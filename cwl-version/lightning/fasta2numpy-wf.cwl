@@ -1,9 +1,9 @@
-cwlVersion: v1.1
+cwlVersion: v1.2
 class: Workflow
 requirements:
   ScatterFeatureRequirement: {}
-  StepInputExpressionRequirement: {}
   SubworkflowFeatureRequirement: {}
+  StepInputExpressionRequirement: {}
 
 inputs:
   tagset:
@@ -43,7 +43,12 @@ outputs:
     type:
       type: array
       items: Directory
-    outputSource: scatter3-lightning-slice-numpy/npydirs
+    outputSource: scatter3-lightning-slice-numpy-anno2vcf-wf/npydirs
+  vcfdirs:
+    type:
+      type: array
+      items: Directory
+    outputSource: scatter3-lightning-slice-numpy-anno2vcf-wf/vcfdirs
 
 steps:
   batch-dirs:
@@ -81,8 +86,8 @@ steps:
       reflib: lightning-import_refs/lib
     out: [libdir]
 
-  scatter3-lightning-slice-numpy:
-    run: scatter3-lightning-slice-numpy-wf.cwl
+  scatter3-lightning-slice-numpy-anno2vcf-wf:
+    run: scatter3-lightning-slice-numpy-anno2vcf-wf.cwl
     in:
       matchgenome_array: matchgenome_array
       libdir_array: lightning-slice/libdir
@@ -90,4 +95,4 @@ steps:
       threads_array: threads_array
       mergeoutput_array: mergeoutput_array
       expandregions_array: expandregions_array
-    out: [npydirs]
+    out: [npydirs, vcfdirs]

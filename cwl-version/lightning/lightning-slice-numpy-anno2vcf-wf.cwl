@@ -1,11 +1,11 @@
-cwlVersion: v1.1
+cwlVersion: v1.2
 class: Workflow
 requirements:
-  ScatterFeatureRequirement: {}
+  InlineJavascriptRequirement: {}
 
 inputs:
-  matchgenome_array:
-    type: string[]
+  matchgenome:
+    type: string
   libdir:
     type: Directory
   regions:
@@ -18,21 +18,30 @@ inputs:
     type: int
 
 outputs:
-  npydirs:
-    type:
-      type: array
-      items: Directory
+  npydir:
+    type: Directory
     outputSource: lightning-slice-numpy/npydir
+  vcfdir:
+    type: Directory?
+    outputSource: lightning-anno2vcf/vcfdir
 
 steps:
   lightning-slice-numpy:
     run: lightning-slice-numpy.cwl
-    scatter: matchgenome
     in:
-      matchgenome: matchgenome_array
+      matchgenome: matchgenome
       libdir: libdir
       regions: regions
       threads: threads
       mergeoutput: mergeoutput
       expandregions: expandregions
     out: [npydir]
+
+  lightning-anno2vcf:
+    run: lightning-anno2vcf.cwl
+    when: $(inputs.regions == null)
+    in:
+      annodir: lightning-slice-numpy/npydir
+      regions: regions
+    out: [vcfdir]
+    

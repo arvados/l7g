@@ -1,4 +1,4 @@
-cwlVersion: v1.1
+cwlVersion: v1.2
 class: Workflow
 requirements:
   ScatterFeatureRequirement: {}
@@ -25,11 +25,16 @@ outputs:
     type:
       type: array
       items: Directory
-    outputSource: flatten-array/flattenedarray
+    outputSource: flatten-array_npydirs/flattenedarray
+  vcfdirs:
+    type:
+      type: array
+      items: Directory
+    outputSource: flatten-array_vcfdirs/flattenedarray
 
 steps:
-  scatter1-lightning-slice-numpy:
-    run: scatter1-lightning-slice-numpy-wf.cwl
+  scatter1-lightning-slice-numpy-anno2vcf-wf:
+    run: scatter1-lightning-slice-numpy-anno2vcf-wf.cwl
     scatter: [regions, threads, mergeoutput, expandregions]
     scatterMethod: dotproduct
     in:
@@ -39,10 +44,16 @@ steps:
       threads: threads_array
       mergeoutput: mergeoutput_array
       expandregions: expandregions_array
-    out: [npydirs]
+    out: [npydirs, vcfdirs]
 
-  flatten-array:
+  flatten-array_npydirs:
     run: flatten-array.cwl
     in:
-      nestedarray: scatter1-lightning-slice-numpy/npydirs
+      nestedarray: scatter1-lightning-slice-numpy-anno2vcf-wf/npydirs
+    out: [flattenedarray]
+
+  flatten-array_vcfdirs:
+    run: flatten-array.cwl
+    in:
+      nestedarray: scatter1-lightning-slice-numpy-anno2vcf-wf/vcfdirs
     out: [flattenedarray]

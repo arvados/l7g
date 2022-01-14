@@ -9,27 +9,27 @@ hints:
   DockerRequirement:
     dockerPull: lightning
   ResourceRequirement:
-    coresMin: 96
-    ramMin: 660000
+    coresMin: 64
+    ramMin: 500000
   arv:RuntimeConstraints:
-    keep_cache: 6200
+    keep_cache: 83000
     outputDirType: keep_output_dir
 inputs:
-  datalibs:
-    type:
-      type: array
-      items: File
-  reflib:
-    type: File
+  annodir:
+    type: Directory
+  regions:
+    type: File?
 outputs:
-  libdir:
+  vcfdir:
     type: Directory
     outputBinding:
       glob: "."
-baseCommand: [lightning, slice]
+baseCommand: [lightning, anno2vcf]
 arguments:
   - "-local=true"
-  - prefix: "-output-dir"
+  - prefix: "-input-dir="
+    valueFrom: $(inputs.annodir)
+    separate: false
+  - prefix: "-output-dir="
     valueFrom: $(runtime.outdir)
-  - $(inputs.datalibs)
-  - $(inputs.reflib)
+    separate: false

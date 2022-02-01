@@ -1,0 +1,14 @@
+vcf:
+  class: File
+  location: keep:42c61d54769fec3e54b73901c817c16c+10426/annotations.chr19.vcf
+sample: "annotations.chr19"
+snpeffdatadir:
+  class: Directory
+  location: keep:66c966928931de252274772c76f73025+52054
+genomeversion: "GRCh38.86"
+dbsnp:
+  class: File
+  location: keep:a088b297d614e4c63cbb23f8ad404438+12313/00-All.vcf.gz_renamed.bcf
+gnomad:
+  class: File
+  location: keep:c6a8fc877e85d73ac5b165e2d7367e26+675135/gnomad.genomes.v3.1.2.sites.chr19.bcf

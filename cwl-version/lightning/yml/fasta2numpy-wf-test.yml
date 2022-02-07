@@ -1,0 +1,20 @@
+tagset:
+  class: File
+  location: keep:c37923fd267415556962d5c535e9b075+110/tagset.fa.gz
+refdir:
+  class: Directory
+  location: keep:ee5b90cf2d5f3573e6d455ab56e15cdf+761
+batchsize: 3
+fastadirs:
+  - class: Directory
+    location: keep:2xpu4-4zz18-6lg2a1uoanyiyzv
+  - class: Directory
+    location: keep:2xpu4-4zz18-bwlg17dkckptebn
+  - class: Directory
+    location: keep:2xpu4-4zz18-31tn6gfh4rn6rqb
+  - class: Directory
+    location: keep:2xpu4-4zz18-i4gi8cidwnaemt3
+  - class: Directory
+    location: keep:2xpu4-4zz18-1vwxurck9m902n0
+  - class: Directory
+    location: keep:2xpu4-4zz18-yge3zutgmgecgtl

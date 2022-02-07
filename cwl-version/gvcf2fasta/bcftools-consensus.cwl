@@ -37,8 +37,8 @@ arguments:
     valueFrom: $(inputs.ref)
   - prefix: "--haplotype"
     valueFrom: $(inputs.haplotype)
-  - prefix: "--mask"
-    valueFrom: $(inputs.mask)
+#  - prefix: "--mask"
+#    valueFrom: $(inputs.mask)
   - $(inputs.vcf)
   - shellQuote: False
     valueFrom: "|"

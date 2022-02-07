@@ -1,0 +1,11 @@
+gqcutoff: 20
+genomebed:
+  class: File
+  location: keep:67b4d7e55e61cef7343f3928af97e197+54/hg38.bed
+ref:
+  class: File
+  location: keep:ee5b90cf2d5f3573e6d455ab56e15cdf+761/hg38.fa.gz
+sampleid: A-PRHS-PR000971-BL-COL-47620BL1
+vcf:
+  class: File
+  location: keep:4cba97691d17f8542116c74ca6c1d89d+2045/A-PRHS-PR000971-BL-COL-47620BL1_vcpa1.1.allchr_g.vcf.gz

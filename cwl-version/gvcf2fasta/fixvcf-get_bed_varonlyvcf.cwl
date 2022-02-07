@@ -12,7 +12,7 @@ inputs:
     label: Bash script
     default:
       class: File
-      location: src/fixvcf-get_bed_varsonlyvcf.sh
+      location: src/fixvcf-get_bed_varonlyvcf.sh
   sampleid:
     type: string
     label: Sample ID

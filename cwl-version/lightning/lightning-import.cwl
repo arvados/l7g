@@ -1,6 +1,6 @@
 $namespaces:
   arv: "http://arvados.org/cwl#"
-cwlVersion: v1.1
+cwlVersion: v1.2
 class: CommandLineTool
 requirements:
   NetworkAccess:
@@ -41,7 +41,7 @@ arguments:
     valueFrom: $(inputs.saveincomplete)
     separate: false
   - prefix: "-match-chromosome"
-    valueFrom: "^(chr)?([0-9]+|X|Y|MT?)$"
+    valueFrom: "^(chr)?([0-9]+|X|Y|M)$"
   - prefix: "-output-stats"
     valueFrom: "stats.json"
   - prefix: "-tag-library"

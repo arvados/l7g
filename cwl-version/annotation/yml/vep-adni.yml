@@ -1,9 +1,0 @@
-vcf:
-  class: File
-  location: keep:6d3e693e904fb4c1efeb6a0f7f70ce4b+307/ADNI_003_S_1057_varonly.vcf.gz
-sample: "ADNI_003_S_1057"
-vepcache:
-  class: Directory
-  location: keep:eb789d66a315dd2a2c7d395cb7faf470+542233
-assembly: "GRCh38"
-

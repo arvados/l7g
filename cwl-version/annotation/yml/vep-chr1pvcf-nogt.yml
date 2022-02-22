@@ -1,9 +1,0 @@
-vcf:
-  class: File
-  location: keep:9496265df180009e6c852beccf479416+139/chr1.vcf.gz
-sample: "chr1"
-vepcache:
-  class: Directory
-  location: keep:eb789d66a315dd2a2c7d395cb7faf470+542233
-assembly: "GRCh38"
-

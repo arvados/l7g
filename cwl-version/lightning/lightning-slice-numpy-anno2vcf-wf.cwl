@@ -44,4 +44,3 @@ steps:
       annodir: lightning-slice-numpy/npydir
       regions: regions
     out: [vcfdir]
-    

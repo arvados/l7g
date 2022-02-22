@@ -5,14 +5,14 @@ hints:
   DockerRequirement:
     dockerPull: vcfutil
   ResourceRequirement:
-    ramMin: 8000
+    ramMin: 15000
 inputs:
   bashscript:
     type: File
     label: Bash script
     default:
       class: File
-      location: src/fixvcf-get_bed_varsonlyvcf.sh
+      location: src/fixvcf-get_bed_varonlyvcf.sh
   sampleid:
     type: string
     label: Sample ID

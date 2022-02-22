@@ -1,0 +1,6 @@
+lib1:
+  class: File
+  location: keep:9ecc22a5a7820128bb1fbf1b457848a9+1525/library.gob.gz
+lib2:
+  class: File
+  location: keep:2a134f80896100f67fbb0a1d9dfb3ee8+1107/library.gob.gz

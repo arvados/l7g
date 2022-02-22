@@ -1,0 +1,37 @@
+tagset:
+  class: File
+  location: keep:c37923fd267415556962d5c535e9b075+110/tagset.fa.gz
+refdirs:
+  - class: Directory
+    location: keep:3cf4b6ed2bf8cd3abc27cb5a79641a86+755
+  - class: Directory
+    location: keep:ee5b90cf2d5f3573e6d455ab56e15cdf+761
+batchsize: 3
+fastadirs:
+  - class: Directory
+    location: keep:2xpu4-4zz18-6lg2a1uoanyiyzv
+  - class: Directory
+    location: keep:2xpu4-4zz18-bwlg17dkckptebn
+  - class: Directory
+    location: keep:2xpu4-4zz18-31tn6gfh4rn6rqb
+  - class: Directory
+    location: keep:2xpu4-4zz18-i4gi8cidwnaemt3
+  - class: Directory
+    location: keep:2xpu4-4zz18-1vwxurck9m902n0
+  - class: Directory
+    location: keep:2xpu4-4zz18-yge3zutgmgecgtl
+matchgenome_array: ["ACT", "ACT|ADC", ""]
+regions_nestedarray:
+  - - class: File
+      location: keep:bc2a62baf6698c2d58e6224f851884b8+224/gencode.v37lift37.annotation.gff3.gz
+    - class: File
+      location: keep:0b74ce016766e93f7b7292fe28ea8e25+70/PMC3896259.gff3.gz
+    - null
+  - - class: File
+      location: keep:bc2a62baf6698c2d58e6224f851884b8+224/gencode.v37.annotation.gff3.gz
+    - class: File
+      location: keep:dd5ab297413d698a39541aeadfa0f26f+70/PMC3896259.gff3.gz
+    - null
+threads_array: [80, 10, 10]
+mergeoutput_array: ["true", "true", "false"]
+expandregions_array: [1000000, 1000000, 0]

@@ -1,0 +1,8 @@
+matchgenome: ""
+libdir:
+  class: Directory
+  location: keep:37bfc41e8ce21b8c1719cf4790f454c6+656483
+regions: null
+threads: 10
+mergeoutput: "false"
+expandregions: 0

@@ -1,37 +1,55 @@
 cwlVersion: v1.1
 class: ExpressionTool
-label: Create list of VCFs and sample names
+requirements:
+  InlineJavascriptRequirement: {}
 hints:
   LoadListingRequirement:
     loadListing: shallow_listing
 inputs:
-  vcfsdir: Directory
+  sample: string
+  chrs: string[]
+  vcfdir: Directory
+  gnomaddir: Directory
 outputs:
-  vcfs:
-    type: File[]
-    secondaryFiles: [.tbi]
   samples: string[]
-requirements:
-  InlineJavascriptRequirement: {}
+  vcfs: File[]
+  gnomads:
+    type: File[]
+    secondaryFiles: [.csi]
 expression: |
   ${
-    var vcfs = [];
     var samples = [];
+    var vcfs = [];
+    var gnomads = [];
 
-    for (var i = 0; i < inputs.vcfsdir.listing.length; i++) {
-      var file = inputs.vcfsdir.listing[i];
-      if (file.nameext == '.gz') {
-        var sample = file.nameroot.split('.').slice(0,-1).join('.');
-        var main = file;
-        for (var j = 0; j < inputs.vcfsdir.listing.length; j++) {
-          var file = inputs.vcfsdir.listing[j];
-          if (file.basename == main.basename+".tbi") {
-            main.secondaryFiles = [file];
-          }
+    for (var i = 0; i < inputs.chrs.length; i++) {
+      var chr = inputs.chrs[i];
+      var sample = inputs.sample+"."+chr;
+      for (var j = 0; j < inputs.vcfdir.listing.length; j++) {
+        var file = inputs.vcfdir.listing[j];
+        if (file.basename.includes("."+chr+".")) {
+          var vcf = file;
+          break;
         }
-        vcfs.push(main);
-        samples.push(sample);
       }
+      for (var j = 0; j < inputs.gnomaddir.listing.length; j++) {
+        var file = inputs.gnomaddir.listing[j];
+        if (file.basename.includes("."+chr+".")) {
+          var gnomad = file;
+          break;
+        }
+      }
+      for (var j = 0; j < inputs.gnomaddir.listing.length; j++) {
+        var file = inputs.gnomaddir.listing[j];
+        if (file.basename == gnomad.basename+".csi") {
+          gnomad.secondaryFiles = [file];
+          break;
+        }
+      }
+      samples.push(sample);
+      vcfs.push(vcf);
+      gnomads.push(gnomad);
     }
-    return {"vcfs": vcfs, "samples": samples};
+
+    return {"samples": samples, "vcfs": vcfs, "gnomads": gnomads};
   }

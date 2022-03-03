@@ -1,9 +1,0 @@
-assembly:
-  class: File
-  location: keep:7deca98a5827e1991bf49a96a0087318+233/assembly.00.hg38.fw.gz
-annotationlib:
-  class: Directory
-  location: keep:d35c5d0f173cafbfb663e3590c649e42+424686
-cgf:
-  class: File
-  location: keep:57dfac953263b30da16c30a134bb9c30+279641/cgf/HG00551.haplotypeCalls.er.raw.cgf

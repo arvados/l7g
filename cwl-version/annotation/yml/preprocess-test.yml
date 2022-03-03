@@ -1,0 +1,4 @@
+sample: "annotations"
+vcf:
+  class: File
+  location: keep:3ba1b5c2ae01113baba4f9e69cd4b1bb+1566/annotations.chr1.vcf

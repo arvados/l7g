@@ -1,38 +1,71 @@
 cwlVersion: v1.1
 class: Workflow
-label: Scatter paths to annotate tile library
 requirements:
   ScatterFeatureRequirement: {}
+
 inputs:
-  ref:
+  sample: string
+  chrs: string[]
+  vcfdir: Directory
+  snpeffdatadir: Directory
+  genomeversion: string
+  dbsnp:
     type: File
-    label: Reference genome FASTA
-  tilelib:
-    type: Directory
-    label: Input tile library
-  assembly:
-    type: File
-    label: Compressed assembly fixed width file
-    secondaryFiles: [^.fwi, .gzi]
+    secondaryFiles: [.csi]
+  gnomaddir: Directory
 
 outputs:
-  annotations:
+  annotatedvcfs:
     type: File[]
-    label: HGVS annotations in csv format
-    outputSource: annotate/annotation
+    secondaryFiles: [.tbi]
+    outputSource: snpeff-bcftools-annotate/annotatedvcf
+  summary:
+    type: File
+    outputSource: totalcounts/summary
 
 steps:
-  getpaths:
-    run: getpaths.cwl
+  getfiles:
+    run: getfiles.cwl
     in:
-      tilelib: tilelib
-    out: [pathstrs]
-  annotate:
-    run: annotate.cwl
-    scatter: pathstr
+      sample: sample
+      chrs: chrs
+      vcfdir: vcfdir
+      gnomaddir: gnomaddir
+    out: [samples, vcfs, gnomads]
+
+  preprocess:
+    run: preprocess.cwl
+    scatter: [sample, vcf]
+    scatterMethod: dotproduct
     in:
-      pathstr: getpaths/pathstrs
-      ref: ref
-      tilelib: tilelib
-      assembly: assembly
-    out: [annotation]
+      sample: getfiles/samples
+      vcf: getfiles/vcfs
+    out: [trimmedvcf]
+
+  snpeff-bcftools-annotate:
+    run: snpeff-bcftools-annotate.cwl
+    scatter: [sample, vcf, gnomad]
+    scatterMethod: dotproduct
+    in:
+      vcf: preprocess/trimmedvcf
+      sample: getfiles/samples
+      snpeffdatadir: snpeffdatadir
+      genomeversion: genomeversion
+      dbsnp: dbsnp
+      gnomad: getfiles/gnomads
+    out: [annotatedvcf]
+
+  getcount:
+    run: getcount.cwl
+    scatter: [sample, vcf]
+    scatterMethod: dotproduct
+    in:
+      sample: getfiles/samples
+      vcf: snpeff-bcftools-annotate/annotatedvcf
+    out: [count]
+
+  totalcounts:
+    run: totalcounts.cwl
+    in:
+      counts: getcount/count
+    out: [summary]

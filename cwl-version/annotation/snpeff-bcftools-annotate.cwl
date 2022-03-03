@@ -8,7 +8,7 @@ requirements:
 hints:
   ResourceRequirement:
     coresMin: 2
-    ramMin: 10000
+    ramMin: 20000
     tmpdirMin: 16000
 inputs:
   vcf:

@@ -11,7 +11,7 @@ vcf:
   location: keep:4cba97691d17f8542116c74ca6c1d89d+2045/A-PRHS-PR000971-BL-COL-47620BL1_vcpa1.1.allchr_g.vcf.gz
 lightningvcfdir:
   class: Directory
-  location: keep:3ba1b5c2ae01113baba4f9e69cd4b1bb+1566
+  location: keep:72c196515d6c449abc1fdbf1ead2a33e+1779
 header:
   class: File
   location: keep:df9c4a9649ca262acc2403f749a7e107+54/header

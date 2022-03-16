@@ -15,10 +15,10 @@ inputs:
   gnomaddir: Directory
 
 outputs:
-  annotatedvcfs:
-    type: File[]
+  annotatedvcf:
+    type: File
     secondaryFiles: [.tbi]
-    outputSource: snpeff-bcftools-annotate/annotatedvcf
+    outputSource: bcftools-concat/vcf
   summary:
     type: File
     outputSource: totalcounts/summary
@@ -55,6 +55,13 @@ steps:
       gnomad: getfiles/gnomads
     out: [annotatedvcf]
 
+  bcftools-concat:
+    run: bcftools-concat.cwl
+    in:
+      sample: sample
+      vcfs: snpeff-bcftools-annotate/annotatedvcf
+    out: [vcf]
+
   getcount:
     run: getcount.cwl
     scatter: [sample, vcf]
@@ -67,5 +74,6 @@ steps:
   totalcounts:
     run: totalcounts.cwl
     in:
+      sample: sample
       counts: getcount/count
     out: [summary]

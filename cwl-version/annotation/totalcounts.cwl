@@ -6,6 +6,7 @@ hints:
   ResourceRequirement:
     ramMin: 5000
 inputs:
+  sample: string
   counts: File[]
   bashscript:
     type: File
@@ -18,4 +19,4 @@ outputs:
 arguments:
   - $(inputs.bashscript)
   - $(inputs.counts)
-stdout: summary.txt
+stdout: $(inputs.sample)_summary.txt

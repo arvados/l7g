@@ -27,15 +27,21 @@ inputs:
     type: string
   expandregions:
     type: int
+  phenotypesdir:
+    type: Directory
 outputs:
   outdir:
     type: Directory
     outputBinding:
       glob: "."
-  npys:
-    type: File[]
+  onehotcolumnsnpy:
+    type: File
     outputBinding:
-      glob: "matrix.*.npy"
+      glob: "onehot-columns.npy"
+  onehotnpy:
+    type: File
+    outputBinding:
+      glob: "onehot.npy"
   csv:
     type: File
     outputBinding:
@@ -64,3 +70,11 @@ arguments:
   - prefix: "-expand-regions="
     valueFrom: $(inputs.expandregions)
     separate: false
+  - "-chunked-onehot=true"
+  - "-single-onehot=true"
+  - prefix: "-chi2-case-control-file="
+    valueFrom: $(inputs.phenotypesdir)
+    separate: false
+  - "-chi2-case-control-column=AD"
+  - "-chi2-p-value=0.01"
+  - "-min-coverage=0.9"

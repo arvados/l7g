@@ -1,3 +1,5 @@
+$namespaces:
+  arv: "http://arvados.org/cwl#"
 cwlVersion: v1.1
 class: CommandLineTool
 requirements:
@@ -8,6 +10,9 @@ hints:
   ResourceRequirement:
     coresMin: 2
     ramMin: 10000
+  arv:RuntimeConstraints:
+    keep_cache: 20000
+    outputDirType: keep_output_dir
 inputs:
   sample: string
   vcfs:

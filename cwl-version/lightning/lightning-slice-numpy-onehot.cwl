@@ -15,34 +15,23 @@ hints:
     keep_cache: 83000
     outputDirType: keep_output_dir
 inputs:
-  matchgenome:
-    type: string
-  libdir:
-    type: Directory
-  regions:
-    type: File?
-  threads:
-    type: int
-  mergeoutput:
-    type: string
-  expandregions:
-    type: int
-  phenotypesdir:
-    type: Directory
+  matchgenome: string
+  libdir: Directory
+  regions: File?
+  threads: int
+  mergeoutput: string
+  expandregions: int
+  phenotypesdir: Directory
 outputs:
   outdir:
     type: Directory
     outputBinding:
       glob: "."
-  onehotcolumnsnpy:
-    type: File
+  npys:
+    type: File[]
     outputBinding:
-      glob: "onehot-columns.npy"
-  onehotnpy:
-    type: File
-    outputBinding:
-      glob: "onehot.npy"
-  csv:
+      glob: "*npy"
+  samplescsv:
     type: File
     outputBinding:
       glob: "samples.csv"
@@ -70,7 +59,6 @@ arguments:
   - prefix: "-expand-regions="
     valueFrom: $(inputs.expandregions)
     separate: false
-  - "-chunked-onehot=true"
   - "-single-onehot=true"
   - prefix: "-chi2-case-control-file="
     valueFrom: $(inputs.phenotypesdir)

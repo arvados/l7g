@@ -9,6 +9,7 @@ inputs:
   libname: string
   npyfiles: File[]
   onehotnpyfiles: File[]
+  bed: File?
   annotatedvcf: File?
   summary: File?
 outputs:
@@ -18,21 +19,25 @@ outputs:
 expression: |
   ${
     var stagednpydir = {"class": "Directory",
-                        "basename": inputs.libname+"_npy",
+                        "basename": "library_full",
                         "listing": inputs.npyfiles};
     var stagedonehotnpydir = {"class": "Directory",
-                              "basename": inputs.libname+"_onehotnpy",
+                              "basename": "library_filtered",
                               "listing": inputs.onehotnpyfiles};
+    var annotationlist = [];
+    if (inputs.bed != "null") {
+      annotationlist.push(inputs.bed);
+    }
     if (inputs.annotatedvcf != "null") {
-      var annotationlist = [inputs.annotatedvcf];
-      if (inputs.summary != "null") {
-        annotationlist.push(inputs.summary);
-      }
+      annotationlist.push(inputs.annotatedvcf);
+    }
+    if (inputs.summary != "null") {
+      annotationlist.push(inputs.summary);
+    }
+    if (annotationlist != []) {
       var stagedannotationdir = {"class": "Directory",
                                  "basename": inputs.libname+"_annotation",
                                  "listing": annotationlist};
-    } else {
-      var stagedannotationdir = "null";
     }
     return {"stagednpydir": stagednpydir, "stagedonehotnpydir": stagedonehotnpydir, "stagedannotationdir": stagedannotationdir};
   }

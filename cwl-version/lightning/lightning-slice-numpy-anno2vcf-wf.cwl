@@ -6,20 +6,13 @@ requirements:
   MultipleInputFeatureRequirement: {}
 
 inputs:
-  matchgenome:
-    type: string
-  libdir:
-    type: Directory
-  regions:
-    type: File?
-  threads:
-    type: int
-  mergeoutput:
-    type: string
-  expandregions:
-    type: int
-  phenotypesdir:
-    type: Directory
+  matchgenome: string
+  libdir: Directory
+  regions: File?
+  threads: int
+  mergeoutput: string
+  expandregions: int
+  phenotypesdir: Directory
   libname: string
   chrs: string[]
   snpeffdatadir: Directory
@@ -41,6 +34,13 @@ outputs:
     outputSource: stage-output/stagedannotationdir
 
 steps:
+  lightning-tiling-stats:
+    run: lightning-tiling-stats.cwl
+    when: $(inputs.regions == null)
+    in:
+      libdir: libdir
+    out: [bed]
+
   lightning-slice-numpy:
     run: lightning-slice-numpy.cwl
     in:
@@ -50,7 +50,7 @@ steps:
       threads: threads
       mergeoutput: mergeoutput
       expandregions: expandregions
-    out: [outdir, npys, csv]
+    out: [outdir, npys, samplescsv, chunktagoffsetcsv]
 
   lightning-slice-numpy-onehot:
     run: lightning-slice-numpy-onehot.cwl
@@ -62,7 +62,7 @@ steps:
       mergeoutput: mergeoutput
       expandregions: expandregions
       phenotypesdir: phenotypesdir
-    out: [outdir, onehotcolumnsnpy, onehotnpy, csv]
+    out: [outdir, npys, samplescsv]
 
   lightning-anno2vcf-onehot:
     run: lightning-anno2vcf.cwl
@@ -90,11 +90,12 @@ steps:
     in:
       libname: libname
       npyfiles:
-        source: [lightning-slice-numpy/npys, lightning-slice-numpy/csv]
+        source: [lightning-slice-numpy/npys, lightning-slice-numpy/samplescsv, lightning-slice-numpy/chunktagoffsetcsv]
         linkMerge: merge_flattened
       onehotnpyfiles:
-        source: [lightning-slice-numpy-onehot/onehotcolumnsnpy, lightning-slice-numpy-onehot/onehotnpy, lightning-slice-numpy-onehot/csv]
+        source: [lightning-slice-numpy-onehot/npys, lightning-slice-numpy-onehot/samplescsv]
         linkMerge: merge_flattened
+      bed: lightning-tiling-stats/bed
       annotatedvcf: annotate-wf/annotatedvcf
       summary: annotate-wf/summary
     out: [stagednpydir, stagedonehotnpydir, stagedannotationdir]

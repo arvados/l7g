@@ -3,43 +3,30 @@ class: ExpressionTool
 requirements:
   InlineJavascriptRequirement: {}
 inputs:
-  matchgenome_array:
-    type: string[]
-  libdir_array:
-    type: Directory[]
-  genomeversion_array:
-    type: string[]
+  matchgenome_array: string[]
+  libdir_array: Directory[]
+  genomeversion_array: string[]
   regions_nestedarray:
     type:
       type: array
       items:
         type: array
         items: [File, "null"]
-  threads_array:
-    type: int[]
-  mergeoutput_array:
-    type: string[]
-  expandregions_array:
-    type: int[]
+  threads_array: int[]
+  mergeoutput_array: string[]
+  expandregions_array: int[]
 outputs:
-  full_matchgenome_array:
-    type: string[]
-  full_libdir_array:
-    type: Directory[]
-  full_genomeversion_array:
-    type: string[]
+  full_matchgenome_array: string[]
+  full_libdir_array: Directory[]
+  full_genomeversion_array: string[]
   full_regions_array:
     type:
       type: array
       items: [File, "null"]
-  full_threads_array:
-    type: int[]
-  full_mergeoutput_array:
-    type: string[]
-  full_expandregions_array:
-    type: int[]
-  full_libname_array:
-    type: string[]
+  full_threads_array: int[]
+  full_mergeoutput_array: string[]
+  full_expandregions_array: int[]
+  full_libname_array: string[]
 expression: |
   ${
     var full_matchgenome_array = [];

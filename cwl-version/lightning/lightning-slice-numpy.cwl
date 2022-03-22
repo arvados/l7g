@@ -15,18 +15,12 @@ hints:
     keep_cache: 83000
     outputDirType: keep_output_dir
 inputs:
-  matchgenome:
-    type: string
-  libdir:
-    type: Directory
-  regions:
-    type: File?
-  threads:
-    type: int
-  mergeoutput:
-    type: string
-  expandregions:
-    type: int
+  matchgenome: string
+  libdir: Directory
+  regions: File?
+  threads: int
+  mergeoutput: string
+  expandregions: int
 outputs:
   outdir:
     type: Directory
@@ -36,10 +30,14 @@ outputs:
     type: File[]
     outputBinding:
       glob: "matrix.*.npy"
-  csv:
+  samplescsv:
     type: File
     outputBinding:
       glob: "samples.csv"
+  chunktagoffsetcsv:
+    type: File
+    outputBinding:
+      glob: "chunk-tag-offset.csv"
 baseCommand: [lightning, slice-numpy]
 arguments:
   - "-local=true"

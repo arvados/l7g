@@ -1,9 +1,14 @@
+$namespaces:
+  arv: "http://arvados.org/cwl#"
 cwlVersion: v1.2
 class: Workflow
 requirements:
   ScatterFeatureRequirement: {}
   SubworkflowFeatureRequirement: {}
   StepInputExpressionRequirement: {}
+hints:
+  arv:IntermediateOutput:
+    outputTTL: 604800
 
 inputs:
   tagset:
@@ -41,6 +46,7 @@ inputs:
     type: File
     secondaryFiles: [.csi]
   gnomaddir: Directory
+  readmeinfo: string[]
 
 outputs:
   stagednpydir:
@@ -54,6 +60,9 @@ outputs:
       type: array
       items: [Directory, "null"]
     outputSource: lightning-slice-numpy-anno2vcf-wf/stagedannotationdir
+  readme:
+    type: File[]
+    outputSource: lightning-slice-numpy-anno2vcf-wf/readme
 
 steps:
   batch-dirs:
@@ -121,4 +130,5 @@ steps:
       genomeversion: make-arrays/full_genomeversion_array
       dbsnp: dbsnp
       gnomaddir: gnomaddir
-    out: [stagednpydir, stagedonehotnpydir, stagedannotationdir]
+      readmeinfo: readmeinfo
+    out: [stagednpydir, stagedonehotnpydir, stagedannotationdir, readme]

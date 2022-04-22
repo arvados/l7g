@@ -5,7 +5,7 @@ refdirs:
   - class: Directory
     location: keep:ee5b90cf2d5f3573e6d455ab56e15cdf+761
 batchsize: 12
-matchgenome_array: [""]
+matchgenome_array: ["ADNI"]
 regions_nestedarray:
   - - null
 threads_array: [10]
@@ -14,7 +14,7 @@ expandregions_array: [0]
 phenotypesdir:
   class: Directory
   location: keep:2xpu4-4zz18-yq0njnojx7kaj34
-readmeinfo: ["2022-03-22", "called using VCPA1.1 pipeline", "https://workbench.2xpu4.arvadosapi.com/projects/2xpu4-j7d0g-50i3pwf3a16ubbf"]
+readmeinfo: ["2022-03-22", "called using VCPA1.1 pipeline, ADNI only", "https://workbench.2xpu4.arvadosapi.com/projects/2xpu4-j7d0g-50i3pwf3a16ubbf"]
 chrs:
   - "chr1"
   - "chr2"

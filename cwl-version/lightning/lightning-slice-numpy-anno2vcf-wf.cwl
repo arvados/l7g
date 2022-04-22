@@ -21,6 +21,7 @@ inputs:
     type: File
     secondaryFiles: [.csi]
   gnomaddir: Directory
+  readmeinfo: string[]
 
 outputs:
   stagednpydir:
@@ -32,6 +33,9 @@ outputs:
   stagedannotationdir:
     type: Directory?
     outputSource: stage-output/stagedannotationdir
+  readme:
+    type: File
+    outputSource: genreadme/readme
 
 steps:
   lightning-tiling-stats:
@@ -99,3 +103,10 @@ steps:
       annotatedvcf: annotate-wf/annotatedvcf
       summary: annotate-wf/summary
     out: [stagednpydir, stagedonehotnpydir, stagedannotationdir]
+
+  genreadme:
+    run: genreadme.cwl
+    in:
+      samplescsv: lightning-slice-numpy/samplescsv
+      readmeinfo: readmeinfo
+    out: [readme]

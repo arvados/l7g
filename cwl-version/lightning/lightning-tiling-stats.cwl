@@ -9,25 +9,23 @@ hints:
   DockerRequirement:
     dockerPull: lightning
   ResourceRequirement:
-    coresMin: 64
-    ramMin: 500000
+    coresMin: 2
+    ramMin: 8000
   arv:RuntimeConstraints:
-    keep_cache: 83000
+    keep_cache: 10000
     outputDirType: keep_output_dir
 inputs:
-  annodir: Directory
+  libdir: Directory
   regions: File?
 outputs:
-  vcfdir:
-    type: Directory
+  bed:
+    type: File
     outputBinding:
-      glob: "."
-baseCommand: [lightning, anno2vcf]
+      glob: "*bed"
+baseCommand: [lightning, tiling-stats]
 arguments:
   - "-local=true"
-  - prefix: "-input-dir="
-    valueFrom: $(inputs.annodir)
-    separate: false
-  - prefix: "-output-dir="
+  - prefix: "-input-dir"
+    valueFrom: $(inputs.libdir)
+  - prefix: "-output-dir"
     valueFrom: $(runtime.outdir)
-    separate: false

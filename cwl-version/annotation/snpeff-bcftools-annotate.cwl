@@ -3,9 +3,9 @@ class: CommandLineTool
 label: Run SnpEff on given VCF and use bcftools to annotate with dbSNP and gnomAD
 requirements:
   ShellCommandRequirement: {}
+hints:
   DockerRequirement:
     dockerPull: snpeff4.3t
-hints:
   ResourceRequirement:
     coresMin: 2
     ramMin: 20000

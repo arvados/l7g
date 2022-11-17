@@ -1,0 +1,11 @@
+sampleid: "A-WCAP-WC001544-BL-COL-49161BL1"
+splitvcfdir:
+  class: Directory
+  location: keep:7ad01e84179c627d92b067ebe0c1e7bb+5893
+gqcutoff: 20
+genomebed:
+  class: File
+  location: keep:67b4d7e55e61cef7343f3928af97e197+54/hg38.bed
+ref:
+  class: File
+  location: keep:ee5b90cf2d5f3573e6d455ab56e15cdf+761/hg38.fa.gz

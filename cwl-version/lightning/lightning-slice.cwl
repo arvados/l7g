@@ -8,6 +8,7 @@ requirements:
 hints:
   DockerRequirement:
     dockerPull: lightning
+    arv:dockerCollectionPDH: 1f430e6dd9b6be0ae78d4cffde9b1fef+892
   ResourceRequirement:
     coresMin: 96
     ramMin: 660000

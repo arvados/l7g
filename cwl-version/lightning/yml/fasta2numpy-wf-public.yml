@@ -1,0 +1,323 @@
+tagset:
+  class: File
+  location: keep:c37923fd267415556962d5c535e9b075+110/tagset.fa.gz
+refdirs:
+  - class: Directory
+    location: keep:ee5b90cf2d5f3573e6d455ab56e15cdf+761
+batchsize: 12
+matchgenome_array: [""]
+regions_nestedarray:
+  - - null
+threads_array: [10]
+mergeoutput_array: ["false"]
+expandregions_array: [0]
+phenotypesdir:
+  class: Directory
+  location: keep:2xpu4-4zz18-yq0njnojx7kaj34
+readmeinfo: ["2022-08-27", "public data", "https://workbench.2xpu4.arvadosapi.com/projects/2xpu4-j7d0g-50i3pwf3a16ubbf"]
+chrs:
+  - "chr1"
+  - "chr2"
+  - "chr3"
+  - "chr4"
+  - "chr5"
+  - "chr6"
+  - "chr7"
+  - "chr8"
+  - "chr9"
+  - "chr10"
+  - "chr11"
+  - "chr12"
+  - "chr13"
+  - "chr14"
+  - "chr15"
+  - "chr16"
+  - "chr17"
+  - "chr18"
+  - "chr19"
+  - "chr20"
+  - "chr21"
+  - "chr22"
+  - "chrX"
+  - "chrY"
+snpeffdatadir:
+  class: Directory
+  location: keep:66c966928931de252274772c76f73025+52054
+genomeversion_array: ["GRCh38.86"]
+dbsnp:
+  class: File
+  location: keep:a088b297d614e4c63cbb23f8ad404438+12313/00-All.vcf.gz_renamed.bcf
+gnomaddir:
+  class: Directory
+  location: keep:c6a8fc877e85d73ac5b165e2d7367e26+675135
+fastadirs:
+  - class: Directory
+    location: keep:f70e65326f36502319b520e0abe532a4+86845
+  - class: Directory
+    location: keep:2ae6287169aab85ce3d4b62565aef7b7+86852
+  - class: Directory
+    location: keep:5ba1f0e9a8b99768414d50020ce171d1+86860
+  - class: Directory
+    location: keep:ec4b7b56b8f40bcdd106e0a9b343eb0b+86858
+  - class: Directory
+    location: keep:354e180b1dcca07e1afc798ac6e46170+86854
+  - class: Directory
+    location: keep:da769c6fd883225ed10320e8d0a8891c+20975
+  - class: Directory
+    location: keep:6993bbbb53913aab66a11c004fad3817+21088
+  - class: Directory
+    location: keep:c586e7a0b300ab3c59ec622b6b4eb43d+21087
+  - class: Directory
+    location: keep:6f9199c7e66c0aa72b570855500ba8bd+20984
+  - class: Directory
+    location: keep:bb22967697aac47adc7b4139bcc90311+20970
+  - class: Directory
+    location: keep:d8b9d7a259e6674c9dcb3c410b8aba93+86847
+  - class: Directory
+    location: keep:c0c62e1429a60268728fe980b06d1cd4+78425
+  - class: Directory
+    location: keep:392860853b0525b9af785ade7553ec1a+86859
+  - class: Directory
+    location: keep:348d9ad2b199ac1969776bc824bd5678+86850
+  - class: Directory
+    location: keep:8524d2e65adaf66619385f4ce5b7d12c+86856
+  - class: Directory
+    location: keep:fed854d8ad8d272d80f0f1727526c0b0+86850
+  - class: Directory
+    location: keep:fd9672a8eed704079acb034aa3a9ff39+86851
+  - class: Directory
+    location: keep:12976e792efa5b41bae0d1747dcfae9f+86838
+  - class: Directory
+    location: keep:d479e7f2068dfb99bc77a5fb89974aa6+86843
+  - class: Directory
+    location: keep:c6df9ee5438b0c0375dcc36596a55a08+21037
+  - class: Directory
+    location: keep:a8ef8420e1349d35bd8c561897c69d07+21037
+  - class: Directory
+    location: keep:ae21ed97df861b3b6d7ab06fdb791853+21037
+  - class: Directory
+    location: keep:3e7237716e8b2abbb3201d58127d7fad+21037
+  - class: Directory
+    location: keep:804223776db91718ef3950f035748aab+20923
+  - class: Directory
+    location: keep:b692a2d5743866421fef3b59b5459ae7+21037
+  - class: Directory
+    location: keep:b849f97ef209feacae0a9e2b01f76256+21037
+  - class: Directory
+    location: keep:8a0d511e5386be90200c7f1a41494c6b+21511
+  - class: Directory
+    location: keep:47a99ccd72dfcee0d71686605b0aa30d+21037
+  - class: Directory
+    location: keep:b91d899117aedad5e83723046bcb85cd+21037
+  - class: Directory
+    location: keep:56c00d8b4eba69b6232135fa35362e95+21037
+  - class: Directory
+    location: keep:b1fa3eb3e3ea592172cf2dd0400713ec+21037
+  - class: Directory
+    location: keep:9d26ff7a6725f4295ed2b8e54dfc0a9e+21037
+  - class: Directory
+    location: keep:9a64e0e79c49d8d564d5268c830ac7a4+86837
+  - class: Directory
+    location: keep:388c45e48909fac3e3341d421497c882+20872
+  - class: Directory
+    location: keep:c33f40e0fff14cebfdacfecb932a2d16+21037
+  - class: Directory
+    location: keep:d280663b4ffcf7fc9cddcbd3ebbc0ecc+21037
+  - class: Directory
+    location: keep:4db992a5512733f46a4c26d8a1ae47be+21440
+  - class: Directory
+    location: keep:37f6bfa92ce9dd08e34d62edb6051603+86838
+  - class: Directory
+    location: keep:84a070c697ceec31000bf24de2cc65ba+21037
+  - class: Directory
+    location: keep:b8bcb829ee3a883bc5f4ed7e35a5d127+21037
+  - class: Directory
+    location: keep:b6c079b2a6dec889c79f4072737f8ba1+20164
+  - class: Directory
+    location: keep:713f9b8dd6ee5c1d5c82dacbd0ce8e65+21037
+  - class: Directory
+    location: keep:55dbfb376eef1a2d6547d85b3604ae96+21037
+  - class: Directory
+    location: keep:f796cb3f2c9f96b94f707ad3aa42a57d+21037
+  - class: Directory
+    location: keep:e65dea3f9460d946abdfdd323c302e9f+21037
+  - class: Directory
+    location: keep:ec7268728cc5f293f34301044306acd2+20985
+  - class: Directory
+    location: keep:fdf43161f94ef9171a8c1963e92b47e3+21037
+  - class: Directory
+    location: keep:5f1fecbc66525f0924ced98bcae5c0ca+21523
+  - class: Directory
+    location: keep:66e5991fa0f6c39648c4c2fc33114ddf+21037
+  - class: Directory
+    location: keep:c57f6713ae289b6534996aceb032bb42+20586
+  - class: Directory
+    location: keep:8a49b79303015e7381b25991b18df204+21037
+  - class: Directory
+    location: keep:9a65a4d32f1d948a08212dd1b6e73512+21037
+  - class: Directory
+    location: keep:9fcfdf94365cbff9bccc2f7ed75d951e+21037
+  - class: Directory
+    location: keep:45d0e870bd2d26d5b34b1aa65d8e48b5+21037
+  - class: Directory
+    location: keep:6a02e00dcfe7dda5ce7a68b0cd547d4b+21037
+  - class: Directory
+    location: keep:e887895e2d866e4ce98a56ae8edfda86+20978
+  - class: Directory
+    location: keep:f09b0c7feb0f70c76f28471c9b45bdfc+21513
+  - class: Directory
+    location: keep:578d8a6e623d7b9c36c85aabc08fc11d+21037
+  - class: Directory
+    location: keep:4937ca42877ff56d32f0155d03c72721+20421
+  - class: Directory
+    location: keep:43779f0116bf633ca757c029bc72c283+7877
+  - class: Directory
+    location: keep:a9a04ce62720f93c97ac292f3a0fc565+21037
+  - class: Directory
+    location: keep:ae042538726c56c73158ec979a3aab78+17520
+  - class: Directory
+    location: keep:132fd51727f13ffc5d146e2b5879bc0a+21037
+  - class: Directory
+    location: keep:b70d5cd30bec2518977dd0f4264c31c6+21037
+  - class: Directory
+    location: keep:9d65f08e988b2e1099a7484fbded50f0+21037
+  - class: Directory
+    location: keep:f4f743252457b49968b36b87e2d892de+21037
+  - class: Directory
+    location: keep:b9846a7d4328a5d5ae489ddf2fdcbd77+20923
+  - class: Directory
+    location: keep:00c9233f5bbd92975019dfa9d7b85d95+21037
+  - class: Directory
+    location: keep:c67daae4ad6e6dbb723da66b06852b40+21519
+  - class: Directory
+    location: keep:14a37d50a3be9facfa187e88d5d2181e+21037
+  - class: Directory
+    location: keep:76db97f00e45b2d1bcd802a27c12cc8f+21079
+  - class: Directory
+    location: keep:82e07421ee8c32d40f23a4563f8fb75e+21442
+  - class: Directory
+    location: keep:35a7ea114db1b31d210a482f314faaa0+21037
+  - class: Directory
+    location: keep:67438d55eae3831633b8203732bb16e9+21037
+  - class: Directory
+    location: keep:d1e690b74aa49248719c58c4d0ba79b3+21037
+  - class: Directory
+    location: keep:551267f171357ef3fbbdde531ded3f2c+21037
+  - class: Directory
+    location: keep:c7b5f19064c6565020cd3fba15d8afb4+20927
+  - class: Directory
+    location: keep:a95ca99d6bc784b0e8fad8c80e526b5f+21037
+  - class: Directory
+    location: keep:d64d3dd3f11f1611efa23baa4994e87a+21037
+  - class: Directory
+    location: keep:7df93e28b40be1740f6c4ca510b2970f+21443
+  - class: Directory
+    location: keep:5e1dad08f1139addc7e1c21b69a5c2a8+21037
+  - class: Directory
+    location: keep:3206c2a7abd99a59e86bab81fb4e3754+21518
+  - class: Directory
+    location: keep:41bb1ba630a91f1c599a4890380caf80+86846
+  - class: Directory
+    location: keep:9614163f41df1585913d71526592004b+20757
+  - class: Directory
+    location: keep:db85f1601caadbdff8119d9e35d19cdb+86851
+  - class: Directory
+    location: keep:756e93603f4c4e6a5c8d36c48b191d19+21037
+  - class: Directory
+    location: keep:9cb7b46a661eda4b9255714a31eaee1c+21037
+  - class: Directory
+    location: keep:fa0402547d3a2ef224c8cec0a730ce32+21037
+  - class: Directory
+    location: keep:2e21c7cfd65354721f78606c987e449c+21037
+  - class: Directory
+    location: keep:a5296a9562fba84c7fefc57892addb2f+20978
+  - class: Directory
+    location: keep:1a17c7abc302e83a6bdda1dfc0f11f61+21037
+  - class: Directory
+    location: keep:64f07308131a03f5b93430a18a248dba+21528
+  - class: Directory
+    location: keep:7be8cdbe73c0717629a2c58abfb1a0a2+21037
+  - class: Directory
+    location: keep:9daea4925475221439048da5c97b80f9+21037
+  - class: Directory
+    location: keep:8a107d64077d26e39d3cd0900ddebb4e+21444
+  - class: Directory
+    location: keep:cee972e2fb687639320459497292eccf+20756
+  - class: Directory
+    location: keep:722874b6ddd947bbf34d11abdb4271bf+21037
+  - class: Directory
+    location: keep:d1b77ec53bdc9d9ac0ec0decd897e0fc+21037
+  - class: Directory
+    location: keep:f99b35068e9972e7bf893f01585c3231+21037
+  - class: Directory
+    location: keep:596a0a3a2b58ad354b9facd67c4f93c8+21037
+  - class: Directory
+    location: keep:56085a1717dbaa43feff2f1ed2d6ae7d+21436
+  - class: Directory
+    location: keep:0983df98a1d602a4434cbe327921ee42+21037
+  - class: Directory
+    location: keep:26b43654a8d419d40b197bd06ab438d9+21037
+  - class: Directory
+    location: keep:605b33acec8750852b8201e0ae98cf94+20923
+  - class: Directory
+    location: keep:8ee6e30a40156e4692328a56dcc06327+21521
+  - class: Directory
+    location: keep:a3a7bb8b4c99611fc152dbf321ee0a5b+21037
+  - class: Directory
+    location: keep:21ef9096b769c5ae945a24b7eaab7c52+5418
+  - class: Directory
+    location: keep:bb9f328605f0f597cecd4992c4cc91ea+21037
+  - class: Directory
+    location: keep:1fbd348efbfdcff58423cc808520490a+20787
+  - class: Directory
+    location: keep:ad6b5b7935f86ce26995b6b8b127e04b+21037
+  - class: Directory
+    location: keep:41f10a76531d35d29bdf45c561d19678+21037
+  - class: Directory
+    location: keep:80961e5505ecb0079c4477ed0001b21f+21037
+  - class: Directory
+    location: keep:1aaf3b528c72d94732c1cf18e047bca9+20922
+  - class: Directory
+    location: keep:7e338ffddacf4e247e03a4836856e585+21519
+  - class: Directory
+    location: keep:5860af9f92b6759227c4ab8a0bf8c463+21037
+  - class: Directory
+    location: keep:f87e293e0771107c2ed0231cef1dc331+21037
+  - class: Directory
+    location: keep:f8b88a16a2521531b8bb2a5de8043f68+21533
+  - class: Directory
+    location: keep:07d825d8cc3ee5e60aa365360e1052e5+21037
+  - class: Directory
+    location: keep:ac2cf9dbf715d2f3d7c56bf558c94214+21037
+  - class: Directory
+    location: keep:7709b885a502ce29a28384550a7ab40a+21037
+  - class: Directory
+    location: keep:39203af39d34284eee108dc966ee46f4+20978
+  - class: Directory
+    location: keep:db75f38419f25ad2ecb46c86e3f17d72+21037
+  - class: Directory
+    location: keep:3f75ed86079ce6f9c502609896adb7c1+21037
+  - class: Directory
+    location: keep:7288a896d67f4e8151b2ce66743da086+21523
+  - class: Directory
+    location: keep:10b80de1f92992b056e7068d81321b3b+21037
+  - class: Directory
+    location: keep:465f9957778cea2b0173667ad6c2cb68+21037
+  - class: Directory
+    location: keep:8bad3d6a943df3c7e9d37422eabf78d0+20979
+  - class: Directory
+    location: keep:7013b729faee9bcc20ef702568869fd9+21037
+  - class: Directory
+    location: keep:6581830f52d747d04fa6bba5a13fbf0e+21519
+  - class: Directory
+    location: keep:b7b0ad7d8c9f9953183e151928a7c9c0+21467
+  - class: Directory
+    location: keep:af2a0fbfc4c3176fc1f7f5cf218a90de+21521
+  - class: Directory
+    location: keep:209a1c955c53c10d53384f75c6d252e8+21444
+  - class: Directory
+    location: keep:5311e8a7770129c08dd16a41ed94c5eb+21441
+  - class: Directory
+    location: keep:aa08b00b2270276ab21a7923e7585050+21449
+  - class: Directory
+    location: keep:e0ac7e2ab8c6d35e3d8a2603c9aa37a5+21452

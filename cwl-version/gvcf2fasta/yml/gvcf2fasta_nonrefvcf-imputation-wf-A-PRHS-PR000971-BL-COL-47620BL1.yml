@@ -1,0 +1,21 @@
+gqcutoff: 20
+genomebed:
+  class: File
+  location: keep:67b4d7e55e61cef7343f3928af97e197+54/hg38.bed
+ref:
+  class: File
+  location: keep:ee5b90cf2d5f3573e6d455ab56e15cdf+761/hg38.fa.gz
+sampleid: "A-PRHS-PR000971-BL-COL-47620BL1"
+vcf:
+  class: File
+  location: keep:4cba97691d17f8542116c74ca6c1d89d+2045/A-PRHS-PR000971-BL-COL-47620BL1_vcpa1.1.allchr_g.vcf.gz
+chrs: ["chr1","chr2","chr3","chr4","chr5","chr6","chr7","chr8","chr9","chr10","chr11","chr12","chr13","chr14","chr15","chr16","chr17","chr18","chr19","chr20","chr21","chr22", "chrX"]
+refsdir:
+  class: Directory
+  location: keep:3a1673a2230877bfaf92b50f7376529c+10590
+mapsdir:
+  class: Directory
+  location: keep:10b1baade985c576a97dfc37d12b953b+1096
+panelnocallbed:
+  class: File
+  location: keep:f0b387cc686f227748e6d49033c3f2f0+101/HG001_GRCh38_1_22_v4.2.1_benchmark_nocall.bed

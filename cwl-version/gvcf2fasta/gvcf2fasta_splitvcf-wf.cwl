@@ -1,6 +1,6 @@
 cwlVersion: v1.1
 class: Workflow
-label: Convert gVCF to FASTA for gVCF tar split by chromosome
+label: Convert gVCF to FASTA for gVCF split by chromosome
 requirements:
   ScatterFeatureRequirement: {}
 hints:
@@ -13,9 +13,9 @@ inputs:
   sampleid:
     type: string
     label: Sample ID
-  vcftar:
-    type: File
-    label: Input gVCF tar
+  splitvcfdir:
+    type: Directory
+    label: Input directory of split gVCFs
   gqcutoff:
     type: int
     label: GQ (Genotype Quality) cutoff for filtering
@@ -25,34 +25,28 @@ inputs:
   ref:
     type: File
     label: Reference FASTA
-  haplotypes:
-    type: int[]
-    label: Haplotypes of sample
-    default: [1, 2]
 
 outputs:
   fas:
     type: File[]
     label: Output pair of FASTAs
-    outputSource: bcftools-consensus/fa
+    outputSource: bcftools-consensus/fas
 
 steps:
-  untar-concat-get_bed_varonlyvcf:
-    run: untar-concat-get_bed_varonlyvcf.cwl
+  concat-get_bed_varonlyvcf:
+    run: concat-get_bed_varonlyvcf.cwl
     in:
       sampleid: sampleid
-      vcftar: vcftar
+      splitvcfdir: splitvcfdir
       gqcutoff: gqcutoff
       genomebed: genomebed
     out: [nocallbed, varonlyvcf]
 
   bcftools-consensus:
     run: bcftools-consensus.cwl
-    scatter: haplotype
     in:
       sampleid: sampleid
-      vcf: untar-concat-get_bed_varonlyvcf/varonlyvcf
+      vcf: concat-get_bed_varonlyvcf/varonlyvcf
       ref: ref
-      haplotype: haplotypes
-      mask: untar-concat-get_bed_varonlyvcf/nocallbed
-    out: [fa]
+      mask: concat-get_bed_varonlyvcf/nocallbed
+    out: [fas]

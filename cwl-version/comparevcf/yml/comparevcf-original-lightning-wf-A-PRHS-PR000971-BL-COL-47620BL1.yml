@@ -1,21 +1,19 @@
-gqcutoff: 20
-genomebed:
-  class: File
-  location: keep:67b4d7e55e61cef7343f3928af97e197+54/hg38.bed
-ref:
-  class: File
-  location: keep:ee5b90cf2d5f3573e6d455ab56e15cdf+761/hg38.fa.gz
-sampleid: A-PRHS-PR000971-BL-COL-47620BL1
+sampleid: "A-PRHS-PR000971-BL-COL-47620BL1"
 vcf:
   class: File
-  location: keep:4cba97691d17f8542116c74ca6c1d89d+2045/A-PRHS-PR000971-BL-COL-47620BL1_vcpa1.1.allchr_g.vcf.gz
-lightningvcfdir:
-  class: Directory
-  location: keep:72c196515d6c449abc1fdbf1ead2a33e+1779
-header:
+  location: keep:ebd528706c3192b77e56ebe93361194e+553/A-PRHS-PR000971-BL-COL-47620BL1_varonly.vcf.gz
+nocallbed:
   class: File
-  location: keep:df9c4a9649ca262acc2403f749a7e107+54/header
+  location: keep:ebd528706c3192b77e56ebe93361194e+553/A-PRHS-PR000971-BL-COL-47620BL1_nocall.bed
+lightningvcf:
+  class: File
+  location: keep:4626bd8ca6b3ed8f1ef32dfd46815505+378/GRCh38.86_library_snpeff_dbsnp_gnomad.vcf.gz
 sdf:
   class: Directory
   location: keep:88c64c60daf829f30187fbcb423a46fc+1355/hg38
-  
+bashscript:
+  class: File
+  location: ../src/change-GT.sh
+header:
+  class: File
+  location: keep:73394b577d9109cd266f5facfbd1e000+54/header

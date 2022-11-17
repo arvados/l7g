@@ -14,7 +14,7 @@ expandregions_array: [0]
 phenotypesdir:
   class: Directory
   location: keep:2xpu4-4zz18-yq0njnojx7kaj34
-readmeinfo: ["2022-03-22", "called using VCPA1.1 pipeline", "https://workbench.2xpu4.arvadosapi.com/projects/2xpu4-j7d0g-50i3pwf3a16ubbf"]
+readmeinfo: ["2022-08-23", "called using VCPA1.1 pipeline", "https://workbench.2xpu4.arvadosapi.com/projects/2xpu4-j7d0g-50i3pwf3a16ubbf"]
 chrs:
   - "chr1"
   - "chr2"

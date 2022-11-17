@@ -2,7 +2,7 @@ $namespaces:
   arv: "http://arvados.org/cwl#"
 cwlVersion: v1.1
 class: Workflow
-label: Scatter to convert gVCF to FASTA
+label: Scatter to impute gVCF and convert gVCF to FASTA
 requirements:
   SubworkflowFeatureRequirement: {}
   ScatterFeatureRequirement: {}
@@ -26,6 +26,11 @@ inputs:
   ref:
     type: File
     label: Reference FASTA
+  chrs: string[]
+  refsdir: Directory
+  mapsdir: Directory
+  panelnocallbed: File
+  panelcallbed: File
 
 outputs:
   fas:
@@ -35,11 +40,11 @@ outputs:
         type: array
         items: File
     label: Output pairs of FASTAs
-    outputSource: gvcf2fasta_splitvcf-wf/fas
+    outputSource: gvcf2fasta_splitvcf-imputation-wf/fas
 
 steps:
-  gvcf2fasta_splitvcf-wf:
-    run: gvcf2fasta_splitvcf-wf.cwl
+  gvcf2fasta_splitvcf-imputation-wf:
+    run: gvcf2fasta_splitvcf-imputation-wf.cwl
     scatter: [sampleid, splitvcfdir]
     scatterMethod: dotproduct
     in:
@@ -48,4 +53,9 @@ steps:
       gqcutoff: gqcutoff
       genomebed: genomebed
       ref: ref
+      chrs: chrs
+      refsdir: refsdir
+      mapsdir: mapsdir
+      panelnocallbed: panelnocallbed
+      panelcallbed: panelcallbed
     out: [fas]

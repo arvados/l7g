@@ -1,0 +1,11 @@
+sample: "A-PRHS-PR000971-BL-COL-47620BL1"
+vcf:
+  class: File
+  location: keep:4bb2da1e66635abad432315cb5c13021+553/A-PRHS-PR000971-BL-COL-47620BL1_varonly.vcf.gz
+includebed:
+  class: File
+  location: keep:4bb2da1e66635abad432315cb5c13021+553/A-PRHS-PR000971-BL-COL-47620BL1_nocall.bed
+excludebed:
+  class: File
+  location: keep:4bb2da1e66635abad432315cb5c13021+553/A-PRHS-PR000971-BL-COL-47620BL1_nocall.bed
+

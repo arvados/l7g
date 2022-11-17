@@ -1,19 +1,21 @@
 cwlVersion: v1.1
 class: Workflow
-label: Convert gVCF to FASTA for gVCF with NON_REF
+label: Convert gVCF to FASTA for gVCF tar split by chromosome
 requirements:
   ScatterFeatureRequirement: {}
 hints:
   DockerRequirement:
     dockerPull: vcfutil
+  ResourceRequirement:
+    ramMin: 5000
 
 inputs:
   sampleid:
     type: string
     label: Sample ID
-  vcf:
+  vcftar:
     type: File
-    label: Input gVCF
+    label: Input gVCF tar
   gqcutoff:
     type: int
     label: GQ (Genotype Quality) cutoff for filtering
@@ -23,28 +25,34 @@ inputs:
   ref:
     type: File
     label: Reference FASTA
+  haplotypes:
+    type: int[]
+    label: Haplotypes of sample
+    default: [1, 2]
 
 outputs:
   fas:
     type: File[]
     label: Output pair of FASTAs
-    outputSource: bcftools-consensus/fas
+    outputSource: bcftools-consensus/fa
 
 steps:
-  fixvcf-get_bed_varonlyvcf:
-    run: fixvcf-get_bed_varonlyvcf.cwl
+  untar-concat-get_bed_varonlyvcf:
+    run: untar-concat-get_bed_varonlyvcf.cwl
     in:
       sampleid: sampleid
-      vcf: vcf
+      vcftar: vcftar
       gqcutoff: gqcutoff
       genomebed: genomebed
     out: [nocallbed, varonlyvcf]
 
   bcftools-consensus:
     run: bcftools-consensus.cwl
+    scatter: haplotype
     in:
       sampleid: sampleid
-      vcf: fixvcf-get_bed_varonlyvcf/varonlyvcf
+      vcf: untar-concat-get_bed_varonlyvcf/varonlyvcf
       ref: ref
-      mask: fixvcf-get_bed_varonlyvcf/nocallbed
-    out: [fas]
+      haplotype: haplotypes
+      mask: untar-concat-get_bed_varonlyvcf/nocallbed
+    out: [fa]

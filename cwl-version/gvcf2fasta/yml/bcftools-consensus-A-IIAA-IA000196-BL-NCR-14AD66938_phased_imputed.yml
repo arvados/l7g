@@ -1,0 +1,11 @@
+sampleid: "A-IIAA-IA000196-BL-NCR-14AD66938_phased_imputed"
+vcf:
+  class: File
+  location: keep:827ea468c00a16bf711bd215ea2ce2e6+175/A-IIAA-IA000196-BL-NCR-14AD66938_phased_imputed.vcf.gz
+ref:
+  class: File
+  location: keep:ee5b90cf2d5f3573e6d455ab56e15cdf+761/hg38.fa.gz
+haplotype: 1
+mask:
+  class: File
+  location: keep:17670aabfa66091b19c8c2fbfb35cbf9+145/A-IIAA-IA000196-BL-NCR-14AD66938_intersect.bed

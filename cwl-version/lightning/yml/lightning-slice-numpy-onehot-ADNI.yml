@@ -1,0 +1,10 @@
+matchgenome: "ADNI"
+libdir:
+  class: Directory
+  location: keep:5b615d7692137b25e0411801e7c37b0c+656435
+threads: 10
+mergeoutput: "false"
+expandregions: 0
+phenotypesdir:
+  class: Directory
+  location: keep:9b76b33c948bba77f2bf58f915cff9f4+120

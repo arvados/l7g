@@ -7,7 +7,9 @@ sample=$1
 vcf=$2
 
 total=`zcat $vcf | awk '!(/^#/)' | wc -l`
+rsid=`zcat $vcf | awk '(!(/^#/) && /rs/)' | wc -l`
 gnomad=`zcat $vcf | awk '(!(/^#/) && /AF/)' | wc -l`
-percentage=`awk -v n="$gnomad" -v d="$total" 'BEGIN {print n/d*100}'`
+rsidpercentage=`awk -v n="$rsid" -v d="$total" 'BEGIN {print n/d*100}'`
+gnomadpercentage=`awk -v n="$gnomad" -v d="$total" 'BEGIN {print n/d*100}'`
 
-echo "$sample: $gnomad out of $total variants ($percentage%) have gnomad AF"
+echo "$sample: $total total variants, $rsid variants ($rsidpercentage%) have rsID, $gnomad variants ($gnomadpercentage%) have gnomad AF"

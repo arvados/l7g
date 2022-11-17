@@ -1,0 +1,7 @@
+saveincomplete: "true"
+tagset:
+  class: File
+  location: keep:c37923fd267415556962d5c535e9b075+110/tagset.fa.gz
+fastadirs:
+  - class: Directory
+    location: keep:3cf4b6ed2bf8cd3abc27cb5a79641a86+755

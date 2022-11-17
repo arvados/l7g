@@ -2,21 +2,23 @@ $namespaces:
   arv: "http://arvados.org/cwl#"
 cwlVersion: v1.1
 class: Workflow
-label: Scatter to convert gVCF to FASTA
+label: Scatter to Convert gVCF to FASTA
 requirements:
   SubworkflowFeatureRequirement: {}
   ScatterFeatureRequirement: {}
 hints:
   DockerRequirement:
     dockerPull: vcfutil
+  arv:IntermediateOutput:
+    outputTTL: 604800
 
 inputs:
   sampleids:
     type: string[]
     label: Sample IDs
-  splitvcfdirs:
-    type: Directory[]
-    label: Input directory of split gVCFs
+  vcftars:
+    type: File[]
+    label: Input VCF tars
   gqcutoff:
     type: int
     label: GQ (Genotype Quality) cutoff for filtering
@@ -40,11 +42,11 @@ outputs:
 steps:
   gvcf2fasta_splitvcf-wf:
     run: gvcf2fasta_splitvcf-wf.cwl
-    scatter: [sampleid, splitvcfdir]
+    scatter: [sampleid, vcftar]
     scatterMethod: dotproduct
     in:
       sampleid: sampleids
-      splitvcfdir: splitvcfdirs
+      vcftar: vcftars
       gqcutoff: gqcutoff
       genomebed: genomebed
       ref: ref

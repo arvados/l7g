@@ -21,7 +21,7 @@ inputs:
   threads: int
   mergeoutput: string
   expandregions: int
-  phenotypesdir: Directory
+  samplescsv: File
 outputs:
   outdir:
     type: Directory
@@ -31,10 +31,6 @@ outputs:
     type: File[]
     outputBinding:
       glob: "*npy"
-  samplescsv:
-    type: File
-    outputBinding:
-      glob: "samples.csv"
 baseCommand: [lightning, slice-numpy]
 arguments:
   - "-local=true"
@@ -59,10 +55,9 @@ arguments:
   - prefix: "-expand-regions="
     valueFrom: $(inputs.expandregions)
     separate: false
-  - "-single-onehot=true"
-  - prefix: "-chi2-case-control-file="
-    valueFrom: $(inputs.phenotypesdir)
+  - prefix: "-samples="
+    valueFrom: $(inputs.samplescsv)
     separate: false
-  - "-chi2-case-control-column=AD"
+  - "-single-onehot=true"
   - "-chi2-p-value=0.01"
   - "-min-coverage=0.9"

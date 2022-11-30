@@ -12,3 +12,9 @@ matchgenome: ""
 threads: 10
 mergeoutput: "false"
 expandregions: 0
+phenotypesdir:
+  class: Directory
+  location: keep:8508667def6057f0bbf0ab4f751d8b05+205
+trainingsetsize: 0.8
+randomseed: 0
+pcacomponents: 10

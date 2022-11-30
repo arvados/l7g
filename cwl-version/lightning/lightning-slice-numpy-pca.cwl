@@ -10,7 +10,7 @@ hints:
     dockerPull: lightning
   ResourceRequirement:
     coresMin: 64
-    ramMin: 660000
+    ramMin: 1500000
   arv:RuntimeConstraints:
     keep_cache: 83000
     outputDirType: keep_output_dir
@@ -22,19 +22,20 @@ inputs:
   mergeoutput: string
   expandregions: int
   samplescsv: File
+  pcacomponents: int
 outputs:
   outdir:
     type: Directory
     outputBinding:
       glob: "."
-  npys:
-    type: File[]
-    outputBinding:
-      glob: "matrix.*.npy"
-  chunktagoffsetcsv:
+  pcanpy:
     type: File
     outputBinding:
-      glob: "chunk-tag-offset.csv"
+      glob: "pca.npy"
+  pcasamplescsv:
+    type: File
+    outputBinding:
+      glob: "samples.csv"
 baseCommand: [lightning, slice-numpy]
 arguments:
   - "-local=true"
@@ -62,3 +63,9 @@ arguments:
   - prefix: "-samples="
     valueFrom: $(inputs.samplescsv)
     separate: false
+  - "-pca=true"
+  - prefix: "-pca-components="
+    valueFrom: $(inputs.pcacomponents)
+    separate: false
+  - "-min-coverage=0.98"
+  - "-max-pca-tiles=100000"

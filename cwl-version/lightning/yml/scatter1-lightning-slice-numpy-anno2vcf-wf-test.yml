@@ -1,8 +1,0 @@
-matchgenome_array: ["ACT", "ACT|ADC", ""]
-libdir:
-  class: Directory
-  location: keep:0eb748be8b4ce392eb405b71199a2ef1+54032
-regions: null
-threads: 10
-mergeoutput: "false"
-expandregions: 0

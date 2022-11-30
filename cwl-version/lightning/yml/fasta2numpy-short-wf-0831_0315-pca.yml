@@ -1,55 +1,23 @@
 tagset:
   class: File
   location: keep:c37923fd267415556962d5c535e9b075+110/tagset.fa.gz
-refdirs:
-  - class: Directory
-    location: keep:ee5b90cf2d5f3573e6d455ab56e15cdf+761
+refdir:
+  class: Directory
+  location: keep:ee5b90cf2d5f3573e6d455ab56e15cdf+761
 batchsize: 12
-matchgenome_array: [""]
-regions_nestedarray:
-  - - null
-threads_array: [10]
-mergeoutput_array: ["false"]
-expandregions_array: [0]
+matchgenome: ""
+threads: 10
+mergeoutput: "false"
+expandregions: 0
 phenotypesdir:
   class: Directory
-  location: keep:2xpu4-4zz18-yq0njnojx7kaj34
-readmeinfo: ["2022-08-23", "called using VCPA1.1 pipeline", "https://workbench.2xpu4.arvadosapi.com/projects/2xpu4-j7d0g-50i3pwf3a16ubbf"]
-chrs:
-  - "chr1"
-  - "chr2"
-  - "chr3"
-  - "chr4"
-  - "chr5"
-  - "chr6"
-  - "chr7"
-  - "chr8"
-  - "chr9"
-  - "chr10"
-  - "chr11"
-  - "chr12"
-  - "chr13"
-  - "chr14"
-  - "chr15"
-  - "chr16"
-  - "chr17"
-  - "chr18"
-  - "chr19"
-  - "chr20"
-  - "chr21"
-  - "chr22"
-  - "chrX"
-  - "chrY"
-snpeffdatadir:
+  location: keep:8508667def6057f0bbf0ab4f751d8b05+205
+phenotypesnofamilydir:
   class: Directory
-  location: keep:66c966928931de252274772c76f73025+52054
-genomeversion_array: ["GRCh38.86"]
-dbsnp:
-  class: File
-  location: keep:a088b297d614e4c63cbb23f8ad404438+12313/00-All.vcf.gz_renamed.bcf
-gnomaddir:
-  class: Directory
-  location: keep:c6a8fc877e85d73ac5b165e2d7367e26+675135
+  location: keep:9b76b33c948bba77f2bf58f915cff9f4+120
+trainingsetsize: 0.8
+randomseed: 0
+pcacomponents: 10
 fastadirs:
   - class: Directory
     location: keep:7f3ba4ea8d7504ce040da01507c71f6f+138479

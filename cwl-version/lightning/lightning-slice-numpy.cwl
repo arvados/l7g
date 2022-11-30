@@ -21,7 +21,7 @@ inputs:
   threads: int
   mergeoutput: string
   expandregions: int
-  samplescsv: File
+  samplescsv: File?
 outputs:
   outdir:
     type: Directory

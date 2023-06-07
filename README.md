@@ -1,3 +1,7 @@
+**This repository has been retired, it has been superceded by https://github.com/arvados/lightning**
+
+Old README follows
+
 l7g
 ===
 

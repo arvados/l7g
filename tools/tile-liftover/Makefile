@@ -1,6 +1,6 @@
-CPP=g++
+CXX:=g++
 #OPT=-O3
-OPT=-g
+CXXFLAGS+=-g
 LIBS=-L../../lib/asmukk -I../../lib/asmukk ../../lib/asmukk/asm_ukk.a
 
 all: tile-liftover tile-assembly-index
@@ -10,7 +10,7 @@ clean:
 	rm -f tile-liftover tile-assembly-index
 
 tile-liftover: tile-liftover.cpp
-	g++ $(OPT) tile-liftover.cpp -o tile-liftover $(LIBS)
+	$(CXX) $(LDFLAGS) $(CPPFLAGS) $(CXXFLAGS) tile-liftover.cpp -o tile-liftover $(LIBS)
 
 tile-assembly-index: tile-assembly-index.cpp
-	g++ $(OPT) tile-assembly-index.cpp -o tile-assembly-index
+	$(CXX) $(LDFLAGS) $(CPPFLAGS) $(CXXFLAGS) tile-assembly-index.cpp -o tile-assembly-index

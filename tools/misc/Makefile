@@ -1,4 +1,4 @@
-OPT=-O3
+CXXFLAGS+=-O3
 LIBS=
 cleanvcf: cleanvcf.cpp
-	g++ ${OPT} cleanvcf.cpp -o cleanvcf
+	$(CXX) $(LDFLAGS) $(CPPFLAGS) $(CXXFLAGS) cleanvcf.cpp -o cleanvcf
